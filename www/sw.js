@@ -1,4 +1,4 @@
-const CACHE = "muhurta-gauge-v1";
+const CACHE = "muhurta-gauge-v2";
 const ASSETS = [
   "./index.html",
   "./manifest.json",
@@ -29,9 +29,27 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Cache-first, falling back to network, falling back to the cached shell for navigations.
+// Navigations (the HTML shell) go network-first, so a new install/update is
+// visible immediately instead of being pinned to whatever got cached the
+// very first time the app ever launched. Falls back to the cached shell only
+// when there's no network. Static assets (icons, manifest) stay cache-first
+// since they change rarely and cache-first keeps the app usable offline.
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+          return res;
+        })
+        .catch(() => caches.match(event.request).then((c) => c || caches.match("./index.html")))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
@@ -41,7 +59,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE).then((cache) => cache.put(event.request, copy));
           return res;
         })
-        .catch(() => (event.request.mode === "navigate" ? caches.match("./index.html") : undefined));
+        .catch(() => undefined);
     })
   );
 });
