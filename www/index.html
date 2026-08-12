@@ -400,6 +400,7 @@
         <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Auspicious Calendar</button>
         <button type="button" data-page="pageAntara" data-i18n="navAntara">Antara Chakra (Portents)</button>
         <button type="button" data-page="pageRemedies" data-i18n="navRemedies">Remedies &amp; Combinations</button>
+        <button type="button" data-page="pageCommodities" data-i18n="navCommodities">Commodity Signals</button>
       </div>
     </div>
     <div>
@@ -540,6 +541,10 @@
   <div class="result-col" id="remediesPageContent" style="max-width:900px; margin:0 auto;"></div>
 </div>
 
+<div id="pageCommodities" class="page">
+  <div class="result-col" id="commoditiesPageContent" style="max-width:900px; margin:0 auto;"></div>
+</div>
+
 
 <script>
 /* =========================================================================
@@ -596,6 +601,7 @@ const I18N = {
   navCalendar: { en:`Auspicious Calendar`, es:`Calendario auspicioso` },
   navAntara: { en:`Antara Chakra (Portents)`, es:`Antara Chakra (Presagios)` },
   navRemedies: { en:`Remedies &amp; Combinations`, es:`Remedios y Combinaciones` },
+  navCommodities: { en:`Commodity Signals`, es:`Señales de Materias Primas` },
   profileLbl: { en:`Saved profile`, es:`Perfil guardado` },
   profileNamePh: { en:`Profile name…`, es:`Nombre del perfil…` },
   profileSave: { en:`Save`, es:`Guardar` },
@@ -1042,6 +1048,90 @@ const PRASNA_DIRECTION_REMEDY = [
   {dir:"Northeast", dirEs:"Noreste",      deity:"Śiva",                  remedy:"Arrange bhajanas, sacred dance, and recitation of scripture and the Vedas.",
     remedyEs:"Organiza bhajanas, danza sagrada y recitación de escrituras y los Vedas."}
 ];
+
+/* =========================================================================
+   COMMODITY SIGNALS — Bṛhat Saṁhitā (N. Chidambaram tr., 1884), Ch. XLI
+   ("On Commodities") and Ch. XLII ("On the Price of Commodities"). Ch. XL
+   ("Sasya Jātaka", vegetable horoscopy) forecasts crop yield from the Sun's
+   entry into Scorpio/Taurus through many mutually-conditional stanzas that
+   don't reduce to a single clean live check; it's cited in this page's
+   methodology note but not computed.
+   ========================================================================= */
+
+// Ch. XLI, śl. 2-8 — the commodities each zodiac sign governs.
+const SIGN_COMMODITIES = {
+  Aries:       { en:["Cotton & woollen fabric","Leather oil-jars","Beans","Wheat","Rāgī","Barley","Dry crops generally","Gold"],
+                 es:["Algodón y tela de lana","Tinajas de aceite de cuero","Frijoles","Trigo","Rāgī","Cebada","Cultivos secos en general","Oro"] },
+  Taurus:      { en:["Cloth generally","Flowers","Wheat","Rice","Barley","Buffaloes","Cows"],
+                 es:["Telas en general","Flores","Trigo","Arroz","Cebada","Búfalos","Vacas"] },
+  Gemini:      { en:["Autumnal crops","Creepers","Lily root","Cotton"],
+                 es:["Cultivos otoñales","Enredaderas","Raíz de lirio","Algodón"] },
+  Cancer:      { en:["Kodrava (millet)","Plantains","Bent grass","Fruits","Roots","Leaves","Bark"],
+                 es:["Kodrava (mijo)","Plátanos","Pasto doblado","Frutas","Raíces","Hojas","Corteza"] },
+  Leo:         { en:["Food grains","Sugarcane juice products","Hides","Jaggery"],
+                 es:["Granos alimenticios","Productos de jugo de caña","Pieles","Jaggery (panela)"] },
+  Virgo:       { en:["Common flax","Barley","Horse gram","Wheat","Kidney beans","Nishpava (a legume)"],
+                 es:["Lino común","Cebada","Garbanzo caballar","Trigo","Frijoles riñón","Nishpava (legumbre)"] },
+  Libra:       { en:["Black gram","Wheat","Mustard seed"],
+                 es:["Gramo negro","Trigo","Semilla de mostaza"] },
+  Scorpio:     { en:["Sugarcane","Wet (irrigated) grains","Metals","Woollen fabric"],
+                 es:["Caña de azúcar","Granos de regadío","Metales","Tela de lana"] },
+  Sagittarius: { en:["Horses","Salt","Cloth","Weapons","Gingelly (sesame) seeds","Roots"],
+                 es:["Caballos","Sal","Tela","Armas","Semillas de ajonjolí","Raíces"] },
+  Capricorn:   { en:["Timber","Shrubs","Wet grains","Sugarcane","Gold","Black-lead (galena)"],
+                 es:["Madera","Arbustos","Granos de regadío","Caña de azúcar","Oro","Plomo negro (galena)"] },
+  Aquarius:    { en:["Water-fruits & flowers","Gems","Articles of varied shape"],
+                 es:["Frutas y flores acuáticas","Gemas","Artículos de formas variadas"] },
+  Pisces:      { en:["Pearls & shell-gems","Diamonds","Various oils","Fish"],
+                 es:["Perlas y gemas de concha","Diamantes","Aceites diversos","Pescado"] }
+};
+
+// Ch. XLI, śl. 10 (Venus) and śl. 10-11 (malefics) — the two unambiguous
+// house-based rules in this chapter. Jupiter's (śl. 9) and Mercury's (śl. 9)
+// house-lists are also given in the source, but the surviving 1884
+// translation runs all three planets' conditions into one compound sentence
+// ("...the articles...will perish; and if he occupies any of the other
+// houses...will flourish") whose singular "he" grammatically resolves only
+// to Venus — so which houses make Jupiter/Mercury's placement favourable
+// vs. unfavourable can't be recovered with confidence from this text. This
+// app shows Jupiter's and Mercury's current house from each sign as
+// informational context but does not assert a perish/flourish verdict from
+// them (flagged in the UI and the methodology footer).
+const VENUS_PERISH_HOUSES = [6,7];
+const MALEFIC_FLOURISH_HOUSES = [3,6,10,11];
+
+// Ch. XLII, śl. 3-12 — storage/resale guidance keyed to the Sun's sign, each
+// stanza explicitly conditioned (śl. 1-2) on a portentous sign (excessive
+// rain, meteor-fall, a "Danda" apparition, halo, eclipse or parhelion)
+// having occurred on the New/Full Moon of that month. This app can't detect
+// those celestial omens, so the table is shown as reference guidance keyed
+// to the Sun's current sign rather than an asserted live signal.
+const SUN_SIGN_TRADE_GUIDANCE = {
+  Aries:       { verb:"buy",   en:"the season's produce of the land", es:"la producción de la temporada",
+                 months:null, profit:null, profitEs:null },
+  Taurus:      { verb:"store", en:"wild roots and fruits", es:"raíces y frutas silvestres",
+                 months:4, profit:"much profit", profitEs:"mucha ganancia" },
+  Gemini:      { verb:"store", en:"juicy articles and grains", es:"artículos jugosos y granos",
+                 months:6, profit:"much profit", profitEs:"mucha ganancia" },
+  Cancer:      { verb:"store", en:"honey, perfumes, oil, ghee and sugar", es:"miel, perfumes, aceite, ghee y azúcar",
+                 months:2, profit:"double value — but only exactly at 2 months; earlier or later brings loss", profitEs:"el doble de su valor — pero solo exactamente a los 2 meses; antes o después trae pérdida" },
+  Leo:         { verb:"store", en:"gold, gems, leather, armour, weapons, pearls and silver", es:"oro, gemas, cuero, armadura, armas, perlas y plata",
+                 months:5, profit:"much profit — but only exactly at 5 months; earlier or later brings loss", profitEs:"mucha ganancia — pero solo exactamente a los 5 meses; antes o después trae pérdida" },
+  Virgo:       { verb:"buy",   en:"fans (chāmara), asses, camels and horses", es:"abanicos (chāmara), asnos, camellos y caballos",
+                 months:6, profit:"double value", profitEs:"el doble de su valor" },
+  Libra:       { verb:"store", en:"yarn goods, crystal ware, gold-coloured flowers and grains", es:"artículos de hilo, cristalería, flores color oro y granos",
+                 months:6, profit:"double value", profitEs:"el doble de su valor" },
+  Scorpio:     { verb:"store", en:"long-lasting fruits and roots, and precious stones", es:"frutas y raíces duraderas, y piedras preciosas",
+                 months:24, profit:"double value", profitEs:"el doble de su valor" },
+  Sagittarius: { verb:"store", en:"conch shells, corals, crystal articles and pearls", es:"conchas, corales, artículos de cristal y perlas",
+                 months:6, profit:"double value", profitEs:"el doble de su valor" },
+  Capricorn:   { verb:"store", en:"iron and other metals, vessels and grains", es:"hierro y otros metales, vasijas y granos",
+                 months:1, profit:"double value", profitEs:"el doble de su valor" },
+  Aquarius:    { verb:"store", en:"iron and other metals, vessels and grains", es:"hierro y otros metales, vasijas y granos",
+                 months:1, profit:"double value", profitEs:"el doble de su valor" },
+  Pisces:      { verb:"store", en:"roots, fruits, vessels and precious stones", es:"raíces, frutas, vasijas y piedras preciosas",
+                 months:6, profit:"double value", profitEs:"el doble de su valor" }
+};
 
 // Sign data — nature, lord, own/exalt/debil/moolatrikona, sign-based friendships (ch. V)
 const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
@@ -2937,6 +3027,7 @@ function showPage(pageId){
   if (pageId === 'pageCalendar') renderCalendarPage();
   if (pageId === 'pageAntara') renderAntaraChakraPage();
   if (pageId === 'pageRemedies') renderRemediesPage();
+  if (pageId === 'pageCommodities') renderCommoditiesPage();
 }
 
 // Nakṣatra Categories page — a fixed property of the reference person's own
@@ -3558,6 +3649,156 @@ function renderRemediesPage(){
   `;
 }
 
+/* =========================================================================
+   COMMODITY SIGNALS page — Bṛhat Saṁhitā ch. XLI-XLII. Always reflects the
+   real current moment (like the Pañcha Pakshi panel), independent of the
+   Muhūrta Gauge's reference person or chosen moment — "house from a sign"
+   here means counting zodiac signs forward from a reference sign, which
+   depends only on planetary longitude at this instant, not on an observer's
+   latitude/longitude/ascendant. computePositions is therefore called with
+   dummy lat/lon 0,0, same as ppContextForDate() does for the same reason.
+   ========================================================================= */
+function houseOffsetFromSign(fromSignIdx, testSignIdx){
+  return ((testSignIdx - fromSignIdx + 12) % 12) + 1; // 1 = same sign ... 12 = 12th from it
+}
+function ordinalSuffix(n){
+  if (n % 100 >= 11 && n % 100 <= 13) return 'th';
+  return {1:'st',2:'nd',3:'rd'}[n % 10] || 'th';
+}
+
+function commodityLiveNow(ayanamsaMode){
+  const n = new Date();
+  const jd = julianDay(n.getFullYear(), n.getMonth()+1, n.getDate(), n.getHours(), n.getMinutes(), n.getSeconds(), -n.getTimezoneOffset()/60);
+  const pos = computePositions(jd, 0, 0, ayanamsaMode);
+  const panch = computePanchanga(pos);
+  const signIdxOf = g => Math.floor(norm360(pos[g].sidereal)/30);
+
+  const venusSignIdx = signIdxOf('Venus');
+  const jupiterSignIdx = signIdxOf('Jupiter');
+  const mercurySignIdx = signIdxOf('Mercury');
+  const sunSignIdx = signIdxOf('Sun');
+  const maleficPos = MALEFIC_GRAHAS.map(g=>({g, signIdx:signIdxOf(g)}));
+
+  const rows = SIGNS.map((signName, idx)=>{
+    const venusOffset = houseOffsetFromSign(idx, venusSignIdx);
+    const venusVerdict = VENUS_PERISH_HOUSES.includes(venusOffset) ? 'perish' : 'flourish';
+    const maleficsFlourish = maleficPos.filter(m=>MALEFIC_FLOURISH_HOUSES.includes(houseOffsetFromSign(idx, m.signIdx))).map(m=>m.g);
+    const maleficsScarce = maleficPos.filter(m=>!MALEFIC_FLOURISH_HOUSES.includes(houseOffsetFromSign(idx, m.signIdx))).map(m=>m.g);
+    return {
+      sign: signName, venusOffset, venusVerdict, maleficsFlourish, maleficsScarce,
+      jupiterOffset: houseOffsetFromSign(idx, jupiterSignIdx),
+      mercuryOffset: houseOffsetFromSign(idx, mercurySignIdx)
+    };
+  });
+
+  // Ch. XLII śl. 14 — New/Full Moon with a benefic conjunct the Moon: prices
+  // rise; the Sun conjunct a malefic: prices fall. "Within view" (aspect) in
+  // the source isn't modelled, only direct conjunction (same sign); gated to
+  // Pūrṇimā/Amāvasyā per the chapter's own New/Full-Moon framing (śl. 1-2).
+  const isFullOrNew = panch.tithiName === 'Poornima' || panch.tithiName === 'Amavasya';
+  const priceDirection = isFullOrNew ? {
+    tithiName: panch.tithiName,
+    moonBenefics: BENEFIC_GRAHAS.filter(g=>g!=='Moon' && signIdxOf(g)===signIdxOf('Moon')),
+    sunMalefics: MALEFIC_GRAHAS.filter(g=>g!=='Sun' && signIdxOf(g)===sunSignIdx)
+  } : null;
+
+  return { rows, sunSign:SIGNS[sunSignIdx], venusSign:SIGNS[venusSignIdx], tithiName:panch.tithiName, isFullOrNew, priceDirection };
+}
+
+function renderCommoditiesPage(){
+  const container = document.getElementById('commoditiesPageContent');
+  if (!container) return;
+
+  const ay = document.getElementById('ayanamsaMode').value;
+  const live = commodityLiveNow(ay);
+  const gName = g => T(g, GRAHA_ES[g]);
+  const commoditiesOf = sign => T(SIGN_COMMODITIES[sign].en, SIGN_COMMODITIES[sign].es).join(', ');
+
+  const rowsHtml = live.rows.map(r=>{
+    const venusTag = `<span class="tag ${r.venusVerdict==='flourish'?'good':'bad'}">${gName('Venus')}: ${r.venusVerdict==='flourish' ? T('flourish','abundancia') : T('perish-risk (6th/7th house)','riesgo de escasez (casa 6.ª/7.ª)')}</span>`;
+    const maleficTags = [
+      r.maleficsFlourish.length ? `<span class="tag good">${r.maleficsFlourish.map(gName).join('/')} ${T('in 3rd/6th/10th/11th → flourish','en 3.ª/6.ª/10.ª/11.ª → abundancia')}</span>` : '',
+      r.maleficsScarce.length ? `<span class="tag bad">${r.maleficsScarce.map(gName).join('/')} ${T('elsewhere → scarce &amp; dear','en otra casa → escasez y precio alto')}</span>` : ''
+    ].filter(Boolean).join(' ');
+    return `<tr>
+      <td class="wide">${r.sign}</td>
+      <td style="font-size:11.5px;">${commoditiesOf(r.sign)}</td>
+      <td>${venusTag} ${maleficTags}
+        <div class="hint" style="margin-top:4px;">${T('Jupiter','Júpiter')} ${r.jupiterOffset}${T(ordinalSuffix(r.jupiterOffset),'.ª')}, ${T('Mercury','Mercurio')} ${r.mercuryOffset}${T(ordinalSuffix(r.mercuryOffset),'.ª')} ${T('house from this sign — no verdict asserted (see note below)','casa desde este signo — sin veredicto (ver nota abajo)')}</div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const tg = SUN_SIGN_TRADE_GUIDANCE[live.sunSign];
+  const tgVerb = tg.verb==='buy' ? T('Buy / acquire','Comprar / adquirir') : T('Store up','Almacenar');
+  const tgProfit = tg.months
+    ? T(`Classical guidance: resell in the ${tg.months}${tg.months===1?'st':(tg.months===2?'nd':(tg.months===3?'rd':'th'))} month for ${tg.profit}.`,
+        `Guía clásica: revender en el mes ${tg.months} para obtener ${tg.profitEs}.`)
+    : T('This stanza does not specify a resale timing.','Esta estrofa no especifica un plazo de reventa.');
+
+  let priceDirHtml;
+  if (live.isFullOrNew){
+    const pd = live.priceDirection;
+    const rises = pd.moonBenefics.length > 0;
+    const falls = pd.sunMalefics.length > 0;
+    priceDirHtml = `
+      <div class="kv">
+        <div class="k">${T('Today','Hoy')}</div><div class="v">${T(pd.tithiName,pd.tithiName)} — ${T('rule is active today','la regla está activa hoy')}</div>
+      </div>
+      <div class="antara-reflist" style="margin-top:8px;">
+        ${rises ? `<span class="tag good">${T('Rising signal','Señal alcista')}: ${pd.moonBenefics.map(gName).join(', ')} ${T('conjunct the Moon','en conjunción con la Luna')}</span>` : ''}
+        ${falls ? `<span class="tag bad">${T('Falling signal','Señal bajista')}: ${pd.sunMalefics.map(gName).join(', ')} ${T('conjunct the Sun','en conjunción con el Sol')}</span>` : ''}
+        ${(!rises && !falls) ? `<span class="tag neutral">${T('No benefic on the Moon or malefic on the Sun right now — no signal from this rule','Sin benéfico en la Luna ni maléfico en el Sol ahora — sin señal por esta regla')}</span>` : ''}
+      </div>`;
+  } else {
+    priceDirHtml = `<div class="hint">${T(`This rule only activates on the Full or New Moon. Today is ${live.tithiName} — not one of those days.`, `Esta regla solo se activa en Luna Llena o Nueva. Hoy es ${live.tithiName} — no es uno de esos días.`)}</div>`;
+  }
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('Commodity Signals','Señales de Materias Primas')}</h2><span class="note">${T('always live — independent of the SBC score','siempre en vivo — independiente de la puntuación SBC')}</span></div>
+      <div class="bd">
+        <div class="hint">${T('This page needs no reference person or chosen moment — like the Pañcha Pakshi panel, it always reflects the sky right now. It stands entirely apart from the Muhūrta Gauge\'s Vedha/Tārā/Latta score, which has no bearing on commodity prices in the source text.','Esta página no necesita persona de referencia ni momento elegido — como el panel de Pañcha Pakshi, siempre refleja el cielo en este momento. Es completamente independiente de la puntuación de Vedha/Tārā/Latta del Muhūrta Gauge, que no tiene relación con los precios de materias primas en el texto fuente.')}</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="hd"><h2>${T('Per-sign commodity signal','Señal de materias primas por signo')}</h2><span class="note">Bṛhat Saṁhitā, ch. XLI, śl. 2-11</span></div>
+      <div class="bd">
+        <div class="tblwrap"><table>
+          <tr><th>${T('Sign','Signo')}</th><th>${T('Commodities','Materias primas')}</th><th>${T('Live signal','Señal en vivo')}</th></tr>
+          ${rowsHtml}
+        </table></div>
+        <div class="hint" style="margin-top:10px;">${T('Venus and the malefics (Sun, Mars, Saturn, Rāhu, Ketu) each get an unambiguous house-based rule in the source. Jupiter and Mercury are also given house-lists (śl. 9), but the surviving 1884 translation compresses all three planets\' conditions into one run-on sentence whose "he...will flourish" grammatically resolves only to Venus — so this app shows Jupiter\'s and Mercury\'s current house from each sign for reference without asserting which of their positions is favourable.','Venus y los maléficos (Sol, Marte, Saturno, Rāhu, Ketu) tienen cada uno una regla inequívoca basada en casas en la fuente. Júpiter y Mercurio también tienen listas de casas (śl. 9), pero la traducción de 1884 conservada combina las condiciones de los tres planetas en una sola oración corrida cuyo "él...florecerá" se resuelve gramaticalmente solo a Venus — así que esta app muestra la casa actual de Júpiter y Mercurio desde cada signo como referencia, sin afirmar cuál de sus posiciones es favorable.')}</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="hd"><h2>${T("This month's trading guidance",'Guía comercial de este mes')}</h2><span class="note">Bṛhat Saṁhitā, ch. XLII, śl. 3-12</span></div>
+      <div class="bd">
+        <div class="kv">
+          <div class="k">${T('Sun is currently in','El Sol está actualmente en')}</div><div class="v" style="color:var(--gold);">${T(live.sunSign,live.sunSign)}</div>
+          <div class="k">${tgVerb}</div><div class="v">${T(tg.en,tg.es)}</div>
+          <div class="k">${T('Resale timing','Plazo de reventa')}</div><div class="v">${tgProfit}</div>
+        </div>
+        <div class="hint" style="margin-top:10px;">${T('The source conditions this whole table on a portentous sign — excessive rain, a meteor-fall, a "Daṇḍa" apparition, a halo, an eclipse or a parhelion — having been observed on the New or Full Moon of this solar month (śl. 1-2); on other days of the month the source reads the same omens as portending war among rulers instead. This app has no way to detect those celestial events, so treat this panel as the month\'s reference guidance, not a confirmed active signal.','La fuente condiciona toda esta tabla a que se haya observado un signo portentoso — lluvia excesiva, caída de meteoro, aparición de "Daṇḍa", halo, eclipse o parhelio — en la Luna Nueva o Llena de este mes solar (śl. 1-2); en otros días del mes la fuente lee los mismos presagios como guerra entre gobernantes. Esta app no puede detectar esos eventos celestes, así que trata este panel como guía de referencia del mes, no como una señal activa confirmada.')}</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="hd"><h2>${T('Price direction — lunar phase','Dirección de precios — fase lunar')}</h2><span class="note">Bṛhat Saṁhitā, ch. XLII, śl. 14</span></div>
+      <div class="bd">
+        ${priceDirHtml}
+      </div>
+    </div>
+
+    <footer class="notes" style="line-height:1.8;">
+      <b>${T('Sources.','Fuentes.')}</b> ${T('Bṛhat Saṁhitā (Varāhamihira), N. Chidambaram\'s 1884 translation, Chapter XLI ("On Commodities") and Chapter XLII ("On the Price of Commodities"), transcribed directly with the two ambiguous clauses flagged above and below where relevant. Chapter XL ("Sasya Jātaka", vegetable horoscopy) predicts crop yield from the Sun\'s entry into Scorpio or Taurus through many interlocking, mutually-conditional stanzas — genuinely rich material, but it doesn\'t reduce to a clean live check the way ch. XLI-XLII do, so it is cited here for context rather than computed. Śl. 13 of ch. XLII (an Atimitra/"very friendly" planet conjunct the Sun or Moon) is likewise not computed — it needs the fuller five-grade Pañcadhā Maitri (temporal + natural friendship) system, which this app does not yet implement.','Bṛhat Saṁhitā (Varāhamihira), traducción de N. Chidambaram de 1884, Capítulo XLI ("Sobre las materias primas") y Capítulo XLII ("Sobre el precio de las materias primas"), transcritos directamente con las dos cláusulas ambiguas señaladas arriba y abajo donde corresponde. El Capítulo XL ("Sasya Jātaka", horoscopía vegetal) predice la cosecha a partir de la entrada del Sol en Escorpio o Tauro mediante muchas estrofas entrelazadas y mutuamente condicionales — material genuinamente rico, pero no se reduce a una verificación en vivo limpia como sí lo hacen los cap. XLI-XLII, así que se cita aquí como contexto y no se calcula. La śl. 13 del cap. XLII (un planeta Atimitra/"muy amigo" en conjunción con el Sol o la Luna) tampoco se calcula — requiere el sistema completo de cinco grados de Pañcadhā Maitri (amistad temporal + natural), que esta app aún no implementa.')}
+      <br><br>${T('None of this is financial advice — it is a transcription of a 1,500-year-old text\'s own stated method, offered for its historical and astrological interest.','Nada de esto es asesoría financiera — es una transcripción del método propio de un texto de 1.500 años de antigüedad, ofrecido por su interés histórico y astrológico.')}
+    </footer>
+  `;
+}
+
 // Independent of runAnalysis()/the muhūrta being judged — always reflects the
 // real current moment. Re-run on bird-dropdown change and on a 60s interval.
 function renderPPPanel(){
@@ -3729,6 +3970,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
     runAnalysis();
     if (document.getElementById('pageNakshatra').classList.contains('active')) renderNakshatraPage();
     if (document.getElementById('pageCalendar').classList.contains('active')) renderCalendarPage();
+    if (document.getElementById('pageAntara').classList.contains('active')) renderAntaraChakraPage();
+    if (document.getElementById('pageRemedies').classList.contains('active')) renderRemediesPage();
+    if (document.getElementById('pageCommodities').classList.contains('active')) renderCommoditiesPage();
   });
   document.getElementById('chartPanchapakshi').addEventListener('change', renderPPPanel);
 
