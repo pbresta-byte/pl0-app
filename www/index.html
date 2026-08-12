@@ -397,10 +397,12 @@
       <div class="hamburger-menu" id="hamburgerMenu" role="menu">
         <button type="button" data-page="pageMuhurta" class="active" data-i18n="navMuhurta">Muhūrta Gauge</button>
         <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">Nakṣatra Categories</button>
+        <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
         <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Auspicious Calendar</button>
         <button type="button" data-page="pageAntara" data-i18n="navAntara">Antara Chakra (Portents)</button>
         <button type="button" data-page="pageRemedies" data-i18n="navRemedies">Remedies &amp; Combinations</button>
         <button type="button" data-page="pageCommodities" data-i18n="navCommodities">Commodity Signals</button>
+        <button type="button" data-page="pageHorary" data-i18n="navHorary">Horary / Praśna (SBC)</button>
       </div>
     </div>
     <div>
@@ -448,6 +450,12 @@
       <div id="refManualBlock">
         <label data-i18n="refStarLbl">Janma Nakṣatra (birth star)</label>
         <select id="refStar"></select>
+        <label data-i18n="refPakshaLbl">Birth Pakṣa (bright/dark half)</label>
+        <select id="refPaksha">
+          <option value="bright" data-i18n="pakshaBright">Bright half (Śukla Pakṣa)</option>
+          <option value="dark" data-i18n="pakshaDark">Dark half (Kṛṣṇa Pakṣa)</option>
+        </select>
+        <div class="hint" data-i18n="refPakshaHint">Fixes the Pañcha Pakshi life bird permanently — it's set once at birth and never recalculated from today's date.</div>
         <label data-i18n="nameLbl1">Name (first syllable sets Consonant &amp; Vowel)</label>
         <input type="text" id="refName" data-i18n-placeholder="namePh" placeholder="e.g. Rohan, Meera…" value="">
         <div class="hint" data-i18n="nameHint">Leave blank to skip the Consonant/Vowel Pañcaka and score on Star + Nakṣatra only.</div>
@@ -495,7 +503,7 @@
       <label class="toggle"><input type="checkbox" id="weighTara" checked> <span data-i18n="optTara">include Tārā Bala of today's Moon in score</span></label>
       <label class="toggle"><input type="checkbox" id="weighPP" checked> <span data-i18n="optPP">include Pañcha Pakshi (life bird) state in score</span></label>
       <label class="toggle"><input type="checkbox" id="weighDignity" checked> <span data-i18n="optDignity">weight Vedha hits by the graha's own dignity</span></label>
-      <label class="toggle"><input type="checkbox" id="weighMuhurtaDosha" checked> <span data-i18n="optMuhurtaDosha">flag Riktha Tithi, bad Karaṇa and Vyatīpāta/Vaidhṛti Yoga</span></label>
+      <label class="toggle"><input type="checkbox" id="weighMuhurtaDosha" checked> <span data-i18n="optMuhurtaDosha">flag Riktha Tithi, bad Karaṇa, Vyatīpāta/Vaidhṛti Yoga and ascendant Fruitful/Barren</span></label>
     </fieldset>
 
     <fieldset>
@@ -529,6 +537,10 @@
   <div class="result-col" id="nakshatraPageContent" style="max-width:900px; margin:0 auto;"></div>
 </div>
 
+<div id="pageAnatomy" class="page">
+  <div class="result-col" id="anatomyPageContent" style="max-width:900px; margin:0 auto;"></div>
+</div>
+
 <div id="pageCalendar" class="page">
   <div class="result-col" id="calendarPageContent" style="max-width:1000px; margin:0 auto;"></div>
 </div>
@@ -543,6 +555,10 @@
 
 <div id="pageCommodities" class="page">
   <div class="result-col" id="commoditiesPageContent" style="max-width:900px; margin:0 auto;"></div>
+</div>
+
+<div id="pageHorary" class="page">
+  <div class="result-col" id="horaryPageContent" style="max-width:900px; margin:0 auto;"></div>
 </div>
 
 
@@ -572,6 +588,10 @@ const I18N = {
   modeManual: { en:`Pick birth star directly`, es:`Elegir la estrella natal directamente` },
   modeBirth: { en:`Compute from birth date / time / place`, es:`Calcular desde fecha / hora / lugar de nacimiento` },
   refStarLbl: { en:`Janma Nakṣatra (birth star)`, es:`Janma Nakṣatra (estrella natal)` },
+  refPakshaLbl: { en:`Birth Pakṣa (bright/dark half)`, es:`Pakṣa natal (mitad clara/oscura)` },
+  pakshaBright: { en:`Bright half (Śukla Pakṣa)`, es:`Mitad clara (Śukla Pakṣa)` },
+  pakshaDark: { en:`Dark half (Kṛṣṇa Pakṣa)`, es:`Mitad oscura (Kṛṣṇa Pakṣa)` },
+  refPakshaHint: { en:`Fixes the Pañcha Pakshi life bird permanently — it's set once at birth and never recalculated from today's date.`, es:`Fija permanentemente el ave vital de Pañcha Pakshi — se establece una vez al nacer y nunca se recalcula según la fecha de hoy.` },
   nameLbl1: { en:`Name (first syllable sets Consonant &amp; Vowel)`, es:`Nombre (la primera sílaba determina consonante y vocal)` },
   namePh: { en:`e.g. Rohan, Meera…`, es:`p. ej. Rohan, Meera…` },
   nameHint: { en:`Leave blank to skip the Consonant/Vowel Pañcaka and score on Star + Nakṣatra only.`, es:`Déjalo en blanco para omitir el Pañcaka de consonante/vocal y puntuar solo con Estrella + Nakṣatra.` },
@@ -592,16 +612,18 @@ const I18N = {
   optTara: { en:`include Tārā Bala of today's Moon in score`, es:`incluir el Tārā Bala de la Luna de hoy en la puntuación` },
   optPP: { en:`include Pañcha Pakshi (life bird) state in score`, es:`incluir el estado del Pañcha Pakshi (ave vital) en la puntuación` },
   optDignity: { en:`weight Vedha hits by the graha's own dignity`, es:`ponderar los golpes de Vedha según la dignidad propia del graha` },
-  optMuhurtaDosha: { en:`flag Riktha Tithi, bad Karaṇa and Vyatīpāta/Vaidhṛti Yoga`, es:`señalar Tithi Riktha, Karaṇa desfavorable y Yoga Vyatīpāta/Vaidhṛti` },
+  optMuhurtaDosha: { en:`flag Riktha Tithi, bad Karaṇa, Vyatīpāta/Vaidhṛti Yoga and ascendant Fruitful/Barren`, es:`señalar Tithi Riktha, Karaṇa desfavorable, Yoga Vyatīpāta/Vaidhṛti y ascendente Fructífero/Estéril` },
   leg4: { en:`4 · Charts`, es:`4 · Gráficos` },
   chartPanchaLbl: { en:`Line — Pañcha Pakshi live Yama chart`, es:`Línea — gráfico Yama en vivo de Pañcha Pakshi` },
   chartMenuHint: { en:`More chart types can be added to this menu later.`, es:`Más tipos de gráfico se pueden añadir a este menú más adelante.` },
   navMuhurta: { en:`Muhūrta Gauge`, es:`Muhūrta Gauge` },
   navNakshatra: { en:`Nakṣatra Categories`, es:`Categorías de Nakṣatra` },
+  navAnatomy: { en:`Anatomy`, es:`Anatomía` },
   navCalendar: { en:`Auspicious Calendar`, es:`Calendario auspicioso` },
   navAntara: { en:`Antara Chakra (Portents)`, es:`Antara Chakra (Presagios)` },
   navRemedies: { en:`Remedies &amp; Combinations`, es:`Remedios y Combinaciones` },
   navCommodities: { en:`Commodity Signals`, es:`Señales de Materias Primas` },
+  navHorary: { en:`Horary / Praśna (SBC)`, es:`Horaria / Praśna (SBC)` },
   profileLbl: { en:`Saved profile`, es:`Perfil guardado` },
   profileNamePh: { en:`Profile name…`, es:`Nombre del perfil…` },
   profileSave: { en:`Save`, es:`Guardar` },
@@ -893,6 +915,56 @@ const NAK_PADA_CONSONANTS = {
   "U.Bhadrapada":["Du","Tha","Jha","Na"], Revati:["De","Do","Cha","Chi"]
 };
 
+// Reverse of NAK_PADA_CONSONANTS, for the Horary/Praśna page: syllable
+// (lowercased) -> {star, pada}. Ch. "Horary Astrology" (p.27): "find out
+// pada, Star owned by this consonant" — the question's first syllable is
+// looked up the opposite way from how a birth name's first letter is used
+// for the Reference Person's Consonant Pañcaka elsewhere in this app.
+const PRASNA_SYLLABLE_INDEX = {};
+(function(){
+  for (const star in NAK_PADA_CONSONANTS){
+    NAK_PADA_CONSONANTS[star].forEach((syl, i)=>{
+      PRASNA_SYLLABLE_INDEX[syl.toLowerCase()] = {star, pada:i+1, syllable:syl};
+    });
+  }
+})();
+
+// Longest-prefix match of a typed question's opening word against the 108
+// nakshatra-pada syllables above (1-4 letters each) — mirrors how a
+// practitioner reads a question's first syllable off the printed table.
+function matchPrasnaSyllable(text){
+  const alpha = ((text||'').trim().match(/[A-Za-z]+/) || [''])[0];
+  if (!alpha) return null;
+  for (let len = Math.min(4, alpha.length); len >= 1; len--){
+    const hit = PRASNA_SYLLABLE_INDEX[alpha.slice(0, len).toLowerCase()];
+    if (hit) return hit;
+  }
+  return null;
+}
+
+// A Nakṣatra pada is exactly one navāṁśa (3°20') wide, and for the 25 stars
+// untouched by the Abhijit carve-out its four padas sit on exact 3°20'
+// boundaries starting from 0° Aries — so the Rāśi holding a given star+pada
+// is fully determined by degree, the same math nakshatraFromSidereal() uses
+// in reverse. U.Shada/Sravana are shortened by the Abhijit carve-out (see
+// ABHIJIT_START/END) and can, right at that seam, put part of one pada in
+// the neighbouring sign — this uses the pada's midpoint, the same
+// simplification the app already leans on for those two stars elsewhere.
+function prasnaSignForStarPada(star, pada){
+  let start, end;
+  if (star === "Abhijit"){ start = ABHIJIT_START; end = ABHIJIT_END; }
+  else {
+    const idx27 = NAK27.findIndex(s=>s.n===star);
+    if (idx27 < 0) return null;
+    start = idx27*(40/3); end = start+(40/3);
+    if (star === "U.Shada") end = ABHIJIT_START;
+    if (star === "Sravana") start = ABHIJIT_END;
+  }
+  const span = (end-start)/4;
+  const mid = start + span*(pada-0.5);
+  return SIGNS[Math.floor(norm360(mid)/30)];
+}
+
 // Sapta Nadi (ch. III) — 4 stars per nadi, 28-star system
 const SAPTA_NADI = {
   Prachand: {lord:"Saturn",  stars:["Krittika","Visakha","Anuradha","Bharani"], gist:"Most volatile nadi — malefic Vedha here is the most dangerous class; benefic Vedha brings sudden, unusually large gains."},
@@ -968,6 +1040,38 @@ const GRAHA_VEDHA_READING = {
   Mercury: "sharper thinking, good news, useful conversations",
   Jupiter: "the strongest single blessing available — gain, favour, recognition",
   Venus:   "romance, comfort, aesthetic or relational pleasure"
+};
+
+// ch. "Horary Astrology" (Sarvatobhadra Chakra, M.K. Agarwal, p.27-28) —
+// graduated reading for how many malefics are simultaneously striking a
+// single Pañcaka item (applied here to the Praśna Star and Praśna
+// Consonant). The source states this as one ladder ("afflicted from one
+// side, loss of position; from two sides, death is possible; two or more
+// malefics causing simultaneous Vedha, loss of property/position/even
+// death") rather than separate ladders per item, so the same table serves
+// both.
+const PRASNA_AFFLICTION_READING = {
+  0: { en:"No malefic graha is striking this right now.",
+       es:"Ningún graha maléfico lo está golpeando ahora mismo." },
+  1: { en:"Afflicted from one side — the source's reading here is loss of position.",
+       es:"Afligido desde un lado — la lectura de la fuente aquí es pérdida de posición." },
+  2: { en:"Afflicted by two or more malefic grahas at once — the source's gravest reading here: loss of property, loss of position, and even death are possible.",
+       es:"Afligido por dos o más graha maléficos a la vez — la lectura más grave de la fuente: son posibles la pérdida de bienes, la pérdida de posición e incluso la muerte." }
+};
+const PRASNA_TWO_SIDED_EN = "These malefics strike from two different sides ({dirs}) — the source calls this specific combination death is certain, not merely possible.";
+const PRASNA_TWO_SIDED_ES = "Estos maléficos golpean desde dos lados distintos ({dirs}) — la fuente llama a esta combinación exacta muerte cierta, no solo posible.";
+
+// Ch. "Horary Astrology": "If Rasi is chara (moveable) lost property will
+// not be regained... Sthira (fixed) sign indicates reverse... Common signs
+// (ubhaya) indicate quick regaining... quick cure and longevity." Keyed on
+// the same SIGN_QUALITY values ("Moving"/"Fixed"/"Mutable") used elsewhere.
+const PRASNA_QUALITY_READING = {
+  Moving: { en:"Chara (movable) Rāśi — the source's general reading: a lost item will not be regained, a sick person will not recover, and a newborn will be short-lived.",
+            es:"Rāśi Chara (móvil) — lectura general de la fuente: un objeto perdido no se recuperará, un enfermo no se recuperará y un recién nacido tendrá vida corta." },
+  Fixed:  { en:"Sthira (fixed) Rāśi — the source's general reading is the reverse: favourable results, with lost items eventually regained and the sick recovering.",
+            es:"Rāśi Sthira (fijo) — la lectura general de la fuente es la contraria: resultados favorables, con recuperación eventual de lo perdido y mejoría del enfermo." },
+  Mutable:{ en:"Ubhaya (common) Rāśi — the source's general reading: quick regaining of lost property, a quick cure, and longevity for a newborn — success can come at almost any moment.",
+            es:"Rāśi Ubhaya (común) — lectura general de la fuente: recuperación rápida de lo perdido, cura rápida y longevidad para un recién nacido — el éxito puede llegar en casi cualquier momento." }
 };
 
 /* Standard Navagraha Upāya (planetary remedial measures) — common classical
@@ -1139,6 +1243,19 @@ const SIGN_LORD = {Aries:"Mars",Taurus:"Venus",Gemini:"Mercury",Cancer:"Moon",Le
   Libra:"Venus",Scorpio:"Mars",Sagittarius:"Jupiter",Capricorn:"Saturn",Aquarius:"Saturn",Pisces:"Jupiter"};
 const SIGN_NATURE = {Aries:"Malefic",Taurus:"Benefic",Gemini:"Benefic",Cancer:"Benefic",Leo:"Malefic",Virgo:"Benefic",
   Libra:"Benefic",Scorpio:"Malefic",Sagittarius:"Benefic",Capricorn:"Benefic",Aquarius:"Malefic",Pisces:"Benefic"};
+
+// Ch. II/VI "Nature of Signs" table (same table SIGN_NATURE above is drawn
+// from) — Quality is the standard Chara/Sthira/Dwiswabhava (Movable/Fixed/
+// Mutable) classification, shown for reference only (it has no inherent
+// good/bad direction, only a fit for different kinds of undertaking).
+// Fruitful/Semi-Fruitful/Barren (Phaladi Rāśi) is scored — see
+// muhurtaDoshas() — since a moment's ascendant quality bears directly on
+// whether it favours things meant to grow/bear result vs. things meant to
+// end or be removed.
+const SIGN_QUALITY = {Aries:"Moving",Taurus:"Fixed",Gemini:"Mutable",Cancer:"Moving",Leo:"Fixed",Virgo:"Mutable",
+  Libra:"Moving",Scorpio:"Fixed",Sagittarius:"Mutable",Capricorn:"Moving",Aquarius:"Fixed",Pisces:"Mutable"};
+const SIGN_FRUITFUL = {Aries:"Semi-Fruitful",Taurus:"Semi-Fruitful",Gemini:"Barren",Cancer:"Fruitful",Leo:"Barren",Virgo:"Barren",
+  Libra:"Semi-Fruitful",Scorpio:"Fruitful",Sagittarius:"Semi-Fruitful",Capricorn:"Semi-Fruitful",Aquarius:"Barren",Pisces:"Fruitful"};
 
 const GRAHA_SIGN_REL = { // 1-indexed sign numbers: Aries=1 ... Pisces=12
   Sun:     {own:[5], friend:[4,1,8,9,12], neutral:[3,6], enemy:[2,7,10,11]},
@@ -1473,70 +1590,123 @@ function computePanchanga(pos){
            ascSign: SIGNS[Math.floor(pos._ascSidereal/30)] };
 }
 
-/* General muhūrta-avoidance checklist — Prasna Marga (B.V. Raman), Ch. II's
-   summary of Muhūrtha doshas, items V (Riktha Tithi), VI (bad Karaṇa) and
-   IX (Vyatīpāta Yoga, extended here to also flag Vaidhṛti — the other
-   universally-avoided Yoga in standard muhūrta practice). Reuses the
-   Tithi/Karaṇa/Yoga this app already computes; this app's own aggregation
-   of a general checklist into the SBC score, not part of the SBC text. */
-const MUHURTA_DOSHA_NAME_ES = {"Riktha Tithi":"Tithi Riktha", "Inauspicious Karaṇa":"Karaṇa desfavorable", "Inauspicious Yoga":"Yoga desfavorable"};
+/* General muhūrta-avoidance checklist. Three items from Prasna Marga (B.V.
+   Raman), Ch. II's summary of Muhūrtha doshas — V (Riktha Tithi), VI (bad
+   Karaṇa) and IX (Vyatīpāta Yoga, extended here to also flag Vaidhṛti, the
+   other universally-avoided Yoga in standard muhūrta practice) — plus a 4th
+   item from the SBC book itself (ch. II/VI, SIGN_FRUITFUL above): the
+   ascendant's Fruitful/Semi-Fruitful/Barren nature. Unlike the other three,
+   this one isn't uniformly a caution — Fruitful favours things meant to
+   grow or bear result, Barren classically favours the opposite (closure,
+   removal, debt-clearing); scored here toward the generic "is this a good
+   moment to begin something" reading this app defaults to everywhere else.
+   Semi-Fruitful contributes nothing (neither flagged). This app's own
+   aggregation of a general checklist into the SBC score, not part of any
+   one source text's own scoring method. */
+const MUHURTA_DOSHA_NAME_ES = {"Riktha Tithi":"Tithi Riktha", "Inauspicious Karaṇa":"Karaṇa desfavorable", "Inauspicious Yoga":"Yoga desfavorable",
+  "Fruitful ascendant":"Ascendente fructífero", "Barren ascendant":"Ascendente estéril"};
 function muhurtaDoshas(panch){
   const doshas = [];
   const tithiInPaksha = panch.tithiNum<=15 ? panch.tithiNum : panch.tithiNum-15;
-  if ([4,9,14].includes(tithiInPaksha)) doshas.push({name:"Riktha Tithi", detail:`${panch.tithiName} is a "empty" lunar day`});
-  if (panch.karana.bad) doshas.push({name:"Inauspicious Karaṇa", detail:`${panch.karana.name} karaṇa`});
-  if (panch.yogaName === "Vyatipata" || panch.yogaName === "Vaidhriti") doshas.push({name:"Inauspicious Yoga", detail:`${panch.yogaName} yoga`});
+  if ([4,9,14].includes(tithiInPaksha)) doshas.push({name:"Riktha Tithi", detail:`${panch.tithiName} is a "empty" lunar day`, tone:"bad",
+    source:`Prasna Marga's checklist, ch. II`, sourceEs:`lista de Prasna Marga, cap. II`});
+  if (panch.karana.bad) doshas.push({name:"Inauspicious Karaṇa", detail:`${panch.karana.name} karaṇa`, tone:"bad",
+    source:`Prasna Marga's checklist, ch. II`, sourceEs:`lista de Prasna Marga, cap. II`});
+  if (panch.yogaName === "Vyatipata" || panch.yogaName === "Vaidhriti") doshas.push({name:"Inauspicious Yoga", detail:`${panch.yogaName} yoga`, tone:"bad",
+    source:`Prasna Marga's checklist, ch. II`, sourceEs:`lista de Prasna Marga, cap. II`});
+  const fruitful = SIGN_FRUITFUL[panch.ascSign];
+  if (fruitful === "Fruitful") doshas.push({name:"Fruitful ascendant", detail:`${panch.ascSign} lagna — favours things meant to grow or bear result (the classical opposite pick for closure, removal or debt-clearing)`, tone:"good",
+    source:`Mystics of Sarvato Bhadra Chakra, ch. II/VI`, sourceEs:`Mystics of Sarvato Bhadra Chakra, cap. II/VI`});
+  if (fruitful === "Barren") doshas.push({name:"Barren ascendant", detail:`${panch.ascSign} lagna — favours closure, ending or removal (a poor pick for anything meant to grow or bear result)`, tone:"bad",
+    source:`Mystics of Sarvato Bhadra Chakra, ch. II/VI`, sourceEs:`Mystics of Sarvato Bhadra Chakra, cap. II/VI`});
   return doshas;
 }
 
-function dignity(graha, siderealLong){
-  const signIdx = Math.floor(siderealLong/30);
+// Raw (untranslated) dignity tier — the full 6-value classification
+// (Exalted/Own/Friend/Neutral/Enemy/Debilitated, or the nodes' own-sign-only
+// case), safe to switch on regardless of LANG. dignity() below is just this,
+// localized for display; dignityWeight() folds Exalted into Own and
+// Debilitated into Enemy since ch. IX's grading table has no separate tier
+// for them, but callers wanting the un-folded classification use this.
+function dignityTier(graha, siderealLong){
+  const signIdx = Math.floor(norm360(siderealLong)/30);
   const sign = SIGNS[signIdx];
-  const degInSign = siderealLong - signIdx*30;
   if (["Rahu","Ketu"].includes(graha)){
     const ownSign = graha==="Rahu" ? "Aquarius" : "Scorpio"; // per this text's editorial note
-    return sign===ownSign ? trDignity("Own (per source note)") : "—";
+    return sign===ownSign ? "Own (per source note)" : "—";
   }
-  if (EXALT[graha] && sign===EXALT[graha].sign) return trDignity("Exalted");
-  if (DEBIL[graha] && sign===DEBIL[graha]) return trDignity("Debilitated");
+  if (EXALT[graha] && sign===EXALT[graha].sign) return "Exalted";
+  if (DEBIL[graha] && sign===DEBIL[graha]) return "Debilitated";
   const rel = GRAHA_SIGN_REL[graha];
   const sn = signIdx+1;
-  if (rel.own.includes(sn)) return trDignity("Own");
-  if (rel.friend.includes(sn)) return trDignity("Friend");
-  if (rel.enemy.includes(sn)) return trDignity("Enemy");
-  return trDignity("Neutral");
+  if (rel.own.includes(sn)) return "Own";
+  if (rel.friend.includes(sn)) return "Friend";
+  if (rel.enemy.includes(sn)) return "Enemy";
+  return "Neutral";
+}
+function dignity(graha, siderealLong){
+  return trDignity(dignityTier(graha, siderealLong));
 }
 
-/* Numeric, language-independent counterpart to dignity() above — used only
-   for score weighting (dignity() itself returns an already-localized string,
-   unsafe to key a weight table on). Mirrors the exact same classification,
-   plus a retrograde term. Weights are this app's own synthesis: not from the
-   SBC source text, but applying two independent classical principles to
-   scale how hard an already-scored Vedha hit lands —
-   (1) Jātaka Pārijāta (Adhyaya VI, śloka 3): an exalted graha "advances" the
-       result it governs, a debilitated/inimical one "destroys" it;
-   (2) Mahadeva's Jātaka Tatva, Samjña Tatva, Sūtra 71: "Retrograde planets
-       OR those in exaltation possess superior strength" — retrograde is
-       stated as its own, separate strength condition, not a synonym for
-       exaltation, hence it stacks as an independent additive term below
-       (Rahu/Ketu are always retrograde by definition in this engine, so
-       they always receive it). */
-function dignityWeight(graha, siderealLong, retrograde){
-  const signIdx = Math.floor(siderealLong/30);
+/* Numeric, language-independent counterpart to dignity() above — used for
+   score weighting (dignity() itself returns an already-localized string,
+   unsafe to key a weight table on).
+
+   This is now M.K. Agarwal's own "Grading of Aspect" table (ch. IX), not an
+   app-invented approximation. The source gives a graha's Vedha-strength as a
+   point value keyed to its OWN current sign-relationship — and, distinctly,
+   a BENEFIC is strongest in its Own sign, weakest in an Enemy sign, while a
+   MALEFIC runs the opposite way (most virulent in an Enemy sign, mildest —
+   "tamed" — in its Own sign):
+     Benefic: Own 20, Friend 15, Neutral 10, Enemy 5
+     Malefic: Own 5,  Friend 10, Neutral 15, Enemy 20
+   (values at "Full", i.e. 100%, aspect strength — the only tier this app
+   models, since it doesn't track partial-orb aspect). Ch. IX's grading
+   table has no separate exaltation tier of its own, so an exalted graha is
+   folded into "Own" (strongest tier the table has) and a debilitated one
+   into "Enemy" (weakest), rather than inventing a 5th tier.
+   Ch. IX also states explicit speed multipliers on this same page: a
+   retrograde ("Right" Vedha) graha is 200% strength for BOTH benefic and
+   malefic; a normal-speed ("Front") benefic and a fast ("Left") malefic are
+   separately halved to 50%. The source gives no explicit percentage for the
+   remaining two cells (fast benefic, normal-speed malefic) — just the plain
+   words "Benefic results" / "malefic results" — so those are left at the
+   unscaled baseline (×1) rather than guessing a number for them.
+   The raw book scale (5-40 after the speed multiplier) is divided by 40 so
+   it sits as a secondary nudge alongside this app's own ±1-5-point base
+   score below, not a term that could swamp it — that single rescaling
+   constant is this app's own bridging step; every point value and
+   multiplier feeding into it is the source's own. */
+const ASPECT_GRADE_FULL = {
+  benefic: {Own:20, Friend:15, Neutral:10, Enemy:5},
+  malefic: {Own:5,  Friend:10, Neutral:15, Enemy:20}
+};
+function dignityWeight(graha, siderealLong, dir){
+  const signIdx = Math.floor(norm360(siderealLong)/30);
   const sign = SIGNS[signIdx];
-  const retroBonus = retrograde ? 0.2 : 0;
+  const isBenefic = BENEFIC_GRAHAS.includes(graha);
+  const grade = isBenefic ? ASPECT_GRADE_FULL.benefic : ASPECT_GRADE_FULL.malefic;
+
+  let rel;
   if (["Rahu","Ketu"].includes(graha)){
     const ownSign = graha==="Rahu" ? "Aquarius" : "Scorpio";
-    return (sign===ownSign ? 0.3 : 0) + retroBonus;
+    rel = sign===ownSign ? "Own" : "Neutral"; // ch. V gives the nodes no friend/enemy sign, only an own sign
+  } else if (EXALT[graha] && sign===EXALT[graha].sign){
+    rel = "Own";
+  } else if (DEBIL[graha] && sign===DEBIL[graha]){
+    rel = "Enemy";
+  } else {
+    const relTable = GRAHA_SIGN_REL[graha];
+    const sn = signIdx+1;
+    rel = relTable.own.includes(sn) ? "Own" : relTable.friend.includes(sn) ? "Friend" : relTable.enemy.includes(sn) ? "Enemy" : "Neutral";
   }
-  if (EXALT[graha] && sign===EXALT[graha].sign) return 0.5 + retroBonus;
-  if (DEBIL[graha] && sign===DEBIL[graha]) return -0.3 + retroBonus;
-  const rel = GRAHA_SIGN_REL[graha];
-  const sn = signIdx+1;
-  if (rel.own.includes(sn)) return 0.3 + retroBonus;
-  if (rel.friend.includes(sn)) return 0.15 + retroBonus;
-  if (rel.enemy.includes(sn)) return -0.15 + retroBonus;
-  return retroBonus;
+
+  let speedMult = 1;
+  if (dir === "Right") speedMult = 2;                       // retrograde — explicit 200%, both natures
+  else if (dir === "Left" && !isBenefic) speedMult = 0.5;    // fast malefic — explicit 50%
+  else if (dir === "Front" && isBenefic) speedMult = 0.5;    // normal-speed benefic — explicit 50%
+
+  return (grade[rel] * speedMult) / 40;
 }
 
 function vedhaDirectionOf(graha, speedDegPerDay){
@@ -1557,8 +1727,14 @@ function vedhaTarget(onStar, dir){
   return null;
 }
 
-/* Build the five Pañcakas for the reference person */
-function buildReferencePanchaka({starName, name}){
+/* Build the five Pañcakas for the reference person.
+   birthHalf/lifeBird: the Pañcha Pakshi "life bird" (jeeva pakshi) is fixed
+   once at birth from the birth star + the Pakṣa (bright/dark half) in effect
+   AT BIRTH — it never changes again, for that person, no matter when a
+   reading is later taken. birthHalf is threaded through here (rather than
+   re-derived from "now" wherever the life bird is used) so every caller
+   automatically gets the same fixed bird. */
+function buildReferencePanchaka({starName, name, birthHalf}){
   const consonant = name && name.trim() ? name.trim()[0].toUpperCase() : null;
   let vowelGuess = null, consonantGroupGuess = null;
   if (consonant){
@@ -1566,19 +1742,24 @@ function buildReferencePanchaka({starName, name}){
     vowelGuess = VOWELS.includes(consonant) ? consonant : null;
     consonantGroupGuess = !vowelGuess ? consonant : null;
   }
-  return { star:starName, sign:null, tithi:null, consonant:consonantGroupGuess, vowel:vowelGuess, name: name||null };
+  const bh = birthHalf === "dark" ? "dark" : "bright";
+  return { star:starName, sign:null, tithi:null, consonant:consonantGroupGuess, vowel:vowelGuess, name: name||null,
+    birthHalf: bh, lifeBird: starName ? birdOfStar(starName, bh) : null };
 }
 
 function buildReferencePanchakaFromBirth(pos){
   const panch = computePanchanga(pos);
   const consonants = NAK_PADA_CONSONANTS[panch.nak.name];
   const consonant = consonants ? consonants[panch.nak.pada-1] : null;
+  const birthHalf = panch.paksha === "Shukla" ? "bright" : "dark";
   return {
     star: panch.nak.name,
     sign: SIGNS[Math.floor(pos.Moon.sidereal/30)],
     tithi: panch.tithiNum,
     consonant: consonant,
     vowel: null,
+    birthHalf,
+    lifeBird: birdOfStar(panch.nak.name, birthHalf),
     _panch: panch
   };
 }
@@ -1615,6 +1796,19 @@ function evaluateVedha(pos, panch28now, refP){
   return {hits, beneficHits, maleficHits};
 }
 
+/* ch. X "Grading of Vedha aspect on 5 Components (Pañcakas)" — the source's
+   own point scale for how many of the 5 reference Pañcakas are struck at
+   once, at Full (100%) aspect strength (the only tier this app models).
+   Printed verbatim: benefic 1.00/2.00/3.00/4.00/5.00 per count; malefic
+   0.48/1.36/2.24/3.12/4.00 — note malefics are NOT a flat per-hit rate,
+   the source discounts the first hit specifically. Only 4 grahas are ever
+   benefic and 5 malefic in this system, so the arrays stop there. Replaces
+   this app's earlier flat 1.4/1.6-per-hit placeholder. */
+const VEDHA_COUNT_POINTS = {
+  benefic: [0, 1.00, 2.00, 3.00, 4.00],
+  malefic: [0, 0.48, 1.36, 2.24, 3.12, 4.00]
+};
+
 /* ch. X result-tables: N malefic / M benefic grahas striking the Pañcaka set */
 const MALEFIC_COUNT_READING = {
   0:"No malefic Vedha on the Janma Star at this moment.",
@@ -1636,7 +1830,7 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
   let score = 0;
   const reasons = [];
   const mCount = Math.min(5, maleficHits.length), bCount = Math.min(4, beneficHits.length);
-  score += bCount*1.4; score -= mCount*1.6;
+  score += VEDHA_COUNT_POINTS.benefic[bCount]; score -= VEDHA_COUNT_POINTS.malefic[mCount];
   const maleficReading = T(MALEFIC_COUNT_READING[mCount], MALEFIC_COUNT_READING_ES[mCount]);
   const beneficReading = T(BENEFIC_COUNT_READING[bCount], BENEFIC_COUNT_READING_ES[bCount]);
   if (mCount) reasons.push({sign:"bad", text: T(
@@ -1679,23 +1873,21 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
     )});
   }
 
-  // Dignity adjustment — this app's own synthesis, not from the SBC source
-  // text. Applies two independent classical strength principles to scale the
-  // already-scored Vedha hits above by the striking graha's own condition,
-  // rather than treating every hit as equal: (1) Jātaka Pārijāta, Adhyaya VI
-  // śloka 3-5 — a strong graha "advances" the result it governs, a weak one
-  // "destroys" it; (2) Mahadeva's Jātaka Tatva, Samjña Tatva sūtra 71 —
-  // retrograde grahas carry superior strength, independent of sign dignity.
+  // Dignity adjustment — now the source's own ch. IX "Grading of Aspect"
+  // table (own/friend/neutral/enemy sign-strength, opposite-direction for
+  // benefics vs malefics, plus the source's explicit retrograde/speed
+  // multipliers). See dignityWeight() for the full breakdown of what's a
+  // direct book value vs this app's one necessary rescaling constant.
   let dignityAdj = 0;
   if (weighDignity){
-    beneficHits.forEach(h=>{ dignityAdj += dignityWeight(h.graha, h.siderealLong, h.retrograde); });
-    maleficHits.forEach(h=>{ dignityAdj -= dignityWeight(h.graha, h.siderealLong, h.retrograde); });
+    beneficHits.forEach(h=>{ dignityAdj += dignityWeight(h.graha, h.siderealLong, h.dir); });
+    maleficHits.forEach(h=>{ dignityAdj -= dignityWeight(h.graha, h.siderealLong, h.dir); });
   }
   if (Math.abs(dignityAdj) > 0.01){
     score += dignityAdj;
     reasons.push({sign: dignityAdj>0?"good":"bad", text: T(
-      `Dignity adjustment (this app's own synthesis, after Jātaka Pārijāta's exaltation/depression principle and Jātaka Tatva's retrograde-strength principle): ${dignityAdj>=0?'+':''}${dignityAdj.toFixed(2)} — the grahas casting Vedha are, on balance, ${dignityAdj>0?'stronger':'weaker'} than neutral right now.`,
-      `Ajuste de dignidad (síntesis propia de esta app, según el principio de exaltación/debilitación de Jātaka Pārijāta y el principio de fuerza retrógrada de Jātaka Tatva): ${dignityAdj>=0?'+':''}${dignityAdj.toFixed(2)} — los grahas que lanzan Vedha son, en conjunto, ${dignityAdj>0?'más fuertes':'más débiles'} que lo neutral ahora mismo.`
+      `Dignity adjustment (ch. IX "Grading of Aspect" — own/friend/neutral/enemy sign-strength and the source's retrograde/speed multipliers, rescaled by this app to sit as a secondary term): ${dignityAdj>=0?'+':''}${dignityAdj.toFixed(2)} — the grahas casting Vedha are, on balance, ${dignityAdj>0?'stronger':'weaker'} than neutral right now.`,
+      `Ajuste de dignidad (cap. IX "Grading of Aspect" — fuerza de signo propio/amigo/neutral/enemigo y los multiplicadores de retrogradación/velocidad de la fuente, reescalados por esta app como término secundario): ${dignityAdj>=0?'+':''}${dignityAdj.toFixed(2)} — los grahas que lanzan Vedha son, en conjunto, ${dignityAdj>0?'más fuertes':'más débiles'} que lo neutral ahora mismo.`
     )});
   }
 
@@ -1716,14 +1908,17 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
   }
 
   // General muhūrta checklist (Riktha Tithi / bad Karaṇa / Vyatīpāta-Vaidhṛti
-  // Yoga) — see muhurtaDoshas(). Weighted lighter than a Vedha hit: each is a
-  // standard minor caution, not this system's central signal.
+  // Yoga / ascendant Fruitful-Barren) — see muhurtaDoshas(). Each item is
+  // weighted lighter than a Vedha hit — a standard minor factor, not this
+  // system's central signal — and now carries its own tone (most are a
+  // caution, but a Fruitful ascendant is a light plus) and its own source.
   if (doshas && doshas.length){
-    score -= 0.5*doshas.length;
     doshas.forEach(d=>{
-      reasons.push({sign:"bad", text: T(
-        `${d.name}: ${d.detail} — a standard muhūrta caution (Prasna Marga's checklist, ch. II).`,
-        `${T(d.name, MUHURTA_DOSHA_NAME_ES[d.name]||d.name)}: ${d.detail} — una precaución estándar de muhūrta (lista de Prasna Marga, cap. II).`
+      const w = d.tone === "good" ? 0.5 : -0.5;
+      score += w;
+      reasons.push({sign: d.tone || "bad", text: T(
+        `${d.name}: ${d.detail} — ${d.tone==="good"?"a standard muhūrta plus":"a standard muhūrta caution"} (${d.source}).`,
+        `${T(d.name, MUHURTA_DOSHA_NAME_ES[d.name]||d.name)}: ${d.detail} — ${d.tone==="good"?"un factor positivo estándar de muhūrta":"una precaución estándar de muhūrta"} (${d.sourceEs}).`
       )});
     });
   }
@@ -1783,11 +1978,15 @@ function scoreForInstant(year, month1to12, day, hh, mm, opts){
      every row for all 5 birds).
    - The Bright Half day/night per-weekday timetable (PP_DAY_BASE_BRIGHT /
      PP_NIGHT_BASE_BRIGHT + the -2*rotation weekday shift) was reverse-solved
-     from the printed "Pancha Pakshi Mirror" grid and cross-validated against
-     three independent weekday blocks (Sun/Tue, Thursday, Saturday) for the
-     day side with zero mismatches; the night side's rotation-per-weekday
-     term was extrapolated from the same shift pattern (validated directly
-     only for the Sun/Tue block).
+     from the printed "Pancha Pakshi Mirror" grid. Both sides are now fully
+     cross-validated against the book's own explicit 1st-Yama prose for all
+     five weekday groups (Sun+Tue, Mon+Wed, Thu, Fri, Sat) — 25 bird×group
+     data points each, zero mismatches. PP_NIGHT_BASE_BRIGHT was originally
+     mis-derived (positions 1-4 were in reversed order relative to position
+     0); the earlier "validated for r=0 block" claim had only ever been
+     checked against Vulture's own displayed table, and Vulture's cell
+     happens to be invariant under that exact reversal, so the error passed
+     unnoticed. Fixed and re-validated against all 5 groups × 5 birds.
    - The Dark Half timetable is directly transcribed from the book's own
      per-weekday, per-period prose listings ("Order of sequence of main
      activities... for day time and for the week days" / "...during Night
@@ -1812,8 +2011,8 @@ const PP_ACT_FACTOR = {Ruling:1.0, Eating:0.8, Walking:0.6, Sleeping:0.4, Dying:
 const PP_NATURAL_BRIGHT = {Crow:1.0, Vulture:0.75, Owl:0.5,  Cock:0.25, Peacock:0.125};
 const PP_NATURAL_DARK   = {Crow:1.0, Vulture:0.75, Owl:0.25, Cock:0.5,  Peacock:0.125}; // Owl/Cock swap per source
 
-const PP_DAY_BASE_BRIGHT   = ["Eating","Walking","Ruling","Sleeping","Dying"];   // validated (Mirror table)
-const PP_NIGHT_BASE_BRIGHT = ["Dying","Walking","Sleeping","Eating","Ruling"];  // validated for r=0 block
+const PP_DAY_BASE_BRIGHT   = ["Eating","Walking","Ruling","Sleeping","Dying"];   // validated: 25/25 vs. explicit 1st-Yama prose, all 5 weekday groups
+const PP_NIGHT_BASE_BRIGHT = ["Dying","Ruling","Eating","Sleeping","Walking"];  // corrected + validated: 25/25 vs. explicit 1st-Yama prose, all 5 weekday groups (see confidence notes above)
 
 const PP_WEEKDAY_ROTATION = {Sunday:0, Tuesday:0, Thursday:1, Saturday:2, Monday:3, Wednesday:3, Friday:4}; // Bright Half only
 
@@ -1918,21 +2117,64 @@ function ppState(bird, periodIdx, weekdayName, half, isDay){
     : PP_NIGHT_BASE_BRIGHT[ ppMod5(canonicalIdx - periodIdx - 2*rotation) ];
 }
 
-// Table No.1 ("The 27 stars and their Pakshis or Birds on the Ecliptic", p.22-23) —
-// directly transcribed, index-aligned 1:1 with NAK27's order. Bright and Dark half
-// use different, non-mirrored bird sets (Peacock never appears in Bright half;
-// Vulture never appears in Dark half — this asymmetric grouping is exactly as printed).
+/* =========================================================================
+   RULING DAY / IMMUNE DAY — Ch. III "Common Features and Conventions". A
+   whole-day (or whole-night) designation, layered on top of the per-Yama
+   state above rather than replacing it: even on your bird's Ruling Day, it
+   still mechanically cycles through all 5 activities Yama by Yama exactly
+   as ppState() computes — the book's own point is that the WHOLE day/night
+   is favourable regardless, and conversely a bird's Immune day is unfavourable
+   for the whole 24h even though the per-Yama cycling continues unchanged.
+   These are informational flags, not inputs to the numeric strength score.
+
+   Ruling Day is derived, not transcribed: the source states the rule
+   plainly ("the bird that starts the day/night with Eating in the 1st Yama
+   becomes that day/night's Ruling bird") rather than only printing a
+   precomputed table, so this reads it directly off ppState() — which
+   already encodes the same underlying activity cycle — instead of re-keying
+   a second lookup that could drift out of sync with it. */
+function ppRulingBird(weekdayName, half, isDay){
+  return PP_BIRDS.find(b => ppState(b, 0, weekdayName, half, isDay) === "Eating") || null;
+}
+
+// Immune Days — bright half only. The source gives one weekday set covering
+// BOTH day and night together (unlike Ruling Day, which splits by day/night).
+// Dark half's printed table exists but its column alignment could not be
+// confidently read from the source scan (checked against two independent
+// re-extractions) — flagged and left untranscribed rather than guessed at.
+const PP_IMMUNE_DAYS_BRIGHT = {
+  Vulture: ["Thursday","Saturday"],
+  Owl: ["Sunday","Friday"],
+  Crow: ["Monday"],
+  Cock: ["Tuesday"],
+  Peacock: ["Wednesday"]
+};
+
+// Star-to-bird table, index-aligned 1:1 with NAK27's order. CORRECTED
+// 2026-08-12: this used to follow the book's "Table No.1" (p.22-23), a
+// multi-column OCR extraction that turned out to have its Bright/Dark bird
+// columns shifted out of row-alignment from Uttara Phalguni onward (missing
+// entries, duplicated degree-ranges) — that table disagreed with the rest of
+// the same book. Re-sourced from two independent, mutually-consistent, and
+// individually clean locations in the same text instead: the "Understand the
+// Scheme" summary table + worked star groupings (ch. on birth-bird lookup),
+// and the full 27-star "results of a query" appendix (each star given its
+// own explicit "Bright half / Dark half" pair, p.221-230) — both give the
+// same clean mirrored scheme below (Vulture⇄Peacock and Owl⇄Cock swap
+// between halves; Crow is the only bird that stays put).
 const PP_TABLE1_BRIGHT = [
   "Vulture","Vulture","Vulture","Vulture","Vulture",
   "Owl","Owl","Owl","Owl","Owl","Owl",
   "Crow","Crow","Crow","Crow","Crow",
-  "Cock","Cock","Cock","Cock","Cock","Cock","Cock","Cock","Cock","Cock","Cock"
+  "Cock","Cock","Cock","Cock","Cock",
+  "Peacock","Peacock","Peacock","Peacock","Peacock","Peacock"
 ];
 const PP_TABLE1_DARK = [
   "Peacock","Peacock","Peacock","Peacock","Peacock",
   "Cock","Cock","Cock","Cock","Cock","Cock",
   "Crow","Crow","Crow","Crow","Crow",
-  "Owl","Owl","Owl","Owl","Owl","Owl","Owl","Owl","Owl","Owl","Owl"
+  "Owl","Owl","Owl","Owl","Owl",
+  "Vulture","Vulture","Vulture","Vulture","Vulture","Vulture"
 ];
 
 function birdOfStar(starName, half){
@@ -1989,9 +2231,14 @@ function computePanchapakshiDay(weekdayName, half){
 // ever looks at real "now") so the scoring engine can evaluate any moment.
 // hourFromSix: decimal hours since 6:00am that calendar day (may exceed 24
 // when the caller is sampling into the small hours of the following date).
+// `half` here is the Pakṣa of the MOMENT being evaluated — it only selects
+// which day's activity-state table to read (that genuinely does change day
+// to day). The life bird itself is refP.lifeBird, fixed once at birth —
+// never re-derived from `half`, or it would silently change bird identity
+// every time the real-world Pakṣa flips.
 function ppStateForInstant(weekdayName, half, hourFromSix, refP){
   if (!refP.star) return null;
-  const lifeBird = birdOfStar(refP.star, half);
+  const lifeBird = refP.lifeBird;
   if (!lifeBird) return null;
   const hfs = ((hourFromSix % 24) + 24) % 24;
   const dayHalf = hfs < 12 ? "day" : "night";
@@ -2654,6 +2901,7 @@ function snapshotReferenceFields(){
   return {
     refMode: document.getElementById('refMode').value,
     refStar: document.getElementById('refStar').value,
+    refPaksha: document.getElementById('refPaksha').value,
     refName: document.getElementById('refName').value,
     bDate: document.getElementById('bDate').value,
     bTime: document.getElementById('bTime').value,
@@ -2666,6 +2914,7 @@ function snapshotReferenceFields(){
 function applyReferenceFields(p){
   document.getElementById('refMode').value = p.refMode || 'manual';
   if (p.refStar) document.getElementById('refStar').value = p.refStar;
+  document.getElementById('refPaksha').value = p.refPaksha === 'dark' ? 'dark' : 'bright';
   document.getElementById('refName').value = p.refName || '';
   document.getElementById('bDate').value = p.bDate || '1990-09-30';
   document.getElementById('bTime').value = p.bTime || '17:54';
@@ -2704,7 +2953,8 @@ function getReferencePanchaka(){
   if (mode === "manual"){
     const starName = document.getElementById('refStar').value;
     const name = document.getElementById('refName').value;
-    return { panch: buildReferencePanchaka({starName, name}), note:"manual selection" };
+    const birthHalf = document.getElementById('refPaksha').value;
+    return { panch: buildReferencePanchaka({starName, name, birthHalf}), note:"manual selection" };
   } else {
     const dt = readDateTime("b");
     const ay = document.getElementById('ayanamsaMode').value;
@@ -2750,6 +3000,49 @@ function computeTara(pos, refP){
   const moonIdx = NAK27.findIndex(s=>s.n===nakshatraFromSidereal(pos.Moon.sidereal,false).name);
   const offset = ((moonIdx - refIdx + 27) % 27) + 1; // 1..27
   return {offset, ...taraForOffset(offset)};
+}
+
+/* Chandra Sookshmam — "Table of Poison and Nector Points in the Human Body"
+   (Pulippani & Rao, Biorhythms of Natal Moon, p.240). Transcribed directly
+   from a clean scan of the page. General-audience table — the book's own
+   text right above it says this one "can be equally applied for both man
+   and woman... in the medical field," with no per-person/per-bird indexing.
+   This is distinct from, and does NOT use, the earlier "Nectar Points
+   (Amrutha Baghas)" table (p.237-238) elsewhere in the same chapter, which
+   is scoped to locating a specific woman's body by her own birth bird for a
+   stated seduction purpose — that one is deliberately not transcribed
+   anywhere in this app, in any form.
+   Each of the 15 rows pairs a bright-half (Śukla) Tithi with its mirror
+   dark-half (Kṛṣṇa) Tithi — bright day k mirrors dark day (15-k), and
+   Pūrṇimā mirrors Amāvasyā — and gives that row's Nectar point (favourable
+   for gentle attention/treatment, per the source) and Poison point (avoid
+   procedures/injury-prone, per the source) together. "Naval" in the
+   original OCR/print is the anatomical "Navel" (belly button), not the
+   nautical word — corrected here as an unambiguous spelling fix. */
+const CHANDRA_SOOKSHMA_TABLE = [
+  {bright:"Prathama",     dark:"Chathurdhasi", nectar:{en:"Thumb of the foot", es:"Pulgar del pie"},        poison:{en:"Navel", es:"Ombligo"}},
+  {bright:"Dwitheeya",    dark:"Thraiodhasi",  nectar:{en:"Feet", es:"Pies"},                                poison:{en:"Heart", es:"Corazón"}},
+  {bright:"Threethiya",   dark:"Dwadhasi",     nectar:{en:"Ankle", es:"Tobillo"},                            poison:{en:"Breasts", es:"Pecho"}},
+  {bright:"Chaturthi",    dark:"Ekadhasi",     nectar:{en:"Back muscle of the leg", es:"Músculo posterior de la pierna"}, poison:{en:"Neck", es:"Cuello"}},
+  {bright:"Panchami",     dark:"Dhasami",      nectar:{en:"Thighs", es:"Muslos"},                            poison:{en:"Nose", es:"Nariz"}},
+  {bright:"Shashti",      dark:"Navami",       nectar:{en:"Anus", es:"Ano"},                                 poison:{en:"Ears", es:"Oídos"}},
+  {bright:"Sapthami",     dark:"Ashtami",      nectar:{en:"Navel", es:"Ombligo"},                            poison:{en:"Thumb of the foot", es:"Pulgar del pie"}},
+  {bright:"Ashtami",      dark:"Sapthami",     nectar:{en:"Heart", es:"Corazón"},                            poison:{en:"Feet", es:"Pies"}},
+  {bright:"Navami",       dark:"Shashti",      nectar:{en:"Breasts", es:"Pecho"},                            poison:{en:"Ankles", es:"Tobillos"}},
+  {bright:"Dhasami",      dark:"Panchami",     nectar:{en:"Neck", es:"Cuello"},                              poison:{en:"Back muscle of the neck", es:"Músculo posterior del cuello"}},
+  {bright:"Ekadhasi",     dark:"Chaturthi",    nectar:{en:"Nose", es:"Nariz"},                               poison:{en:"Thighs", es:"Muslos"}},
+  {bright:"Dwadhasi",     dark:"Threethiya",   nectar:{en:"Ears", es:"Oídos"},                               poison:{en:"Thighs", es:"Muslos"}},
+  {bright:"Thriodhasi",   dark:"Dwithiya",     nectar:{en:"Eyes", es:"Ojos"},                                poison:{en:"Navel", es:"Ombligo"}},
+  {bright:"Chathurdhasi", dark:"Prathama",     nectar:{en:"Forehead", es:"Frente"},                          poison:{en:"Heart", es:"Corazón"}},
+  {bright:"Poornima",     dark:"Amavasya",     nectar:{en:"Head", es:"Cabeza"},                              poison:{en:"Breasts", es:"Pecho"}}
+];
+// paksha: "Shukla"/"Krishna"; tithiInPaksha: 1..15 within that half (15 =
+// Pūrṇimā on Shukla, Amāvasyā on Krishna) — matches panch.tithiNum's own
+// existing tithiInPaksha derivation used elsewhere (muhurtaDoshas()).
+function chandraSookshmaRow(paksha, tithiInPaksha){
+  if (paksha === "Shukla") return CHANDRA_SOOKSHMA_TABLE[tithiInPaksha-1];
+  if (tithiInPaksha === 15) return CHANDRA_SOOKSHMA_TABLE[14];
+  return CHANDRA_SOOKSHMA_TABLE[14-tithiInPaksha];
 }
 
 /* Nectar/Poison body gauge ("Deha Chakra"). This app's own synthesis, built
@@ -2848,7 +3141,6 @@ function runAnalysis(){
   const getHit = { has: s => hitTypeMap.get(s) || false };
 
   const nadi = refP.star ? nadiOfStar(refP.star) : null;
-  const deha = computeDehaChakra(pos, panch, refP, tara);
 
   let html = "";
 
@@ -2936,42 +3228,6 @@ function runAnalysis(){
     html += `<div class="panel"><div class="hd"><h2>${T('Pañcha Pakshi — Live Yama Chart','Pañcha Pakshi — Gráfico Yama en vivo')}</h2><span class="note">${T('updates every minute','se actualiza cada minuto')}</span></div><div class="bd" id="ppPanelContainer"></div></div>`;
   }
 
-  html += `<div class="panel"><div class="hd"><h2>${T('Deha Chakra — Nectar &amp; Poison Point Gauge','Deha Chakra — Medidor del punto de néctar y veneno')}</h2><span class="note">${deha.bright?T('Śukla pakṣa · bright half','Śukla pakṣa · mitad clara'):T('Kṛṣṇa pakṣa · dark half','Kṛṣṇa pakṣa · mitad oscura')}</span></div>
-    <div class="bd">
-      <div class="chakra-wrap">
-        <div style="flex:none; min-width:200px;">${renderBodyGauge(deha)}</div>
-        <div class="chakra-legend" style="flex:1; min-width:280px;">
-          <div class="li"><span class="sw" style="background:rgba(23,117,80,0.3);border:1px solid var(--jade)"></span> ${T("Nectar point (Amṛta Sthāna) — today's transiting Moon zone","Punto de néctar (Amṛta Sthāna) — la zona de tránsito de la Luna de hoy")}</div>
-          <div class="li"><span class="sw" style="background:rgba(176,50,32,0.3);border:1px solid var(--vermilion)"></span> ${T('Poison point (Viṣa Sthāna) — the opposite (Vedha) zone','Punto de veneno (Viṣa Sthāna) — la zona opuesta (Vedha)')}</div>
-          ${deha.natal ? `<div class="li"><span class="sw" style="background:var(--body-fill);border:1.5px solid var(--gold)"></span> ${T(`Natal marker — your reference Nakṣatra's own zone (${deha.natal.sign})`, `Marcador natal — la zona propia de tu Nakṣatra de referencia (${deha.natal.sign})`)}</div>` : ''}
-          <div class="kv" style="margin-top:14px;">
-            <div class="k">${T('Nectar zone','Zona de néctar')}</div><div class="v"><b style="color:var(--jade)">${deha.nectar.title}</b> <span style="color:var(--slate)">(${deha.nectar.sign})</span></div>
-            <div class="k">${T('Reading','Lectura')}</div><div class="v">${deha.nectar.note}.</div>
-            <div class="k">${T('Favours','Favorece')}</div><div class="v">${deha.nectar.goodFor}</div>
-          </div>
-          <div class="kv" style="margin-top:14px;">
-            <div class="k">${T('Poison zone','Zona de veneno')}</div><div class="v"><b style="color:var(--vermilion)">${deha.poison.title}</b> <span style="color:var(--slate)">(${deha.poison.sign})</span></div>
-            <div class="k">${T('Reading','Lectura')}</div><div class="v">${deha.poison.note}.</div>
-            <div class="k">${T('Avoid','Evitar')}</div><div class="v">${deha.poison.avoid}</div>
-          </div>
-        </div>
-      </div>
-      <div class="hint" style="margin-top:14px; line-height:1.6;">
-        ${T(`<b style="color:var(--muted)">Method (this app's synthesis, not a verbatim classical table):</b> the Nectar point is the Kālapuruṣa
-        (cosmic-body) zone of today's transiting Moon sign — wherever the Moon transits is read as the zone currently "alive." The Poison
-        point is the zone 7th from it, using the same opposition (Vedha) logic as the SBC panels above. Śukla pakṣa (waxing, bright half)
-        intensifies the Nectar reading; Kṛṣṇa pakṣa (waning, dark half) intensifies the Poison reading. Today's Tārā (computed from your
-        reference Nakṣatra, above) sharpens or softens both — this is the natal-Moon "biorhythm" driving the gauge. Not medical advice.`,
-        `<b style="color:var(--muted)">Método (síntesis propia de esta app, no una tabla clásica literal):</b> el punto de néctar es la zona
-        Kālapuruṣa (cuerpo cósmico) del signo por el que transita la Luna hoy — dondequiera que transite la Luna se lee como la zona
-        actualmente "viva". El punto de veneno es la zona 7 desde ahí, usando la misma lógica de oposición (Vedha) que los paneles SBC
-        de arriba. Śukla pakṣa (creciente, mitad clara) intensifica la lectura de néctar; Kṛṣṇa pakṣa (menguante, mitad oscura) intensifica
-        la lectura de veneno. El Tārā de hoy (calculado desde tu Nakṣatra de referencia, arriba) agudiza o suaviza ambas — este es el
-        "biorritmo" de la Luna natal que impulsa el medidor. No es consejo médico.`)}
-      </div>
-    </div>
-  </div>`;
-
   html += `<div class="panel"><div class="hd"><h2>${T('Latta &amp; Upagraha checks','Comprobaciones de Latta y Upagraha')}</h2><span class="note">${T('ch. XI, XVIII-2','cap. XI, XVIII-2')}</span></div><div class="bd">`;
   if (latta.length){
     html += latta.map(l=>{
@@ -2994,7 +3250,7 @@ function runAnalysis(){
 
   const refNote = T(refInfo.note, refInfo.note === "manual selection" ? "selección manual" : "calculado a partir de datos de nacimiento");
   html += `<footer class="notes">
-    <b>${T('Reference used:','Referencia usada:')}</b> ${refNote}${refP.star? ` — ${T('Janma Nakṣatra','Janma Nakṣatra')} ${refP.star}` : ''}${refP.consonant?T(`, consonant ${refP.consonant}`,`, consonante ${refP.consonant}`):''}.<br>
+    <b>${T('Reference used:','Referencia usada:')}</b> ${refNote}${refP.star? ` — ${T('Janma Nakṣatra','Janma Nakṣatra')} ${refP.star}` : ''}${refP.consonant?T(`, consonant ${refP.consonant}`,`, consonante ${refP.consonant}`):''}${refP.lifeBird?T(`, life bird ${refP.lifeBird} (fixed at birth — born in the ${refP.birthHalf==='dark'?'dark':'bright'} half, never recalculated from today's date)`,`, ave vital ${T(refP.lifeBird,PP_BIRDS_ES[refP.lifeBird])} (fija al nacer — nacido en la mitad ${refP.birthHalf==='dark'?'oscura':'clara'}, nunca recalculada según la fecha de hoy)`):''}.<br>
     <b>Ayanāṁśa:</b> ${ay==='tropical'?T('none (tropical)','ninguno (trópico)'):T('Lahiri, linear approximation','Lahiri, aproximación lineal')}. <b>${T('Julian Day (muhūrta):','Día Juliano (muhūrta):')}</b> ${mdt.jd.toFixed(5)}.<br>
     ${T(`<b>Vowel Vedha (ⓘ):</b> not modeled yet — the source ties vowels to specific corner cells of the full 81-Varga grid rather than to
     a per-star rule, and needs the complete grid (not just the perimeter) to compute correctly. Star, Rāśi and Consonant Vedha are live.<br>
@@ -3024,10 +3280,12 @@ function showPage(pageId){
   document.getElementById('hamburgerMenu').classList.remove('open');
   document.getElementById('hamburgerBtn').setAttribute('aria-expanded','false');
   if (pageId === 'pageNakshatra') renderNakshatraPage();
+  if (pageId === 'pageAnatomy') renderAnatomyPage();
   if (pageId === 'pageCalendar') renderCalendarPage();
   if (pageId === 'pageAntara') renderAntaraChakraPage();
   if (pageId === 'pageRemedies') renderRemediesPage();
   if (pageId === 'pageCommodities') renderCommoditiesPage();
+  if (pageId === 'pageHorary') renderHoraryPage();
 }
 
 // Nakṣatra Categories page — a fixed property of the reference person's own
@@ -3060,6 +3318,91 @@ function renderNakshatraPage(){
       </div>
     </div>
     <div class="hint" style="margin-top:6px;">${T('More Nakṣatra categories from the book can be added here once sourced.','Más categorías de Nakṣatra del libro se pueden añadir aquí una vez que se obtengan las fuentes.')}</div>
+  `;
+}
+
+// ---- Anatomy ----
+// Groups body-reading panels under one page. Independent of the Muhūrta
+// Gauge's Moment-to-Judge fields — always reflects the real current moment,
+// same convention as the Commodities/Remedies pages. "Overall" below is the
+// Deha Chakra Nectar/Poison gauge, moved here unchanged from the main page
+// (previously inline there) — same computeDehaChakra()/renderBodyGauge()
+// this app already had, just re-housed.
+function renderAnatomyPage(){
+  const container = document.getElementById('anatomyPageContent');
+  if (!container) return;
+
+  const refInfo = getReferencePanchaka();
+  const refP = refInfo.panch;
+  const n = new Date();
+  const jd = julianDay(n.getFullYear(), n.getMonth()+1, n.getDate(), n.getHours(), n.getMinutes(), n.getSeconds(), -n.getTimezoneOffset()/60);
+  const ay = document.getElementById('ayanamsaMode') ? document.getElementById('ayanamsaMode').value : 'lahiri';
+  const pos = computePositions(jd, 0, 0, ay);
+  const panch = computePanchanga(pos);
+  const tara = refP.star ? computeTara(pos, refP) : null;
+  const deha = computeDehaChakra(pos, panch, refP, tara);
+  const tithiInPaksha = panch.tithiNum<=15 ? panch.tithiNum : panch.tithiNum-15;
+  const sookshma = chandraSookshmaRow(panch.paksha, tithiInPaksha);
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('Anatomy','Anatomía')}</h2><span class="note">${T('body-reading panels','paneles de lectura corporal')}</span></div>
+      <div class="bd">
+        <div class="hint">${T('Two ways this app reads the body from the sky, both live: below is the Rāśi-level "Overall" gauge (which zodiac zone is Nectar/Poison right now), and under it, the Tithi-level "Chandra Sookshmam" reading (which specific body point is Nectar/Poison today).','Dos formas en que esta app lee el cuerpo desde el cielo, ambas en vivo: abajo está el medidor "General" a nivel de Rāśi (qué zona zodiacal es Néctar/Veneno ahora mismo), y debajo, la lectura "Chandra Sookshmam" a nivel de Tithi (qué punto corporal específico es Néctar/Veneno hoy).')}</div>
+      </div>
+    </div>
+
+    <h3 style="margin:18px 0 6px; font-family:var(--mono); font-size:11.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold);">${T('1 · Overall','1 · General')}</h3>
+    <div class="panel"><div class="hd"><h2>${T('Deha Chakra — Nectar &amp; Poison Point Gauge','Deha Chakra — Medidor del punto de néctar y veneno')}</h2><span class="note">${deha.bright?T('Śukla pakṣa · bright half','Śukla pakṣa · mitad clara'):T('Kṛṣṇa pakṣa · dark half','Kṛṣṇa pakṣa · mitad oscura')}</span></div>
+      <div class="bd">
+        <div class="chakra-wrap">
+          <div style="flex:none; min-width:200px;">${renderBodyGauge(deha)}</div>
+          <div class="chakra-legend" style="flex:1; min-width:280px;">
+            <div class="li"><span class="sw" style="background:rgba(23,117,80,0.3);border:1px solid var(--jade)"></span> ${T("Nectar point (Amṛta Sthāna) — today's transiting Moon zone","Punto de néctar (Amṛta Sthāna) — la zona de tránsito de la Luna de hoy")}</div>
+            <div class="li"><span class="sw" style="background:rgba(176,50,32,0.3);border:1px solid var(--vermilion)"></span> ${T('Poison point (Viṣa Sthāna) — the opposite (Vedha) zone','Punto de veneno (Viṣa Sthāna) — la zona opuesta (Vedha)')}</div>
+            ${deha.natal ? `<div class="li"><span class="sw" style="background:var(--body-fill);border:1.5px solid var(--gold)"></span> ${T(`Natal marker — your reference Nakṣatra's own zone (${deha.natal.sign})`, `Marcador natal — la zona propia de tu Nakṣatra de referencia (${deha.natal.sign})`)}</div>` : ''}
+            <div class="kv" style="margin-top:14px;">
+              <div class="k">${T('Nectar zone','Zona de néctar')}</div><div class="v"><b style="color:var(--jade)">${deha.nectar.title}</b> <span style="color:var(--slate)">(${deha.nectar.sign})</span></div>
+              <div class="k">${T('Reading','Lectura')}</div><div class="v">${deha.nectar.note}.</div>
+              <div class="k">${T('Favours','Favorece')}</div><div class="v">${deha.nectar.goodFor}</div>
+            </div>
+            <div class="kv" style="margin-top:14px;">
+              <div class="k">${T('Poison zone','Zona de veneno')}</div><div class="v"><b style="color:var(--vermilion)">${deha.poison.title}</b> <span style="color:var(--slate)">(${deha.poison.sign})</span></div>
+              <div class="k">${T('Reading','Lectura')}</div><div class="v">${deha.poison.note}.</div>
+              <div class="k">${T('Avoid','Evitar')}</div><div class="v">${deha.poison.avoid}</div>
+            </div>
+          </div>
+        </div>
+        <div class="hint" style="margin-top:14px; line-height:1.6;">
+          ${T(`<b style="color:var(--muted)">Method (this app's synthesis, not a verbatim classical table):</b> the Nectar point is the Kālapuruṣa
+          (cosmic-body) zone of today's transiting Moon sign — wherever the Moon transits is read as the zone currently "alive." The Poison
+          point is the zone 7th from it, using the same opposition (Vedha) logic as the SBC panels. Śukla pakṣa (waxing, bright half)
+          intensifies the Nectar reading; Kṛṣṇa pakṣa (waning, dark half) intensifies the Poison reading. Today's Tārā (computed from your
+          reference Nakṣatra) sharpens or softens both — this is the natal-Moon "biorhythm" driving the gauge. Not medical advice.`,
+          `<b style="color:var(--muted)">Método (síntesis propia de esta app, no una tabla clásica literal):</b> el punto de néctar es la zona
+          Kālapuruṣa (cuerpo cósmico) del signo por el que transita la Luna hoy — dondequiera que transite la Luna se lee como la zona
+          actualmente "viva". El punto de veneno es la zona 7 desde ahí, usando la misma lógica de oposición (Vedha) que los paneles SBC.
+          Śukla pakṣa (creciente, mitad clara) intensifica la lectura de néctar; Kṛṣṇa pakṣa (menguante, mitad oscura) intensifica
+          la lectura de veneno. El Tārā de hoy (calculado desde tu Nakṣatra de referencia) agudiza o suaviza ambas — este es el
+          "biorritmo" de la Luna natal que impulsa el medidor. No es consejo médico.`)}
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin:22px 0 6px; font-family:var(--mono); font-size:11.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold);">${T('2 · Chandra Sookshmam (Manas reading)','2 · Chandra Sookshmam (lectura del Manas)')}</h3>
+    <div class="panel"><div class="hd"><h2>${T('Chandra Sookshmam — Tithi Nectar &amp; Poison Points','Chandra Sookshmam — Puntos de néctar y veneno por Tithi')}</h2><span class="note">${panch.tithiName} · ${panch.paksha==='Shukla'?T('bright half','mitad clara'):T('dark half','mitad oscura')}</span></div>
+      <div class="bd">
+        <div class="kv">
+          <div class="k">Tithi</div><div class="v">${panch.tithiName} <span style="color:var(--slate)">(${panch.paksha}, ${T('no.','n.º')} ${panch.tithiNum})</span></div>
+          <div class="k">${T('Nectar point','Punto de néctar')}</div><div class="v"><b style="color:var(--jade)">${T(sookshma.nectar.en, sookshma.nectar.es)}</b></div>
+          <div class="k">${T('Poison point','Punto de veneno')}</div><div class="v"><b style="color:var(--vermilion)">${T(sookshma.poison.en, sookshma.poison.es)}</b></div>
+        </div>
+        <div class="hint" style="margin-top:12px; line-height:1.6;">${T(`<b style="color:var(--muted)">Reading (source's own framing):</b> the Nectar point favours gentle attention or treatment today; the Poison point is best left alone — the source states that intervention (vibration or surgery) at the Poison point tends not to succeed, while the same at the Nectar point tends to. Not medical advice.`,
+        `<b style="color:var(--muted)">Lectura (marco de la propia fuente):</b> el punto de néctar favorece hoy la atención o el tratamiento suave; el punto de veneno es mejor dejarlo en paz — la fuente indica que intervenir (vibración o cirugía) en el punto de veneno tiende a no tener éxito, mientras que en el punto de néctar sí. No es consejo médico.`)}</div>
+        <div class="hint" style="margin-top:8px;">${T(`Source: Pulippani &amp; Rao, <i>Biorhythms of Natal Moon</i>, p.240, "Table of Poison and Nector Points in the Human Body" — the general-audience table, explicitly framed by the book as applying equally to anyone, not tied to any individual's own birth bird. A second, per-bird table earlier in the same chapter (p.237-238) is deliberately not transcribed anywhere in this app — it's scoped to locating a specific person's body by their own birth bird for a stated purpose this app won't build.`,
+        `Fuente: Pulippani y Rao, <i>Biorhythms of Natal Moon</i>, p.240, "Table of Poison and Nector Points in the Human Body" — la tabla de uso general, enmarcada explícitamente por el libro como aplicable a cualquier persona, sin vincularse al ave natal de nadie en particular. Una segunda tabla, por ave, anterior en el mismo capítulo (p.237-238) se omite deliberadamente en toda esta app — está circunscrita a ubicar el cuerpo de una persona concreta según su propia ave natal, para un propósito que esta app no va a construir.`)}</div>
+      </div>
+    </div>
   `;
 }
 
@@ -3705,14 +4048,72 @@ function commodityLiveNow(ayanamsaMode){
   return { rows, sunSign:SIGNS[sunSignIdx], venusSign:SIGNS[venusSignIdx], tithiName:panch.tithiName, isFullOrNew, priceDirection };
 }
 
+/* =========================================================================
+   MODERN SYNTHESIS — equities and government bonds/treasuries did not exist
+   when Bṛhat Saṁhitā was written, so there is nothing to transcribe for
+   them from ch. XLI/XLII. Explicitly this app's own synthesis: it applies
+   standard, widely-documented Vedic planetary significations (karakatva —
+   e.g. Bṛhat Parāśara Horā Śāstra's karaka chapter) to two modern
+   instrument categories, reusing the same dignity()/dignityTier() sign-
+   dignity classification already used elsewhere in this app (though not
+   dignityWeight()'s Vedha-strength scale — that grades how hard a Vedha hit
+   lands, not whether a placement is favourable, which is what this panel
+   actually wants) rather than inventing a new one. Not validated Jyotish
+   teaching, not financial advice.
+
+   Mercury (trade/commerce — Vaṇik karaka) is read as primary for equities,
+   with Jupiter (a Dhana/wealth karaka, also karaka of growth/expansion) as
+   a secondary tailwind and Rāhu flagged separately as the classical
+   speculation/mania significator. This is the LOOSER of the two mappings:
+   equity ownership also brushes Jupiter's and Venus's wealth significations,
+   so collapsing "stocks" to one planet is a real simplification.
+
+   Saturn (structure, long duration, government administration) is the
+   TIGHTER fit for government bonds/treasuries — sovereign, long-duration,
+   fixed-structure debt lines up closely with Saturn's standard karakas. The
+   Sun, classical karaka of the ruling authority/the state, is read as
+   secondary context for the issuing government.
+   ========================================================================= */
+function modernSynthesisLiveNow(ayanamsaMode){
+  const n = new Date();
+  const jd = julianDay(n.getFullYear(), n.getMonth()+1, n.getDate(), n.getHours(), n.getMinutes(), n.getSeconds(), -n.getTimezoneOffset()/60);
+  const pos = computePositions(jd, 0, 0, ayanamsaMode);
+  const readGraha = g => {
+    const sid = norm360(pos[g].sidereal);
+    const retro = pos[g].speed < 0;
+    return { graha:g, sign:SIGNS[Math.floor(sid/30)], dignityStr:dignity(g, sid), tier:dignityTier(g, sid), retrograde:retro };
+  };
+  return {
+    stocks: { primary:readGraha('Mercury'), secondary:readGraha('Jupiter'), flag:readGraha('Rahu') },
+    bonds:  { primary:readGraha('Saturn'),  secondary:readGraha('Sun') }
+  };
+}
+// A plain favourable/unfavourable read of a graha's own sign-dignity —
+// deliberately NOT dignityWeight()'s scale above, which grades Vedha-
+// casting STRENGTH rather than favourability (a malefic in an enemy sign is
+// classically at its strongest there, not its best, so reusing that number
+// here would mislabel it as a "tailwind"). This is just the ordinary
+// exalted/own-sign-is-good, enemy/debilitated-is-bad reading.
+function synthesisTier(tier){
+  if (tier === 'Exalted' || tier === 'Own' || tier === 'Own (per source note)') return { label:T('Favourable placement','Ubicación favorable'), cls:'good' };
+  if (tier === 'Friend') return { label:T('Mildly favourable','Levemente favorable'), cls:'good' };
+  if (tier === 'Enemy' || tier === 'Debilitated') return { label:T('Unfavourable placement','Ubicación desfavorable'), cls:'bad' };
+  return { label:T('Neutral','Neutral'), cls:'neutral' };
+}
+
 function renderCommoditiesPage(){
   const container = document.getElementById('commoditiesPageContent');
   if (!container) return;
 
   const ay = document.getElementById('ayanamsaMode').value;
   const live = commodityLiveNow(ay);
+  const synth = modernSynthesisLiveNow(ay);
   const gName = g => T(g, GRAHA_ES[g]);
   const commoditiesOf = sign => T(SIGN_COMMODITIES[sign].en, SIGN_COMMODITIES[sign].es).join(', ');
+  const synthRow = (labelEn, labelEs, r) => {
+    const tier = synthesisTier(r.tier);
+    return `<div class="k">${T(labelEn,labelEs)}</div><div class="v">${r.sign} · ${r.dignityStr}${r.retrograde?` · ${T('retrograde','retrógrado')}`:''} <span class="tag ${tier.cls}">${tier.label}</span></div>`;
+  };
 
   const rowsHtml = live.rows.map(r=>{
     const venusTag = `<span class="tag ${r.venusVerdict==='flourish'?'good':'bad'}">${gName('Venus')}: ${r.venusVerdict==='flourish' ? T('flourish','abundancia') : T('perish-risk (6th/7th house)','riesgo de escasez (casa 6.ª/7.ª)')}</span>`;
@@ -3792,15 +4193,241 @@ function renderCommoditiesPage(){
       </div>
     </div>
 
+    <div class="panel">
+      <div class="hd"><h2>${T('Modern Synthesis — Stocks &amp; Treasuries','Síntesis Moderna — Acciones y Bonos del Tesoro')}</h2><span class="note">${T("this app's own synthesis — not ch. XLI/XLII","síntesis propia de esta app — no cap. XLI/XLII")}</span></div>
+      <div class="bd">
+        <div class="warnbox">${T('Equities and government bonds did not exist when Bṛhat Saṁhitā was written, so nothing below is transcribed from it. This section applies standard Vedic planetary significations (karakatva) to two modern instrument categories, using the same dignity engine the SBC score uses elsewhere in this app. Not validated Jyotish teaching, not financial advice.','Las acciones y los bonos del Tesoro no existían cuando se escribió el Bṛhat Saṁhitā, así que nada de lo siguiente se transcribe de él. Esta sección aplica las significaciones planetarias védicas estándar (karakatva) a dos categorías de instrumentos modernos, usando el mismo motor de dignidad que la puntuación SBC usa en otras partes de esta app. No es enseñanza jyotish validada, ni asesoría financiera.')}</div>
+        <div class="hint" style="margin-top:8px;">${T('In modern markets these two are often read in tension with one another (risk-on / risk-off — rising yields pressuring equities, or the reverse). This app deliberately does not assume that relationship: the two readings below are independent astrological reads of their own significators, not coupled to each other.','En los mercados modernos, estos dos suelen leerse en tensión mutua (risk-on / risk-off — rendimientos al alza presionando la renta variable, o al revés). Esta app deliberadamente no asume esa relación: las dos lecturas de abajo son lecturas astrológicas independientes de sus propios significadores, no acopladas entre sí.')}</div>
+
+        <h3 style="margin-top:16px; margin-bottom:4px; font-size:13px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Equities / Stocks','Acciones / Renta Variable')}</h3>
+        <div class="hint">${T('Mercury — the classical trade/commerce significator — read as primary; Jupiter (a wealth/growth karaka) as a secondary tailwind; Rāhu flagged separately as the classical speculation significator. The looser of the two mappings on this page: equity ownership also brushes Jupiter\'s and Venus\'s own wealth significations.','Mercurio — el significador clásico del comercio — se lee como primario; Júpiter (un karaka de riqueza/crecimiento) como impulso secundario; Rāhu señalado aparte como el significador clásico de la especulación. El más laxo de los dos mapeos de esta página: la propiedad de acciones también roza las significaciones de riqueza propias de Júpiter y Venus.')}</div>
+        <div class="kv" style="margin-top:8px;">
+          ${synthRow('Mercury (primary)','Mercurio (primario)', synth.stocks.primary)}
+          ${synthRow('Jupiter (tailwind)','Júpiter (impulso)', synth.stocks.secondary)}
+          ${synthRow('Rāhu (speculative flag)','Rāhu (bandera especulativa)', synth.stocks.flag)}
+        </div>
+
+        <h3 style="margin-top:18px; margin-bottom:4px; font-size:13px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Government Bonds / Treasuries','Bonos del Tesoro / Deuda Soberana')}</h3>
+        <div class="hint">${T('Saturn — structure, long duration, government administration — read as primary; the Sun, classical significator of the ruling authority, as secondary context for the issuing state. The tighter fit of the two mappings on this page: sovereign, long-duration, fixed-structure debt lines up closely with Saturn\'s standard karakas.','Saturno — estructura, larga duración, administración de gobierno — se lee como primario; el Sol, significador clásico de la autoridad gobernante, como contexto secundario del estado emisor. El más ajustado de los dos mapeos de esta página: la deuda soberana, de larga duración y estructura fija, coincide de cerca con los karakas estándar de Saturno.')}</div>
+        <div class="kv" style="margin-top:8px;">
+          ${synthRow('Saturn (primary)','Saturno (primario)', synth.bonds.primary)}
+          ${synthRow('Sun (state context)','Sol (contexto estatal)', synth.bonds.secondary)}
+        </div>
+
+        <div class="hint" style="margin-top:14px;">${T('Gold is not synthesized here — it already appears directly in the sourced table above (Aries and Capricorn both govern it in ch. XLI itself).','El oro no se sintetiza aquí — ya aparece directamente en la tabla con fuente de arriba (Aries y Capricornio lo gobiernan en el propio cap. XLI).')}</div>
+      </div>
+    </div>
+
     <footer class="notes" style="line-height:1.8;">
-      <b>${T('Sources.','Fuentes.')}</b> ${T('Bṛhat Saṁhitā (Varāhamihira), N. Chidambaram\'s 1884 translation, Chapter XLI ("On Commodities") and Chapter XLII ("On the Price of Commodities"), transcribed directly with the two ambiguous clauses flagged above and below where relevant. Chapter XL ("Sasya Jātaka", vegetable horoscopy) predicts crop yield from the Sun\'s entry into Scorpio or Taurus through many interlocking, mutually-conditional stanzas — genuinely rich material, but it doesn\'t reduce to a clean live check the way ch. XLI-XLII do, so it is cited here for context rather than computed. Śl. 13 of ch. XLII (an Atimitra/"very friendly" planet conjunct the Sun or Moon) is likewise not computed — it needs the fuller five-grade Pañcadhā Maitri (temporal + natural friendship) system, which this app does not yet implement.','Bṛhat Saṁhitā (Varāhamihira), traducción de N. Chidambaram de 1884, Capítulo XLI ("Sobre las materias primas") y Capítulo XLII ("Sobre el precio de las materias primas"), transcritos directamente con las dos cláusulas ambiguas señaladas arriba y abajo donde corresponde. El Capítulo XL ("Sasya Jātaka", horoscopía vegetal) predice la cosecha a partir de la entrada del Sol en Escorpio o Tauro mediante muchas estrofas entrelazadas y mutuamente condicionales — material genuinamente rico, pero no se reduce a una verificación en vivo limpia como sí lo hacen los cap. XLI-XLII, así que se cita aquí como contexto y no se calcula. La śl. 13 del cap. XLII (un planeta Atimitra/"muy amigo" en conjunción con el Sol o la Luna) tampoco se calcula — requiere el sistema completo de cinco grados de Pañcadhā Maitri (amistad temporal + natural), que esta app aún no implementa.')}
-      <br><br>${T('None of this is financial advice — it is a transcription of a 1,500-year-old text\'s own stated method, offered for its historical and astrological interest.','Nada de esto es asesoría financiera — es una transcripción del método propio de un texto de 1.500 años de antigüedad, ofrecido por su interés histórico y astrológico.')}
+      <b>${T('Sources.','Fuentes.')}</b> ${T('Bṛhat Saṁhitā (Varāhamihira), N. Chidambaram\'s 1884 translation, Chapter XLI ("On Commodities") and Chapter XLII ("On the Price of Commodities"), transcribed directly with the two ambiguous clauses flagged above and below where relevant. Chapter XL ("Sasya Jātaka", vegetable horoscopy) predicts crop yield from the Sun\'s entry into Scorpio or Taurus through many interlocking, mutually-conditional stanzas — genuinely rich material, but it doesn\'t reduce to a clean live check the way ch. XLI-XLII do, so it is cited here for context rather than computed. Śl. 13 of ch. XLII (an Atimitra/"very friendly" planet conjunct the Sun or Moon) is likewise not computed — it needs the fuller five-grade Pañcadhā Maitri (temporal + natural friendship) system, which this app does not yet implement. The Modern Synthesis panel above is separately sourced: general Vedic karaka doctrine (e.g. Bṛhat Parāśara Horā Śāstra\'s karaka chapter) applied by this app to instrument categories the classical texts never addressed — clearly not a transcription of any single named source.','Bṛhat Saṁhitā (Varāhamihira), traducción de N. Chidambaram de 1884, Capítulo XLI ("Sobre las materias primas") y Capítulo XLII ("Sobre el precio de las materias primas"), transcritos directamente con las dos cláusulas ambiguas señaladas arriba y abajo donde corresponde. El Capítulo XL ("Sasya Jātaka", horoscopía vegetal) predice la cosecha a partir de la entrada del Sol en Escorpio o Tauro mediante muchas estrofas entrelazadas y mutuamente condicionales — material genuinamente rico, pero no se reduce a una verificación en vivo limpia como sí lo hacen los cap. XLI-XLII, así que se cita aquí como contexto y no se calcula. La śl. 13 del cap. XLII (un planeta Atimitra/"muy amigo" en conjunción con el Sol o la Luna) tampoco se calcula — requiere el sistema completo de cinco grados de Pañcadhā Maitri (amistad temporal + natural), que esta app aún no implementa. El panel de Síntesis Moderna de arriba tiene fuente aparte: doctrina general védica de karakas (p. ej. el capítulo de karakas del Bṛhat Parāśara Horā Śāstra) aplicada por esta app a categorías de instrumentos que los textos clásicos nunca abordaron — claramente no es una transcripción de una sola fuente nombrada.')}
+      <br><br>${T('None of this is financial advice — it is a transcription of a 1,500-year-old text\'s own stated method (plus, in the Modern Synthesis panel, this app\'s own extrapolation from it), offered for historical and astrological interest.','Nada de esto es asesoría financiera — es una transcripción del método propio de un texto de 1.500 años de antigüedad (además, en el panel de Síntesis Moderna, una extrapolación propia de esta app a partir de él), ofrecido por su interés histórico y astrológico.')}
     </footer>
+  `;
+}
+
+// ---- Horary / Praśna (Sarvato Bhadra Chakra) ----
+// A self-contained page: erects the SBC "for the moment when a question is
+// asked" (ch. Horary Astrology, p.27) rather than reading the Muhūrta
+// Gauge's Reference Person or Moment-to-Judge fields — a Praśna has no
+// birth data of its own, only the question's opening syllable and the
+// instant it's cast.
+let horaryQuestionText = '';
+let horarySelectedKey = null; // syllable key (lowercased) chosen via the manual select, or null to auto-detect from the question text
+let horaryLastMatchedAlpha = '';
+
+function escHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function computeHoraryResult(match){
+  const {star, pada, syllable} = match;
+  const sign = prasnaSignForStarPada(star, pada);
+  const refP = { star, sign, tithi:null, consonant:syllable, vowel:null };
+
+  const n = new Date();
+  const jd = julianDay(n.getFullYear(), n.getMonth()+1, n.getDate(), n.getHours(), n.getMinutes(), n.getSeconds(), -n.getTimezoneOffset()/60);
+  const ay = document.getElementById('ayanamsaMode') ? document.getElementById('ayanamsaMode').value : 'lahiri';
+  const pos = computePositions(jd, 0, 0, ay);
+  const vedha = evaluateVedha(pos, null, refP);
+
+  const starHits = vedha.hits.filter(h=>h.struck.includes("Star (Janma Nakṣatra)"));
+  const consonantHits = vedha.hits.filter(h=>h.struck.includes("Consonant"));
+  const signHits = vedha.hits.filter(h=>h.struck.includes("Rāśi (Moon sign)"));
+  const starMalefic = starHits.filter(h=>!h.benefic);
+  const consonantMalefic = consonantHits.filter(h=>!h.benefic);
+  const signBenefic = signHits.filter(h=>h.benefic);
+  const signMalefic = signHits.filter(h=>!h.benefic);
+
+  return {
+    star, pada, syllable, sign, quality: SIGN_QUALITY[sign], moment:n, vedha,
+    starMalefic, consonantMalefic, signBenefic, signMalefic,
+    decline: starMalefic.length>0 || consonantMalefic.length>0
+  };
+}
+
+function horaryAfflictionBlock(hits){
+  const tier = Math.min(2, hits.length);
+  const dirs = [...new Set(hits.map(h=>h.dir))];
+  let text = T(PRASNA_AFFLICTION_READING[tier].en, PRASNA_AFFLICTION_READING[tier].es);
+  if (tier===2 && dirs.length>=2){
+    const dirsDisp = dirs.map(d=>T(d,{Front:'Frente',Right:'Derecha',Left:'Izquierda'}[d])).join(' + ');
+    text += ' ' + T(PRASNA_TWO_SIDED_EN, PRASNA_TWO_SIDED_ES).replace('{dirs}', dirsDisp);
+  }
+  return text;
+}
+
+function castHorary(){
+  const input = document.getElementById('horaryQuestionInput');
+  horaryQuestionText = input ? input.value : '';
+  horarySelectedKey = null;
+  renderHoraryPage();
+}
+function setHorarySyllable(key){
+  horarySelectedKey = key || null;
+  renderHoraryPage();
+}
+
+function renderHoraryPage(){
+  const container = document.getElementById('horaryPageContent');
+  if (!container) return;
+
+  const autoMatch = matchPrasnaSyllable(horaryQuestionText);
+  const activeKey = horarySelectedKey || (autoMatch ? autoMatch.syllable.toLowerCase() : null);
+  const match = activeKey ? PRASNA_SYLLABLE_INDEX[activeKey] : null;
+  horaryLastMatchedAlpha = (horaryQuestionText.match(/[A-Za-z]+/)||[''])[0];
+
+  const syllableOptions = NAK28_ORDER.map(star=>{
+    const opts = NAK_PADA_CONSONANTS[star].map((syl,i)=>{
+      const key = syl.toLowerCase();
+      return `<option value="${key}" ${key===horarySelectedKey ? 'selected':''}>${syl} — ${star} (${T('pada','pada')} ${i+1})</option>`;
+    }).join('');
+    return `<optgroup label="${star}">${opts}</optgroup>`;
+  }).join('');
+
+  const HORARY_STRUCK_LABEL = {
+    "Star (Janma Nakṣatra)": T('Praśna Star','Estrella Praśna'),
+    "Rāśi (Moon sign)": T('Praśna Rāśi','Rāśi de la Praśna'),
+    "Consonant": T('Consonant','Consonante')
+  };
+
+  let resultHtml = '';
+  if (horaryQuestionText.trim() || horarySelectedKey){
+    if (!match){
+      resultHtml = `<div class="hint" style="margin-top:12px;">${T(
+        `No Sarvato Bhadra syllable starts with "${escHtml(horaryLastMatchedAlpha)}" in the 28-star pada table (ch. III). Pick the closest syllable directly below, or rephrase the question's opening word.`,
+        `Ninguna sílaba del Sarvato Bhadra empieza con "${escHtml(horaryLastMatchedAlpha)}" en la tabla de padas de 28 estrellas (cap. III). Elige la sílaba más cercana abajo, o reformula la palabra inicial de la pregunta.`
+      )}</div>`;
+    } else {
+      const r = computeHoraryResult(match);
+
+      const declineBanner = r.decline ? `
+        <div class="verdict" style="margin-top:14px;">
+          <div class="ribbon" style="background:var(--vermilion)"></div>
+          <div class="body">
+            <div class="tier"><small>${T('Classical guidance','Guía clásica')}</small>${T('Do not answer this question','No respondas esta pregunta')} <span style="color:var(--vermilion)">— ${T('under affliction','bajo aflicción')}</span></div>
+            <div class="desc">${T('The source is explicit: when the Praśna Star or Consonant is under malefic Vedha, the astrologer should decline to answer — evil effects would follow. The full mechanical breakdown is still shown below, for transparency.','La fuente es explícita: cuando la Estrella o Consonante de la Praśna está bajo Vedha maléfico, el astrólogo debe abstenerse de responder — seguirían efectos adversos. Aun así, el desglose mecánico completo se muestra abajo, para transparencia.')}</div>
+          </div>
+        </div>` : `
+        <div class="verdict" style="margin-top:14px;">
+          <div class="ribbon" style="background:var(--jade)"></div>
+          <div class="body">
+            <div class="tier"><small>${T('Classical guidance','Guía clásica')}</small>${T('Safe to answer','Se puede responder')} <span style="color:var(--jade)">— ${T('no affliction on Star or Consonant','sin aflicción en Estrella o Consonante')}</span></div>
+            <div class="desc">${T('Neither the Praśna Star nor the Consonant is currently under malefic Vedha — proceed to the Rāśi and sign-quality reading below.','Ni la Estrella ni la Consonante de la Praśna están actualmente bajo Vedha maléfico — procede a la lectura de Rāśi y calidad de signo de abajo.')}</div>
+          </div>
+        </div>`;
+
+      const kvRows = `
+        <div class="kv">
+          <div class="k">${T('Praśna Star','Estrella Praśna')}</div><div class="v">${r.star} <small>(${T('pada','pada')} ${r.pada})</small></div>
+          <div class="k">${T('Consonant','Consonante')}</div><div class="v">${r.syllable}</div>
+          <div class="k">${T('Rāśi','Rāśi')}</div><div class="v">${r.sign} <span class="tag neutral" style="margin-left:6px;">${T({Moving:'Chara / movable',Fixed:'Sthira / fixed',Mutable:'Ubhaya / dual'}[r.quality],{Moving:'Chara / móvil',Fixed:'Sthira / fijo',Mutable:'Ubhaya / dual'}[r.quality])}</span></div>
+          <div class="k">${T('Moment cast','Momento lanzado')}</div><div class="v">${r.moment.toLocaleString(LANG==='es'?'es-ES':'en-US')}</div>
+        </div>`;
+
+      const hitTypeMap = new Map();
+      r.vedha.hits.forEach(h=>{ hitTypeMap.set(h.targetStar, {type:h.benefic?"good":"bad"}); });
+      const getHit = { has: s => hitTypeMap.get(s) || false };
+
+      const pillrow = r.vedha.hits.length ? `<div class="pillrow" style="margin-top:10px;">${r.vedha.hits.map(h=>
+        `<span class="tag ${h.benefic?'good':'bad'}">${T(h.graha,GRAHA_ES[h.graha])} ${T('on','en')} ${h.onStar} (${T(h.dir,{Front:'Frente',Right:'Derecha',Left:'Izquierda'}[h.dir])} Vedha) → ${h.struck.map(s=>HORARY_STRUCK_LABEL[s]||s).join(' + ')} — ${T(GRAHA_VEDHA_READING[h.graha], GRAHA_VEDHA_READING_ES[h.graha])}</span>`
+      ).join('')}</div>` : `<div class="hint" style="margin-top:10px;">${T('No graha is casting Vedha on the Praśna Star, Consonant or Rāśi right now.','Ningún graha está lanzando Vedha sobre la Estrella, Consonante o Rāśi de la Praśna ahora mismo.')}</div>`;
+
+      const starReadText = horaryAfflictionBlock(r.starMalefic);
+      const consReadText = horaryAfflictionBlock(r.consonantMalefic);
+
+      let signReadText;
+      if (r.signBenefic.length && r.signMalefic.length){
+        const bW = r.signBenefic.reduce((s,h)=>s+dignityWeight(h.graha,h.siderealLong,h.dir),0);
+        const mW = r.signMalefic.reduce((s,h)=>s+dignityWeight(h.graha,h.siderealLong,h.dir),0);
+        const lean = bW>mW ? T('the benefic side reads stronger here','el lado benéfico se lee más fuerte aquí') : mW>bW ? T('the malefic side reads stronger here','el lado maléfico se lee más fuerte aquí') : T('the two sides read about equally strong','los dos lados se leen con fuerza similar');
+        signReadText = T(`Both benefic and malefic Vedha are landing on the Rāśi — mixed results, depending on the strength of the planets involved. By dignity, ${lean}.`,
+                          `Vedha benéfico y maléfico caen ambos sobre el Rāśi — resultados mixtos, según la fuerza de los planetas implicados. Por dignidad, ${lean}.`);
+      } else if (r.signBenefic.length){
+        signReadText = T('The Rāśi is aspected by benefic Vedha only — good effects will follow.','El Rāśi está aspectado solo por Vedha benéfico — seguirán buenos efectos.');
+      } else if (r.signMalefic.length){
+        signReadText = T('The Rāśi is aspected by malefic Vedha only — evil effects are indicated.','El Rāśi está aspectado solo por Vedha maléfico — se indican efectos adversos.');
+      } else {
+        signReadText = T('No Vedha is currently landing on the Rāśi — a quiet reading, neither blessed nor afflicted.','Actualmente no cae Vedha sobre el Rāśi — una lectura tranquila, ni bendecida ni afligida.');
+      }
+      const qualityText = T(PRASNA_QUALITY_READING[r.quality].en, PRASNA_QUALITY_READING[r.quality].es);
+
+      resultHtml = `
+        ${declineBanner}
+        <div class="panel" style="margin-top:14px;"><div class="hd"><h2>${T('Praśna Pañcaka','Pañcaka de la Praśna')}</h2><span class="note">ch. Horary Astrology / III</span></div>
+          <div class="bd">${kvRows}${pillrow}</div>
+        </div>
+        <div class="grid2" style="margin-top:14px;">
+          <div class="panel"><div class="hd"><h2>Sarvato Bhadra Chakra</h2><span class="note">${T('perimeter ring, ch. III','anillo perimetral, cap. III')}</span></div>
+            <div class="bd">${renderSBCRing(getHit, r.star)}</div></div>
+          <div class="panel"><div class="hd"><h2>${T('Affliction readings','Lecturas de aflicción')}</h2><span class="note">${T('ch. Horary Astrology, p.27-28','cap. Horaria, p.27-28')}</span></div>
+            <div class="bd">
+              <div class="kv" style="grid-template-columns: 130px 1fr;">
+                <div class="k">${T('Star','Estrella')}</div><div class="v">${starReadText}</div>
+                <div class="k">${T('Consonant','Consonante')}</div><div class="v">${consReadText}</div>
+                <div class="k">${T('Rāśi','Rāśi')}</div><div class="v">${signReadText}</div>
+                <div class="k">${T('Sign quality','Calidad del signo')}</div><div class="v">${qualityText}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hint" style="margin-top:12px;">${T('Note: the source also cross-checks Horary readings against the Dhuajadi Chakra (a further synchronizing chart) — not modeled in this app; no source text for it was found in the library on disk to transcribe faithfully.','Nota: la fuente también cruza las lecturas Horarias con el Dhuajadi Chakra (una carta de sincronización adicional) — no está modelado en esta app; no se encontró texto fuente en la biblioteca en disco para transcribirlo fielmente.')}</div>
+      `;
+    }
+  } else {
+    resultHtml = `<div class="hint" style="margin-top:12px;">${T('Type a question and press Cast Praśna. This page erects the Sarvato Bhadra Chakra for the exact moment you cast it — the Reference Person / Moment-to-Judge fields on the Muhūrta Gauge page are not used here.','Escribe una pregunta y pulsa Lanzar Praśna. Esta página erige el Sarvato Bhadra Chakra para el momento exacto en que la lanzas — los campos de Persona de Referencia / Momento a Evaluar de la página Muhūrta Gauge no se usan aquí.')}</div>`;
+  }
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('Horary / Praśna','Horaria / Praśna')}</h2><span class="note">Sarvato Bhadra Chakra, ch. Horary Astrology, p.27-28</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:12px; line-height:1.6;">${T('Erect the SBC "for the moment when a question is asked": the question\'s opening syllable stands in for the Consonant Pañcaka, its owning Star and Pada give the Star Pañcaka and the Rāśi, and today\'s transiting grahas are checked for Vedha on all three — exactly as the main gauge checks Vedha on a birth Reference Person, just with the question itself in that seat.','Erige el SBC "para el momento en que se hace una pregunta": la sílaba inicial de la pregunta ocupa el lugar del Pañcaka de Consonante, su Estrella y Pada propietarias dan el Pañcaka de Estrella y el Rāśi, y los graha en tránsito de hoy se revisan por Vedha sobre los tres — igual que el medidor principal revisa Vedha sobre una Persona de Referencia natal, solo que aquí es la propia pregunta la que ocupa ese lugar.')}</div>
+        <label>${T('Your question (only the opening word/syllable matters)','Tu pregunta (solo importa la palabra/sílaba inicial)')}</label>
+        <input type="text" id="horaryQuestionInput" value="${escHtml(horaryQuestionText)}" placeholder="${T('e.g. Kunthi — will the ring be found today?','p. ej. Kunthi — ¿se encontrará el anillo hoy?')}" onkeydown="if(event.key==='Enter'){castHorary();}">
+        <button class="btn" type="button" onclick="castHorary()">${T('Cast Praśna','Lanzar Praśna')}</button>
+        <label style="margin-top:12px;">${T('Or pick the syllable directly','O elige la sílaba directamente')}</label>
+        <select onchange="setHorarySyllable(this.value)">
+          <option value="" ${!horarySelectedKey?'selected':''}>${T('— auto-detect from question —','— detectar automáticamente de la pregunta —')}</option>
+          ${syllableOptions}
+        </select>
+      </div>
+    </div>
+    ${resultHtml}
   `;
 }
 
 // Independent of runAnalysis()/the muhūrta being judged — always reflects the
 // real current moment. Re-run on bird-dropdown change and on a 60s interval.
+//
+// Bird-selection tracking: the dropdown should default to the reference
+// person's own life bird whenever a horoscope is (re)cast (birth star
+// changes — new profile, edited birth data, etc.), but shouldn't fight a
+// user who's deliberately exploring a different bird's chart, since this
+// function also re-runs untouched on the 60s interval tick. ppLastRefStar
+// remembers whose life bird we're tracking; ppLastAutoBird remembers what
+// we last auto-selected FOR that person, so a value that still matches it
+// means "nothing manual happened" rather than "the user picked this".
+let ppLastRefStar, ppLastAutoBird = null;
 function renderPPPanel(){
   const container = document.getElementById('ppPanelContainer');
   const checkbox = document.getElementById('chartPanchapakshi');
@@ -3809,10 +4436,19 @@ function renderPPPanel(){
   const refInfo = getReferencePanchaka();
   const refP = refInfo.panch;
   const live = ppLiveNow();
-  const ppLifeBird = refP.star ? birdOfStar(refP.star, live.half) : null;
+  const ppLifeBird = refP.lifeBird; // fixed at birth (refP.birthHalf) — never re-derived from live.half
 
   const prevSel = document.getElementById('ppBirdSelect')?.value;
-  const selectedBird = (prevSel && PP_BIRDS.includes(prevSel)) ? prevSel : (ppLifeBird || PP_BIRDS[0]);
+  const refStarChanged = refP.star !== ppLastRefStar;
+  const isManualOverride = !refStarChanged && prevSel && PP_BIRDS.includes(prevSel) && prevSel !== ppLastAutoBird;
+  let selectedBird;
+  if (isManualOverride){
+    selectedBird = prevSel; // a deliberate pick, different from our own last auto-selection — respect it
+  } else {
+    selectedBird = ppLifeBird || PP_BIRDS[0]; // new/first horoscope, or nothing manual happened — follow the life bird
+    ppLastAutoBird = selectedBird;
+  }
+  ppLastRefStar = refP.star;
 
   const ppDay = computePanchapakshiDay(live.weekdayEN, live.half);
   const selectedBirdMax = (live.half === "dark" ? PP_NATURAL_DARK : PP_NATURAL_BRIGHT)[selectedBird];
@@ -3860,6 +4496,22 @@ function renderPPPanel(){
     bestSlotHtml = `<div class="hint" style="margin-top:14px;">${T('No qualifying moment found in the next 24 hours.','No se encontró un momento adecuado en las próximas 24 horas.')}</div>`;
   }
 
+  // Ruling Day / Immune Day — whole-day flags, separate from the per-Yama
+  // strength above (see comment on ppRulingBird()). Ruling Day is split by
+  // day/night cycle and works for both halves (derived); Immune Day covers
+  // both cycles together and is bright-half only (dark-half table not
+  // confidently readable from the source — see PP_IMMUNE_DAYS_BRIGHT).
+  const cycleRulingBird = ppRulingBird(live.weekdayEN, live.half, live.dayHalf === 'day');
+  const isRulingNow = cycleRulingBird === selectedBird;
+  const immuneDaysForBird = live.half === 'bright' ? PP_IMMUNE_DAYS_BRIGHT[selectedBird] : null;
+  const isImmuneToday = immuneDaysForBird ? immuneDaysForBird.includes(live.weekdayEN) : false;
+  let rulingImmuneHtml = '';
+  if (isRulingNow){
+    rulingImmuneHtml = `<div style="margin-top:8px;"><span class="tag good">${T('Ruling Day','Día regente')}</span> <span class="hint" style="display:inline;">${T(`— ${selectedBird} rules the whole ${live.dayHalf} today; the source calls this fully favourable regardless of the moment-to-moment state above.`, `— ${T(selectedBird,PP_BIRDS_ES[selectedBird])} rige todo el ${live.dayHalf==='day'?'día':'noche'} hoy; la fuente lo considera totalmente favorable sin importar el estado momento a momento de arriba.`)}</span></div>`;
+  } else if (isImmuneToday){
+    rulingImmuneHtml = `<div style="margin-top:8px;"><span class="tag bad">${T('Immune Day','Día inmune')}</span> <span class="hint" style="display:inline;">${T(`— ${selectedBird} is dormant all day and night today; the source calls this unfavourable for any important activity regardless of the moment-to-moment state above.`, `— ${T(selectedBird,PP_BIRDS_ES[selectedBird])} está inactivo todo el día y la noche hoy; la fuente lo considera desfavorable para cualquier actividad importante sin importar el estado momento a momento de arriba.`)}</span></div>`;
+  }
+
   container.innerHTML = `
     <div class="pp-controls">
       <label>${T('Bird','Ave')}:</label>
@@ -3870,6 +4522,7 @@ function renderPPPanel(){
     <div class="kv" style="margin-top:14px;">
       <div class="k">${T('Now','Ahora')}</div><div class="v">${T(curState.mainState, PP_STATES_ES[curState.mainState])} · ${T(curState.abstractState, PP_STATES_ES[curState.abstractState])} <span style="color:var(--slate)">(${curState.strength.toFixed(3)})</span></div>
     </div>
+    ${rulingImmuneHtml}
     ${bestSlotHtml}
     <div class="hint" style="margin-top:14px; line-height:1.6;">
       ${T(`<b style="color:var(--muted)">Method.</b> Bird per Nakṣatra from Table No.1 (different, non-mirrored sets for Bright/Dark half). Combined strength = natural
@@ -3880,7 +4533,11 @@ function renderPPPanel(){
       the Horary chapter's opening, p.206-207): Ruling-in-Ruling first, then Eating-in-Ruling, Ruling-in-Eating, Eating-in-Eating — searched across the next 24 hours for
       the selected bird. Outcome text is condensed from the Horary chapter's waxing/waning sections; the fulfilment-day count is the book's simple per-bird table (p.213).
       The book also contains a far more elaborate per-Nakṣatra, friend/enemy-modulated fulfilment table (p.216 onward, "Panchapakshi Arooda Through Stars") that is not
-      implemented here — this search uses the simpler general table instead.`,
+      implemented here — this search uses the simpler general table instead.
+      <br><br><b style="color:var(--muted)">Ruling Day / Immune Day.</b> A separate whole-day flag from the same chapter (p.37), not folded into the strength number above:
+      Ruling Day is derived from the bird that starts that day/night's cycle Eating in the 1st Yama, per the source's own stated rule; Immune Day is transcribed from the
+      source's printed table for the bright half only — the dark-half table's column alignment could not be confidently read from the source scan, so it is left out
+      rather than guessed at.`,
       `<b style="color:var(--muted)">Método.</b> Ave por Nakṣatra según la Tabla n.º 1 (conjuntos distintos, no reflejados, para la Mitad Clara/Oscura). La fuerza combinada
       = fuerza natural × factor de actividad principal × factor de sub-actividad abstracta (Tabla n.º 5), con la resolución de ~12-48 min propia del libro ("Tiempos de las
       actividades abstractas", p.47). Tanto la Mitad Clara como la Mitad Oscura siguen las tablas semanales impresas del propio libro (cinco grupos de días de la semana
@@ -3891,7 +4548,11 @@ function renderPPPanel(){
       Comiendo en Comiendo — buscado en las próximas 24 horas para el ave seleccionada. El texto del resultado se condensa de las secciones de mitad clara/oscura del
       capítulo de horaria; el número de días de cumplimiento es la tabla simple del libro por ave (p.213). El libro también contiene una tabla de cumplimiento mucho
       más elaborada por Nakṣatra, modulada por amistad/enemistad (p.216 en adelante, "Panchapakshi Arooda Through Stars"), que no está implementada aquí — esta
-      búsqueda usa en su lugar la tabla general más simple.`)}
+      búsqueda usa en su lugar la tabla general más simple.
+      <br><br><b style="color:var(--muted)">Día regente / Día inmune.</b> Una señal aparte de todo el día del mismo capítulo (p.37), no incorporada al número de fuerza
+      de arriba: el Día regente se deriva del ave que empieza ese ciclo día/noche comiendo en el 1.er Yama, según la regla propia de la fuente; el Día inmune se transcribe
+      de la tabla impresa de la fuente solo para la mitad clara — la alineación de columnas de la tabla de la mitad oscura no pudo leerse con confianza en el escaneo de
+      la fuente, así que se omite en vez de adivinarla.`)}
     </div>
   `;
 
@@ -3969,10 +4630,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
     initTheme();
     runAnalysis();
     if (document.getElementById('pageNakshatra').classList.contains('active')) renderNakshatraPage();
+    if (document.getElementById('pageAnatomy').classList.contains('active')) renderAnatomyPage();
     if (document.getElementById('pageCalendar').classList.contains('active')) renderCalendarPage();
     if (document.getElementById('pageAntara').classList.contains('active')) renderAntaraChakraPage();
     if (document.getElementById('pageRemedies').classList.contains('active')) renderRemediesPage();
     if (document.getElementById('pageCommodities').classList.contains('active')) renderCommoditiesPage();
+    if (document.getElementById('pageHorary').classList.contains('active')) renderHoraryPage();
   });
   document.getElementById('chartPanchapakshi').addEventListener('change', renderPPPanel);
 
