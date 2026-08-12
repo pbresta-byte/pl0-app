@@ -873,6 +873,248 @@ const SAPTARISHI_INFO = {
               indicationEs:"Energía", bornFromEs:"Mano",
               comment:{en:"", es:""} }
 };
+
+// Rath, Bṛhat Nakṣatra, Table 23 rows 8-9 (p.121) — beyond the core 7-star
+// cycle above: Nārada (Lap, Kāraka Rāhu, "Illusion") and Dakṣa (Toe, Kāraka
+// Ketu... actually Dakṣa's row gives no kāraka in the source and is glossed
+// only as "born from the thumb, referring to his expertise in sacrifice
+// (dakṣa)" — together with the 7 core Ṛṣis these two complete a full
+// 9-graha kāraka set (only Rāhu and Ketu were otherwise missing). Not part
+// of the 28-star cycling table (Table 24), so shown as a footnote rather
+// than a table row.
+const SAPTARISHI_EXTRA = [
+  {n:"Nārada", bornFrom:{en:"Lap",es:"Regazo"}, karaka:"Rahu", indication:{en:"Illusion",es:"Ilusión"}},
+  {n:"Dakṣa",  bornFrom:{en:"Toe",es:"Dedo del pie"}, karaka:null, indication:{en:"Skill/expertise in sacrifice (dakṣa)",es:"Habilidad/pericia en el sacrificio (dakṣa)"}}
+];
+
+/* =========================================================================
+   BṚHASPATI (JUPITER) CYCLES — Bṛhat Saṁhitā, ch. VIII "On Jupiter"
+   (N. Chidambaram's 1884 translation). Two nested cycles, both keyed to
+   Jupiter's motion, both transcribed directly from the chapter:
+
+   1. The 12-year Vatsara cycle (śl. 1-14): each of Jupiter's ~12 years is
+      named after the lunar month matching the pair (or, for 3 of the 12,
+      triple) of nakṣatras Jupiter is "reappearing" through that year,
+      reckoned starting from Kṛttika. This app checks it directly off
+      Jupiter's real current sidereal nakṣatra — no historical epoch needed.
+
+   2. The 60-year cycle (śl. 20-52): 12 Yugas of 5 years each, each Yuga
+      named for a deity (śl. 23) and its 5 years individually named (the
+      familiar Prabhāva...Kṣaya list — śl. 27-52), plus a parallel generic
+      naming of "year 1-5 of any yuga" as Saṁvatsara/Parivatsara/Iḍāvatsara/
+      Anuvatsara/Idvatsara (śl. 24). The chapter gives its own worked
+      example for anchoring the cycle to a real calendar (śl. 20-22 plus the
+      translator's footnote) but the translator's own footnote flags a
+      numeral discrepancy in the source scan (8589 vs. 8626) that they
+      couldn't fully resolve — so rather than replicate that shakier
+      digit-heavy arithmetic, this app anchors on the chapter's own
+      unambiguous statement instead: "Kaliyuga commenced in Vijaya, the
+      27th year from Prabhava" (śl. "Now it is known that Kaliyuga
+      commenced..."), combined with the standard, widely-agreed Kaliyuga
+      epoch (23 January 3102 BCE proleptic Gregorian, JD 588465.5) and the
+      chapter's own stated solar-to-Jupiter-year conversion (śl. 20-21:
+      "a solar year = 1 + 4/3750 years of Jupiter"). This is this app's own
+      bridging arithmetic built from the source's own clean statements, not
+      a literal replication of its harder-to-read constants.
+
+   English only for now — the same reasoning as the Antara Chakra chapter's
+   English-only note: translating this much newly-transcribed prose into
+   Spanish is a separate undertaking from the rest of this app's i18n. */
+const JUPITER_VATSARA_TABLE = [
+  { name:"Karttika",   stars:["Krittika","Rohini"],
+    text:"Cart-drivers, fire-workers and cows are afflicted; disease and war in the land; red and yellow flowers thrive." },
+  { name:"Margasira",  stars:["Mrigasira","Ardra"],
+    text:"Drought; crops damaged by animals, rats, grasshoppers and birds; disease in the land; rulers at strife even with friends." },
+  { name:"Pausha",     stars:["Punarvasu","Pushya"],
+    text:"Mankind happy; princes cease their enmity; food-crop prices fall by half or a third; an increase in beneficial ceremonies." },
+  { name:"Magha",      stars:["Ashlesha","Magha"],
+    text:"Increased respect for fathers; health and rain prevail; food-grain prices fall; mankind more friendly than usual." },
+  { name:"Phalguna",   stars:["P.Phalguni","U.Phalguni","Hasta"],
+    text:"Prosperity and rain here and there; women suffer hardship; thieves grow powerful; rulers turn tyrannical." },
+  { name:"Chaitra",    stars:["Chitra","Swati"],
+    text:"Good rain, good food and happiness; rulers become mild; legumes increase; fair-complexioned men suffer misfortune." },
+  { name:"Vaisakha",   stars:["Visakha","Anuradha"],
+    text:"Princes and their subjects are virtuous, fearless and happy; sacrificial rites flourish; crops grow well." },
+  { name:"Jyeshtha",   stars:["Jyeshta","Moola"],
+    text:"Leading men of every caste, family, class and village — and princes and the learned — suffer hardship; most grains fail except millet and pulses." },
+  { name:"Ashadha",    stars:["P.Shada","U.Shada"],
+    text:"Crops thrive in some places, drought in others; mankind not very happy; rulers weighed down by cares." },
+  { name:"Sravana",    stars:["Sravana","Dhanishta"],
+    text:"Mankind happy; crops thrive and ripen well; the wicked and impostors suffer, along with their followers." },
+  { name:"Bhadrapada", stars:["Satabisha","P.Bhadrapada","U.Bhadrapada"],
+    text:"Creeper produce and the first crops thrive; the second crops fail; prosperity in some places, apprehension elsewhere." },
+  { name:"Aswayuja",   stars:["Revati","Aswini","Bharani"],
+    text:"Incessant rain; mankind happy and prosperous; all creatures grow strong; food is abundant." }
+];
+function jupiterVatsaraForNakshatra(nakName){
+  return JUPITER_VATSARA_TABLE.find(v=>v.stars.includes(nakName)) || null;
+}
+
+// śl. 23 — the 12 Yugas' deities. Position 7 (Vasudeva) is restated as
+// "Vishvedeva" at that Yuga's own heading later in the chapter (śl. 41) —
+// kept both, since 3 of the other 4 cross-checkable positions (Indra at 2,
+// Tvashta at 4, Indragni at 9) match cleanly between the summary list and
+// the per-Yuga headings, suggesting the summary list's positions are sound
+// even where a name varies. Position 10's name is an OCR casualty of the
+// 1884 scan and is left unreconstructed rather than guessed at.
+const JUPITER_YUGA_DEITIES = ["Vishnu","Brihaspati (Jupiter)","Indra","Agni","Tvashta","Ahirbudhnya",
+  "The Pitris","Vasudeva (\"Vishvedeva\" at its own heading)","Soma (the Moon)","Indragni",
+  "(name uncertain in the source scan)","Bhaga"];
+// śl. 24 — generic name for position 1-5 within ANY Yuga, and the deity each is sacred to.
+const JUPITER_SUBYEAR_NAMES = [
+  {name:"Samvatsara", deity:"Agni"}, {name:"Parivatsara", deity:"Arka (the Sun)"},
+  {name:"Idavatsara", deity:"Chandra (the Moon)"}, {name:"Anuvatsara", deity:"Prajapati"},
+  {name:"Idvatsara", deity:"Rudra"}
+];
+// śl. 27-52 — all 60 individually-named years, condensed from the (often
+// 2-3-years-at-a-time) verses into one line each; faithful to content, not
+// a line-for-line transcription of the source's own grouping/meter.
+const JUPITER_60_CYCLE = [
+  "Prabhava — Generally happy, though with drought in some places and storm, fire and crop damage in others; phlegmatic ailments trouble people.",
+  "Vibhava — Happier than Prabhava.",
+  "Sukla — Happier still.",
+  "Pramoda — Happier still.",
+  "Prajapati — The happiest of the five: good growth of rice, sugarcane and barley; freedom from fear, peace and happiness, free of Kali Yuga's vices.",
+  "Angira — Happy, with abundant rain and freedom from fear.",
+  "Srimukha — Happy, with abundant rain and freedom from fear.",
+  "Bhava — Happy, with abundant rain and freedom from fear.",
+  "Yuva — Less happy; moderate rain, disease and war.",
+  "Dhatri — Less happy; moderate rain, disease and war.",
+  "Iswara — Happiness like the Krita Yuga.",
+  "Bahudhanya — Happiness like the Krita Yuga.",
+  "Pramadhi — Miserable.",
+  "Vikrama — Happy again.",
+  "Vrisha — Happy.",
+  "Chitrabhanu — Happy.",
+  "Subhanu — Neither happy nor miserable; disease in the land but no resulting deaths.",
+  "Tarana — Abundant rain.",
+  "Parthiva — Crops thrive; mankind happy.",
+  "Vyaya — Amorous feeling prevails over the land.",
+  "Sarvajit — Afflicted with fears.",
+  "Sarvadhari — Happy.",
+  "Virodhi — Afflicted with fears.",
+  "Vikrita — Afflicted with fears.",
+  "Khara — Afflicted with fears.",
+  "Nandana — Happy.",
+  "Vijaya — Happy.",
+  "Jaya — Happy.",
+  "Manmatha — Neither happy nor miserable.",
+  "Durmukha — Miserable.",
+  "Hemalamba — Crops injured; storm and rain.",
+  "Vilambi — Crops not abundant; little rain.",
+  "Vikari — Fear troubles the land; much rain.",
+  "Sarvari — Famine.",
+  "Plava — Prosperity and much rain.",
+  "Sobhakrit — Happy.",
+  "Subhakrit — Happy.",
+  "Krodhi — Exceedingly miserable.",
+  "Visvavasu — Neither happy nor miserable.",
+  "Parabhava — Fear from fire, suffering from weapons and disease; brahmins and cattle also suffer.",
+  "Plavanga — Mankind suffers greatly.",
+  "Kilaka — Happy.",
+  "Saumya — Happy.",
+  "Sadharana — Slight rain; crops suffer.",
+  "Virodhakrit — Varied rainfall; crops thrive.",
+  "Paridhavi — The Madhyadesha suffers; ruling princes perish; slight rain; fear of fire.",
+  "Pramadi — Mankind grows inactive; villagers quarrel; red flowers and red grain are destroyed.",
+  "Ananda — Happy.",
+  "Rakshasa — Death and decline in the land, though summer crops thrive.",
+  "Anala — Fear of fire; much suffering.",
+  "Pingala — Much rain; fear of thieves; lung and asthmatic complaints.",
+  "Kalayukta — Mankind suffers from various ills.",
+  "Siddhartha — Happy in many ways.",
+  "Raudra — Great suffering; loss and ruin in the land.",
+  "Durmati — Moderate rain.",
+  "Dundubhi — Crops thrive well.",
+  "Udgari — Ruling sovereigns perish; poor rain.",
+  "Rakshasa — Fear from tusked-animal attack, and disease — though summer crops thrive.",
+  "Krodha — Anger in the land; countries ruined by internal strife.",
+  "Kshaya — Much rain; brahmins fearful, farmers prosper; merchants, laborers and the acquisitive are happy."
+];
+const KALIYUGA_EPOCH_JD = 588465.5; // 23 Jan 3102 BCE proleptic Gregorian, standard epoch
+function computeJupiter60Cycle(jd){
+  const solarYears = (jd - KALIYUGA_EPOCH_JD) / 365.25636;
+  const jupiterYears = solarYears * (3754/3750); // ch. VIII's own solar->Jupiter-year factor
+  const pos = (((Math.floor(jupiterYears) + 26) % 60) + 60) % 60; // +26: Kaliyuga = Vijaya = 27th (0-idx 26) from Prabhava
+  const yugaIdx = Math.floor(pos/5), subYearIdx = pos%5;
+  return { pos, yugaIdx, subYearIdx, entry: JUPITER_60_CYCLE[pos],
+    yugaDeity: JUPITER_YUGA_DEITIES[yugaIdx], subYear: JUPITER_SUBYEAR_NAMES[subYearIdx] };
+}
+
+/* =========================================================================
+   SAPTARṢI NAKṢATRA DAŚĀ — Rath, Bṛhat Nakṣatra, "Saptarṣi Chakra" (p.122-125).
+   The real, slow (~960yr/nakṣatra) precession of the Saptarṣi (Ursa Major)
+   through the 28-star reckoning, used by the source as a historical-dating
+   system distinct from — and not to be confused with — the fixed Table 24
+   natural chakra already on this page (which never changes with time).
+
+   Method, per the source's own stated rules:
+   - The "saptarṣi nakṣatra" (seat of Kratu) is identified for "now" directly
+     from the source's own Table 27 year-ranges below — NOT re-derived from
+     a live ayanāṁśa formula. An earlier version of this tried reading
+     Marīci's nakṣatra straight off the current Lahiri ayanāṁśa value (the
+     source does say Marīci "will be close to the Ayanāṁśa Point"), but that
+     landed in Bharaṇī (~24°) while Table 27 itself places "now" in Mṛgaśira
+     — a real, checked contradiction, so that derivation was dropped rather
+     than shipped. Table 27's own tabulated ranges are what's used instead.
+   - "Ruler of the millennium": the lord of the 8th nakṣatra counted in
+     direct order from the saptarṣi nakṣatra (verified against the source's
+     own worked example: saptarṣi in Pūrva Phalguni → 8th direct is
+     Jyeṣṭha → Indra, i.e. +7 positions — exactly what's used below).
+   - Antardaśā (100yr each) and Pratyantardaśā (10yr each) both count 10
+     nakṣatras in REVERSE from their parent nakṣatra, timed from how far
+     into the current Table-27 period "now" falls.
+   This app uses the 28-star (Abhijit-inserted) scheme for the positional
+   arithmetic — Table 25's own per-nakṣatra year-spans only make sense with
+   Abhijit split out. Treat all of this as an approximate reconstruction,
+   not a precise historical claim. */
+function lordOf28(nakName){
+  if (nakName === "Abhijit") return null; // no single graha lord given for it in this app's data
+  const e = NAK27.find(s=>s.n===nakName);
+  return e ? e.lord : null;
+}
+// A curated slice of the source's own Table 27 ("Saptarṣi Movement — Old
+// World"), centred on the present — not the full ~27-row ancient table,
+// just enough for context on either side of "now." Also the live anchor
+// for computeSaptarshiDasha() below (see its comment).
+const SAPTARSHI_DASHA_HISTORY = [
+  { nak:"P.Phalguni", from:-4061, to:-3101, note:"Peak of Egypt's Kings; 3928 BC earliest Rig Veda eclipse record; 3089 BC Yudhiṣṭhira crowned in Indraprastha (Delhi)." },
+  { nak:"Magha",      from:-3101, to:-2141, note:"Indus Valley Civilization (3000-1500 BC); 3102 BC Kali Yuga epoch begins." },
+  { nak:"Ashlesha",   from:-2141, to:-1181, note:"Levant empires (2000-1000 BC); Hittite Empire (1650-1200 BC); Greek urbanization." },
+  { nak:"Pushya",     from:-1181, to:-221,  note:"Persian and Celtic empires; India's centre shifts to the Ganga; Greek Empire; Buddha, c. 563 BC." },
+  { nak:"Punarvasu",  from:-221,  to:739,   note:"Roman Empire (300 BC-500 AD); Gupta Dynasty; Qin-to-Sui and Tang China; traditional date of Jesus, c. 7 BC." },
+  { nak:"Ardra",      from:739,   to:1699,  note:"Viking era; spread of Islam (Muhammad, 622 AD); Safavid Persia; Mughal India; Song-Yuan-Ming China." },
+  { nak:"Mrigasira",  from:1699,  to:2659,  note:"\"New World — Present Period\" (the source's own label)." },
+  { nak:"Rohini",     from:2659,  to:3619,  note:"\"Future World\" (the source's own label)." },
+  { nak:"Krittika",   from:3619,  to:4579,  note:"" }
+];
+function computeSaptarshiDasha(currentDecimalYear){
+  const row = SAPTARSHI_DASHA_HISTORY.find(h => currentDecimalYear >= h.from && currentDecimalYear < h.to);
+  if (!row) return null; // outside the curated range above (before 4061 BC or after 4579 AD)
+  const kratuIdx = NAK28_ORDER.indexOf(row.nak);
+  const spanYears = row.to - row.from;
+  const yearsIntoPeriod = currentDecimalYear - row.from;
+
+  const rulerIdx = (kratuIdx + 7) % 28;
+  const rulerNak = NAK28_ORDER[rulerIdx];
+
+  const antardashaIdx = Math.min(9, Math.floor(yearsIntoPeriod/100));
+  const antardashaNakIdx = ((kratuIdx - antardashaIdx) % 28 + 28) % 28;
+  const antardashaNak = NAK28_ORDER[antardashaNakIdx];
+  const yearsIntoAntardasha = yearsIntoPeriod - antardashaIdx*100;
+
+  const pratyantardashaIdx = Math.min(9, Math.floor(yearsIntoAntardasha/10));
+  const pratyantardashaNakIdx = ((antardashaNakIdx - pratyantardashaIdx) % 28 + 28) % 28;
+  const pratyantardashaNak = NAK28_ORDER[pratyantardashaNakIdx];
+
+  return {
+    kratuNak: row.nak, spanYears, yearsIntoPeriod,
+    rulerNak, rulerLord: lordOf28(rulerNak),
+    antardashaNak, antardashaLord: lordOf28(antardashaNak),
+    pratyantardashaNak, pratyantardashaLord: lordOf28(pratyantardashaNak)
+  };
+}
+
 const PURUSHARTHA_NAMES = ["Dharma","Artha","Kama","Moksha"];
 const PURUSHARTHA_NAMES_ES = {Dharma:"Dharma",Artha:"Artha",Kama:"Kāma",Moksha:"Mokṣa"};
 function saptarishiOfNakshatra(nakName){
@@ -2710,10 +2952,14 @@ function renderSaptarishiTable(currentRishi){
       <td style="font-size:11px; color:var(--slate);">${comment}</td>
     </tr>`;
   }).join('');
+  const extraRows = SAPTARISHI_EXTRA.map(x=>
+    `${T(x.n,x.n)} (${T(x.bornFrom.en,x.bornFrom.es)}, ${x.karaka?T(x.karaka,GRAHA_ES[x.karaka]||x.karaka):T('no kāraka given','sin kāraka indicado')} — ${T(x.indication.en,x.indication.es)})`
+  ).join('; ');
   return `<div class="tblwrap"><table><thead><tr>
     <th>${T('Saptarṣi','Saptarṣi')}</th><th>${T('Star','Estrella')}</th><th>${T('Bayer','Bayer')}</th>
     <th>${T('Born from','Nacido de')}</th><th>${T('Kāraka','Kāraka')}</th><th>${T('Indication','Indicación')}</th><th>${T('Note','Nota')}</th>
-  </tr></thead><tbody>${rows}</tbody></table></div>`;
+  </tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="hint" style="margin-top:8px;">${T(`Table 23 continues past the core seven with two more: ${extraRows}. Outside the 28-star cycle above (Table 24), but together with the seven core Ṛṣis they complete a full nine-graha kāraka set.`, `La Tabla 23 continúa más allá de los siete principales con dos más: ${extraRows}. Fuera del ciclo de 28 estrellas de arriba (Tabla 24), pero junto con los siete Ṛṣis principales completan un conjunto completo de kāraka de los nueve graha.`)}</div>`;
 }
 
 const PP_DAY_LABELS_CLOCK   = ["6:00 AM","8:24 AM","10:48 AM","1:12 PM","3:36 PM","6:00 PM"];
@@ -3291,25 +3537,85 @@ function renderNakshatraPage(){
   const refInfo = getReferencePanchaka();
   const refP = refInfo.panch;
 
-  if (!refP.star){
-    container.innerHTML = `<div class="panel"><div class="hd"><h2>${T('Saptarṣi Nakṣatra','Saptarṣi Nakṣatra')}</h2></div>
-      <div class="bd"><div class="hint">${T('Set a reference person\'s Janma Nakṣatra on the Muhūrta Gauge page (field 1) to see their Saptarṣi Nakṣatra here.','Define el Janma Nakṣatra de una persona de referencia en la página Muhūrta Gauge (campo 1) para ver aquí su Saptarṣi Nakṣatra.')}</div></div>
-    </div>`;
-    return;
-  }
-
-  const saptarishi = saptarishiOfNakshatra(refP.star);
-  const purushartha = purusharthaOfNakshatra(refP.star);
-
-  container.innerHTML = `
+  const personalHtml = !refP.star
+    ? `<div class="panel"><div class="hd"><h2>${T('Saptarṣi Nakṣatra','Saptarṣi Nakṣatra')}</h2></div>
+        <div class="bd"><div class="hint">${T('Set a reference person\'s Janma Nakṣatra on the Muhūrta Gauge page (field 1) to see their Saptarṣi Nakṣatra here.','Define el Janma Nakṣatra de una persona de referencia en la página Muhūrta Gauge (campo 1) para ver aquí su Saptarṣi Nakṣatra.')}</div></div>
+      </div>`
+    : (()=>{
+        const saptarishi = saptarishiOfNakshatra(refP.star);
+        const purushartha = purusharthaOfNakshatra(refP.star);
+        return `
     <div class="panel"><div class="hd"><h2>${T('Saptarṣi Nakṣatra','Saptarṣi Nakṣatra')}</h2><span class="note">${T("Rath's Bṛhat Nakṣatra, Tables 21, 23 &amp; 24","Bṛhat Nakṣatra de Rath, Tablas 21, 23 y 24")}</span></div>
       <div class="bd">
         <div class="hint" style="margin-bottom:10px;">${T('Janma Nakṣatra (Moon at birth):','Janma Nakṣatra (Luna al nacer):')} <b style="color:var(--ink)">${refP.star}</b> → <b style="color:var(--gold)">${T(saptarishi, SAPTARISHI_NAMES_ES[saptarishi])}</b>
           <span class="tag gold" style="margin-left:6px;">${T(purushartha, PURUSHARTHA_NAMES_ES[purushartha])}</span></div>
         ${renderSaptarishiTable(saptarishi)}
-        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('Table 24, "Natural Saptarṣi Chakra": the 28-star reckoning splits into four Puruṣārtha quarters of 7 Nakṣatras each (Dharma, Artha, Kāma, Mokṣa), the seven Rishis repeating identically in every quarter starting from Aśvini = Marīci. This is a fixed property of the birth chart — it does not change with time, unlike the ~100-year-per-Nakṣatra Saptarṣi Era/Daśā (a separate historical-dating system, not implemented here).','Tabla 24, "Saptarṣi Chakra natural": el cómputo de 28 estrellas se divide en cuatro cuartos de Puruṣārtha de 7 Nakṣatras cada uno (Dharma, Artha, Kāma, Mokṣa), repitiéndose los siete Rishis igual en cada cuarto a partir de Aśvini = Marīci. Esto es una propiedad fija de la carta natal — no cambia con el tiempo, a diferencia de la Era/Daśā Saptarṣi de ~100 años por Nakṣatra (un sistema de datación histórica distinto, no implementado aquí).')}</div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('Table 24, "Natural Saptarṣi Chakra": the 28-star reckoning splits into four Puruṣārtha quarters of 7 Nakṣatras each (Dharma, Artha, Kāma, Mokṣa), the seven Rishis repeating identically in every quarter starting from Aśvini = Marīci. This is a fixed property of the birth chart — it does not change with time, unlike the ~960-year-per-Nakṣatra Saptarṣi Era/Daśā below (a separate historical-dating system).','Tabla 24, "Saptarṣi Chakra natural": el cómputo de 28 estrellas se divide en cuatro cuartos de Puruṣārtha de 7 Nakṣatras cada uno (Dharma, Artha, Kāma, Mokṣa), repitiéndose los siete Rishis igual en cada cuarto a partir de Aśvini = Marīci. Esto es una propiedad fija de la carta natal — no cambia con el tiempo, a diferencia de la Era/Daśā Saptarṣi de ~960 años por Nakṣatra de abajo (un sistema de datación histórica distinto).')}</div>
+      </div>
+    </div>`;
+      })();
+
+  // ---- Live, person-independent world-cycle panels ----
+  const n = new Date();
+  const jd = julianDay(n.getFullYear(), n.getMonth()+1, n.getDate(), n.getHours(), n.getMinutes(), n.getSeconds(), -n.getTimezoneOffset()/60);
+  const T2000 = centuriesJ2000(jd);
+  const ay = document.getElementById('ayanamsaMode') ? document.getElementById('ayanamsaMode').value : 'lahiri';
+  const pos = computePositions(jd, 0, 0, ay);
+
+  const nowYear = n.getFullYear() + (n.getMonth())/12;
+  const sd = computeSaptarshiDasha(nowYear);
+  const periodStartYear = sd ? Math.round(nowYear - sd.yearsIntoPeriod) : null;
+  const periodEndYear = sd ? Math.round(periodStartYear + sd.spanYears) : null;
+  const histRows = SAPTARSHI_DASHA_HISTORY.map(h=>{
+    const isCurrent = sd && h.nak === sd.kratuNak;
+    const yr = y => y<0 ? `${Math.abs(y)} BC` : `${y} AD`;
+    return `<tr${isCurrent?' style="background:var(--house1);font-weight:600;"':''}>
+      <td class="wide">${isCurrent?'→ ':''}${h.nak}</td><td>${yr(h.from)} – ${yr(h.to)}</td>
+      <td style="font-size:11.5px;">${h.note||'—'}</td></tr>`;
+  }).join('');
+
+  const jupVatsara = jupiterVatsaraForNakshatra(nakshatraFromSidereal(norm360(pos.Jupiter.sidereal), false).name);
+  const j60 = computeJupiter60Cycle(jd);
+  const [j60name, j60pred] = j60.entry.split(' — ');
+
+  const worldCyclesHtml = `
+    <div class="panel"><div class="hd"><h2>${T('Saptarṣi Nakṣatra Daśā — World Era','Saptarṣi Nakṣatra Daśā — Era del Mundo')}</h2><span class="note">${T("Rath's Bṛhat Nakṣatra, \"Saptarṣi Chakra\", p.122-125","Bṛhat Nakṣatra de Rath, \"Saptarṣi Chakra\", p.122-125")}</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px;">${T('The real, slow drift of the Saptarṣi (Ursa Major) through the sky — always live, independent of any reference person, roughly one nakṣatra every 960 years.','La deriva real y lenta del Saptarṣi (Osa Mayor) por el cielo — siempre en vivo, independiente de cualquier persona de referencia, aproximadamente un nakṣatra cada 960 años.')}</div>
+        ${sd ? `<div class="kv">
+          <div class="k">${T('Current era','Era actual')}</div><div class="v"><b style="color:var(--gold)">${sd.kratuNak}</b> <span style="color:var(--slate)">(${T('seat of Kratu','asiento de Kratu')})</span></div>
+          <div class="k">${T('Approx. span','Lapso aprox.')}</div><div class="v">${periodStartYear<0?Math.abs(periodStartYear)+' BC':periodStartYear+' AD'} – ${periodEndYear<0?Math.abs(periodEndYear)+' BC':periodEndYear+' AD'} <span style="color:var(--slate)">(~${Math.round(sd.spanYears)}${T(' years','años')})</span></div>
+          <div class="k">${T('Ruler of the millennium','Regente del milenio')}</div><div class="v">${sd.rulerNak}${sd.rulerLord?` — ${T(sd.rulerLord,GRAHA_ES[sd.rulerLord]||sd.rulerLord)}`:''}</div>
+          <div class="k">${T('Antardaśā (~100yr)','Antardaśā (~100a)')}</div><div class="v">${sd.antardashaNak}${sd.antardashaLord?` — ${T(sd.antardashaLord,GRAHA_ES[sd.antardashaLord]||sd.antardashaLord)}`:''}</div>
+          <div class="k">${T('Pratyantardaśā (~10yr)','Pratyantardaśā (~10a)')}</div><div class="v">${sd.pratyantardashaNak}${sd.pratyantardashaLord?` — ${T(sd.pratyantardashaLord,GRAHA_ES[sd.pratyantardashaLord]||sd.pratyantardashaLord)}`:''}</div>
+        </div>` : `<div class="hint">${T('Today\'s date falls outside the curated range in the table below (4061 BC - 4579 AD) — no current-era readout to show.','La fecha de hoy cae fuera del rango curado de la tabla de abajo (4061 a.C. - 4579 d.C.) — no hay lectura de la era actual para mostrar.')}</div>`}
+        <div class="tblwrap" style="margin-top:12px;"><table><thead><tr><th>${T('Nakṣatra','Nakṣatra')}</th><th>${T('Span','Lapso')}</th><th>${T('History (source\'s own notes)','Historia (notas de la fuente)')}</th></tr></thead><tbody>${histRows}</tbody></table></div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The current era above is read directly off the source\'s own Table 27 year-ranges (not re-derived from a live formula — an ayanāṁśa-based attempt at that gave a result that contradicted this same table, so it was dropped). "Ruler of the millennium" and the Antardaśā/Pratyantardaśā sub-periods ARE computed live from that anchor: the ruler is the lord of the 8th nakṣatra counted in direct order from the current one (verified against the source\'s own worked example, Pūrva Phalguni → Jyeṣṭha/Indra); the sub-periods count 10 nakṣatras in reverse, timed from how far into the current Table-27 period today falls. An approximate reconstruction, not a precise historical claim.','La era actual de arriba se lee directamente de los rangos de años de la propia Tabla 27 de la fuente (no se re-deriva de una fórmula en vivo — un intento basado en el ayanāṁśa dio un resultado que contradecía esta misma tabla, así que se descartó). El "regente del milenio" y los subperíodos Antardaśā/Pratyantardaśā SÍ se calculan en vivo desde ese ancla: el regente es el señor del 8.º nakṣatra contado en orden directo desde el actual (verificado contra el ejemplo resuelto de la propia fuente, Pūrva Phalguni → Jyeṣṭha/Indra); los subperíodos cuentan 10 nakṣatras en reversa, cronometrados según cuánto ha transcurrido del período actual de la Tabla 27. Una reconstrucción aproximada, no una afirmación histórica precisa.')}</div>
       </div>
     </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Bṛhaspati (Jupiter) Cycles','Ciclos de Bṛhaspati (Júpiter)')}</h2><span class="note">Bṛhat Saṁhitā, ch. VIII</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px;">${T('Two nested cycles from the source\'s own chapter on Jupiter — always live, independent of any reference person.','Dos ciclos anidados del propio capítulo de la fuente sobre Júpiter — siempre en vivo, independiente de cualquier persona de referencia.')}</div>
+        <h3 style="margin:0 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('12-year Vatsara (from Jupiter\'s current Nakṣatra)','Vatsara de 12 años (según el Nakṣatra actual de Júpiter)')}</h3>
+        ${jupVatsara ? `<div class="kv">
+          <div class="k">${T('Jupiter in','Júpiter en')}</div><div class="v">${nakshatraFromSidereal(norm360(pos.Jupiter.sidereal), false).name}</div>
+          <div class="k">${T('Vatsara year','Año Vatsara')}</div><div class="v"><b style="color:var(--gold);">${jupVatsara.name}</b></div>
+        </div>
+        <div class="hint" style="margin-top:6px;">${jupVatsara.text}</div>` : `<div class="hint">${T('Could not resolve — please report this.','No se pudo resolver — por favor repórtalo.')}</div>`}
+
+        <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('60-year cycle','Ciclo de 60 años')}</h3>
+        <div class="kv">
+          <div class="k">${T('This year','Este año')}</div><div class="v"><b style="color:var(--gold);">${j60name}</b> <span style="color:var(--slate);">(${T('year','año')} ${j60.pos+1} ${T('of 60','de 60')})</span></div>
+          <div class="k">Yuga</div><div class="v">${j60.yugaIdx+1}/12 — ${T(j60.yugaDeity,j60.yugaDeity)}</div>
+          <div class="k">${T('Generic name','Nombre genérico')}</div><div class="v">${j60.subYear.name} <span style="color:var(--slate);">(${T('sacred to','sagrado a')} ${j60.subYear.deity})</span></div>
+        </div>
+        <div class="hint" style="margin-top:6px;">${j60pred}</div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('This app\'s own reconstruction of the 60-year count: anchored on the chapter\'s own unambiguous statement ("Kaliyuga commenced in Vijaya, the 27th year from Prabhava") plus the standard Kaliyuga epoch and the chapter\'s own solar-to-Jupiter-year conversion factor, rather than the harder-to-read digit-heavy formula the translator\'s own footnote flags as uncertain in the source scan.','Reconstrucción propia de esta app del conteo de 60 años: anclada en la declaración inequívoca del capítulo ("Kaliyuga comenzó en Vijaya, el año 27 desde Prabhava") más la época estándar de Kaliyuga y el propio factor de conversión de años solares a años de Júpiter del capítulo, en vez de la fórmula con muchos dígitos que la propia nota del traductor señala como incierta en el escaneo de la fuente.')}</div>
+      </div>
+    </div>`;
+
+  container.innerHTML = personalHtml + worldCyclesHtml + `
     <div class="hint" style="margin-top:6px;">${T('More Nakṣatra categories from the book can be added here once sourced.','Más categorías de Nakṣatra del libro se pueden añadir aquí una vez que se obtengan las fuentes.')}</div>
   `;
 }
