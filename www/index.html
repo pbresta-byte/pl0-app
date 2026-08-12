@@ -2584,14 +2584,10 @@ function renderSBCRing(hitStarSet, refStar){
 }
 
 /* Simple front-facing silhouette, one shape per Kālapuruṣa zone, ordered
-   head-to-feet (matches SIGNS order Aries..Pisces exactly). */
-function renderBodyGauge(deha){
-  const zoneFill = sign=>{
-    if (sign===deha.nectar.sign) return {fill:"var(--hit-good-bg)", stroke:"var(--hit-good-line)", sw:2.5};
-    if (sign===deha.poison.sign) return {fill:"var(--hit-bad-bg)", stroke:"var(--hit-bad-line)", sw:2.5};
-    if (deha.natal && sign===deha.natal.sign) return {fill:"var(--body-fill)", stroke:"var(--gold)", sw:2};
-    return {fill:"var(--body-fill)", stroke:"var(--body-stroke)", sw:1};
-  };
+   head-to-feet (matches SIGNS order Aries..Pisces exactly). Shared by both
+   body-reading panels on the Anatomy page — zoneFill(sign) decides each
+   region's fill/stroke, so callers just supply their own colouring logic. */
+function renderBodySilhouette(zoneFill){
   const S = sign=>{ const z=zoneFill(sign); return `style="fill:${z.fill};stroke:${z.stroke};stroke-width:${z.sw}"`; };
 
   let svg = `<svg viewBox="0 0 220 480" width="100%" style="max-width:260px;display:block;margin:0 auto;">`;
@@ -2629,6 +2625,42 @@ function renderBodyGauge(deha){
 
   svg += `</svg>`;
   return svg;
+}
+function renderBodyGauge(deha){
+  return renderBodySilhouette(sign=>{
+    if (sign===deha.nectar.sign) return {fill:"var(--hit-good-bg)", stroke:"var(--hit-good-line)", sw:2.5};
+    if (sign===deha.poison.sign) return {fill:"var(--hit-bad-bg)", stroke:"var(--hit-bad-line)", sw:2.5};
+    if (deha.natal && sign===deha.natal.sign) return {fill:"var(--body-fill)", stroke:"var(--gold)", sw:2};
+    return {fill:"var(--body-fill)", stroke:"var(--body-stroke)", sw:1};
+  });
+}
+
+/* Chandra Sookshmam's 15 body-part terms are finer-grained than the 12-sign
+   silhouette above, so this maps each term onto whichever existing region
+   anatomically contains it — this app's own bridging step (for a shared
+   visual vocabulary with the Overall gauge), not a claim that the source
+   table itself is Rāśi-indexed; it's purely Tithi-indexed. A few terms
+   (e.g. "Neck" and "Back muscle of the neck") land on the same region, so on
+   a day where Nectar and Poison happen to share that region the diagram can
+   only show one — the exact wording alongside it always disambiguates. */
+const SOOKSHMA_TERM_TO_SIGN = {
+  "Head":"Aries", "Forehead":"Aries", "Eyes":"Aries", "Ears":"Aries", "Nose":"Aries",
+  "Neck":"Taurus", "Back muscle of the neck":"Taurus",
+  "Heart":"Leo", "Breasts":"Cancer",
+  "Navel":"Libra",
+  "Anus":"Scorpio",
+  "Thighs":"Sagittarius", "Back muscle of the leg":"Sagittarius",
+  "Ankle":"Aquarius", "Ankles":"Aquarius",
+  "Feet":"Pisces", "Thumb of the foot":"Pisces"
+};
+function renderSookshmaGauge(sookshma){
+  const nectarSign = SOOKSHMA_TERM_TO_SIGN[sookshma.nectar.en];
+  const poisonSign = SOOKSHMA_TERM_TO_SIGN[sookshma.poison.en];
+  return renderBodySilhouette(sign=>{
+    if (sign===nectarSign) return {fill:"var(--hit-good-bg)", stroke:"var(--hit-good-line)", sw:2.5};
+    if (sign===poisonSign) return {fill:"var(--hit-bad-bg)", stroke:"var(--hit-bad-line)", sw:2.5};
+    return {fill:"var(--body-fill)", stroke:"var(--body-stroke)", sw:1};
+  });
 }
 
 function fmtDeg(x){ const d=Math.floor(x), m=Math.floor((x-d)*60); return `${d}°${String(m).padStart(2,'0')}'`; }
@@ -3392,13 +3424,22 @@ function renderAnatomyPage(){
     <h3 style="margin:22px 0 6px; font-family:var(--mono); font-size:11.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold);">${T('2 · Chandra Sookshmam (Manas reading)','2 · Chandra Sookshmam (lectura del Manas)')}</h3>
     <div class="panel"><div class="hd"><h2>${T('Chandra Sookshmam — Tithi Nectar &amp; Poison Points','Chandra Sookshmam — Puntos de néctar y veneno por Tithi')}</h2><span class="note">${panch.tithiName} · ${panch.paksha==='Shukla'?T('bright half','mitad clara'):T('dark half','mitad oscura')}</span></div>
       <div class="bd">
-        <div class="kv">
-          <div class="k">Tithi</div><div class="v">${panch.tithiName} <span style="color:var(--slate)">(${panch.paksha}, ${T('no.','n.º')} ${panch.tithiNum})</span></div>
-          <div class="k">${T('Nectar point','Punto de néctar')}</div><div class="v"><b style="color:var(--jade)">${T(sookshma.nectar.en, sookshma.nectar.es)}</b></div>
-          <div class="k">${T('Poison point','Punto de veneno')}</div><div class="v"><b style="color:var(--vermilion)">${T(sookshma.poison.en, sookshma.poison.es)}</b></div>
+        <div class="chakra-wrap">
+          <div style="flex:none; min-width:200px;">${renderSookshmaGauge(sookshma)}</div>
+          <div class="chakra-legend" style="flex:1; min-width:280px;">
+            <div class="li"><span class="sw" style="background:rgba(23,117,80,0.3);border:1px solid var(--jade)"></span> ${T('Nectar point — favours gentle attention today','Punto de néctar — favorece hoy la atención suave')}</div>
+            <div class="li"><span class="sw" style="background:rgba(176,50,32,0.3);border:1px solid var(--vermilion)"></span> ${T('Poison point — best left alone today','Punto de veneno — mejor dejarlo en paz hoy')}</div>
+            <div class="kv" style="margin-top:14px;">
+              <div class="k">Tithi</div><div class="v">${panch.tithiName} <span style="color:var(--slate)">(${panch.paksha}, ${T('no.','n.º')} ${panch.tithiNum})</span></div>
+              <div class="k">${T('Nectar point','Punto de néctar')}</div><div class="v"><b style="color:var(--jade)">${T(sookshma.nectar.en, sookshma.nectar.es)}</b></div>
+              <div class="k">${T('Poison point','Punto de veneno')}</div><div class="v"><b style="color:var(--vermilion)">${T(sookshma.poison.en, sookshma.poison.es)}</b></div>
+            </div>
+          </div>
         </div>
         <div class="hint" style="margin-top:12px; line-height:1.6;">${T(`<b style="color:var(--muted)">Reading (source's own framing):</b> the Nectar point favours gentle attention or treatment today; the Poison point is best left alone — the source states that intervention (vibration or surgery) at the Poison point tends not to succeed, while the same at the Nectar point tends to. Not medical advice.`,
         `<b style="color:var(--muted)">Lectura (marco de la propia fuente):</b> el punto de néctar favorece hoy la atención o el tratamiento suave; el punto de veneno es mejor dejarlo en paz — la fuente indica que intervenir (vibración o cirugía) en el punto de veneno tiende a no tener éxito, mientras que en el punto de néctar sí. No es consejo médico.`)}</div>
+        <div class="hint" style="margin-top:8px;">${T(`<b style="color:var(--muted)">Diagram note:</b> the silhouette reuses the Overall gauge's 12-sign Kālapuruṣa regions as the closest visual match for each of Chandra Sookshmam's 15 body-part terms (this app's own bridging step — the source table itself is Tithi-indexed, not Rāśi-indexed). The exact term is always given above in words.`,
+        `<b style="color:var(--muted)">Nota del diagrama:</b> la silueta reutiliza las 12 regiones zodiacales Kālapuruṣa del medidor General como la correspondencia visual más cercana para cada uno de los 15 términos corporales de Chandra Sookshmam (un paso puente propio de esta app — la tabla fuente en sí está indexada por Tithi, no por Rāśi). El término exacto siempre se da arriba en palabras.`)}</div>
         <div class="hint" style="margin-top:8px;">${T(`Source: Pulippani &amp; Rao, <i>Biorhythms of Natal Moon</i>, p.240, "Table of Poison and Nector Points in the Human Body" — the general-audience table, explicitly framed by the book as applying equally to anyone, not tied to any individual's own birth bird. A second, per-bird table earlier in the same chapter (p.237-238) is deliberately not transcribed anywhere in this app — it's scoped to locating a specific person's body by their own birth bird for a stated purpose this app won't build.`,
         `Fuente: Pulippani y Rao, <i>Biorhythms of Natal Moon</i>, p.240, "Table of Poison and Nector Points in the Human Body" — la tabla de uso general, enmarcada explícitamente por el libro como aplicable a cualquier persona, sin vincularse al ave natal de nadie en particular. Una segunda tabla, por ave, anterior en el mismo capítulo (p.237-238) se omite deliberadamente en toda esta app — está circunscrita a ubicar el cuerpo de una persona concreta según su propia ave natal, para un propósito que esta app no va a construir.`)}</div>
       </div>
