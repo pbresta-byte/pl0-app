@@ -1237,6 +1237,38 @@ const SUN_SIGN_TRADE_GUIDANCE = {
                  months:6, profit:"double value", profitEs:"el doble de su valor" }
 };
 
+/* GOLD — isolated deep-dive data. Every distinct place gold is specifically
+   named in Bṛhat Saṁhitā (N. Chidambaram's 1884 translation) that this app
+   can ground a live or reference reading in, gathered onto one panel rather
+   than left scattered one line at a time across the other panels on this
+   page. Chapters XLI/XLII (sign rulership, Leo's storage rule) are already
+   used above and just re-surfaced here for gold specifically; ch. LVII and
+   ch. XXIX are newly transcribed for this panel.
+
+   Ch. LVII, śl. 61-62 ("Effects of planets moving through the signs of the
+   Zodiac"): gold-related work/business is explicitly named as favoured on
+   three weekdays. Sunday's clause is further conditioned in the source on
+   the Sun occupying an Upachaya house (3rd/6th/10th/11th) FROM THE ASCENDANT,
+   or the rising sign itself — both Lagna-dependent, and this page is
+   deliberately location-independent (no reference person, no chosen moment,
+   same as the Pañcha Pakshi panel), so that extra condition isn't checked
+   here; Sunday is shown as a plain weekday match, a looser reading than the
+   source's full clause. Tuesday and Thursday carry no such extra condition
+   in the source. */
+const GOLD_WEEKDAY_RULE = {
+  Sunday:   { en:"named alongside copper, a horse, dried sticks and other articles — the source further requires the Sun to occupy an Upachaya house (3rd/6th/10th/11th) from the Ascendant, or the rising sign itself; this app doesn't check that condition here (see note).", es:"nombrado junto al cobre, un caballo, palos secos y otros artículos — la fuente además exige que el Sol ocupe una casa Upachaya (3.ª/6.ª/10.ª/11.ª) desde el Ascendente, o el propio signo ascendente; esta app no comprueba esa condición aquí (ver nota)." },
+  Tuesday:  { en:"named alongside mineral mines, fire, corals and weapons — no extra condition given.", es:"nombrado junto a minas minerales, fuego, corales y armas — sin condición adicional." },
+  Thursday: { en:"named alongside silver, elephants, oxen and physicians — no extra condition given.", es:"nombrado junto a plata, elefantes, bueyes y médicos — sin condición adicional." }
+};
+
+// Ch. XXIX, śl. 8 & 10 ("Vrikshayurveda" / plant-blossom omens for crop and
+// commodity abundance) — real-world botanical observations this app has no
+// way to detect, so shown as reference/context rather than a live signal.
+const GOLD_BOTANICAL_OMENS = [
+  { en:"If the Champaka tree bears blossoms, gold can be had in abundance.", es:"Si el árbol Champaka florece, el oro se puede conseguir en abundancia.", cite:"śl. 8" },
+  { en:"If the Arka plant blossoms, gold will become cheap.", es:"Si la planta Arka florece, el oro se abaratará.", cite:"śl. 10" }
+];
+
 // Sign data — nature, lord, own/exalt/debil/moolatrikona, sign-based friendships (ch. V)
 const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const SIGN_LORD = {Aries:"Mars",Taurus:"Venus",Gemini:"Mercury",Cancer:"Moon",Leo:"Sun",Virgo:"Mercury",
@@ -3988,7 +4020,21 @@ function commodityLiveNow(ayanamsaMode){
     sunMalefics: MALEFIC_GRAHAS.filter(g=>g!=='Sun' && signIdxOf(g)===sunSignIdx)
   } : null;
 
-  return { rows, sunSign:SIGNS[sunSignIdx], venusSign:SIGNS[venusSignIdx], tithiName:panch.tithiName, isFullOrNew, priceDirection };
+  // Antara Chakra (ch. XL/87) points that specifically name gold — reuses
+  // the same live 32-point state machine the Antara Chakra page itself uses
+  // (ANTARA_BENEFIC/ANTARA_MALEFIC, indexed by ANTARA_POINT_NAMES). Point 1
+  // (Kośādhyakṣa) carries a gold reading on both its benefic and malefic
+  // side; point 4 (Southeast) only on its benefic side; point 7 (Vivastra
+  // Strī) only on its malefic side.
+  const antaraLive = antaraLiveIndices(n.getHours(), n.getMinutes());
+  const goldAntara = {
+    kosadhyaksha: antaraPointState(1, antaraLive),
+    southeast: antaraPointState(4, antaraLive),
+    vivastraStri: antaraPointState(7, antaraLive)
+  };
+
+  return { rows, sunSign:SIGNS[sunSignIdx], venusSign:SIGNS[venusSignIdx], tithiName:panch.tithiName, isFullOrNew, priceDirection,
+    weekday: WEEKDAYS[n.getDay()], goldAntara };
 }
 
 /* =========================================================================
@@ -4106,6 +4152,77 @@ function renderCommoditiesPage(){
       </div>
     </div>
 
+    <div class="panel" style="border-color:var(--gold-dim);">
+      <div class="hd"><h2>${T('Gold — Isolated Deep Dive','Oro — Análisis aislado')}</h2><span class="note">${T('every gold-specific rule on this page, gathered in one place','cada regla específica sobre el oro de esta página, reunida en un solo lugar')}</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:12px;">${T('Gold is named more than any other single commodity across these chapters of Bṛhat Saṁhitā. Below is every place it\'s specifically called out — not just the sign-rulership line it shares with everything else — pulled together and, where the rule allows it, checked live.','El oro se menciona más que cualquier otra materia prima en estos capítulos del Bṛhat Saṁhitā. Abajo está cada lugar donde se le nombra específicamente — no solo la línea de gobierno de signo que comparte con todo lo demás — reunido y, donde la regla lo permite, comprobado en vivo.')}</div>
+
+        ${(()=>{
+          const ariesRow = live.rows.find(r=>r.sign==='Aries');
+          const capRow = live.rows.find(r=>r.sign==='Capricorn');
+          const signTag = r => {
+            const vTag = `<span class="tag ${r.venusVerdict==='flourish'?'good':'bad'}">${gName('Venus')}: ${r.venusVerdict==='flourish' ? T('flourish','abundancia') : T('perish-risk','riesgo de escasez')}</span>`;
+            const mTags = [
+              r.maleficsFlourish.length ? `<span class="tag good">${r.maleficsFlourish.map(gName).join('/')} → ${T('flourish','abundancia')}</span>` : '',
+              r.maleficsScarce.length ? `<span class="tag bad">${r.maleficsScarce.map(gName).join('/')} → ${T('scarce &amp; dear','escaso y caro')}</span>` : ''
+            ].filter(Boolean).join(' ');
+            return `${vTag} ${mTags}`;
+          };
+          return `
+        <h3 style="margin:0 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('1 · Which sign governs it, right now','1 · Qué signo lo gobierna, ahora mismo')}</h3>
+        <div class="hint" style="margin-bottom:6px;">Bṛhat Saṁhitā, ch. XLI, śl. 2, 7</div>
+        <div class="kv" style="margin-bottom:4px;"><div class="k">Aries</div><div class="v">${signTag(ariesRow)}</div></div>
+        <div class="kv" style="margin-bottom:10px;"><div class="k">Capricorn</div><div class="v">${signTag(capRow)}</div></div>
+
+        <h3 style="margin:14px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('2 · This month\'s storage rule','2 · La regla de almacenamiento de este mes')}</h3>
+        <div class="hint" style="margin-bottom:6px;">Bṛhat Saṁhitā, ch. XLII, śl. 6</div>
+        ${live.sunSign==='Leo' ? `
+          <div class="kv"><div class="k">${T('Sun in','Sol en')}</div><div class="v"><span class="tag good">Leo — ${T('rule active','regla activa')}</span></div></div>
+          <div class="hint" style="margin-top:6px;">${T('The source names gold specifically only when the Sun transits Leo (alongside gems, leather, armour, weapons, pearls and silver): store now, resell in exactly the 5th month for much profit — earlier or later brings loss. Still conditioned on the ch. XLII śl. 1-2 portent this app can\'t detect (see the trading-guidance panel below).','La fuente nombra el oro específicamente solo cuando el Sol transita Leo (junto a gemas, cuero, armadura, armas, perlas y plata): almacena ahora, revende exactamente en el 5.º mes para obtener mucha ganancia — antes o después trae pérdida. Sigue condicionado al presagio de ch. XLII śl. 1-2 que esta app no puede detectar (ver el panel de guía comercial abajo).')}</div>
+        ` : `
+          <div class="kv"><div class="k">${T('Sun in','Sol en')}</div><div class="v"><span class="tag neutral">${T(live.sunSign,live.sunSign)} — ${T('not active','no activa')}</span></div></div>
+          <div class="hint" style="margin-top:6px;">${T('This rule only names gold when the Sun is in Leo. Not the case right now.','Esta regla solo nombra el oro cuando el Sol está en Leo. No es el caso ahora mismo.')}</div>
+        `}`;
+        })()}
+
+        <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('3 · Today\'s weekday','3 · El día de la semana de hoy')}</h3>
+        <div class="hint" style="margin-bottom:6px;">Bṛhat Saṁhitā, ch. LVII, śl. 61-62</div>
+        ${(()=>{
+          const rule = GOLD_WEEKDAY_RULE[live.weekday];
+          const dayEs = {Sunday:'domingo',Monday:'lunes',Tuesday:'martes',Wednesday:'miércoles',Thursday:'jueves',Friday:'viernes',Saturday:'sábado'}[live.weekday];
+          return rule ? `
+          <div class="kv"><div class="k">${T('Today is','Hoy es')}</div><div class="v"><span class="tag good">${T(live.weekday,dayEs)} — ${T('favoured for gold','favorable para el oro')}</span></div></div>
+          <div class="hint" style="margin-top:6px;">${T(rule.en,rule.es)}</div>
+        ` : `
+          <div class="kv"><div class="k">${T('Today is','Hoy es')}</div><div class="v"><span class="tag neutral">${T(live.weekday,dayEs)} — ${T('not one of the named days','no es uno de los días nombrados')}</span></div></div>
+          <div class="hint" style="margin-top:6px;">${T('Ch. LVII names Sunday, Tuesday and Thursday for gold-related work. Today is not one of those.','El cap. LVII nombra domingo, martes y jueves para el trabajo relacionado con el oro. Hoy no es uno de esos días.')}</div>
+        `;
+        })()}
+        <div class="hint" style="margin-top:6px; font-style:italic;">${T('Sunday\'s clause is further conditioned in the source on the Sun\'s position relative to the Ascendant (an Upachaya house, or the rising sign itself) — this page is deliberately location-independent, like the Pañcha Pakshi panel, so that extra check isn\'t made here.','La cláusula del domingo está además condicionada en la fuente a la posición del Sol respecto al Ascendente (una casa Upachaya, o el propio signo ascendente) — esta página es deliberadamente independiente de la ubicación, como el panel de Pañcha Pakshi, así que esa comprobación adicional no se hace aquí.')}</div>
+
+        <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('4 · Antara Chakra cross-reference','4 · Referencia cruzada del Antara Chakra')}</h3>
+        <div class="hint" style="margin-bottom:6px;">Bṛhat Saṁhitā, ch. XL (87), Section II, śl. 2-3, 30, 32</div>
+        ${(()=>{
+          const stateTag = (state, goodTxt, goodTxtEs, badTxt, badTxtEs) => {
+            if (state==='Santa') return goodTxt ? `<span class="tag good">Śānta — ${T(goodTxt,goodTxtEs)}</span>` : `<span class="tag neutral">Śānta — ${T('no gold reading on this side of this point','sin lectura de oro en este lado de este punto')}</span>`;
+            return badTxt ? `<span class="tag bad">${state} — ${T(badTxt,badTxtEs)}</span>` : `<span class="tag neutral">${state} — ${T('no gold reading on this side of this point','sin lectura de oro en este lado de este punto')}</span>`;
+          };
+          return `
+        <div class="kv" style="margin-bottom:4px;"><div class="k">Kośādhyakṣa (E)</div><div class="v">${stateTag(live.goldAntara.kosadhyaksha, 'gain of gold and of a desired object','ganancia de oro y de un objeto deseado', 'injury to gold and suffering to goldsmiths','daño al oro y sufrimiento para los orfebres')}</div></div>
+        <div class="kv" style="margin-bottom:4px;"><div class="k">${T('Southeast','Sureste')}</div><div class="v">${stateTag(live.goldAntara.southeast, 'gain of gold and metals','ganancia de oro y metales', null, null)}</div></div>
+        <div class="kv"><div class="k">Vivastra Strī (SE)</div><div class="v">${stateTag(live.goldAntara.vivastraStri, null, null, 'death of dealers in gold and of sculptors','muerte de comerciantes de oro y de escultores')}</div></div>
+        <div class="hint" style="margin-top:8px;">${T('These are three of the 32 Antara Chakra points, live right now, cross-referenced here because they\'re the only ones that specifically name gold. See the Antara Chakra page for the full wheel.','Estos son tres de los 32 puntos del Antara Chakra, en vivo ahora mismo, referenciados aquí porque son los únicos que nombran específicamente el oro. Ver la página del Antara Chakra para la rueda completa.')}</div>`;
+        })()}
+
+        <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('5 · Botanical omens (reference only, not live)','5 · Presagios botánicos (solo referencia, no en vivo)')}</h3>
+        <div class="hint" style="margin-bottom:6px;">Bṛhat Saṁhitā, ch. XXIX</div>
+        <ul style="margin:4px 0 0; padding-left:20px; font-size:12.5px; color:var(--ink-dim);">
+          ${GOLD_BOTANICAL_OMENS.map(o=>`<li style="margin-bottom:4px;">${T(o.en,o.es)} <span style="color:var(--slate); font-family:var(--mono); font-size:10px;">(${o.cite})</span></li>`).join('')}
+        </ul>
+        <div class="hint" style="margin-top:6px;">${T('These need a real-world botanical observation (which of two specific trees is currently blossoming) that this app has no way to make — shown for completeness, not as a signal.','Estos necesitan una observación botánica real (cuál de dos árboles específicos está floreciendo actualmente) que esta app no puede hacer — se muestran por completitud, no como señal.')}</div>
+      </div>
+    </div>
+
     <div class="panel">
       <div class="hd"><h2>${T('Per-sign commodity signal','Señal de materias primas por signo')}</h2><span class="note">Bṛhat Saṁhitā, ch. XLI, śl. 2-11</span></div>
       <div class="bd">
@@ -4157,12 +4274,13 @@ function renderCommoditiesPage(){
           ${synthRow('Sun (state context)','Sol (contexto estatal)', synth.bonds.secondary)}
         </div>
 
-        <div class="hint" style="margin-top:14px;">${T('Gold is not synthesized here — it already appears directly in the sourced table above (Aries and Capricorn both govern it in ch. XLI itself).','El oro no se sintetiza aquí — ya aparece directamente en la tabla con fuente de arriba (Aries y Capricornio lo gobiernan en el propio cap. XLI).')}</div>
+        <div class="hint" style="margin-top:14px;">${T('Gold is not synthesized here — it\'s directly sourced, not extrapolated, and gets its own dedicated panel near the top of this page.','El oro no se sintetiza aquí — está directamente documentado, no extrapolado, y tiene su propio panel dedicado cerca del inicio de esta página.')}</div>
       </div>
     </div>
 
     <footer class="notes" style="line-height:1.8;">
       <b>${T('Sources.','Fuentes.')}</b> ${T('Bṛhat Saṁhitā (Varāhamihira), N. Chidambaram\'s 1884 translation, Chapter XLI ("On Commodities") and Chapter XLII ("On the Price of Commodities"), transcribed directly with the two ambiguous clauses flagged above and below where relevant. Chapter XL ("Sasya Jātaka", vegetable horoscopy) predicts crop yield from the Sun\'s entry into Scorpio or Taurus through many interlocking, mutually-conditional stanzas — genuinely rich material, but it doesn\'t reduce to a clean live check the way ch. XLI-XLII do, so it is cited here for context rather than computed. Śl. 13 of ch. XLII (an Atimitra/"very friendly" planet conjunct the Sun or Moon) is likewise not computed — it needs the fuller five-grade Pañcadhā Maitri (temporal + natural friendship) system, which this app does not yet implement. The Modern Synthesis panel above is separately sourced: general Vedic karaka doctrine (e.g. Bṛhat Parāśara Horā Śāstra\'s karaka chapter) applied by this app to instrument categories the classical texts never addressed — clearly not a transcription of any single named source.','Bṛhat Saṁhitā (Varāhamihira), traducción de N. Chidambaram de 1884, Capítulo XLI ("Sobre las materias primas") y Capítulo XLII ("Sobre el precio de las materias primas"), transcritos directamente con las dos cláusulas ambiguas señaladas arriba y abajo donde corresponde. El Capítulo XL ("Sasya Jātaka", horoscopía vegetal) predice la cosecha a partir de la entrada del Sol en Escorpio o Tauro mediante muchas estrofas entrelazadas y mutuamente condicionales — material genuinamente rico, pero no se reduce a una verificación en vivo limpia como sí lo hacen los cap. XLI-XLII, así que se cita aquí como contexto y no se calcula. La śl. 13 del cap. XLII (un planeta Atimitra/"muy amigo" en conjunción con el Sol o la Luna) tampoco se calcula — requiere el sistema completo de cinco grados de Pañcadhā Maitri (amistad temporal + natural), que esta app aún no implementa. El panel de Síntesis Moderna de arriba tiene fuente aparte: doctrina general védica de karakas (p. ej. el capítulo de karakas del Bṛhat Parāśara Horā Śāstra) aplicada por esta app a categorías de instrumentos que los textos clásicos nunca abordaron — claramente no es una transcripción de una sola fuente nombrada.')}
+      <br><br>${T('The Gold panel additionally draws on Chapter LVII ("Effects of planets moving through the signs of the Zodiac", śl. 61-62 — the weekday rule) and Chapter XXIX ("Vṛkṣāyurveda", śl. 8 &amp; 10 — the botanical omens), and cross-references the Antara Chakra data already sourced from Chapter XL/87 for that page.','El panel de Oro además se basa en el Capítulo LVII ("Efectos de los planetas moviéndose por los signos del Zodiaco", śl. 61-62 — la regla del día de la semana) y el Capítulo XXIX ("Vṛkṣāyurveda", śl. 8 y 10 — los presagios botánicos), y hace referencia cruzada a los datos del Antara Chakra ya obtenidos del Capítulo XL/87 para esa página.')}
       <br><br>${T('None of this is financial advice — it is a transcription of a 1,500-year-old text\'s own stated method (plus, in the Modern Synthesis panel, this app\'s own extrapolation from it), offered for historical and astrological interest.','Nada de esto es asesoría financiera — es una transcripción del método propio de un texto de 1.500 años de antigüedad (además, en el panel de Síntesis Moderna, una extrapolación propia de esta app a partir de él), ofrecido por su interés histórico y astrológico.')}
     </footer>
   `;
