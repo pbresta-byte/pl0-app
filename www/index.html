@@ -399,6 +399,7 @@
         <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">Nakṣatra Categories</button>
         <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Auspicious Calendar</button>
         <button type="button" data-page="pageAntara" data-i18n="navAntara">Antara Chakra (Portents)</button>
+        <button type="button" data-page="pageRemedies" data-i18n="navRemedies">Remedies &amp; Combinations</button>
       </div>
     </div>
     <div>
@@ -535,6 +536,10 @@
   <div class="result-col" id="antaraPageContent" style="max-width:1100px; margin:0 auto;"></div>
 </div>
 
+<div id="pageRemedies" class="page">
+  <div class="result-col" id="remediesPageContent" style="max-width:900px; margin:0 auto;"></div>
+</div>
+
 
 <script>
 /* =========================================================================
@@ -590,6 +595,7 @@ const I18N = {
   navNakshatra: { en:`Nakṣatra Categories`, es:`Categorías de Nakṣatra` },
   navCalendar: { en:`Auspicious Calendar`, es:`Calendario auspicioso` },
   navAntara: { en:`Antara Chakra (Portents)`, es:`Antara Chakra (Presagios)` },
+  navRemedies: { en:`Remedies &amp; Combinations`, es:`Remedios y Combinaciones` },
   profileLbl: { en:`Saved profile`, es:`Perfil guardado` },
   profileNamePh: { en:`Profile name…`, es:`Nombre del perfil…` },
   profileSave: { en:`Save`, es:`Guardar` },
@@ -989,6 +995,53 @@ const GRAHA_REMEDY_ES = {
   Rahu:    {deity:"Durgā",              gemstone:"Hesonita (gomed)",              color:"Gris humo",              day:"Sábado",    donation:"Mantas, semillas de mostaza o cocos, para los marginados"},
   Ketu:    {deity:"Gaṇeśa",             gemstone:"Ojo de gato",                   color:"Marrón / gris",          day:"Martes",    donation:"Mantas, sésamo o tela multicolor para los necesitados"}
 };
+
+/* Pañca Mahāpuruṣa Yoga — Prithuyasas' Horasara (R. Santhanam ed.), the
+   chapter on planetary yogas, cross-referenced by the same edition's notes
+   to Varāhamihira's Bṛhat Saṁhitā ch.69 and Kalyāṇa Varma's Sārāvalī ch.37.
+   Condition (all five, per Horasara): the graha is in its own sign or
+   exaltation, in a kendra (1st/4th/7th/10th) from Lagna or from the Moon.
+   Distinct from — and not derived from — the SBC/Vedha material elsewhere
+   in this app; this is straight natal/dignity astrology. */
+const MAHAPURUSHA_YOGA = {
+  Mars:    { name:"Ruchaka",  desc:"A long face, courage, valour, strength and pride; destroys enemies; commanding presence and success.",
+             descEs:"Rostro alargado, coraje, valentía, fuerza y orgullo; destruye enemigos; presencia de mando y éxito." },
+  Mercury: { name:"Bhadra",   desc:"Long life, sharp intellect, integrity, esteemed even by the learned; wealthy and eloquent in royal assembly.",
+             descEs:"Larga vida, intelecto agudo, integridad, estimado incluso por los eruditos; rico y elocuente en la corte real." },
+  Jupiter: { name:"Hamsa",    desc:"Praised by good people, a commanding presence, a beautiful body, generous nature, and a fondness for refined pleasures.",
+             descEs:"Alabado por la gente buena, presencia dominante, cuerpo hermoso, naturaleza generosa y afición a los placeres refinados." },
+  Venus:   { name:"Malavya",  desc:"Strong and pleasing limbs, steadfastness, wealth, a good family life, comfort, learning, and fine conveyances.",
+             descEs:"Extremidades fuertes y agradables, firmeza, riqueza, buena vida familiar, comodidad, aprendizaje y buenos medios de transporte." },
+  Saturn:  { name:"Sasa",     desc:"Authority and leadership (head of a village or realm), strength and many in service to him — but classically also flagged with Saturn's usual cautions (excess, acquisitiveness). Strength here means real power, not automatic virtue.",
+             descEs:"Autoridad y liderazgo (jefe de un pueblo o reino), fuerza y muchos a su servicio — pero clásicamente también con las cautelas habituales de Saturno (exceso, codicia). La fuerza aquí significa poder real, no virtud automática." }
+};
+
+/* Directional-deity remedies — Prasna Marga (B.V. Raman), Ch. XV, on the
+   causes of affliction and their cure: stanza 42 gives the eight Dikpāla
+   (direction-lords) responsible for an affliction; stanzas 43-46 give the
+   remedy for each. This is the SAME eight-quarter framework used elsewhere
+   in this app for the Antara Chakra (Bṛhat Saṁhitā's version names North
+   "Soma" and Northeast "Īśāna" where Prasna Marga instead names them
+   Vaiśravaṇa/Kubera and Śiva — both are standard Dikpāla lists, just
+   different textual lineages; kept exactly as each source states it.) */
+const PRASNA_DIRECTION_REMEDY = [
+  {dir:"East",      dirEs:"Este",         deity:"Indra",                 remedy:"Worship your Iṣṭa-devatā (personal or family deity).",
+    remedyEs:"Adora a tu Iṣṭa-devatā (deidad personal o familiar)."},
+  {dir:"Southeast", dirEs:"Sureste",      deity:"Agni",                  remedy:"Perform Mṛtyuñjaya Homa.",
+    remedyEs:"Realiza el Mṛtyuñjaya Homa."},
+  {dir:"South",     dirEs:"Sur",          deity:"Yama",                  remedy:"Propitiate the manes — ancestor rites (śrāddha).",
+    remedyEs:"Propicia a los manes — ritos ancestrales (śrāddha)."},
+  {dir:"Southwest", dirEs:"Suroeste",     deity:"Nirṛti",                remedy:"Satisfy the afflicting spirit through the rite appropriate to it.",
+    remedyEs:"Satisface al espíritu aflictivo mediante el rito apropiado."},
+  {dir:"West",      dirEs:"Oeste",        deity:"Varuṇa",                remedy:"Perform abhiṣeka to Śiva with holy water, oil and ghee.",
+    remedyEs:"Realiza abhiṣeka a Śiva con agua sagrada, aceite y ghee."},
+  {dir:"Northwest", dirEs:"Noroeste",     deity:"Vāyu",                  remedy:"Decorate the deity with ornaments and flowers, anoint with perfumes and sandal paste, and fill the space with scented fumes.",
+    remedyEs:"Decora a la deidad con ornamentos y flores, unge con perfumes y pasta de sándalo, y llena el espacio de sahumerios."},
+  {dir:"North",     dirEs:"Norte",        deity:"Vaiśravaṇa (Kubera)",   remedy:"Worship the gods and feed Brahmins, ideally on a birthday.",
+    remedyEs:"Adora a los dioses y alimenta a brahmanes, idealmente en un cumpleaños."},
+  {dir:"Northeast", dirEs:"Noreste",      deity:"Śiva",                  remedy:"Arrange bhajanas, sacred dance, and recitation of scripture and the Vedas.",
+    remedyEs:"Organiza bhajanas, danza sagrada y recitación de escrituras y los Vedas."}
+];
 
 // Sign data — nature, lord, own/exalt/debil/moolatrikona, sign-based friendships (ch. V)
 const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
@@ -2663,45 +2716,6 @@ function computeDehaChakra(pos, panch, refP, tara){
 
 function tagFor(sign){ return sign==="good" ? `<span class="tag good">${T('favourable','favorable')}</span>` : sign==="bad" ? `<span class="tag bad">${T('unfavourable','desfavorable')}</span>` : `<span class="tag neutral">${T('neutral','neutral')}</span>`; }
 
-// Which graha(s) to offer a remedy for: the ones actually casting a malefic
-// Vedha hit or a Latta kick right now — falling back to the Moon only if
-// neither fired but Tārā is still unfavourable (Tārā has no graha of its
-// own; it's read from the Moon). Capped at 2 so the box stays a "mini" one.
-function remedyGrahasFor(vedha, latta, tara){
-  const set = new Set();
-  vedha.maleficHits.forEach(h=>set.add(h.graha));
-  latta.forEach(l=>set.add(l.graha));
-  if (!set.size && tara && tara.tone === "bad") set.add("Moon");
-  return [...set].slice(0,2);
-}
-
-function renderRemedyBox(grahas){
-  if (!grahas.length) return "";
-  const table = LANG==='es' ? GRAHA_REMEDY_ES : GRAHA_REMEDY;
-  const cards = grahas.map((g,idx)=>{
-    const r = GRAHA_REMEDY[g], rl = table[g];
-    if (!r || !rl) return "";
-    const divider = idx>0 ? `<div style="border-top:1px solid var(--line-soft); margin:10px 0;"></div>` : "";
-    return `${divider}<div class="kv">
-      <div class="k">${T('Graha','Graha')}</div><div class="v" style="color:var(--gold);">${g} <span style="color:var(--slate); font-family:var(--mono); font-size:10px; text-transform:uppercase;">— ${rl.day}</span></div>
-      <div class="k">${T('Deity','Deidad')}</div><div class="v">${rl.deity}</div>
-      <div class="k">${T('Mantra','Mantra')}</div><div class="v" style="font-style:italic;">${r.mantra}</div>
-      <div class="k">${T('Color','Color')}</div><div class="v">${rl.color}</div>
-      <div class="k">${T('Charity','Caridad')}</div><div class="v">${rl.donation}</div>
-      <div class="k">${T('Gemstone','Gema')}</div><div class="v">${rl.gemstone} <span style="color:var(--slate); font-size:10.5px;">${T('(traditionally chosen only after a full chart consultation, not from a single reading)','(tradicionalmente se elige solo tras una consulta completa de la carta, no a partir de una sola lectura)')}</span></div>
-    </div>`;
-  }).join('');
-  return `<div class="panel" style="border-color:var(--gold-dim);">
-    <div class="hd"><h2>${T('Possible remedy','Remedio posible')}</h2><span class="note">${T('general Navagraha upāya','upāya general de Navagraha')}</span></div>
-    <div class="bd">
-      <div class="hint" style="margin-bottom:10px;">${grahas.length>1
-        ? T('The grahas behind this reading\'s negative weight, with the standard classical remedial measure for each. General Jyotish remedial tradition, not a passage from the Sarvato Bhadra Chakra source text itself — a starting point, not medical, legal or financial advice.','Los grahas detrás del peso negativo de esta lectura, con la medida remedial clásica estándar para cada uno. Tradición remedial general del Jyotish, no un pasaje del propio texto fuente del Sarvato Bhadra Chakra — un punto de partida, no un consejo médico, legal o financiero.')
-        : T('The graha behind this reading\'s negative weight, with its standard classical remedial measure. General Jyotish remedial tradition, not a passage from the Sarvato Bhadra Chakra source text itself — a starting point, not medical, legal or financial advice.','El graha detrás del peso negativo de esta lectura, con su medida remedial clásica estándar. Tradición remedial general del Jyotish, no un pasaje del propio texto fuente del Sarvato Bhadra Chakra — un punto de partida, no un consejo médico, legal o financiero.')}</div>
-      ${cards}
-    </div>
-  </div>`;
-}
-
 function runAnalysis(){
   const refInfo = getReferencePanchaka();
   const refP = refInfo.panch;
@@ -2762,8 +2776,6 @@ function runAnalysis(){
       <div class="l">${T('SBC score','Puntuación SBC')}</div>
     </div>
   </div>`;
-
-  html += renderRemedyBox(remedyGrahasFor(vedha, latta, tara));
 
   html += `<div class="strip">
     <div class="cell"><div class="k">Tithi</div><div class="v">${panch.tithiName} <small>(${panch.paksha}, ${T('no.','n.º')} ${panch.tithiNum})</small></div></div>
@@ -2924,6 +2936,7 @@ function showPage(pageId){
   if (pageId === 'pageNakshatra') renderNakshatraPage();
   if (pageId === 'pageCalendar') renderCalendarPage();
   if (pageId === 'pageAntara') renderAntaraChakraPage();
+  if (pageId === 'pageRemedies') renderRemediesPage();
 }
 
 // Nakṣatra Categories page — a fixed property of the reference person's own
@@ -3434,6 +3447,113 @@ function renderAntaraChakraPage(){
       <b>Interpretive choices.</b> Grouping each main point's 3 intermediate points into that point's own Yāma state is this app's reading of the source's structure, not spelled out in so many words in the 1884 translation. The centre's benefic/malefic state has no computable rule in the source and is left as a manual toggle. A few of the 24 intermediate point names are uncertain OCR from the scanned original and are marked as such.<br>
       <b>Not implemented.</b> Chapter 41's extensive per-species cry-sound dictionary (which exact syllable a given bird's call means) is a separate, much larger undertaking and isn't transcribed here, nor are the general sound-quality, seasonal-exclusion and sex-of-creature rules beyond what's summarized above. Prediction text on this page is English-only.<br>
       <b>Animal cross-reference.</b> The "own place" check (śl.19) only fires when the wheel's selected zone is one of the 4 main cardinal points (E/S/W/N) — the source's direction-animal table (śl.20-23) doesn't cover the intercardinal directions, so the check is silently skipped there rather than guessed at.
+    </footer>
+  `;
+}
+
+// ---- Remedies & Combinations ----
+// Deliberately independent of runAnalysis()'s score: no Vedha/Latta/Tārā
+// input at all. The SBC source text has no remedy chapter of its own, so
+// gating a remedy behind an SBC Vedha hit conflated two unrelated systems —
+// this page picks a planet or direction directly instead.
+let remediesSelectedGraha = 'Sun';
+function setRemediesGraha(g){ remediesSelectedGraha = g; renderRemediesPage(); }
+
+function isKendraFrom(refSid, testSid){
+  const refSign = Math.floor(norm360(refSid)/30);
+  const testSign = Math.floor(norm360(testSid)/30);
+  const diff = ((testSign - refSign) % 12 + 12) % 12;
+  return [0,3,6,9].includes(diff);
+}
+function isOwnOrExalt(graha, sid){
+  const signIdx = Math.floor(norm360(sid)/30);
+  const sign = SIGNS[signIdx];
+  if (EXALT[graha] && sign === EXALT[graha].sign) return true;
+  const rel = GRAHA_SIGN_REL[graha];
+  return !!(rel && rel.own.includes(signIdx+1));
+}
+// Natal check only (Mahāpuruṣa Yoga is a birth-chart feature, not a transit
+// one) — needs the reference person's full birth positions, only available
+// in "compute from birth data" mode.
+function mahapurushaActiveInChart(birthPos, graha){
+  if (!birthPos || !birthPos[graha] || !birthPos.Moon) return false;
+  const sid = birthPos[graha].sidereal;
+  if (!isOwnOrExalt(graha, sid)) return false;
+  return isKendraFrom(birthPos._ascSidereal, sid) || isKendraFrom(birthPos.Moon.sidereal, sid);
+}
+
+function renderRemediesPage(){
+  const container = document.getElementById('remediesPageContent');
+  if (!container) return;
+
+  const refInfo = getReferencePanchaka();
+  const refP = refInfo.panch;
+  const birthPos = refInfo.birthPos || null;
+
+  const g = remediesSelectedGraha;
+  const rTable = LANG==='es' ? GRAHA_REMEDY_ES : GRAHA_REMEDY;
+  const r = GRAHA_REMEDY[g], rl = rTable[g];
+  const grahaOptions = GRAHA_LIST.map(x=>`<option value="${x}" ${g===x?'selected':''}>${x}</option>`).join('');
+
+  const maha = MAHAPURUSHA_YOGA[g];
+  let mahaHtml = '';
+  if (maha){
+    const active = birthPos ? mahapurushaActiveInChart(birthPos, g) : false;
+    mahaHtml = `
+      <div style="margin-top:14px; border:1px solid var(--gold-dim); background:rgba(209,169,78,0.07); padding:10px 12px; font-size:12px; color:var(--ink-dim);">
+        <b>${maha.name} ${T('Yoga','Yoga')}</b> — ${T('when','cuando')} ${g} ${T('is in its own sign or exaltation, in a kendra (1st/4th/7th/10th) from the Lagna or the Moon.','está en su propio signo o exaltación, en un kendra (1.º/4.º/7.º/10.º) desde el Lagna o la Luna.')}
+        <div style="margin-top:6px;">${T(maha.desc, maha.descEs)}</div>
+        ${birthPos
+          ? `<div style="margin-top:8px;"><span class="tag ${active?'good':'neutral'}">${active ? T('Present in this birth chart','Presente en esta carta natal') : T('Not present in this birth chart','No presente en esta carta natal')}</span></div>`
+          : `<div class="hint" style="margin-top:8px;">${T('Switch to "Compute from birth date / time / place" on the Muhūrta Gauge page to check whether this yoga is actually present.','Cambia a "Calcular desde fecha / hora / lugar de nacimiento" en la página Muhūrta Gauge para comprobar si este yoga está realmente presente.')}</div>`}
+      </div>`;
+  }
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('Remedies &amp; Combinations','Remedios y Combinaciones')}</h2><span class="note">${T('independent of the SBC score','independiente de la puntuación SBC')}</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:14px;">${T('This page stands on its own — it does not read the Muhūrta Gauge\'s Vedha/Tārā/Latta score. The Sarvato Bhadra Chakra source text has no remedy chapter of its own, so tying a remedy to an SBC Vedha hit conflated two unrelated systems; pick a planet or a direction below instead.','Esta página es independiente — no lee la puntuación de Vedha/Tārā/Latta del Muhūrta Gauge. El propio texto fuente del Sarvato Bhadra Chakra no tiene un capítulo de remedios, así que vincular un remedio a un golpe de Vedha del SBC combinaba dos sistemas no relacionados; elige un planeta o una dirección abajo.')}</div>
+
+        <label style="display:block; font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-bottom:4px; letter-spacing:0.03em;">${T('Planet','Planeta')}</label>
+        <select onchange="setRemediesGraha(this.value)" style="max-width:220px; background:var(--bg-2); border:1px solid var(--line); color:var(--ink); padding:7px 8px; border-radius:2px; font-family:var(--mono); font-size:12.5px;">${grahaOptions}</select>
+
+        <div class="kv" style="margin-top:14px;">
+          <div class="k">${T('Graha','Graha')}</div><div class="v" style="color:var(--gold);">${g} <span style="color:var(--slate); font-family:var(--mono); font-size:10px; text-transform:uppercase;">— ${rl.day}</span></div>
+          <div class="k">${T('Deity','Deidad')}</div><div class="v">${rl.deity}</div>
+          <div class="k">${T('Mantra','Mantra')}</div><div class="v" style="font-style:italic;">${r.mantra}</div>
+          <div class="k">${T('Color','Color')}</div><div class="v">${rl.color}</div>
+          <div class="k">${T('Charity','Caridad')}</div><div class="v">${rl.donation}</div>
+          <div class="k">${T('Gemstone','Gema')}</div><div class="v">${rl.gemstone} <span style="color:var(--slate); font-size:10.5px;">${T('(traditionally chosen only after a full chart consultation, not from a page like this one)','(tradicionalmente se elige solo tras una consulta completa de la carta, no desde una página como esta)')}</span></div>
+        </div>
+        ${mahaHtml}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="hd"><h2>${T('Remedies by direction','Remedios por dirección')}</h2><span class="note">Praśna Mārga, ch. XV</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px;">${T('If an affliction traces to a direction rather than a planet — e.g. via the Antara Chakra page, or which way something ominous was noticed — here is that direction\'s deity and remedy.','Si una aflicción se rastrea a una dirección en vez de a un planeta — p. ej. mediante la página Antara Chakra, o hacia dónde se notó algo ominoso — aquí está la deidad y el remedio de esa dirección.')}</div>
+        <div class="tblwrap"><table>
+          <tr><th>${T('Direction','Dirección')}</th><th>${T('Deity','Deidad')}</th><th>${T('Remedy','Remedio')}</th></tr>
+          ${PRASNA_DIRECTION_REMEDY.map(d=>`<tr><td class="wide">${T(d.dir,d.dirEs)}</td><td>${d.deity}</td><td>${T(d.remedy,d.remedyEs)}</td></tr>`).join('')}
+        </table></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="hd"><h2>${T('General principle','Principio general')}</h2><span class="note">Praśna Mārga, ch. XV, śl. 29-39</span></div>
+      <div class="bd">
+        <div class="kv">
+          <div class="k">${T('Framework','Marco')}</div><div class="v">${T('Affliction is read as the residue of past karma; the classical remedy combines medicine, charity (dāna), mantra repetition (japa), fire ritual (homa) and worship — not any one of these alone.','La aflicción se lee como residuo de karma pasado; el remedio clásico combina medicina, caridad (dāna), repetición de mantra (japa), ritual de fuego (homa) y adoración — no solo uno de estos.')}</div>
+          <div class="k">${T('Universal remedy','Remedio universal')}</div><div class="v"><b>${T('Mṛtyuñjaya Homa / Mantra','Mṛtyuñjaya Homa / Mantra')}</b> — ${T('described in the source as effective against any disease, affliction by evil spirits, and even danger to life itself; for severe affliction the mantra is prescribed to be repeated 8000 times (japa).','descrito en la fuente como eficaz contra cualquier enfermedad, aflicción por espíritus malignos, e incluso peligro para la vida misma; para aflicciones graves se prescribe repetir el mantra 8000 veces (japa).')}</div>
+        </div>
+        <div class="warnbox" style="margin-top:12px;">${T('The source itself cautions against this: "It is not advisable to have recourse to the performance of remedial measures of this type merely on bookish knowledge without the sound advice and guidance of an expert." Nothing on this page is medical, legal or financial advice.','La propia fuente lo advierte: "No es aconsejable recurrir a este tipo de medidas remediales solo por conocimiento libresco, sin el consejo y la guía experta de un especialista." Nada en esta página es consejo médico, legal o financiero.')}</div>
+      </div>
+    </div>
+
+    <footer class="notes" style="line-height:1.8;">
+      <b>${T('Sources.','Fuentes.')}</b> ${T('By-direction remedies and the general remedy framework: B.V. Raman\'s Praśna Mārga, Chapter XV ("Reasons for the Miseries of Mankind"), śl. 29-46. Pañca Mahāpuruṣa Yoga: Prithuyasas\' Horasara (R. Santhanam ed.), cross-referenced in the same edition to Bṛhat Saṁhitā ch.69 and Sārāvalī ch.37. The by-planet mantra/gemstone/color/donation table is general Navagraha upāya, standard across the Jyotish corpus rather than a transcription of any single named text.','Remedios por dirección y el marco general de remedios: Praśna Mārga de B.V. Raman, Capítulo XV ("Razones de las miserias de la humanidad"), śl. 29-46. Pañca Mahāpuruṣa Yoga: Horasara de Prithuyasas (ed. R. Santhanam), referenciado de forma cruzada en la misma edición con Bṛhat Saṁhitā cap.69 y Sārāvalī cap.37. La tabla de mantra/gema/color/donación por planeta es upāya general de Navagraha, estándar en todo el corpus de Jyotish, no una transcripción de un texto único.')}
     </footer>
   `;
 }
