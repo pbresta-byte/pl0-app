@@ -2906,6 +2906,35 @@ function pull(pt, toward, frac){ return [pt[0]+(toward[0]-pt[0])*frac, pt[1]+(to
 const SIGN_ABBR = {Aries:"Ar",Taurus:"Ta",Gemini:"Ge",Cancer:"Cn",Leo:"Le",Virgo:"Vi",Libra:"Li",
   Scorpio:"Sc",Sagittarius:"Sg",Capricorn:"Cp",Aquarius:"Aq",Pisces:"Pi"};
 
+/* Navamsa (D9) — Mystics of SBC ch. II/V "Navamsa": each 30° sign divides
+   into 9 equal 3°20' parts (matching the 4-pada-per-Nakṣatra grid already
+   used elsewhere in this app). Movable signs (1st/4th/7th/10th) start their
+   Navamsa count from themselves; fixed signs (2nd/5th/8th/11th) from the
+   9th sign; dual signs (3rd/6th/9th/12th) from the 5th sign — the book
+   gives this exact rule plus a worked 9x12 table, checked against it
+   directly (e.g. Taurus pada 1 -> Capricorn, Gemini pada 1 -> Libra).
+   Returns a synthetic "sidereal" degree (0-360) encoding the Navamsa sign
+   in its whole part, so it can be fed straight back into renderChart()
+   and dignity() unchanged — both only look at floor(degree/30). */
+function navamsaSidereal(rashiSidereal){
+  const L = norm360(rashiSidereal);
+  const signIdx = Math.floor(L/30);
+  const degInSign = L - signIdx*30;
+  const padaSpan = 30/9;
+  const navIdx = Math.min(8, Math.floor(degInSign/padaSpan));
+  const modality = signIdx % 3; // 0=movable, 1=fixed, 2=dual
+  const startOffset = modality===0 ? 0 : (modality===1 ? 8 : 4);
+  const navSignIdx = (signIdx + startOffset + navIdx) % 12;
+  const degIntoPada = degInSign - navIdx*padaSpan;
+  const degInNavSign = (degIntoPada/padaSpan)*30;
+  return navSignIdx*30 + degInNavSign;
+}
+function computeNavamsaPos(pos){
+  const navPos = {};
+  for (const g of GRAHA_LIST) navPos[g] = { sidereal: navamsaSidereal(pos[g].sidereal), speed: pos[g].speed };
+  return navPos;
+}
+
 function renderChart(pos, ascSign){
   const ascIdx = SIGNS.indexOf(ascSign);
   const planetsBySign = {}; SIGNS.forEach(s=>planetsBySign[s]=[]);
@@ -3528,9 +3557,28 @@ function runAnalysis(){
     <div class="cell"><div class="k">Lagna</div><div class="v">${panch.ascSign}</div></div>
   </div><div style="height:20px"></div>`;
 
+  const navPos = computeNavamsaPos(pos);
+  const navAscSign = SIGNS[Math.floor(navamsaSidereal(pos._ascSidereal)/30)];
+  const navStrengthRows = GRAHA_LIST.map(g=>{
+    const d1Sign = SIGNS[Math.floor(norm360(pos[g].sidereal)/30)];
+    const d9Sign = SIGNS[Math.floor(norm360(navPos[g].sidereal)/30)];
+    const vargottama = d1Sign === d9Sign;
+    return `<tr${vargottama?' style="background:var(--house1);"':''}>
+      <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${T(g,GRAHA_ES[g])}</td>
+      <td>${d1Sign} <span style="color:var(--slate); font-size:10.5px;">(${dignity(g,pos[g].sidereal)})</span></td>
+      <td>${d9Sign} <span style="color:var(--slate); font-size:10.5px;">(${dignity(g,navPos[g].sidereal)})</span></td>
+      <td>${vargottama?`<span class="tag gold">${T('Vargottama','Vargottama')}</span>`:''}</td>
+    </tr>`;
+  }).join('');
+
   html += `<div class="grid2">
     <div class="panel"><div class="hd"><h2>${T('Rāśi chart at the muhūrta','Carta Rāśi en el muhūrta')}</h2><span class="note">${T('North Indian format','formato norteño indio')}</span></div>
       <div class="bd">${renderChart(pos, panch.ascSign)}</div></div>
+    <div class="panel"><div class="hd"><h2>${T('Navamsa (D9) chart','Carta Navāṁśa (D9)')}</h2><span class="note">${T('planet strength, not scored','fuerza planetaria, no puntuado')}</span></div>
+      <div class="bd">${renderChart(navPos, navAscSign)}</div></div>
+  </div><div style="height:20px"></div>
+
+  <div class="grid2">
     <div class="panel"><div class="hd"><h2>Sarvato Bhadra Chakra</h2><span class="note">${T('perimeter ring, ch. III','anillo perimetral, cap. III')}</span></div>
       <div class="bd">
         ${renderSBCRing(getHit, refP.star)}
@@ -3539,6 +3587,12 @@ function runAnalysis(){
           <div class="li"><span class="sw" style="background:rgba(79,157,122,0.35);border:1px solid var(--jade)"></span> ${T('benefic Vedha landing here now','Vedha benéfico cayendo aquí ahora')}</div>
           <div class="li"><span class="sw" style="background:rgba(193,68,46,0.35);border:1px solid var(--vermilion)"></span> ${T('malefic Vedha landing here now','Vedha maléfico cayendo aquí ahora')}</div>
         </div>
+      </div>
+    </div>
+    <div class="panel"><div class="hd"><h2>${T('Navamsa strength (D1 vs D9)','Fuerza Navāṁśa (D1 vs D9)')}</h2><span class="note">${T('informational only','solo informativo')}</span></div>
+      <div class="bd">
+        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>D1</th><th>D9</th><th></th></tr></thead><tbody>${navStrengthRows}</tbody></table></div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('Mystics of SBC on this: "Determine the strength as per standard practice & indicate these planets in SBC" — advisory language, not a point formula the way ch. IX/X gives explicit numbers for Vedha grading. So this table is shown for context only and does NOT feed into the SBC score below; a graha strong here but weak in D1 (or vice versa) is worth weighing yourself when reading the verdict. Vargottama (gold row) = same sign in both D1 and D9, classically a real strength marker.','Mystics of SBC sobre esto: "Determina la fuerza según la práctica estándar e indica estos planetas en el SBC" — lenguaje orientativo, no una fórmula de puntos como la que ch. IX/X da con números explícitos para la gradación de Vedha. Por eso esta tabla se muestra solo como contexto y NO se incorpora a la puntuación SBC de abajo; un graha fuerte aquí pero débil en D1 (o viceversa) conviene sopesarlo tú al leer el veredicto. Vargottama (fila dorada) = mismo signo en D1 y D9, clásicamente un indicador real de fuerza.')}</div>
       </div>
     </div>
   </div>`;
@@ -4491,6 +4545,44 @@ function commodityLiveNow(ayanamsaMode){
    Sun, classical karaka of the ruling authority/the state, is read as
    secondary context for the issuing government.
    ========================================================================= */
+/* Equities by Industry Sector — Mystics of SBC ch. V ("All about Planets",
+   Significations of Planets) and ch. VI ("All about Signs", Significations
+   of Signs). Both chapters give a "General:" list of real-world domains per
+   planet/sign alongside their commodity list — several of those domains are
+   literally modern industry sectors (Jupiter: "shares, banks... cloth
+   mills... hospitals"; Saturn: "mines, oil refineries, share of oil
+   companies, shares of steel companies... shares of drug companies";
+   Aquarius: "automobiles... airplanes, airports, electric motors,
+   telegraph offices, broadcasting stations, electric power houses").
+   `sectors` below is this app's own condensing of that raw text into
+   short modern labels (a real synthesis step); `raw` is the source's own
+   "General:" text, quoted, so the labeling can be checked against it. */
+const SBC_PLANET_SECTORS = {
+  Sun:     { sectors:["Government / PSU","Energy & Power"], raw:"Regions, states, activities by and for government, father, heat, head of a country, President, Prime Minister." },
+  Moon:    { sectors:["Hospitality & Catering","Dairy & FMCG","Shipping","Infrastructure"], raw:"City, town, hotel & catering, navigation, milk industry, commercial undertakings, dams, developmental activities." },
+  Mars:    { sectors:["Metals & Mining","Construction","Defense","Distilleries"], raw:"Metal industries, building industries, brick manufacturing, distillery, trading in weapons, army, police, industries." },
+  Mercury: { sectors:["Media & Publishing","Education","Business Services"], raw:"Business development activities, school, publishing & intellectual activities, mathematics, astrology, business and writings." },
+  Jupiter: { sectors:["Banking & Finance","Legal Services","Textiles","Education","Healthcare"], raw:"Shares, banks, legal matters, financial matters, cloth mills, independent business, schools, colleges, universities, judges, advocates, hospitals." },
+  Venus:   { sectors:["Entertainment & Media","Agriculture (flowers/fruit)","Hospitality","Luxury Goods"], raw:"Shares, flower, cultivation, trade & industry, catering, apple industry, entertainment, artistic & social activities, cinema, film producers." },
+  Saturn:  { sectors:["Mining","Cement & Construction","Oil & Gas","Steel & Engineering","Pharmaceuticals"], raw:"Mining, farming & cement factories, building trade, shoe factories, metallurgy, mines, oil refineries, shares of oil/steel/mechanical/engineering companies, shares of drug companies, labor." },
+  Rahu:    { sectors:["Electricals","Foreign / NRI-linked business"], raw:"Country, male, sudden events." },
+  Ketu:    { sectors:["Electricals"], raw:"(no separate \"General\" list given for Ketu in the source; commodity list only: metal, wireless & electrical goods, black-colour items.)" }
+};
+const SBC_SIGN_SECTORS = {
+  Aries:       { sectors:["Heavy Machinery"], raw:"Life science, money matters, violence, fireplaces and tool house." },
+  Taurus:      { sectors:["Banking & Finance"], raw:"Share market, money matters, finance, banking, religious rites, mutual sympathy & affection, energy, reserve force, stability." },
+  Gemini:      { sectors:["Media & Publishing","Railways / Transport","Education","Telecom"], raw:"Railways, publications, agriculture, education, communications, news, information, newspapers, magazines, advertising, reporting, printing." },
+  Cancer:      { sectors:["Real Estate","Shipping / Ports"], raw:"Landed property, shipping, ports, mother, lakes, springs, homes, public houses, water tanks, financial problems." },
+  Leo:         { sectors:["Government Bonds / PSU","Gaming & Sports","Mining (gold)","Manufacturing"], raw:"Government stock, trade, fire, sports, games, speculation, explosives, factories, gold mines." },
+  Virgo:       { sectors:["Banking & Finance","Defense","Agriculture","Healthcare"], raw:"Industry, business, bank, stock exchanges, army, navy, labor department, horticulture, agriculture, medical herbs, relief societies." },
+  Libra:       { sectors:["Legal Services","Trade & Retail"], raw:"Justice, business, trade, trade centers, courts, roads." },
+  Scorpio:     { sectors:["Chemicals","Healthcare"], raw:"Destruction, losses, chemical laboratories, operation room, slaughter houses, meat market." },
+  Sagittarius: { sectors:["Insurance","Defense","Shipping"], raw:"Animals, shares, sea traffic, foreign bonds, insurance, defense, speculation, race horses." },
+  Capricorn:   { sectors:["Manufacturing","Construction","Agriculture","Ports & Logistics"], raw:"Mill shares, industry, agriculture, building industry, business, labor problems, jails, vaults, & docks." },
+  Aquarius:    { sectors:["Technology & Electronics","Aerospace & Automobile","Telecom & Broadcasting","Utilities"], raw:"Shares of companies, scientist, bridges, railways, automobiles, wagons, buses, airplanes, airports, electric motors, telegraph offices, broadcasting stations, electric power houses & batteries." },
+  Pisces:      { sectors:["Oil & Gas (offshore)","Fisheries"], raw:"Oceans, fishing places, fish ponds, lakes, oil fields, oil tanks, submarines and deep sea divers." }
+};
+
 function modernSynthesisLiveNow(ayanamsaMode){
   const n = new Date();
   const jd = julianDay(n.getFullYear(), n.getMonth()+1, n.getDate(), n.getHours(), n.getMinutes(), n.getSeconds(), -n.getTimezoneOffset()/60);
@@ -4525,6 +4617,9 @@ function renderCommoditiesPage(){
   const ay = document.getElementById('ayanamsaMode').value;
   const live = commodityLiveNow(ay);
   const synth = modernSynthesisLiveNow(ay);
+  const nSector = new Date();
+  const jdSector = julianDay(nSector.getFullYear(), nSector.getMonth()+1, nSector.getDate(), nSector.getHours(), nSector.getMinutes(), nSector.getSeconds(), -nSector.getTimezoneOffset()/60);
+  const posSector = computePositions(jdSector, 0, 0, ay);
   const gName = g => T(g, GRAHA_ES[g]);
   const commoditiesOf = sign => T(SIGN_COMMODITIES[sign].en, SIGN_COMMODITIES[sign].es).join(', ');
   const synthRow = (labelEn, labelEs, r) => {
@@ -4703,6 +4798,34 @@ function renderCommoditiesPage(){
         </div>
 
         <div class="hint" style="margin-top:14px;">${T('Gold is not synthesized here — it\'s directly sourced, not extrapolated, and gets its own dedicated panel near the top of this page.','El oro no se sintetiza aquí — está directamente documentado, no extrapolado, y tiene su propio panel dedicado cerca del inicio de esta página.')}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Equities by Industry Sector','Renta Variable por Sector Industrial')}</h2><span class="note">Mystics of SBC, ch. V &amp; VI</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px;">${T('Unlike the Modern Synthesis panel above, this one IS sourced — ch. V/VI give each planet and sign a "General" list of real-world domains alongside its commodity list, and several of those domains are literally industry sectors. The sector labels below are this app\'s own condensing of that raw text (shown alongside it) into short modern names — a real synthesis step, flagged as such.','A diferencia del panel de Síntesis Moderna de arriba, este SÍ tiene fuente — los cap. V/VI dan a cada planeta y signo una lista "General" de ámbitos del mundo real junto a su lista de materias primas, y varios de esos ámbitos son literalmente sectores industriales. Las etiquetas de sector de abajo son una condensación propia de esta app de ese texto crudo (mostrado junto a ella) en nombres modernos breves — un paso de síntesis real, señalado como tal.')}</div>
+
+        <h3 style="margin:14px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('By planet — live dignity','Por planeta — dignidad en vivo')}</h3>
+        <div class="tblwrap"><table><thead><tr><th>${T('Planet','Planeta')}</th><th>${T('Sectors','Sectores')}</th><th>${T('Source text','Texto fuente')}</th><th>${T('Live','En vivo')}</th></tr></thead><tbody>
+        ${GRAHA_LIST.map(g=>{
+          const sid = posSector[g].sidereal;
+          const tier = synthesisTier(dignityTier(g, sid));
+          const s = SBC_PLANET_SECTORS[g];
+          return `<tr><td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gName(g)}</td>
+            <td style="font-size:11.5px;">${s.sectors.join(', ')}</td>
+            <td style="font-size:10.5px; color:var(--slate);">${s.raw}</td>
+            <td><span class="tag ${tier.cls}">${SIGNS[Math.floor(norm360(sid)/30)]} · ${tier.label}</span></td></tr>`;
+        }).join('')}
+        </tbody></table></div>
+
+        <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('By sign','Por signo')}</h3>
+        <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Sectors','Sectores')}</th><th>${T('Source text','Texto fuente')}</th></tr></thead><tbody>
+        ${SIGNS.map(s=>{
+          const sec = SBC_SIGN_SECTORS[s];
+          return `<tr><td class="wide">${s}</td><td style="font-size:11.5px;">${sec.sectors.join(', ')}</td><td style="font-size:10.5px; color:var(--slate);">${sec.raw}</td></tr>`;
+        }).join('')}
+        </tbody></table></div>
+        <div class="hint" style="margin-top:10px;">${T('Reading this live: a sector\'s ruling planet in a favourable placement (own/exalted/friendly sign) is this app\'s own extension of the same dignity logic used throughout — not a claim the source makes about "stock prices" specifically, since these sectors didn\'t exist when it was written.','Lectura en vivo: un planeta regente de un sector en una ubicación favorable (signo propio/exaltado/amigo) es una extensión propia de esta app de la misma lógica de dignidad usada en toda la app — no una afirmación que la fuente haga sobre "precios de acciones" específicamente, ya que estos sectores no existían cuando se escribió.')}</div>
       </div>
     </div>
 
