@@ -1866,9 +1866,17 @@ function ascendantTropical(jd, latDeg, lonDegEast){
   const num = -cosD(ramc);
   const den = sinD(ramc)*cosD(eps) + Math.tan(latDeg*DEG)*sinD(eps);
   let asc = Math.atan2(num, den)*RAD;
-  asc = norm360(asc);
-  // quadrant fix: ascendant longitude should be ~90 deg behind RAMC on average; ensure correct branch
-  if (Math.cos(ramc*DEG) > 0){ /* branch already generally fine with atan2 */ }
+  // atan2(num, den) here lands on the point 180° from the true (rising,
+  // eastern-horizon) Ascendant — verified 2026-08-13 against Parasara's
+  // Light (Lahiri) for 1990-09-30 17:54 Miami: this formula's raw output
+  // was Leo 19°25' where it should be Aquarius 19°25' — same degree,
+  // opposite sign, for every graha checked, which is the exact signature
+  // of a Descendant/Ascendant swap rather than a general formula error
+  // (any two great circles — the horizon and the ecliptic — cross at
+  // exactly two antipodal points, so if a formula reliably returns the
+  // wrong one of the two, its complement is reliably the right one for
+  // every input, not just this test case).
+  asc = norm360(asc + 180);
   return asc;
 }
 
