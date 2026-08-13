@@ -441,29 +441,9 @@
           <button class="btn ghost" id="profileDeleteBtn" type="button" style="flex:1; margin-top:0;" data-i18n="profileDelete">Delete</button>
         </div>
       </div>
-      <div class="hint" data-i18n="profileHint" style="margin-bottom:12px;">Save the fields below (star/name or birth data) as a named profile — stored on this device, unlimited slots.</div>
+      <div class="hint" data-i18n="profileHint" style="margin-bottom:12px;">Save the birth data below as a named profile — stored on this device, unlimited slots.</div>
 
-      <label data-i18n="mode">Mode</label>
-      <select id="refMode">
-        <option value="manual" data-i18n="modeManual">Pick birth star directly</option>
-        <option value="birth" data-i18n="modeBirth">Compute from birth date / time / place</option>
-      </select>
-
-      <div id="refManualBlock">
-        <label data-i18n="refStarLbl">Janma Nakṣatra (birth star)</label>
-        <select id="refStar"></select>
-        <label data-i18n="refPakshaLbl">Birth Pakṣa (bright/dark half)</label>
-        <select id="refPaksha">
-          <option value="bright" data-i18n="pakshaBright">Bright half (Śukla Pakṣa)</option>
-          <option value="dark" data-i18n="pakshaDark">Dark half (Kṛṣṇa Pakṣa)</option>
-        </select>
-        <div class="hint" data-i18n="refPakshaHint">Fixes the Pañcha Pakshi life bird permanently — it's set once at birth and never recalculated from today's date.</div>
-        <label data-i18n="nameLbl1">Name (first syllable sets Consonant &amp; Vowel)</label>
-        <input type="text" id="refName" data-i18n-placeholder="namePh" placeholder="e.g. Rohan, Meera…" value="">
-        <div class="hint" data-i18n="nameHint">Leave blank to skip the Consonant/Vowel Pañcaka and score on Star + Nakṣatra only.</div>
-      </div>
-
-      <div id="refBirthBlock" style="display:none;">
+      <div id="refBirthBlock">
         <label data-i18n="birthDate">Birth date</label>
         <input type="date" id="bDate" value="1990-09-30">
         <div class="row2">
@@ -594,17 +574,7 @@ const I18N = {
     Diseño de la carta según el formato norteño indio de Rāśi. Las posiciones se calculan, no se consultan — ver la nota de metodología.`
   },
   leg1: { en:`1 · Reference Person (Janma Panchaka)`, es:`1 · Persona de referencia (Janma Pañcaka)` },
-  mode: { en:`Mode`, es:`Modo` },
-  modeManual: { en:`Pick birth star directly`, es:`Elegir la estrella natal directamente` },
-  modeBirth: { en:`Compute from birth date / time / place`, es:`Calcular desde fecha / hora / lugar de nacimiento` },
-  refStarLbl: { en:`Janma Nakṣatra (birth star)`, es:`Janma Nakṣatra (estrella natal)` },
-  refPakshaLbl: { en:`Birth Pakṣa (bright/dark half)`, es:`Pakṣa natal (mitad clara/oscura)` },
-  pakshaBright: { en:`Bright half (Śukla Pakṣa)`, es:`Mitad clara (Śukla Pakṣa)` },
-  pakshaDark: { en:`Dark half (Kṛṣṇa Pakṣa)`, es:`Mitad oscura (Kṛṣṇa Pakṣa)` },
-  refPakshaHint: { en:`Fixes the Pañcha Pakshi life bird permanently — it's set once at birth and never recalculated from today's date.`, es:`Fija permanentemente el ave vital de Pañcha Pakshi — se establece una vez al nacer y nunca se recalcula según la fecha de hoy.` },
-  nameLbl1: { en:`Name (first syllable sets Consonant &amp; Vowel)`, es:`Nombre (la primera sílaba determina consonante y vocal)` },
   namePh: { en:`e.g. Rohan, Meera…`, es:`p. ej. Rohan, Meera…` },
-  nameHint: { en:`Leave blank to skip the Consonant/Vowel Pañcaka and score on Star + Nakṣatra only.`, es:`Déjalo en blanco para omitir el Pañcaka de consonante/vocal y puntuar solo con Estrella + Nakṣatra.` },
   birthDate: { en:`Birth date`, es:`Fecha de nacimiento` },
   birthTime: { en:`Birth time (local)`, es:`Hora de nacimiento (local)` },
   utcOffset: { en:`UTC offset (hrs)`, es:`Desfase UTC (hrs)` },
@@ -640,7 +610,7 @@ const I18N = {
   profileNamePh: { en:`Profile name…`, es:`Nombre del perfil…` },
   profileSave: { en:`Save`, es:`Guardar` },
   profileDelete: { en:`Delete`, es:`Eliminar` },
-  profileHint: { en:`Save the fields below (star/name or birth data) as a named profile — stored on this device, unlimited slots.`, es:`Guarda los campos de abajo (estrella/nombre o datos de nacimiento) como un perfil con nombre — almacenado en este dispositivo, espacios ilimitados.` },
+  profileHint: { en:`Save the birth data below as a named profile — stored on this device, unlimited slots.`, es:`Guarda los datos de nacimiento de abajo como un perfil con nombre — almacenado en este dispositivo, espacios ilimitados.` },
   profileUnsaved: { en:`— Unsaved —`, es:`— Sin guardar —` },
   castBtn: { en:`Cast &amp; Judge Muhūrta`, es:`Calcular y evaluar Muhūrta` },
   resetBtn: { en:`Reset to demo values`, es:`Restablecer valores de ejemplo` },
@@ -2135,19 +2105,6 @@ function vedhaTarget(onStar, dir){
    reading is later taken. birthHalf is threaded through here (rather than
    re-derived from "now" wherever the life bird is used) so every caller
    automatically gets the same fixed bird. */
-function buildReferencePanchaka({starName, name, birthHalf}){
-  const consonant = name && name.trim() ? name.trim()[0].toUpperCase() : null;
-  let vowelGuess = null, consonantGroupGuess = null;
-  if (consonant){
-    const VOWELS = "AEIOU";
-    vowelGuess = VOWELS.includes(consonant) ? consonant : null;
-    consonantGroupGuess = !vowelGuess ? consonant : null;
-  }
-  const bh = birthHalf === "dark" ? "dark" : "bright";
-  return { star:starName, sign:null, tithi:null, consonant:consonantGroupGuess, vowel:vowelGuess, name: name||null,
-    birthHalf: bh, lifeBird: starName ? birdOfStar(starName, bh) : null };
-}
-
 function buildReferencePanchakaFromBirth(pos){
   const panch = computePanchanga(pos);
   const consonants = NAK_PADA_CONSONANTS[panch.nak.name];
@@ -3297,12 +3254,6 @@ function ppFindBestSlot(bird, ayanamsaMode){
    ========================================================================= */
 
 const GRAHA_ES = {Sun:"Sol",Moon:"Luna",Mars:"Marte",Mercury:"Mercurio",Jupiter:"Júpiter",Venus:"Venus",Saturn:"Saturno",Rahu:"Rahu",Ketu:"Ketu"};
-function populateStarSelect(){
-  const sel = document.getElementById('refStar');
-  const prev = sel.value;
-  sel.innerHTML = NAK27.map(s=>`<option value="${s.n}">${s.n} (${T(s.lord, GRAHA_ES[s.lord])})</option>`).join('');
-  sel.value = prev && [...sel.options].some(o=>o.value===prev) ? prev : "Ashlesha";
-}
 
 function pad2(n){ return String(n).padStart(2,'0'); }
 function nowLocalParts(){
@@ -3312,19 +3263,10 @@ function nowLocalParts(){
 function localTZOffsetHours(){ return -new Date().getTimezoneOffset()/60; }
 
 function setDefaults(){
-  populateStarSelect();
   const n = nowLocalParts();
   document.getElementById('mDate').value = n.date;
   document.getElementById('mTime').value = n.time;
   document.getElementById('mTZ').value = localTZOffsetHours();
-  document.getElementById('refMode').value = "birth";
-  toggleRefMode();
-}
-
-function toggleRefMode(){
-  const manual = document.getElementById('refMode').value === "manual";
-  document.getElementById('refManualBlock').style.display = manual ? "" : "none";
-  document.getElementById('refBirthBlock').style.display = manual ? "none" : "";
 }
 
 // ---- Reference person profiles (localStorage, unlimited slots) ----
@@ -3337,10 +3279,6 @@ function saveProfilesList(list){
 }
 function snapshotReferenceFields(){
   return {
-    refMode: document.getElementById('refMode').value,
-    refStar: document.getElementById('refStar').value,
-    refPaksha: document.getElementById('refPaksha').value,
-    refName: document.getElementById('refName').value,
     bDate: document.getElementById('bDate').value,
     bTime: document.getElementById('bTime').value,
     bTZ: document.getElementById('bTZ').value,
@@ -3350,17 +3288,12 @@ function snapshotReferenceFields(){
   };
 }
 function applyReferenceFields(p){
-  document.getElementById('refMode').value = p.refMode || 'manual';
-  if (p.refStar) document.getElementById('refStar').value = p.refStar;
-  document.getElementById('refPaksha').value = p.refPaksha === 'dark' ? 'dark' : 'bright';
-  document.getElementById('refName').value = p.refName || '';
   document.getElementById('bDate').value = p.bDate || '1990-09-30';
   document.getElementById('bTime').value = p.bTime || '17:54';
   document.getElementById('bTZ').value = p.bTZ !== undefined && p.bTZ !== '' ? p.bTZ : -4;
   document.getElementById('bLat').value = p.bLat !== undefined && p.bLat !== '' ? p.bLat : 25.7617;
   document.getElementById('bLon').value = p.bLon !== undefined && p.bLon !== '' ? p.bLon : -80.1918;
   document.getElementById('bName').value = p.bName || '';
-  toggleRefMode();
 }
 function findProfileIndexByLabel(profiles, label){
   return profiles.findIndex(p=>p.label === label);
@@ -3387,24 +3320,16 @@ function readDateTime(prefix, dateOverride){
 }
 
 function getReferencePanchaka(){
-  const mode = document.getElementById('refMode').value;
-  if (mode === "manual"){
-    const starName = document.getElementById('refStar').value;
-    const name = document.getElementById('refName').value;
-    const birthHalf = document.getElementById('refPaksha').value;
-    return { panch: buildReferencePanchaka({starName, name, birthHalf}), note:"manual selection" };
-  } else {
-    const dt = readDateTime("b");
-    const ay = document.getElementById('ayanamsaMode').value;
-    const pos = computePositions(dt.jd, dt.lat, dt.lon, ay);
-    const p = buildReferencePanchakaFromBirth(pos);
-    const name = document.getElementById('bName').value;
-    if (name && name.trim()){
-      const c = name.trim()[0].toUpperCase();
-      p.vowel = "AEIOU".includes(c) ? c : null;
-    }
-    return { panch: p, note:`computed from birth data`, birthPos: pos };
+  const dt = readDateTime("b");
+  const ay = document.getElementById('ayanamsaMode').value;
+  const pos = computePositions(dt.jd, dt.lat, dt.lon, ay);
+  const p = buildReferencePanchakaFromBirth(pos);
+  const name = document.getElementById('bName').value;
+  if (name && name.trim()){
+    const c = name.trim()[0].toUpperCase();
+    p.vowel = "AEIOU".includes(c) ? c : null;
   }
+  return { panch: p, note:`computed from birth data`, birthPos: pos };
 }
 
 function computeLatta(pos, refP){
@@ -3469,14 +3394,14 @@ function computeDehaChakra(pos, panch, refP, tara){
   const taraTone = tara ? tara.tone : null;
 
   let nectarNote, poisonNote;
-  if (bright && taraTone==="good") nectarNote = T("strongly active — bright half and a favourable Tārā both feed this zone","fuertemente activo — la mitad clara y un Tārā favorable alimentan ambos esta zona");
-  else if (bright) nectarNote = T("active — the waxing half favours this zone, Tārā is quiet on it today","activo — la mitad creciente favorece esta zona; el Tārā está en silencio hoy");
-  else if (taraTone==="good") nectarNote = T("gently active — a favourable Tārā offsets the waning half","suavemente activo — un Tārā favorable compensa la mitad menguante");
-  else nectarNote = T("muted — the waning half asks this zone be handled gently rather than pushed","atenuado — la mitad menguante pide tratar esta zona con delicadeza en vez de forzarla");
+  if (bright && taraTone==="good") nectarNote = T("strongly active — Śukla Pakṣa/Bright Half (Waxing) and a favourable Tārā both feed this zone","fuertemente activo — Śukla Pakṣa/Mitad Clara (Creciente) y un Tārā favorable alimentan ambos esta zona");
+  else if (bright) nectarNote = T("active — Śukla Pakṣa/Bright Half (Waxing) favours this zone, Tārā is quiet on it today","activo — Śukla Pakṣa/Mitad Clara (Creciente) favorece esta zona; el Tārā está en silencio hoy");
+  else if (taraTone==="good") nectarNote = T("gently active — a favourable Tārā offsets Kṛṣṇa Pakṣa/Dark Half (Waning)","suavemente activo — un Tārā favorable compensa Kṛṣṇa Pakṣa/Mitad Oscura (Menguante)");
+  else nectarNote = T("muted — Kṛṣṇa Pakṣa/Dark Half (Waning) asks this zone be handled gently rather than pushed","atenuado — Kṛṣṇa Pakṣa/Mitad Oscura (Menguante) pide tratar esta zona con delicadeza en vez de forzarla");
 
-  if (!bright && taraTone==="bad") poisonNote = T("sharply heightened — dark half and an unfavourable Tārā agree: avoid intervention here","marcadamente elevado — la mitad oscura y un Tārā desfavorable coinciden: evita intervenir aquí");
-  else if (!bright) poisonNote = T("heightened — the waning half raises risk at this zone","elevado — la mitad menguante aumenta el riesgo en esta zona");
-  else if (taraTone==="bad") poisonNote = T("present but contained — an unfavourable Tārā keeps this zone worth watching despite the bright half","presente pero contenido — un Tārā desfavorable mantiene esta zona vigilable pese a la mitad clara");
+  if (!bright && taraTone==="bad") poisonNote = T("sharply heightened — Kṛṣṇa Pakṣa/Dark Half (Waning) and an unfavourable Tārā agree: avoid intervention here","marcadamente elevado — Kṛṣṇa Pakṣa/Mitad Oscura (Menguante) y un Tārā desfavorable coinciden: evita intervenir aquí");
+  else if (!bright) poisonNote = T("heightened — Kṛṣṇa Pakṣa/Dark Half (Waning) raises risk at this zone","elevado — Kṛṣṇa Pakṣa/Mitad Oscura (Menguante) aumenta el riesgo en esta zona");
+  else if (taraTone==="bad") poisonNote = T("present but contained — an unfavourable Tārā keeps this zone worth watching despite Śukla Pakṣa/Bright Half (Waxing)","presente pero contenido — un Tārā desfavorable mantiene esta zona vigilable pese a Śukla Pakṣa/Mitad Clara (Creciente)");
   else poisonNote = T("quiet — low risk at this zone today","tranquilo — bajo riesgo en esta zona hoy");
 
   const zoneEn = sign => BODY_ZONES[sign];
@@ -3555,7 +3480,7 @@ function runAnalysis(){
   </div>`;
 
   html += `<div class="strip">
-    <div class="cell"><div class="k">Tithi</div><div class="v">${panch.tithiName} <small>(${panch.paksha}, ${T('no.','n.º')} ${panch.tithiNum})</small></div></div>
+    <div class="cell"><div class="k">Tithi</div><div class="v">${panch.tithiName} <small>(${panch.paksha==='Shukla'?T('Śukla Pakṣa/Bright Half, Waxing','Śukla Pakṣa/Mitad Clara, Creciente'):T('Kṛṣṇa Pakṣa/Dark Half, Waning','Kṛṣṇa Pakṣa/Mitad Oscura, Menguante')}, ${T('no.','n.º')} ${panch.tithiNum})</small></div></div>
     <div class="cell"><div class="k">Vāra</div><div class="v">${weekdayName}</div></div>
     <div class="cell"><div class="k">${T('Moon Nakṣatra','Nakṣatra lunar')}</div><div class="v">${panch.nak.name} <small>${T('pada','pada')} ${panch.nak.pada}</small></div></div>
     <div class="cell"><div class="k">Yoga</div><div class="v">${panch.yogaName}</div></div>
@@ -3668,9 +3593,9 @@ function runAnalysis(){
   }
   html += `</div></div>`;
 
-  const refNote = T(refInfo.note, refInfo.note === "manual selection" ? "selección manual" : "calculado a partir de datos de nacimiento");
+  const refNote = T(refInfo.note, "calculado a partir de datos de nacimiento");
   html += `<footer class="notes">
-    <b>${T('Reference used:','Referencia usada:')}</b> ${refNote}${refP.star? ` — ${T('Janma Nakṣatra','Janma Nakṣatra')} ${refP.star}` : ''}${refP.consonant?T(`, consonant ${refP.consonant}`,`, consonante ${refP.consonant}`):''}${refP.lifeBird?T(`, life bird ${refP.lifeBird} (fixed at birth — born in the ${refP.birthHalf==='dark'?'dark':'bright'} half, never recalculated from today's date)`,`, ave vital ${T(refP.lifeBird,PP_BIRDS_ES[refP.lifeBird])} (fija al nacer — nacido en la mitad ${refP.birthHalf==='dark'?'oscura':'clara'}, nunca recalculada según la fecha de hoy)`):''}.<br>
+    <b>${T('Reference used:','Referencia usada:')}</b> ${refNote}${refP.star? ` — ${T('Janma Nakṣatra','Janma Nakṣatra')} ${refP.star}` : ''}${refP.consonant?T(`, consonant ${refP.consonant}`,`, consonante ${refP.consonant}`):''}${refP.lifeBird?T(`, life bird ${refP.lifeBird} (fixed at birth — born in ${refP.birthHalf==='dark'?'Kṛṣṇa Pakṣa/Dark Half (Waning)':'Śukla Pakṣa/Bright Half (Waxing)'}, never recalculated from today's date)`,`, ave vital ${T(refP.lifeBird,PP_BIRDS_ES[refP.lifeBird])} (fija al nacer — nacido en ${refP.birthHalf==='dark'?'Kṛṣṇa Pakṣa/Mitad Oscura (Menguante)':'Śukla Pakṣa/Mitad Clara (Creciente)'}, nunca recalculada según la fecha de hoy)`):''}.<br>
     <b>Ayanāṁśa:</b> ${ay==='tropical'?T('none (tropical)','ninguno (trópico)'):T('Lahiri, linear approximation','Lahiri, aproximación lineal')}. <b>${T('Julian Day (muhūrta):','Día Juliano (muhūrta):')}</b> ${mdt.jd.toFixed(5)}.<br>
     ${T(`<b>Vowel Vedha (ⓘ):</b> not modeled yet — the source ties vowels to specific corner cells of the full 81-Varga grid rather than to
     a per-star rule, and needs the complete grid (not just the perimeter) to compute correctly. Star, Rāśi and Consonant Vedha are live.<br>
@@ -3711,25 +3636,16 @@ function showPage(pageId){
 }
 
 // ---- Natal General Reading (D1 + D9) ----
-// Needs actual birth date/time/place ("Compute from birth data" mode on
-// the Muhūrta Gauge page) — a Lagna, and therefore house-lordships and a
-// Navāṁśa chart, can't be derived from just a manually-picked star. This
-// page is entirely natal (never changes with the current date), unlike
-// almost everything else in this app, which is either live or keyed to a
-// chosen muhūrta moment.
+// Reads the Lagna, and therefore house-lordships and the Navāṁśa chart,
+// from the birth date/time/place entered in field 1. This page is entirely
+// natal (never changes with the current date), unlike almost everything
+// else in this app, which is either live or keyed to a chosen muhūrta moment.
 function renderNatalPage(){
   const container = document.getElementById('natalPageContent');
   if (!container) return;
 
   const refInfo = getReferencePanchaka();
   const birthPos = refInfo.birthPos;
-
-  if (!birthPos){
-    container.innerHTML = `<div class="panel"><div class="hd"><h2>${T('Natal General Reading','Lectura Natal General')}</h2></div>
-      <div class="bd"><div class="hint">${T('This page needs a full birth date, time and place — switch "Mode" to "Compute from birth date / time / place" on the Muhūrta Gauge page (field 1). A manually-picked star alone doesn\'t give a Lagna, so there\'s no house-lordship or Navāṁśa to read here.','Esta página necesita fecha, hora y lugar de nacimiento completos — cambia "Modo" a "Calcular desde fecha / hora / lugar de nacimiento" en la página Muhūrta Gauge (campo 1). Una estrella elegida manualmente por sí sola no da un Lagna, así que no hay señorío de casas ni Navāṁśa que leer aquí.')}</div></div>
-    </div>`;
-    return;
-  }
 
   const refP = refInfo.panch;
   const lagnaSign = SIGNS[Math.floor(norm360(birthPos._ascSidereal)/30)];
@@ -3952,7 +3868,7 @@ function renderAnatomyPage(){
       </div>
     </div>
 
-    <div class="panel"><div class="hd"><h2>${T('Deha Chakra — Nectar &amp; Poison Point Gauge','Deha Chakra — Medidor del punto de néctar y veneno')}</h2><span class="note">${deha.bright?T('Śukla pakṣa · bright half','Śukla pakṣa · mitad clara'):T('Kṛṣṇa pakṣa · dark half','Kṛṣṇa pakṣa · mitad oscura')}</span></div>
+    <div class="panel"><div class="hd"><h2>${T('Deha Chakra — Nectar &amp; Poison Point Gauge','Deha Chakra — Medidor del punto de néctar y veneno')}</h2><span class="note">${deha.bright?T('Śukla Pakṣa/Bright Half (Waxing)','Śukla Pakṣa/Mitad Clara (Creciente)'):T('Kṛṣṇa Pakṣa/Dark Half (Waning)','Kṛṣṇa Pakṣa/Mitad Oscura (Menguante)')}</span></div>
       <div class="bd">
         <div class="chakra-wrap">
           <div style="flex:none; min-width:200px;">${renderBodyGauge(deha)}</div>
@@ -4116,7 +4032,7 @@ function renderCalendarPage(){
     </div>`;
   }).join('') : `<div class="hint">${T(I18N.calNoBest.en, I18N.calNoBest.es)}</div>`;
 
-  const refLabel = refP.star ? `${refP.star}${refInfo.note==='manual selection' && refP.name ? ' · '+refP.name : ''}` : '—';
+  const refLabel = refP.star || '—';
 
   container.innerHTML = `
     <div class="panel">
@@ -4601,7 +4517,7 @@ function renderRemediesPage(){
 
   const refInfo = getReferencePanchaka();
   const refP = refInfo.panch;
-  const birthPos = refInfo.birthPos || null;
+  const birthPos = refInfo.birthPos;
 
   const g = remediesSelectedGraha;
   const rTable = LANG==='es' ? GRAHA_REMEDY_ES : GRAHA_REMEDY;
@@ -4611,14 +4527,12 @@ function renderRemediesPage(){
   const maha = MAHAPURUSHA_YOGA[g];
   let mahaHtml = '';
   if (maha){
-    const active = birthPos ? mahapurushaActiveInChart(birthPos, g) : false;
+    const active = mahapurushaActiveInChart(birthPos, g);
     mahaHtml = `
       <div style="margin-top:14px; border:1px solid var(--gold-dim); background:rgba(209,169,78,0.07); padding:10px 12px; font-size:12px; color:var(--ink-dim);">
         <b>${maha.name} ${T('Yoga','Yoga')}</b> — ${T('when','cuando')} ${g} ${T('is in its own sign or exaltation, in a kendra (1st/4th/7th/10th) from the Lagna or the Moon.','está en su propio signo o exaltación, en un kendra (1.º/4.º/7.º/10.º) desde el Lagna o la Luna.')}
         <div style="margin-top:6px;">${T(maha.desc, maha.descEs)}</div>
-        ${birthPos
-          ? `<div style="margin-top:8px;"><span class="tag ${active?'good':'neutral'}">${active ? T('Present in this birth chart','Presente en esta carta natal') : T('Not present in this birth chart','No presente en esta carta natal')}</span></div>`
-          : `<div class="hint" style="margin-top:8px;">${T('Switch to "Compute from birth date / time / place" on the Muhūrta Gauge page to check whether this yoga is actually present.','Cambia a "Calcular desde fecha / hora / lugar de nacimiento" en la página Muhūrta Gauge para comprobar si este yoga está realmente presente.')}</div>`}
+        <div style="margin-top:8px;"><span class="tag ${active?'good':'neutral'}">${active ? T('Present in this birth chart','Presente en esta carta natal') : T('Not present in this birth chart','No presente en esta carta natal')}</span></div>
       </div>`;
   }
 
@@ -5427,7 +5341,7 @@ function renderPPPanel(){
     const dayWord = T(bestSlot.fulfilDays===1?'day':'days', bestSlot.fulfilDays===1?'día':'días');
     bestSlotHtml = `<div class="okbox" style="margin-top:14px;">
       <b>${T('Best time to ask','Mejor momento para preguntar')} (${T(selectedBird,PP_BIRDS_ES[selectedBird])}):</b> ${startStr} – ${endStr}<br>
-      <span class="tag gold">${tierLabels[bestSlot.tier.rank]}</span> <span style="color:var(--slate)">(${bestSlot.half==='bright'?T('Bright Half','Mitad clara'):T('Dark Half','Mitad oscura')})</span>
+      <span class="tag gold">${tierLabels[bestSlot.tier.rank]}</span> <span style="color:var(--slate)">(${bestSlot.half==='bright'?T('Śukla Pakṣa/Bright Half, Waxing','Śukla Pakṣa/Mitad Clara, Creciente'):T('Kṛṣṇa Pakṣa/Dark Half, Waning','Kṛṣṇa Pakṣa/Mitad Oscura, Menguante')})</span>
       <div style="margin-top:8px;">${outcome}</div>
       <div style="margin-top:8px;"><b>${T('Expected fulfilment:','Cumplimiento esperado:')}</b> ${T('around','alrededor de')} ${fulfilStr}
         <span style="color:var(--slate)">(${bestSlot.fulfilDays} ${dayWord} ${T("after asking, per the book's per-bird table","tras preguntar, según la tabla del libro por ave")})</span></div>
@@ -5518,7 +5432,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   initTheme();
   setDefaults();
   document.getElementById('computeBtn').addEventListener('click', runAnalysis);
-  document.getElementById('refMode').addEventListener('change', toggleRefMode);
   document.getElementById('resetBtn').addEventListener('click', ()=>{ setDefaults(); runAnalysis(); });
 
   populateProfileSelect();
@@ -5565,7 +5478,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('langToggle').addEventListener('click', ()=>{
     LANG = LANG === 'es' ? 'en' : 'es';
     applyLanguage();
-    populateStarSelect();
     populateProfileSelect();
     initTheme();
     runAnalysis();
