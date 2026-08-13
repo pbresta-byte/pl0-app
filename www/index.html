@@ -5196,6 +5196,9 @@ function renderSignificatorsPage(){
     return `<tr${isMoon?' style="background:var(--house1);font-weight:600;"':''}><td class="wide">${isMoon?'→ ':''}${star}</td><td style="font-size:11.5px;">${SBC_STAR_COMMODITIES[star]}</td></tr>`;
   }).join('');
 
+  const jupiterSign = SIGNS[Math.floor(norm360(pos.Jupiter.sidereal)/30)];
+  const saturnSign = SIGNS[Math.floor(norm360(pos.Saturn.sidereal)/30)];
+
   const signCommodityRows = SIGNS.map(s=>{
     const afflicted = signVedhaHits[s].length>0;
     return `<tr${afflicted?' style="background:rgba(176,50,32,0.06);"':''}><td class="wide">${s}${afflicted?` <span class="tag bad">${T('afflicted','afligido')}</span>`:''}</td><td style="font-size:11.5px;">${SBC_SIGN_COMMODITIES[s]}</td></tr>`;
@@ -5203,10 +5206,23 @@ function renderSignificatorsPage(){
 
   const planetCommodityRows = Object.keys(SBC_PLANET_COMMODITIES).map(g=>{
     const isClassical = GRAHA_LIST.includes(g);
-    const sign = isClassical ? SIGNS[Math.floor(norm360(pos[g].sidereal)/30)] : null;
+    const sid = isClassical ? pos[g].sidereal : null;
+    const sign = isClassical ? SIGNS[Math.floor(norm360(sid)/30)] : null;
+    let afflictionCell;
+    if (isClassical){
+      const dig1 = dignity(g, sid);
+      const afflicted = signVedhaHits[sign] && signVedhaHits[sign].length>0;
+      const navSid = navamsaSidereal(sid);
+      const navSign = SIGNS[Math.floor(norm360(navSid)/30)];
+      const dig9 = dignity(g, navSid);
+      afflictionCell = `${T('now in','ahora en')} ${sign} (${dig1})${afflicted?` <span class="tag bad">${T('SBC afflicted','SBC afligido')}</span>`:''}<br>
+        <span style="color:var(--slate);">D9: ${navSign} (${dig9})</span>`;
+    } else {
+      afflictionCell = T('not in this app\'s astronomical engine','fuera del motor astronómico de esta app');
+    }
     return `<tr><td class="wide" style="color:${isClassical&&MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':(isClassical?'var(--jade)':'var(--slate)')}">${T(g,GRAHA_ES[g]||g)}</td>
       <td style="font-size:11.5px;">${SBC_PLANET_COMMODITIES[g]}</td>
-      <td style="font-size:11px; color:var(--slate);">${isClassical ? (T('now in','ahora en')+' '+sign) : T('not in this app\'s astronomical engine','fuera del motor astronómico de esta app')}</td></tr>`;
+      <td style="font-size:11px; color:var(--slate);">${afflictionCell}</td></tr>`;
   }).join('');
 
   container.innerHTML = `
@@ -5225,7 +5241,14 @@ function renderSignificatorsPage(){
     </div>
 
     <div class="panel"><div class="hd"><h2>${T('Commodities by star','Materias primas por estrella')}</h2><span class="note">${T('current row: today\'s Moon Nakṣatra','fila actual: Nakṣatra lunar de hoy')}</span></div>
-      <div class="bd"><div class="tblwrap"><table><thead><tr><th>${T('Star','Estrella')}</th><th>${T('Commodities','Materias primas')}</th></tr></thead><tbody>${starCommodityRows}</tbody></table></div></div>
+      <div class="bd">
+        <div class="tblwrap"><table><thead><tr><th>${T('Star','Estrella')}</th><th>${T('Commodities','Materias primas')}</th></tr></thead><tbody>${starCommodityRows}</tbody></table></div>
+        <div class="kv" style="margin-top:10px;">
+          <div class="k">${T('Standing trend','Tendencia de fondo')}</div><div class="v">${T('Jupiter in','Júpiter en')} <b style="color:var(--gold);">${jupiterSign}</b> <span style="color:var(--slate); font-size:11px;">— ${SBC_SIGN_COMMODITIES[jupiterSign]}</span></div>
+          <div class="k"></div><div class="v">${T('Saturn in','Saturno en')} <b style="color:var(--gold);">${saturnSign}</b> <span style="color:var(--slate); font-size:11px;">— ${SBC_SIGN_COMMODITIES[saturnSign]}</span></div>
+        </div>
+        <div class="hint" style="margin-top:6px;">${T('This app\'s own extension, not in ch. XVII: the Moon row above changes almost daily — too fast to read as a trend. Jupiter (~1 yr/sign) and Saturn (~2.5 yr/sign) move slowly enough to serve as a standing backdrop; same sign-commodity table (ch. XVII, below) as "Commodities by sign," just read against these two instead of an afflicted sign.','Extensión propia de esta app, ausente del cap. XVII: la fila de la Luna de arriba cambia casi a diario — demasiado rápido para leerse como tendencia. Júpiter (~1 año/signo) y Saturno (~2.5 años/signo) se mueven lo bastante despacio como para servir de telón de fondo estable; la misma tabla signo-materia prima (cap. XVII, abajo) que "Materias primas por signo," solo que leída contra estos dos en vez de un signo afligido.')}</div>
+      </div>
     </div>
 
     <div class="panel"><div class="hd"><h2>${T('Commodities by sign','Materias primas por signo')}</h2><span class="note">${T('live affliction check','comprobación de aflicción en vivo')}</span></div>
@@ -5233,8 +5256,9 @@ function renderSignificatorsPage(){
     </div>
 
     <div class="panel"><div class="hd"><h2>${T('Commodities by planet','Materias primas por planeta')}</h2><span class="note">${T('includes Uranus/Neptune/Pluto per the source','incluye Urano/Neptuno/Plutón según la fuente')}</span></div>
-      <div class="bd"><div class="tblwrap"><table><thead><tr><th>${T('Planet','Planeta')}</th><th>${T('Commodities','Materias primas')}</th><th>${T('Live','En vivo')}</th></tr></thead><tbody>${planetCommodityRows}</tbody></table></div>
-      <div class="hint" style="margin-top:8px;">${T('Uranus, Neptune and Pluto are given by the source but aren\'t part of this app\'s astronomical engine (which only computes the 9 classical grahas) — shown for completeness, no live position.','Urano, Neptuno y Plutón aparecen en la fuente pero no forman parte del motor astronómico de esta app (que solo calcula los 9 graha clásicos) — se muestran por completitud, sin posición en vivo.')}</div>
+      <div class="bd"><div class="tblwrap"><table><thead><tr><th>${T('Planet','Planeta')}</th><th>${T('Commodities','Materias primas')}</th><th>${T('D1 / D9 / affliction','D1 / D9 / aflicción')}</th></tr></thead><tbody>${planetCommodityRows}</tbody></table></div>
+      <div class="hint" style="margin-top:8px;">${T('This app\'s own extension, not in ch. XVII: the chapter\'s planet-commodity list carries no affliction rule of its own, so this reuses the same machinery as elsewhere in this app — dignity (own/exalted/friend/neutral/enemy/debilitated) of each graha\'s own current transiting position, its Navāṁśa (D9) placement and dignity there, and whether its D1 sign is under SBC Vedha affliction right now (ch. IX/X, same check as "Commodities by sign" above). This is always the transiting graha\'s own chart, not any reference person\'s birth chart.','Extensión propia de esta app, ausente del cap. XVII: la lista de materias primas por planeta del capítulo no trae su propia regla de aflicción, así que esto reutiliza la misma maquinaria que en otras partes de esta app — dignidad (propio/exaltado/amigo/neutral/enemigo/debilitado) de la posición actual en tránsito de cada graha, su ubicación y dignidad en Navāṁśa (D9), y si su signo D1 está bajo aflicción de Vedha SBC ahora mismo (cap. IX/X, la misma comprobación que "Materias primas por signo" arriba). Es siempre la carta del propio graha en tránsito, no la carta natal de ninguna persona de referencia.')}</div>
+      <div class="hint" style="margin-top:6px;">${T('Uranus, Neptune and Pluto are given by the source but aren\'t part of this app\'s astronomical engine (which only computes the 9 classical grahas) — shown for completeness, no live position.','Urano, Neptuno y Plutón aparecen en la fuente pero no forman parte del motor astronómico de esta app (que solo calcula los 9 graha clásicos) — se muestran por completitud, sin posición en vivo.')}</div>
       </div>
     </div>
 
