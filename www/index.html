@@ -397,6 +397,7 @@
       <div class="hamburger-menu" id="hamburgerMenu" role="menu">
         <button type="button" data-page="pageMuhurta" class="active" data-i18n="navMuhurta">Muhūrta Gauge</button>
         <button type="button" data-page="pageNatal" data-i18n="navNatal">Natal General Reading</button>
+        <button type="button" data-page="pageAshtakavarga" data-i18n="navAshtakavarga">Ashtakavarga — Transit Strength</button>
         <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">Nakṣatra Categories</button>
         <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
         <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Auspicious Calendar</button>
@@ -519,6 +520,10 @@
   <div class="result-col" id="natalPageContent" style="max-width:1000px; margin:0 auto;"></div>
 </div>
 
+<div id="pageAshtakavarga" class="page">
+  <div class="result-col" id="ashtakavargaPageContent" style="max-width:1000px; margin:0 auto;"></div>
+</div>
+
 <div id="pageNakshatra" class="page">
   <div class="result-col" id="nakshatraPageContent" style="max-width:900px; margin:0 auto;"></div>
 </div>
@@ -598,6 +603,7 @@ const I18N = {
   chartMenuHint: { en:`More chart types can be added to this menu later.`, es:`Más tipos de gráfico se pueden añadir a este menú más adelante.` },
   navMuhurta: { en:`Muhūrta Gauge`, es:`Muhūrta Gauge` },
   navNatal: { en:`Natal General Reading`, es:`Lectura Natal General` },
+  navAshtakavarga: { en:`Ashtakavarga — Transit Strength`, es:`Ashtakavarga — Fuerza de Tránsito` },
   navNakshatra: { en:`Nakṣatra Categories`, es:`Categorías de Nakṣatra` },
   navAnatomy: { en:`Anatomy`, es:`Anatomía` },
   navCalendar: { en:`Auspicious Calendar`, es:`Calendario auspicioso` },
@@ -1330,6 +1336,37 @@ const GRAHA_REMEDY_ES = {
   Ketu:    {deity:"Gaṇeśa",             gemstone:"Ojo de gato",                   color:"Marrón / gris",          day:"Martes",    donation:"Mantas, sésamo o tela multicolor para los necesitados"}
 };
 
+/* K.K. Pathak, "Advanced Study of Vimshottari Dasha," ch. XVI "Remedial
+   Guidelines" — a Lagna-conditional layer ON TOP OF the generic Navagraha
+   table above (which doesn't vary by Lagna at all): whether THIS person's
+   own Ascendant makes a graha's gemstone worth wearing, or whether the
+   source advises resisting it in favour of worship/donation instead.
+   wear/avoid/mixed are the Lagnas (by sign) the source names explicitly;
+   Moon's ownSignBonus signs only upgrade to "wear" if the natal Moon is
+   also in its own sign (Cancer) — checked live against birthPos, not
+   assumed. Saturn's wear-tier gem depends on whether natal Saturn reads as
+   strong (own/exalted) — also checked live rather than asserted. */
+const PATHAK_GEM_GUIDANCE = {
+  Sun:     { wear:["Aries","Taurus","Cancer","Leo","Scorpio","Sagittarius"], avoid:["Gemini","Virgo","Libra","Capricorn","Aquarius","Pisces"],
+             gem:"Ruby, Spinel, Ruby-Star or Garnet", gemEs:"Rubí, espinela, rubí-estrella o granate" },
+  Moon:    { wear:["Aries","Cancer","Scorpio","Pisces"], avoid:["Taurus","Gemini","Leo","Virgo","Libra","Sagittarius","Capricorn","Aquarius"],
+             ownSignBonus:["Gemini","Virgo","Libra","Capricorn"],
+             gem:"White Pearl or Moon-stone", gemEs:"Perla blanca o piedra lunar" },
+  Mars:    { wear:["Cancer","Leo","Pisces","Aries","Sagittarius","Scorpio","Capricorn","Aquarius","Gemini"], avoid:["Virgo","Taurus","Libra"],
+             gem:"Red Coral", gemEs:"Coral rojo" },
+  Mercury: { wear:["Taurus","Gemini","Leo","Virgo","Libra"], avoid:["Aries","Cancer","Scorpio","Pisces"], mixed:["Capricorn","Aquarius","Sagittarius"],
+             gem:"Emerald or Green Jade", gemEs:"Esmeralda o jade verde",
+             mixedGemEn:"Green Emerald combined with Diamond (Capricorn/Aquarius) or with Ruby (Sagittarius)", mixedGemEs:"Esmeralda verde combinada con diamante (Capricornio/Acuario) o con rubí (Sagitario)" },
+  Jupiter: { wear:["Sagittarius","Pisces","Scorpio","Aquarius","Aries","Cancer","Leo"], avoid:["Taurus","Gemini","Virgo","Libra","Capricorn"],
+             gem:"Yellow Pukhraj (Topaz)", gemEs:"Pukhraj amarillo (topacio)" },
+  Venus:   { wear:["Taurus","Gemini","Virgo","Libra","Capricorn","Aquarius"], avoid:["Aries","Cancer","Leo","Scorpio","Sagittarius","Pisces"],
+             gem:"Diamond, White Pukhraj, Zircon, White Coral or Uppal", gemEs:"Diamante, pukhraj blanco, circón, coral blanco o uppal" },
+  Saturn:  { wear:["Taurus","Libra","Capricorn","Aquarius"], avoid:["Aries","Gemini","Cancer","Leo","Virgo","Scorpio","Sagittarius","Pisces"],
+             gemStrongEn:"Firoza (turquoise) in a silver ring", gemStrongEs:"Firoza (turquesa) en anillo de plata",
+             gemWeakEn:"Blue Sapphire in silver or Pañcadhātu instead — never Firoza while Saturn is weak", gemWeakEs:"Zafiro azul en plata o Pañcadhātu en su lugar — nunca Firoza mientras Saturno esté débil",
+             avoidGemEn:"A plain steel or iron ring, not a gemstone", avoidGemEs:"Un simple anillo de acero o hierro, no una gema" }
+};
+
 /* Pañca Mahāpuruṣa Yoga — Prithuyasas' Horasara (R. Santhanam ed.), the
    chapter on planetary yogas, cross-referenced by the same edition's notes
    to Varāhamihira's Bṛhat Saṁhitā ch.69 and Kalyāṇa Varma's Sārāvalī ch.37.
@@ -1999,6 +2036,94 @@ function dignityTier(graha, siderealLong){
 }
 function dignity(graha, siderealLong){
   return trDignity(dignityTier(graha, siderealLong));
+}
+
+/* =========================================================================
+   ASHTAKAVARGA — M.S. Mehta (guide/editor K.N. Rao), "Ashtakvarga: Concept
+   and Application." Transcribed and cross-verified against the book's own
+   printed per-planet totals (Sun 48, Moon 49, Mars 39, Mercury 54, Jupiter
+   56, Venus 52, Saturn 39 — every contributor-list below sums to exactly
+   that figure) and its stated Sarvāṣṭakavarga constant of 337 (the seven
+   totals above sum to 337 regardless of chart, since Bhinnāṣṭakavarga is a
+   fixed redistribution of a fixed total, not something that varies with
+   input — this app's own computeSarvashtakavarga() is checked against that
+   invariant, not against one historical chart, since reconstructing a
+   100-year-old chart's exact ayanāṁśa introduces more error than it removes).
+   Ashtakavarga in this classical scheme only covers the 7 grahas Sun through
+   Saturn (the book: "leaving aside Rahu and Ketu") — Rahu/Ketu have no
+   Bhinnāṣṭakavarga of their own here.
+   Each entry below is "which houses, counted from the CONTRIBUTOR's own
+   occupied sign as house 1, receive a bindu toward the graha's own chart" —
+   e.g. ASHTAK_CONTRIB.Sun.Moon = [3,6,10,11] means: count from the sign the
+   Moon occupies (as house 1), and houses 3/6/10/11 from there each get one
+   bindu toward the Sun's Bhinnāṣṭakavarga. */
+const ASHTAK_GRAHAS = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"];
+const ASHTAK_CONTRIB = {
+  Sun:     { Sun:[1,2,4,7,8,9,10,11], Moon:[3,6,10,11], Mars:[1,2,4,7,8,9,10,11], Mercury:[3,5,6,9,10,11,12], Jupiter:[5,6,9,11], Venus:[6,7,12], Saturn:[1,2,4,7,8,9,10,11], Lagna:[3,4,6,10,11,12] },
+  Moon:    { Sun:[3,6,7,8,10,11], Moon:[1,3,6,7,10,11], Mars:[2,3,5,6,9,10,11], Mercury:[1,3,4,5,7,8,10,11], Jupiter:[1,4,7,8,10,11,12], Venus:[3,4,5,7,9,10,11], Saturn:[3,5,6,11], Lagna:[3,6,10,11] },
+  Mars:    { Sun:[3,5,6,10,11], Moon:[3,6,11], Mars:[1,2,4,7,8,10,11], Mercury:[3,5,6,11], Jupiter:[6,10,11,12], Venus:[6,8,11,12], Saturn:[1,4,7,8,9,10,11], Lagna:[1,3,6,10,11] },
+  Mercury: { Sun:[5,6,9,11,12], Moon:[2,4,6,8,10,11], Mars:[1,2,4,7,8,9,10,11], Mercury:[1,3,5,6,9,10,11,12], Jupiter:[6,8,11,12], Venus:[1,2,3,4,5,8,9,11], Saturn:[1,2,4,7,8,9,10,11], Lagna:[1,2,4,6,8,10,11] },
+  Jupiter: { Sun:[1,2,3,4,7,8,9,10,11], Moon:[2,5,7,9,11], Mars:[1,2,4,7,8,10,11], Mercury:[1,2,4,5,6,9,10,11], Jupiter:[1,2,3,4,7,8,10,11], Venus:[2,5,6,9,10,11], Saturn:[3,5,6,12], Lagna:[1,2,4,5,6,7,9,10,11] },
+  Venus:   { Sun:[8,11,12], Moon:[1,2,3,4,5,8,9,11,12], Mars:[3,5,6,9,11,12], Mercury:[3,5,6,9,11], Jupiter:[5,8,9,10,11], Venus:[1,2,3,4,5,8,9,10,11], Saturn:[3,4,5,8,9,10,11], Lagna:[1,2,3,4,5,8,9,11] },
+  Saturn:  { Sun:[1,2,4,7,8,10,11], Moon:[3,6,11], Mars:[3,5,6,10,11,12], Mercury:[6,8,9,10,11,12], Jupiter:[5,6,11,12], Venus:[6,11,12], Saturn:[3,5,6,11], Lagna:[1,3,4,6,10,11] }
+};
+// pos: {Sun:{sidereal}, ..., Saturn:{sidereal}, _ascSidereal}. Returns a
+// 12-element array (index 0 = Aries) of bindu counts for one graha's own
+// Bhinnāṣṭakavarga.
+function computeBhinnashtakavarga(graha, pos){
+  const bindus = new Array(12).fill(0);
+  const contributors = ASHTAK_CONTRIB[graha];
+  Object.keys(contributors).forEach(source=>{
+    const sourceSid = source === "Lagna" ? pos._ascSidereal : pos[source].sidereal;
+    const fromSign = Math.floor(norm360(sourceSid)/30);
+    contributors[source].forEach(houseOffset=>{
+      const signIdx = (fromSign + houseOffset - 1) % 12;
+      bindus[signIdx] += 1;
+    });
+  });
+  return bindus;
+}
+// Sarvāṣṭakavarga — sum of all 7 Bhinnāṣṭakavargas, sign by sign. Always
+// totals 337 across the 12 signs, whatever the chart (see comment above).
+function computeSarvashtakavarga(pos){
+  const totals = new Array(12).fill(0);
+  ASHTAK_GRAHAS.forEach(g=>{
+    const b = computeBhinnashtakavarga(g, pos);
+    b.forEach((v,i)=>totals[i]+=v);
+  });
+  return totals;
+}
+// Ch. VI "Interpretation of Horoscope through Ashtakvarga" + ch. VII's own
+// transit scale (stated for Sun, generalized by the book itself: "Same
+// results should also be expected if natal [any planet] is having more or
+// less than normal 4 bindus"). 0 bindus is the source's own most severe
+// tier; this app tones its label down to a strong caution rather than
+// repeating the source's literal "death" prediction — this is informational
+// strength-reading, not a fatality forecast, and the source's own further
+// technique for actually timing death (multiplying Shodhya Piṇḍa by bindus
+// in a derived house, dividing by 27, reading off a Nakṣatra) is not
+// implemented here at all; that goes well past what an automated reading
+// should assert.
+function ashtakBindutier(n){
+  if (n<=0) return {rank:0, tag:"bad"};
+  if (n<=3) return {rank:1, tag:"bad"};
+  if (n===4) return {rank:2, tag:"neutral"};
+  return {rank:3, tag:"good"};
+}
+function ashtakBindulabel(n){
+  if (n<=0) return T("0 — severe caution (classical texts read this as the most extreme tier)","0 — precaución extrema (los textos clásicos leen esto como el nivel más extremo)");
+  if (n<=3) return T(`${n} — weak`,`${n} — débil`);
+  if (n===4) return T("4 — average","4 — promedio");
+  return T(`${n} — strong`,`${n} — fuerte`);
+}
+// Ch. XIV "Sarvashtakvarga," General Principles: total is 337 over 12
+// bhavas, average 28/sign; >28 strong, <28 weak, >30 "very good results,"
+// <25 explicitly weak.
+function sarvaTier(n){
+  if (n>30) return {rank:3, tag:"good", label:T("Very strong","Muy fuerte")};
+  if (n>28) return {rank:2, tag:"good", label:T("Strong","Fuerte")};
+  if (n>=25) return {rank:1, tag:"neutral", label:T("Average","Promedio")};
+  return {rank:0, tag:"bad", label:T("Weak","Débil")};
 }
 
 /* Numeric, language-independent counterpart to dignity() above — used for
@@ -3607,6 +3732,7 @@ function showPage(pageId){
   document.getElementById('hamburgerMenu').classList.remove('open');
   document.getElementById('hamburgerBtn').setAttribute('aria-expanded','false');
   if (pageId === 'pageNatal') renderNatalPage();
+  if (pageId === 'pageAshtakavarga') renderAshtakavargaPage();
   if (pageId === 'pageNakshatra') renderNakshatraPage();
   if (pageId === 'pageAnatomy') renderAnatomyPage();
   if (pageId === 'pageCalendar') renderCalendarPage();
@@ -3743,6 +3869,89 @@ function renderNatalPage(){
   `;
 }
 function gNameNatal(g){ return T(g, GRAHA_ES[g]); }
+
+// ---- Ashtakavarga — Transit Strength ----
+// Gochara (transit) Ashtakavarga: builds the reference person's own natal
+// Bhinnāṣṭakavarga/Sarvāṣṭakavarga once (fixed at birth, like everything
+// else keyed to birthPos), then checks the MUHŪRTA moment's transiting
+// graha positions against those natal bindu counts — the classical
+// technique for "is this a good time, for this specific person." A second,
+// independent classical system from SBC, on purpose: shown side by side,
+// never folded into the SBC score below, exactly like Tārā Bala/Pañcha
+// Pakshi are additional signals rather than silently merged terms.
+function renderAshtakavargaPage(){
+  const container = document.getElementById('ashtakavargaPageContent');
+  if (!container) return;
+
+  const refInfo = getReferencePanchaka();
+  const birthPos = refInfo.birthPos;
+
+  const mdt = readDateTime("m");
+  const ay = document.getElementById('ayanamsaMode') ? document.getElementById('ayanamsaMode').value : 'lahiri';
+  const mPos = computePositions(mdt.jd, mdt.lat, mdt.lon, ay);
+
+  const natalBhinna = {};
+  ASHTAK_GRAHAS.forEach(g=>{ natalBhinna[g] = computeBhinnashtakavarga(g, birthPos); });
+  const natalSarva = computeSarvashtakavarga(birthPos);
+
+  let strongCount=0, weakCount=0;
+  const transitRows = ASHTAK_GRAHAS.map(g=>{
+    const sid = norm360(mPos[g].sidereal);
+    const signIdx = Math.floor(sid/30);
+    const sign = SIGNS[signIdx];
+    const bindus = natalBhinna[g][signIdx];
+    const bTier = ashtakBindutier(bindus);
+    const sarvaVal = natalSarva[signIdx];
+    const sTier = sarvaTier(sarvaVal);
+    if (bTier.tag==='good') strongCount++; else if (bTier.tag==='bad') weakCount++;
+    return `<tr>
+      <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
+      <td style="font-size:11px; color:var(--slate);">${T('now in','ahora en')} ${sign}</td>
+      <td><span class="tag ${bTier.tag}">${ashtakBindulabel(bindus)}</span></td>
+      <td><span class="tag ${sTier.tag}">${sarvaVal} <span style="font-size:10px;">(${sTier.label})</span></span></td>
+    </tr>`;
+  }).join('');
+
+  const overallVerdict = weakCount>=4
+    ? {label:T('Multiple weak transits right now — a caution worth weighing alongside the SBC verdict','Varios tránsitos débiles ahora mismo — una precaución a sopesar junto al veredicto SBC'), cls:'bad'}
+    : strongCount>=4
+    ? {label:T('Multiple strong transits right now — a favourable sign corroborating (or not) the SBC verdict','Varios tránsitos fuertes ahora mismo — una señal favorable que corrobora (o no) el veredicto SBC'), cls:'good'}
+    : {label:T('Mixed — this system doesn\'t lean strongly either way for this moment','Mixto — este sistema no se inclina con fuerza en ninguna dirección para este momento'), cls:'neutral'};
+
+  const sarvaSignRows = SIGNS.map((s,i)=>{
+    const val = natalSarva[i];
+    const tier = sarvaTier(val);
+    return `<tr><td class="wide">${s}</td><td style="font-variant-numeric:tabular-nums;">${val}</td><td><span class="tag ${tier.tag}">${tier.label}</span></td></tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('Ashtakavarga — Transit Strength','Ashtakavarga — Fuerza de Tránsito')}</h2><span class="note">M.S. Mehta, ed. K.N. Rao</span></div>
+      <div class="bd">
+        <div class="hint">${T('A second, independent classical timing system alongside SBC. Each of the 7 classical grahas (Sun–Saturn; the source excludes Rāhu/Ketu here) contributes bindus (benefic points) to specific houses counted from its own position — from itself, from each of the other 6 grahas, and from the Lagna, 8 sources in all. Summed, that gives each graha its own Bhinnāṣṭakavarga (a 12-sign bindu map); summed again across all 7 grahas, it gives the Sarvāṣṭakavarga (total always 337, average 28/sign). The classical transit application ("Gochara Ashtakavarga"): check how many bindus a transiting graha\'s OWN natal Bhinnāṣṭakavarga assigns to the sign it\'s currently passing through — more bindus there, the more favourable that transit reads for this specific person. This page always uses the reference person\'s own birth chart as the fixed natal Ashtakavarga, checked against the muhūrta moment set on the main page — like SBC\'s own Vedha check, it\'s inherently person-specific, not a generic reading of the sky.','Un segundo sistema clásico de cronometría, independiente del SBC. Cada uno de los 7 graha clásicos (Sol–Saturno; la fuente excluye aquí a Rāhu/Ketu) aporta bindus (puntos benéficos) a casas específicas contadas desde su propia posición — desde sí mismo, desde cada uno de los otros 6 graha, y desde el Lagna, 8 fuentes en total. Sumado, esto da a cada graha su propio Bhinnāṣṭakavarga (un mapa de bindus de 12 signos); sumado de nuevo entre los 7 graha, da el Sarvāṣṭakavarga (total siempre 337, promedio 28/signo). La aplicación clásica de tránsito ("Ashtakavarga de Gochara"): comprobar cuántos bindus asigna el propio Bhinnāṣṭakavarga natal de un graha en tránsito al signo que está atravesando ahora — cuantos más bindus haya ahí, más favorable se lee ese tránsito para esta persona en particular. Esta página siempre usa la carta natal de la persona de referencia como el Ashtakavarga natal fijo, comprobado contra el momento muhūrta fijado en la página principal — como la propia comprobación de Vedha del SBC, es inherentemente específico de la persona, no una lectura genérica del cielo.')}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Transit check — the muhūrta moment','Comprobación de tránsito — el momento muhūrta')}</h2><span class="note">${T('against the reference person\'s natal Ashtakavarga','contra el Ashtakavarga natal de la persona de referencia')}</span></div>
+      <div class="bd">
+        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th></th><th>${T('Bhinnāṣṭakavarga bindus here','Bindus de Bhinnāṣṭakavarga aquí')}</th><th>${T('Sarvāṣṭakavarga here','Sarvāṣṭakavarga aquí')}</th></tr></thead><tbody>${transitRows}</tbody></table></div>
+        <div style="margin-top:10px;"><span class="tag ${overallVerdict.cls}">${overallVerdict.label}</span></div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('Ch. VI/VII\'s own scale: 0 bindus is the source\'s single most severe tier (see footer note); 1–3 weak; 4 average; 5–8 strong — "same results should be expected" for any of the 7 grahas, per the book\'s own generalization from its worked Sun example. Sarvāṣṭakavarga tier follows ch. XIV: average is 28/sign, above 28 is strong, above 30 "very good," below 25 explicitly weak. This is informational only — it does not feed into the SBC score above.','Escala propia de los cap. VI/VII: 0 bindus es el nivel más extremo de la fuente (ver nota al pie); 1–3 débil; 4 promedio; 5–8 fuerte — "deben esperarse los mismos resultados" para cualquiera de los 7 graha, según la propia generalización del libro a partir de su ejemplo resuelto del Sol. El nivel de Sarvāṣṭakavarga sigue el cap. XIV: el promedio es 28/signo, por encima de 28 es fuerte, por encima de 30 es "muy bueno," por debajo de 25 es explícitamente débil. Esto es solo informativo — no se incorpora a la puntuación SBC de arriba.')}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Natal Sarvāṣṭakavarga by sign','Sarvāṣṭakavarga natal por signo')}</h2><span class="note">${T('total 337, average 28/sign','total 337, promedio 28/signo')}</span></div>
+      <div class="bd">
+        <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Bindus','Bindus')}</th><th>${T('Strength','Fuerza')}</th></tr></thead><tbody>${sarvaSignRows}</tbody></table></div>
+      </div>
+    </div>
+
+    <footer class="notes" style="line-height:1.8;">
+      <b>${T('Source.','Fuente.')}</b> ${T('M.S. Mehta (guide/editor K.N. Rao), <i>Ashtakvarga: Concept and Application</i> — ch. II–III (Bhinnāṣṭakavarga construction), ch. VI–VII (interpretation, transit scale), ch. XIV (Sarvāṣṭakavarga). The 56 contributor rules (7 grahas × 8 sources) are transcribed directly and cross-checked against the book\'s own printed per-planet totals (48/49/39/54/56/52/39) and its stated 337-bindu Sarvāṣṭakavarga constant — both match exactly.','M.S. Mehta (guía/editor K.N. Rao), <i>Ashtakvarga: Concept and Application</i> — cap. II–III (construcción del Bhinnāṣṭakavarga), cap. VI–VII (interpretación, escala de tránsito), cap. XIV (Sarvāṣṭakavarga). Las 56 reglas de contribución (7 graha × 8 fuentes) están transcritas directamente y verificadas contra los totales por planeta impresos en el libro (48/49/39/54/56/52/39) y su constante declarada de 337 bindus de Sarvāṣṭakavarga — ambos coinciden exactamente.')}<br>
+      ${T('Not implemented: the source\'s Shodhya Piṇḍa reduction (a further weighting of each Bhinnāṣṭakavarga used for longevity and, notably, for timing death via a Nakṣatra-derived calculation) — that crosses from a strength reading into individualized fatality prediction, which this app won\'t automate. The 0-bindu tier above is shown as a strong caution, not as the source\'s own literal reading for that tier.','No implementado: la reducción de Shodhya Piṇḍa de la fuente (una ponderación adicional de cada Bhinnāṣṭakavarga usada para la longevidad y, en particular, para cronometrar la muerte mediante un cálculo derivado de Nakṣatra) — eso cruza de una lectura de fuerza a una predicción individualizada de fatalidad, algo que esta app no automatizará. El nivel de 0 bindus de arriba se muestra como una precaución fuerte, no como la lectura literal de la fuente para ese nivel.')}
+    </footer>
+  `;
+}
 
 // Nakṣatra Categories page — a fixed property of the reference person's own
 // horoscope (Janma Nakṣatra, same refP used for Tārā Bala/Nāḍī on the main
@@ -4534,6 +4743,41 @@ function renderRemediesPage(){
       </div>`;
   }
 
+  const lagnaSignForRemedy = SIGNS[Math.floor(norm360(birthPos._ascSidereal)/30)];
+  const pgg = PATHAK_GEM_GUIDANCE[g];
+  let pathakHtml = '';
+  if (pgg){
+    let verdict, gemText;
+    if (pgg.wear.includes(lagnaSignForRemedy)){
+      verdict = {cls:'good', label:T('Wear-eligible for this Lagna','Apto para llevar según este Lagna')};
+      gemText = g==='Saturn'
+        ? (isOwnOrExalt('Saturn', birthPos.Saturn.sidereal) ? T(pgg.gemStrongEn,pgg.gemStrongEs) : T(pgg.gemWeakEn,pgg.gemWeakEs))
+        : T(pgg.gem, pgg.gemEs);
+    } else if (pgg.mixed && pgg.mixed.includes(lagnaSignForRemedy)){
+      verdict = {cls:'gold', label:T('Combination gem, not the plain one','Gema combinada, no la simple')};
+      gemText = T(pgg.mixedGemEn, pgg.mixedGemEs);
+    } else if (g==='Moon' && pgg.ownSignBonus.includes(lagnaSignForRemedy) && isOwnOrExalt('Moon', birthPos.Moon.sidereal)){
+      verdict = {cls:'good', label:T('Wear-eligible — natal Moon is in its own sign','Apto para llevar — la Luna natal está en su propio signo')};
+      gemText = T(pgg.gem, pgg.gemEs);
+    } else {
+      verdict = {cls:'bad', label:T('Resist the temptation — worship/donation instead','Resiste la tentación — culto/donación en su lugar')};
+      gemText = g==='Saturn' ? T(pgg.avoidGemEn, pgg.avoidGemEs) : null;
+    }
+    pathakHtml = `
+      <div style="margin-top:14px; border:1px solid var(--line); padding:10px 12px; font-size:12px; color:var(--ink-dim);">
+        <b>${T('Lagna-conditional gemstone guidance','Guía de gema condicionada por el Lagna')}</b> <span style="color:var(--slate); font-size:10.5px;">— K.K. Pathak, ${T('ch. XVI','cap. XVI')}</span>
+        <div style="margin-top:6px;">${T('Reference person\'s Lagna:','Lagna de la persona de referencia:')} <b style="color:var(--ink);">${lagnaSignForRemedy}</b></div>
+        <div style="margin-top:6px;"><span class="tag ${verdict.cls}">${verdict.label}</span></div>
+        ${gemText ? `<div style="margin-top:6px;">${gemText}</div>` : ''}
+      </div>`;
+  } else if (g==='Rahu' || g==='Ketu'){
+    pathakHtml = `
+      <div style="margin-top:14px; border:1px solid var(--line); padding:10px 12px; font-size:12px; color:var(--ink-dim);">
+        <b>${T('Lagna-conditional gemstone guidance','Guía de gema condicionada por el Lagna')}</b> <span style="color:var(--slate); font-size:10.5px;">— K.K. Pathak, ${T('ch. XVI','cap. XVI')}</span>
+        <div style="margin-top:6px;">${T(`${g}'s own rule isn't Lagna-conditional like the other 7 grahas — the source keys it to which Nakṣatra ${g} rules/occupies (1st, 2nd, 4th, 6th, 8th or 9th star from a reference point the source doesn't fully pin down in what's been transcribed here → wearable; 3rd, 5th or 7th star → avoid, worship Durgā/Hanumān (Rahu) or Gaṇeśa/Chāmuṇḍā (Ketu) instead). Not computed live here — the counting base needs to be confirmed against the source before this app asserts a yes/no.`, `La regla de ${g} no es condicional al Lagna como la de los otros 7 graha — la fuente la vincula al Nakṣatra que ${g} gobierna/ocupa (estrella 1.ª, 2.ª, 4.ª, 6.ª, 8.ª o 9.ª desde un punto de referencia que la fuente no fija del todo en lo transcrito aquí → apto para llevar; estrella 3.ª, 5.ª o 7.ª → evitar, culto a Durgā/Hanumān (Rahu) o Gaṇeśa/Chāmuṇḍā (Ketu) en su lugar). No se calcula en vivo aquí — la base de conteo necesita confirmarse contra la fuente antes de que esta app afirme un sí/no.`)}</div>
+      </div>`;
+  }
+
   container.innerHTML = `
     <div class="panel">
       <div class="hd"><h2>${T('Remedies &amp; Combinations','Remedios y Combinaciones')}</h2><span class="note">${T('independent of the SBC score','independiente de la puntuación SBC')}</span></div>
@@ -4552,6 +4796,7 @@ function renderRemediesPage(){
           <div class="k">${T('Gemstone','Gema')}</div><div class="v">${rl.gemstone} <span style="color:var(--slate); font-size:10.5px;">${T('(traditionally chosen only after a full chart consultation, not from a page like this one)','(tradicionalmente se elige solo tras una consulta completa de la carta, no desde una página como esta)')}</span></div>
         </div>
         ${mahaHtml}
+        ${pathakHtml}
       </div>
     </div>
 
@@ -4578,7 +4823,7 @@ function renderRemediesPage(){
     </div>
 
     <footer class="notes" style="line-height:1.8;">
-      <b>${T('Sources.','Fuentes.')}</b> ${T('By-direction remedies and the general remedy framework: B.V. Raman\'s Praśna Mārga, Chapter XV ("Reasons for the Miseries of Mankind"), śl. 29-46. Pañca Mahāpuruṣa Yoga: Prithuyasas\' Horasara (R. Santhanam ed.), cross-referenced in the same edition to Bṛhat Saṁhitā ch.69 and Sārāvalī ch.37. The by-planet mantra/gemstone/color/donation table is general Navagraha upāya, standard across the Jyotish corpus rather than a transcription of any single named text.','Remedios por dirección y el marco general de remedios: Praśna Mārga de B.V. Raman, Capítulo XV ("Razones de las miserias de la humanidad"), śl. 29-46. Pañca Mahāpuruṣa Yoga: Horasara de Prithuyasas (ed. R. Santhanam), referenciado de forma cruzada en la misma edición con Bṛhat Saṁhitā cap.69 y Sārāvalī cap.37. La tabla de mantra/gema/color/donación por planeta es upāya general de Navagraha, estándar en todo el corpus de Jyotish, no una transcripción de un texto único.')}
+      <b>${T('Sources.','Fuentes.')}</b> ${T('By-direction remedies and the general remedy framework: B.V. Raman\'s Praśna Mārga, Chapter XV ("Reasons for the Miseries of Mankind"), śl. 29-46. Pañca Mahāpuruṣa Yoga: Prithuyasas\' Horasara (R. Santhanam ed.), cross-referenced in the same edition to Bṛhat Saṁhitā ch.69 and Sārāvalī ch.37. The by-planet mantra/gemstone/color/donation table is general Navagraha upāya, standard across the Jyotish corpus rather than a transcription of any single named text. The Lagna-conditional gemstone guidance is transcribed directly from K.K. Pathak, <i>Advanced Study of Vimshottari Dasha</i>, ch. XVI, "Remedial Guidelines" — a genuinely different axis from the generic table above it, since that one doesn\'t vary by Lagna at all.','Remedios por dirección y el marco general de remedios: Praśna Mārga de B.V. Raman, Capítulo XV ("Razones de las miserias de la humanidad"), śl. 29-46. Pañca Mahāpuruṣa Yoga: Horasara de Prithuyasas (ed. R. Santhanam), referenciado de forma cruzada en la misma edición con Bṛhat Saṁhitā cap.69 y Sārāvalī cap.37. La tabla de mantra/gema/color/donación por planeta es upāya general de Navagraha, estándar en todo el corpus de Jyotish, no una transcripción de un texto único. La guía de gema condicionada por el Lagna está transcrita directamente de K.K. Pathak, <i>Advanced Study of Vimshottari Dasha</i>, cap. XVI, "Remedial Guidelines" — un eje genuinamente distinto de la tabla general de arriba, ya que esa no varía según el Lagna en absoluto.')}
     </footer>
   `;
 }
@@ -5480,6 +5725,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     initTheme();
     runAnalysis();
     if (document.getElementById('pageNatal').classList.contains('active')) renderNatalPage();
+    if (document.getElementById('pageAshtakavarga').classList.contains('active')) renderAshtakavargaPage();
     if (document.getElementById('pageNakshatra').classList.contains('active')) renderNakshatraPage();
     if (document.getElementById('pageAnatomy').classList.contains('active')) renderAnatomyPage();
     if (document.getElementById('pageCalendar').classList.contains('active')) renderCalendarPage();
