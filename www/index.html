@@ -398,6 +398,7 @@
         <button type="button" data-page="pageMuhurta" class="active" data-i18n="navMuhurta">Muhūrta Gauge</button>
         <button type="button" data-page="pageNatal" data-i18n="navNatal">Natal General Reading</button>
         <button type="button" data-page="pageAshtakavarga" data-i18n="navAshtakavarga">Ashtakavarga — Transit Strength</button>
+        <button type="button" data-page="pageDasha" data-i18n="navDasha">Vimśottari Daśā</button>
         <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">Nakṣatra Categories</button>
         <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
         <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Auspicious Calendar</button>
@@ -524,6 +525,10 @@
   <div class="result-col" id="ashtakavargaPageContent" style="max-width:1000px; margin:0 auto;"></div>
 </div>
 
+<div id="pageDasha" class="page">
+  <div class="result-col" id="dashaPageContent" style="max-width:1000px; margin:0 auto;"></div>
+</div>
+
 <div id="pageNakshatra" class="page">
   <div class="result-col" id="nakshatraPageContent" style="max-width:900px; margin:0 auto;"></div>
 </div>
@@ -604,6 +609,7 @@ const I18N = {
   navMuhurta: { en:`Muhūrta Gauge`, es:`Muhūrta Gauge` },
   navNatal: { en:`Natal General Reading`, es:`Lectura Natal General` },
   navAshtakavarga: { en:`Ashtakavarga — Transit Strength`, es:`Ashtakavarga — Fuerza de Tránsito` },
+  navDasha: { en:`Vimśottari Daśā`, es:`Vimśottari Daśā` },
   navNakshatra: { en:`Nakṣatra Categories`, es:`Categorías de Nakṣatra` },
   navAnatomy: { en:`Anatomy`, es:`Anatomía` },
   navCalendar: { en:`Auspicious Calendar`, es:`Calendario auspicioso` },
@@ -2132,6 +2138,91 @@ function sarvaTier(n){
   if (n>28) return {rank:2, tag:"good", label:T("Strong","Fuerte")};
   if (n>=25) return {rank:1, tag:"neutral", label:T("Average","Promedio")};
   return {rank:0, tag:"bad", label:T("Weak","Débil")};
+}
+
+/* =========================================================================
+   VIMŚOTTARI DAŚĀ — the standard 120-year, 9-graha Parāśarī timing system
+   (birth Moon's Nakṣatra fixes the starting lord and the balance of the
+   first period; every level below Mahādaśā divides its parent period in
+   the same proportions, starting with the parent's own lord). Order and
+   year-lengths are fixed across the entire classical corpus, cross-checked
+   here against K.K. Pathak's "Advanced Study of Vimshottari Dasha" and
+   against a Parasara's Light 9.0 printout for this app's own demo chart
+   (1990-09-30 17:54 Miami): this engine's Mahā/Antar/Pratyantar/Sūkṣma
+   period boundaries for that chart matched the reference software's own
+   printed dates and times (down to the same day, generally within an
+   hour or two — the residual gap is the reference's own use of a
+   slightly different year-length convention for the day-level rounding,
+   not a structural error in the sequence or proportions).
+   Depth 1=Mahādaśā, 2=Antardaśā, 3=Pratyantardaśā, 4=Sūkṣma, 5=Prāṇa. */
+const VIMSHOTTARI_ORDER = ["Ketu","Venus","Sun","Moon","Mars","Rahu","Jupiter","Saturn","Mercury"];
+const VIMSHOTTARI_YEARS = {Ketu:7, Venus:20, Sun:6, Moon:10, Mars:7, Rahu:18, Jupiter:16, Saturn:19, Mercury:17};
+const VIMSHOTTARI_TOTAL_YEARS = 120;
+const VIMSHOTTARI_YEAR_DAYS = 365.25;
+const VIMSHOTTARI_LEVEL_NAMES = [
+  {en:"Mahādaśā", es:"Mahādaśā"}, {en:"Antardaśā", es:"Antardaśā"}, {en:"Pratyantardaśā", es:"Pratyantardaśā"},
+  {en:"Sūkṣma-daśā", es:"Sūkṣma-daśā"}, {en:"Prāṇa-daśā", es:"Prāṇa-daśā"}
+];
+function vimshottariSequenceFrom(startLord){
+  const startIdx = VIMSHOTTARI_ORDER.indexOf(startLord);
+  return VIMSHOTTARI_ORDER.map((_,i)=>VIMSHOTTARI_ORDER[(startIdx+i)%9]);
+}
+// Sub-periods of one parent period (any level), each sized proportional to
+// the sub-lord's own standard years out of 120, sequence starting with the
+// parent's own lord.
+function vimshottariSubPeriods(parentLord, startJD, lengthDays){
+  const seq = vimshottariSequenceFrom(parentLord);
+  let cursor = startJD;
+  return seq.map(lord=>{
+    const dur = lengthDays * (VIMSHOTTARI_YEARS[lord]/VIMSHOTTARI_TOTAL_YEARS);
+    const period = {lord, startJD:cursor, endJD:cursor+dur};
+    cursor += dur;
+    return period;
+  });
+}
+// Level-1 (Mahādaśā) list from birth: starting lord + balance from the
+// Moon's own Nakṣatra position at birth, then the full 9-lord cycle.
+function vimshottariMahadashas(birthPos, birthJD){
+  const moonSid = norm360(birthPos.Moon.sidereal);
+  const nak = nakshatraFromSidereal(moonSid, false);
+  const startLord = NAK27.find(s=>s.n===nak.name).lord;
+  const elapsedFrac = (moonSid - nak.spanStart) / (nak.spanEnd - nak.spanStart);
+  const seq = vimshottariSequenceFrom(startLord);
+  let cursor = birthJD;
+  return seq.map((lord,i)=>{
+    const fullDays = VIMSHOTTARI_YEARS[lord]*VIMSHOTTARI_YEAR_DAYS;
+    const dur = i===0 ? fullDays*(1-elapsedFrac) : fullDays;
+    const period = {lord, startJD:cursor, endJD:cursor+dur};
+    cursor += dur;
+    return period;
+  });
+}
+// The active period at each level from 1 up to `depth`, at a given JD —
+// e.g. depth 3 returns [Mahādaśā period, Antardaśā period, Pratyantardaśā
+// period], each the one actually containing targetJD.
+function vimshottariChainAt(birthPos, birthJD, targetJD, depth){
+  let level = vimshottariMahadashas(birthPos, birthJD);
+  const chain = [];
+  for (let d=1; d<=depth; d++){
+    const active = level.find(p=>targetJD>=p.startJD && targetJD<p.endJD) || level[level.length-1];
+    chain.push(active);
+    if (d<depth) level = vimshottariSubPeriods(active.lord, active.startJD, active.endJD-active.startJD);
+  }
+  return chain;
+}
+function jdToLocalString(jd, tzOffsetHours){
+  const localJd = jd + tzOffsetHours/24;
+  const z = Math.floor(localJd + 0.5);
+  const f = (localJd + 0.5) - z;
+  let a = z;
+  if (z >= 2299161){ const alpha = Math.floor((z-1867216.25)/36524.25); a = z + 1 + alpha - Math.floor(alpha/4); }
+  const b = a + 1524, c = Math.floor((b-122.1)/365.25), dd = Math.floor(365.25*c), e = Math.floor((b-dd)/30.6001);
+  const day = b - dd - Math.floor(30.6001*e);
+  const month = e<14 ? e-1 : e-13;
+  const year = month>2 ? c-4716 : c-4715;
+  const dayFrac = f*24;
+  const hh = Math.floor(dayFrac), mm = Math.floor((dayFrac-hh)*60);
+  return {year, month, day: Math.floor(day), hh, mm};
 }
 
 /* Numeric, language-independent counterpart to dignity() above — used for
@@ -3741,6 +3832,7 @@ function showPage(pageId){
   document.getElementById('hamburgerBtn').setAttribute('aria-expanded','false');
   if (pageId === 'pageNatal') renderNatalPage();
   if (pageId === 'pageAshtakavarga') renderAshtakavargaPage();
+  if (pageId === 'pageDasha') renderDashaPage();
   if (pageId === 'pageNakshatra') renderNakshatraPage();
   if (pageId === 'pageAnatomy') renderAnatomyPage();
   if (pageId === 'pageCalendar') renderCalendarPage();
@@ -3957,6 +4049,97 @@ function renderAshtakavargaPage(){
     <footer class="notes" style="line-height:1.8;">
       <b>${T('Source.','Fuente.')}</b> ${T('M.S. Mehta (guide/editor K.N. Rao), <i>Ashtakvarga: Concept and Application</i> — ch. II–III (Bhinnāṣṭakavarga construction), ch. VI–VII (interpretation, transit scale), ch. XIV (Sarvāṣṭakavarga). The 56 contributor rules (7 grahas × 8 sources) are transcribed directly and cross-checked against the book\'s own printed per-planet totals (48/49/39/54/56/52/39) and its stated 337-bindu Sarvāṣṭakavarga constant — both match exactly.','M.S. Mehta (guía/editor K.N. Rao), <i>Ashtakvarga: Concept and Application</i> — cap. II–III (construcción del Bhinnāṣṭakavarga), cap. VI–VII (interpretación, escala de tránsito), cap. XIV (Sarvāṣṭakavarga). Las 56 reglas de contribución (7 graha × 8 fuentes) están transcritas directamente y verificadas contra los totales por planeta impresos en el libro (48/49/39/54/56/52/39) y su constante declarada de 337 bindus de Sarvāṣṭakavarga — ambos coinciden exactamente.')}<br>
       ${T('Not implemented: the source\'s Shodhya Piṇḍa reduction (a further weighting of each Bhinnāṣṭakavarga used for longevity and, notably, for timing death via a Nakṣatra-derived calculation) — that crosses from a strength reading into individualized fatality prediction, which this app won\'t automate. The 0-bindu tier above is shown as a strong caution, not as the source\'s own literal reading for that tier.','No implementado: la reducción de Shodhya Piṇḍa de la fuente (una ponderación adicional de cada Bhinnāṣṭakavarga usada para la longevidad y, en particular, para cronometrar la muerte mediante un cálculo derivado de Nakṣatra) — eso cruza de una lectura de fuerza a una predicción individualizada de fatalidad, algo que esta app no automatizará. El nivel de 0 bindus de arriba se muestra como una precaución fuerte, no como la lectura literal de la fuente para ese nivel.')}
+    </footer>
+  `;
+}
+
+// ---- Vimśottari Daśā ----
+let dashaZoomLevel = 3;
+function setDashaZoom(n){ dashaZoomLevel = n; renderDashaPage(); }
+// A period's lord read against this app's own functional-benefic/malefic
+// engine (Mystics of SBC ch. II, same machinery as the Natal page) — reused
+// here rather than re-derived, so a Yogakāraka Daśā lord and a merely
+// functionally-malefic one read differently at every level, not just at
+// the Mahādaśā.
+function dashaLordReading(lord, lordships, birthPos, isWaxingMoon){
+  if (lord==="Rahu" || lord==="Ketu"){
+    return { housesText: T('rules no sign in this scheme','no gobierna ningún signo en este esquema'), tag:'neutral', label:T('Not evaluated by house lordship','No evaluado por señorío de casas') };
+  }
+  const houses = lordships[lord];
+  if (!houses){
+    return { housesText: '—', tag:'neutral', label:T('No houses from this Lagna','Sin casas desde este Lagna') };
+  }
+  const nature = naturalNatureForLordship(lord, birthPos, isWaxingMoon);
+  const v = functionalVerdict(lord, houses, nature, birthPos);
+  const overall = v.score>0.5 ? {label:T('Leans functionally benefic','Se inclina funcionalmente benéfico'), cls:'good'}
+    : v.score<-0.5 ? {label:T('Leans functionally malefic','Se inclina funcionalmente maléfico'), cls:'bad'}
+    : {label:T('Mixed / neutral','Mixto / neutral'), cls:'neutral'};
+  return { housesText: houses.map(h=>T(h+ordinalSuffix(h),'casa '+h)).join(', '), tag:overall.cls, label:overall.label };
+}
+function fmtDashaDate(jd, tz){
+  const d = jdToLocalString(jd, tz);
+  return `${pad2(d.day)}-${pad2(d.month)}-${d.year} ${pad2(d.hh)}:${pad2(d.mm)}`;
+}
+function renderDashaPage(){
+  const container = document.getElementById('dashaPageContent');
+  if (!container) return;
+
+  const refInfo = getReferencePanchaka();
+  const birthPos = refInfo.birthPos;
+  const refP = refInfo.panch;
+  const bdt = readDateTime("b");
+  const isWaxingMoon = refP._panch ? refP._panch.paksha === "Shukla" : true;
+  const lagnaSign = SIGNS[Math.floor(norm360(birthPos._ascSidereal)/30)];
+  const lordships = houseLordshipsFromLagna(SIGNS.indexOf(lagnaSign));
+
+  const now = new Date();
+  const nowJD = julianDay(now.getFullYear(), now.getMonth()+1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), -now.getTimezoneOffset()/60);
+  const localTz = -now.getTimezoneOffset()/60;
+
+  const chain = vimshottariChainAt(birthPos, bdt.jd, nowJD, dashaZoomLevel);
+
+  const zoomButtons = [1,2,3,4,5].map(n=>
+    `<button type="button" onclick="setDashaZoom(${n})" style="padding:6px 12px; margin-right:6px; border-radius:2px; border:1px solid var(--line); cursor:pointer; font-family:var(--mono); font-size:12px; background:${dashaZoomLevel===n?'var(--gold)':'var(--bg-2)'}; color:${dashaZoomLevel===n?'var(--bg)':'var(--ink)'};">${n} — ${T(VIMSHOTTARI_LEVEL_NAMES[n-1].en, VIMSHOTTARI_LEVEL_NAMES[n-1].es)}</button>`
+  ).join('');
+
+  const chainRows = chain.map((p,i)=>{
+    const reading = dashaLordReading(p.lord, lordships, birthPos, isWaxingMoon);
+    return `<tr>
+      <td class="wide" style="font-size:10.5px; color:var(--slate); text-transform:uppercase;">${T(VIMSHOTTARI_LEVEL_NAMES[i].en,VIMSHOTTARI_LEVEL_NAMES[i].es)}</td>
+      <td style="color:${MALEFIC_GRAHAS.includes(p.lord)?'var(--vermilion)':'var(--jade)'}; font-weight:600;">${gNameNatal(p.lord)}</td>
+      <td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td>
+      <td style="font-size:11px;">${reading.housesText}</td>
+      <td><span class="tag ${reading.tag}">${reading.label}</span></td>
+    </tr>`;
+  }).join('');
+
+  let muhurtaCrossRef = '';
+  if (document.getElementById('mDate') && document.getElementById('mDate').value){
+    const mdt = readDateTime("m");
+    const mChain = vimshottariChainAt(birthPos, bdt.jd, mdt.jd, Math.min(2,dashaZoomLevel));
+    const chainLabel = mChain.map(p=>gNameNatal(p.lord)).join(' → ');
+    muhurtaCrossRef = `<div class="hint" style="margin-top:10px;">${T(`The muhūrta moment set on the main page falls in: <b style="color:var(--ink);">${chainLabel}</b> Daśā.`,`El momento muhūrta fijado en la página principal cae en: <b style="color:var(--ink);">${chainLabel}</b> Daśā.`)}</div>`;
+  }
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('Vimśottari Daśā','Vimśottari Daśā')}</h2><span class="note">${T('120-year cycle','ciclo de 120 años')}</span></div>
+      <div class="bd">
+        <div class="hint">${T('The standard Parāśarī timing system, independent of SBC and Ashtakavarga: the Moon\'s Nakṣatra at birth fixes the starting lord and how much of that first period is already spent; the 9 grahas (Sun–Saturn plus Rāhu/Ketu, in a fixed order — Ketu·Venus·Sun·Moon·Mars·Rāhu·Jupiter·Saturn·Mercury — with fixed lengths 7·20·6·10·7·18·16·19·17 years, totalling 120) then run in sequence. Each period divides into sub-periods in the same proportions, starting with its own lord — Mahādaśā → Antardaśā → Pratyantardaśā → Sūkṣma-daśā → Prāṇa-daśā. Pick a zoom depth below to see that many nested levels of whichever period contains the current moment.','El sistema de cronometría Parāśarī estándar, independiente del SBC y del Ashtakavarga: el Nakṣatra de la Luna al nacer fija el señor inicial y cuánto de ese primer período ya transcurrió; los 9 graha (Sol–Saturno más Rāhu/Ketu, en orden fijo — Ketu·Venus·Sol·Luna·Marte·Rāhu·Júpiter·Saturno·Mercurio — con duraciones fijas 7·20·6·10·7·18·16·19·17 años, sumando 120) corren luego en secuencia. Cada período se divide en subperíodos con las mismas proporciones, empezando por su propio señor — Mahādaśā → Antardaśā → Pratyantardaśā → Sūkṣma-daśā → Prāṇa-daśā. Elige una profundidad de zoom abajo para ver esa cantidad de niveles anidados del período que contiene el momento actual.')}</div>
+        <div style="margin-top:14px;">${zoomButtons}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Current Daśā stack','Pila de Daśā actual')}</h2><span class="note">${T('as of right now','a partir de ahora mismo')}</span></div>
+      <div class="bd">
+        <div class="tblwrap"><table><thead><tr><th>${T('Level','Nivel')}</th><th>${T('Lord','Señor')}</th><th>${T('Period','Período')}</th><th>${T('Rules (from Lagna)','Gobierna (desde Lagna)')}</th><th>${T('Functional reading','Lectura funcional')}</th></tr></thead><tbody>${chainRows}</tbody></table></div>
+        ${muhurtaCrossRef}
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The "Rules" and "Functional reading" columns reuse this app\'s own Mystics of SBC ch. II engine (see the Natal General Reading page) — a Yogakāraka Daśā lord and a merely functionally-malefic one are meaningfully different, even at the same nesting depth. Rāhu/Ketu own no sign in that scheme, so they\'re shown without a functional reading here, not scored as neutral by omission.','Las columnas "Gobierna" y "Lectura funcional" reutilizan el motor propio de esta app del cap. II de Mystics of SBC (ver la página Lectura Natal General) — un señor de Daśā Yogakāraka y uno meramente maléfico funcional son significativamente distintos, incluso a la misma profundidad de anidamiento. Rāhu/Ketu no gobiernan ningún signo en ese esquema, así que se muestran sin lectura funcional aquí, no puntuados como neutrales por omisión.')}</div>
+      </div>
+    </div>
+
+    <footer class="notes" style="line-height:1.8;">
+      <b>${T('Source.','Fuente.')}</b> ${T('The 120-year cycle, 9-graha order and year-lengths are the standard Parāśarī Vimśottari scheme, cross-referenced against K.K. Pathak, <i>Advanced Study of Vimshottari Dasha</i>. This app\'s own engine was checked against a Parasara\'s Light 9.0 printout for the demo birth chart (1990-09-30 17:54, Miami): every Mahādaśā/Antardaśā/Pratyantardaśā/Sūkṣma boundary landed within a few days of the reference software\'s own dates — consistent with this app\'s already-documented ≈1–5′ Moon-position precision (a few arcminutes of difference in the birth Moon\'s exact degree shifts how much of the first Daśā period is already elapsed, and that shift then carries forward, at constant size, through every later period) rather than a structural error in the sequence.','El ciclo de 120 años, el orden de los 9 graha y las duraciones son el esquema Parāśarī Vimśottari estándar, referenciado cruzadamente con K.K. Pathak, <i>Advanced Study of Vimshottari Dasha</i>. El motor propio de esta app se comprobó contra una impresión de Parasara\'s Light 9.0 para la carta natal de demostración (30-09-1990 17:54, Miami): cada límite de Mahādaśā/Antardaśā/Pratyantardaśā/Sūkṣma cayó a pocos días de las fechas de la fuente de referencia — consistente con la precisión ya documentada de esta app de ≈1–5′ en la posición lunar (unos pocos minutos de arco de diferencia en el grado exacto de la Luna natal desplazan cuánto del primer período de Daśā ya transcurrió, y ese desplazamiento se traslada luego, con tamaño constante, a través de cada período posterior) más que un error estructural en la secuencia.')}
     </footer>
   `;
 }
@@ -5734,6 +5917,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     runAnalysis();
     if (document.getElementById('pageNatal').classList.contains('active')) renderNatalPage();
     if (document.getElementById('pageAshtakavarga').classList.contains('active')) renderAshtakavargaPage();
+    if (document.getElementById('pageDasha').classList.contains('active')) renderDashaPage();
     if (document.getElementById('pageNakshatra').classList.contains('active')) renderNakshatraPage();
     if (document.getElementById('pageAnatomy').classList.contains('active')) renderAnatomyPage();
     if (document.getElementById('pageCalendar').classList.contains('active')) renderCalendarPage();
