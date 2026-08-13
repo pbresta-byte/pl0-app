@@ -50,6 +50,14 @@
     --cell-ink:#575072;
     --hit-bad-bg:rgba(176,50,32,0.15);   --hit-bad-line:#b03220;  --hit-bad-ink:#8c2415;
     --hit-good-bg:rgba(23,117,80,0.15);  --hit-good-line:#177550; --hit-good-ink:#125c3e;
+    /* SBC quadrant zones (East/South/West/North ring) — deliberately NOT vermilion/jade/gold,
+       since those already mean malefic-hit/benefic-hit/reference-star elsewhere in this chart;
+       reusing them made an afflicted East-arm cell visually indistinguishable from the East
+       tint itself. Fresh hues (violet/teal/indigo/terracotta) instead. */
+    --zone-east-bg:rgba(107,63,160,0.10);  --zone-east-line:#6b3fa0;
+    --zone-south-bg:rgba(31,122,114,0.10); --zone-south-line:#1f7a72;
+    --zone-west-bg:rgba(58,73,163,0.10);   --zone-west-line:#3a49a3;
+    --zone-north-bg:rgba(138,74,47,0.12);  --zone-north-line:#8a4a2f;
     /* calendar tiers */
     --cal-uttama-bg:rgba(23,117,80,0.22);   --cal-uttama-line:#177550;
     --cal-madhyama-bg:rgba(23,117,80,0.10); --cal-madhyama-line:#177550;
@@ -97,6 +105,11 @@
     --cell-ink:#a49dc7;
     --hit-bad-bg:rgba(193,68,46,0.22);   --hit-bad-line:#c1442e;  --hit-bad-ink:#e7b3a8;
     --hit-good-bg:rgba(79,157,122,0.22); --hit-good-line:#4f9d7a; --hit-good-ink:#bfe3d3;
+    /* SBC quadrant zones — fresh hues, not vermilion/jade/gold (see light-theme comment) */
+    --zone-east-bg:rgba(155,127,212,0.18); --zone-east-line:#9b7fd4;
+    --zone-south-bg:rgba(79,184,174,0.18); --zone-south-line:#4fb8ae;
+    --zone-west-bg:rgba(139,151,232,0.16); --zone-west-line:#8b97e8;
+    --zone-north-bg:rgba(201,138,94,0.18); --zone-north-line:#c98a5e;
     --cal-uttama-bg:rgba(79,157,122,0.32);  --cal-uttama-line:#4f9d7a;
     --cal-madhyama-bg:rgba(79,157,122,0.14);--cal-madhyama-line:#4f9d7a;
     --cal-sama-bg:rgba(209,169,78,0.16);    --cal-sama-line:#d1a94e;
@@ -269,6 +282,12 @@
   @media (max-width: 760px){ .grid2{grid-template-columns:1fr;} }
   .grid3col{ display:grid; grid-template-columns: repeat(3,1fr); gap:10px; }
   @media (max-width: 700px){ .grid3col{grid-template-columns:repeat(2,1fr);} }
+  /* three full panels side by side (natal D1/D9/Ashtakavarga row) — unlike
+     .grid3col (small cells), these hold whole tables, so give them the same
+     18px gutter as .grid2 and collapse to one column sooner */
+  .grid3panel{ display:grid; grid-template-columns: repeat(3,1fr); gap:18px; }
+  @media (max-width: 1100px){ .grid3panel{grid-template-columns:1fr 1fr;} }
+  @media (max-width: 760px){ .grid3panel{grid-template-columns:1fr;} }
 
   /* panchanga strip */
   .strip{ display:flex; flex-wrap:wrap; gap:0; border:1px solid var(--line); background:var(--panel);}
@@ -323,6 +342,20 @@
     border:1px solid var(--jade-dim); background:rgba(79,157,122,0.07); padding:10px 12px; font-size:12px; color:var(--ink-dim);
     margin-bottom:12px;
   }
+  /* A classical source prediction/effect, called out distinctly from plain
+     .hint methodology text (which it would otherwise be visually
+     indistinguishable from — same gray, same size) so a reader recognizes
+     it as "here is what the old text actually says happens," not more
+     app fine print. */
+  .effect-box{
+    border-left:3px solid var(--gold); background:var(--house1);
+    padding:8px 12px; margin-top:8px; border-radius:0 3px 3px 0;
+  }
+  .effect-box .effect-label{
+    font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:0.09em;
+    color:var(--gold); margin-bottom:3px;
+  }
+  .effect-box .effect-text{ font-size:13px; color:var(--ink-dim); line-height:1.5; font-style:italic; }
 
   .pp-controls{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
   .pp-controls label{ margin:0; }
@@ -397,9 +430,8 @@
       <div class="hamburger-menu" id="hamburgerMenu" role="menu">
         <button type="button" data-page="pageMuhurta" class="active" data-i18n="navMuhurta">Muhūrta Gauge</button>
         <button type="button" data-page="pageNatal" data-i18n="navNatal">Natal General Reading</button>
-        <button type="button" data-page="pageAshtakavarga" data-i18n="navAshtakavarga">Ashtakavarga — Transit Strength</button>
+        <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">World Era</button>
         <button type="button" data-page="pageDasha" data-i18n="navDasha">Vimśottari Daśā</button>
-        <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">Nakṣatra Categories</button>
         <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
         <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Auspicious Calendar</button>
         <button type="button" data-page="pageAntara" data-i18n="navAntara">Antara Chakra (Portents)</button>
@@ -608,9 +640,8 @@ const I18N = {
   chartMenuHint: { en:`More chart types can be added to this menu later.`, es:`Más tipos de gráfico se pueden añadir a este menú más adelante.` },
   navMuhurta: { en:`Muhūrta Gauge`, es:`Muhūrta Gauge` },
   navNatal: { en:`Natal General Reading`, es:`Lectura Natal General` },
-  navAshtakavarga: { en:`Ashtakavarga — Transit Strength`, es:`Ashtakavarga — Fuerza de Tránsito` },
   navDasha: { en:`Vimśottari Daśā`, es:`Vimśottari Daśā` },
-  navNakshatra: { en:`Nakṣatra Categories`, es:`Categorías de Nakṣatra` },
+  navNakshatra: { en:`World Era`, es:`Era Mundial` },
   navAnatomy: { en:`Anatomy`, es:`Anatomía` },
   navCalendar: { en:`Auspicious Calendar`, es:`Calendario auspicioso` },
   navAntara: { en:`Antara Chakra (Portents)`, es:`Antara Chakra (Presagios)` },
@@ -897,19 +928,48 @@ const SAPTARISHI_EXTRA = [
       familiar Prabhāva...Kṣaya list — śl. 27-52), plus a parallel generic
       naming of "year 1-5 of any yuga" as Saṁvatsara/Parivatsara/Iḍāvatsara/
       Anuvatsara/Idvatsara (śl. 24). The chapter gives its own worked
-      example for anchoring the cycle to a real calendar (śl. 20-22 plus the
-      translator's footnote) but the translator's own footnote flags a
-      numeral discrepancy in the source scan (8589 vs. 8626) that they
-      couldn't fully resolve — so rather than replicate that shakier
-      digit-heavy arithmetic, this app anchors on the chapter's own
-      unambiguous statement instead: "Kaliyuga commenced in Vijaya, the
-      27th year from Prabhava" (śl. "Now it is known that Kaliyuga
-      commenced..."), combined with the standard, widely-agreed Kaliyuga
-      epoch (23 January 3102 BCE proleptic Gregorian, JD 588465.5) and the
-      chapter's own stated solar-to-Jupiter-year conversion (śl. 20-21:
-      "a solar year = 1 + 4/3750 years of Jupiter"). This is this app's own
-      bridging arithmetic built from the source's own clean statements, not
-      a literal replication of its harder-to-read constants.
+      formula for locating the current year of the 60-year cycle (śl. 20-21,
+      anchored to the Śaka era) plus a translator's NOTE deriving it.
+
+      RESOLVED 2026-08-13 (was previously flagged here as an unresolved
+      8589-vs-8626 discrepancy in the source scan — a user-supplied clean
+      photograph of p.48-51 settled it): both figures are real and correct,
+      for two different purposes. Śl. 20 itself says to add 8589. The
+      translator's NOTE separately re-derives the same constant using
+      Āryabhaṭa's published figure for Jupiter's sidereal revolutions per
+      kalpa (364,224,000) purely to explain the METHOD, and that alternate
+      derivation lands on 8626, not 8589 — the NOTE says so explicitly
+      ("It will be observed... the figure given in stanza 20 is 8589 and
+      not 8626") and explains why: Varāhamihira's verse was composed using
+      his own, slightly different figure (which the translator back-
+      calculates from 8589 to be 364,190,000 revolutions/kalpa, since his
+      own astronomical work Pañchasiddhāntikā doesn't survive complete
+      enough to state it directly). So 8589 is the verse's own constant and
+      the one this app now uses; 8626 was only ever the translator's
+      illustrative aside using a different astronomer's figure, not a
+      competing claim about what the verse says.
+
+      Implemented directly per śl. 20-21 rather than this app's earlier
+      Kaliyuga-epoch bridge (kept only as a comment below for the epoch
+      arithmetic, since śl. 20 itself is anchored to the Śaka era, not
+      Kaliyuga): let S = whole solar years elapsed since the Śaka epoch.
+        Q = floor((44×S + 8589) / 3750)      — śl. 20, verbatim
+        J = (Q + S) mod 60                    — śl. 21, verbatim
+      J is Jupiter's 0-indexed position in the 60-year cycle from Prabhava.
+      The Śaka epoch itself is derived as (Kaliyuga epoch + 3179 solar
+      years) using this same chapter's own stated figure for that gap
+      ("the number of solar years during the said period is 3179") rather
+      than an independently-cited Śaka epoch date, so the two epochs stay
+      internally consistent with each other by this chapter's own numbers
+      even if that 3179 differs slightly from other traditions' count.
+      A previous version of this function used 3750+44 as its solar-to-
+      Jupiter-year ratio but had a transcription slip (3750+4=3754, not
+      3750+44=3794) — fixed here as part of the same pass; the two
+      formulations are algebraically equivalent (verified by hand against
+      every intermediate value the translator's NOTE itself shows: 3179 ×
+      3794/3750 = 3216+1126/3750, +26 = 3242+1126/3750, mod 60 =
+      8626/3750 — all four numbers matched exactly before the 8589
+      substitution was made for the final, verse-faithful version above).
 
    English only for now — the same reasoning as the Antara Chakra chapter's
    English-only note: translating this much newly-transcribed prose into
@@ -1026,10 +1086,15 @@ const JUPITER_60_CYCLE = [
   "Kshaya — Much rain; brahmins fearful, farmers prosper; merchants, laborers and the acquisitive are happy."
 ];
 const KALIYUGA_EPOCH_JD = 588465.5; // 23 Jan 3102 BCE proleptic Gregorian, standard epoch
+const SOLAR_YEAR_DAYS = 365.25636;
+// Śaka epoch derived from the Kaliyuga epoch + this chapter's own stated
+// 3179-solar-year gap (see comment above) — not an independently-cited Śaka
+// date, so it can't drift out of step with this chapter's own numbers.
+const SAKA_EPOCH_JD = KALIYUGA_EPOCH_JD + 3179*SOLAR_YEAR_DAYS;
 function computeJupiter60Cycle(jd){
-  const solarYears = (jd - KALIYUGA_EPOCH_JD) / 365.25636;
-  const jupiterYears = solarYears * (3754/3750); // ch. VIII's own solar->Jupiter-year factor
-  const pos = (((Math.floor(jupiterYears) + 26) % 60) + 60) % 60; // +26: Kaliyuga = Vijaya = 27th (0-idx 26) from Prabhava
+  const S = Math.floor((jd - SAKA_EPOCH_JD) / SOLAR_YEAR_DAYS); // śl. 20: "past solar years from the Śaka prince"
+  const Q = Math.floor((44*S + 8589) / 3750);                   // śl. 20, verbatim
+  const pos = (((Q + S) % 60) + 60) % 60;                       // śl. 21, verbatim
   const yugaIdx = Math.floor(pos/5), subYearIdx = pos%5;
   return { pos, yugaIdx, subYearIdx, entry: JUPITER_60_CYCLE[pos],
     yugaDeity: JUPITER_YUGA_DEITIES[yugaIdx], subYear: JUPITER_SUBYEAR_NAMES[subYearIdx] };
@@ -1710,6 +1775,405 @@ function sbcSignVedhaLiveNow(pos){
   return hits;
 }
 
+/* =========================================================================
+   CHAPTER XV — "Forecasting Methodology: How to Determine Prices of
+   Commodities" (M.K. Agarwal, Mystics of Sarvato Bhadra Chakra, ed. Chistabo
+   2012, p.55-62). Distinct from ch. XVII's SBC_STAR_COMMODITIES table above:
+   that one is a plain static commodity list per star; this chapter instead
+   grades a star's commodities as Teji (price RISE) when it takes malefic
+   Vedha right now, or Mandi (price FALL) when it takes benefic Vedha —
+   "Note: Teji stands for rise in Prices & Mandi for decline." Live-checked
+   below by reusing this app's own VEDHA_TABLE/vedhaTarget/vedhaDirectionOf
+   machinery (the same per-graha Vedha-casting logic evaluateVedha() already
+   uses for a birth Nakṣatra, just checked here across all 28 stars at once).
+
+   Transcription note: the source PDF's own text layer has the per-star
+   "Impact starts from <direction> (& remains for <duration>)" line visibly
+   DISPLACED for 4 of the 28 rows (Anuradha, P.Shada, Sravana, P.Bhadrapada
+   each print with no direction line of their own, while the immediately
+   NEXT row prints an extra direction line before its own) — confirmed a
+   genuine defect in the source scan itself (not a pdftotext artifact: the
+   raw, non -layout text stream shows the identical displacement) by cross-
+   checking PDF page 59 against the user's own photographed page scans,
+   which resolve all 4 pairs cleanly. The `direction`/`duration` fields below
+   reflect that resolved, scan-verified reading, not the raw OCR order.
+   Like ch. XVII's tables, commodity lists here are shown as transcribed
+   English source text in both languages (this file's own established
+   precedent for large raw commodity-list data — see SBC_STAR_COMMODITIES
+   etc. above, none of which carry a separate ES string either); only this
+   panel's surrounding UI chrome is bilingual via T(). */
+const SBC_TEJI_MANDI_STARS = {
+  Aswini:        { commodities:"ghee, rice, clothes, animals", direction:"North", duration:"60 days" },
+  Bharani:       { commodities:"wheat, rice, kali mirch, sonth", direction:"South", duration:"8 months" },
+  Krittika:      { commodities:"rice, gram, grains, til, oil, diamond, gems, gold, silver", direction:"South", duration:"8 months" },
+  Rohini:        { commodities:"grains, liquids, oils & metals", direction:"East", duration:"7 days" },
+  Mrigasira:     { commodities:"animals & liquids", direction:"North", duration:"begins after 3 days" },
+  Ardra:         { commodities:"oil, salt, liquids, sandal & scented items", direction:"West", duration:null },
+  Punarvasu:     { commodities:"cotton, thread, jute goods & til", direction:"North & North-East", duration:null },
+  Pushya:        { commodities:"gold, silver, ghee, rice, salt, heeng, oils", direction:"North & North-South", duration:null },
+  Ashlesha:      { commodities:"gur, sugar, masoor, wheat", direction:"West", duration:null },
+  Magha:         { commodities:"ghee, oil, til, gram, gur", direction:"South", duration:null },
+  "P.Phalguni":  { commodities:"woolen clothes, wool, oils & silver", direction:"South", duration:null },
+  "U.Phalguni":  { commodities:"urad, moong, rice", direction:"North", duration:null },
+  Hasta:         { commodities:"sandal & camphor", direction:"North", duration:null },
+  Chitra:        { commodities:"gold, gems, gur, urad, moong, animals", direction:"North", duration:null },
+  Swati:         { commodities:"chilies, oil & heeng", direction:"North", duration:null },
+  Visakha:       { commodities:"rice, wheat, moong, masoor & moth", direction:"South", duration:null },
+  Anuradha:      { commodities:"arhar, grains, rice & gram", direction:"East", duration:null },
+  Jyeshta:       { commodities:"gur, camphor, mercury (quicksilver) & heeng", direction:"East", duration:null },
+  Moola:         { commodities:"white commodities, cotton & grains", direction:"West", duration:null },
+  "P.Shada":     { commodities:"ghee & grains", direction:"West", duration:null },
+  "U.Shada":     { commodities:"animals, iron, brass & copper", direction:"East", duration:null },
+  Abhijit:       { commodities:"moong, sonth", direction:"East", duration:null },
+  Sravana:       { commodities:"sugar, grains & sweet commodities", direction:"East", duration:null },
+  Dhanishta:     { commodities:"gold, silver, pearls & gems", direction:"East", duration:null },
+  Satabisha:     { commodities:"oils & wines", direction:"West", duration:null },
+  "P.Bhadrapada":{ commodities:"metals, grains & medicines", direction:"South", duration:null },
+  "U.Bhadrapada":{ commodities:"gur, sugar, til & oils", direction:"West", duration:null },
+  Revati:        { commodities:"pearl, gems & betelenuts", direction:"North", duration:null }
+};
+// Live: for every one of the 28 stars, which grahas are casting Vedha on it
+// right now, split by nature — malefic Vedha => Teji (rise), benefic Vedha
+// => Mandi (fall), per this chapter's own stated rule.
+function sbcTejiMandiLiveNow(pos){
+  const result = {};
+  NAK28_ORDER.forEach(s=>{ result[s] = {tejiHits:[], mandiHits:[]}; });
+  for (const g of GRAHA_LIST){
+    const gSid = pos[g].sidereal;
+    const gStar28 = nakshatraFromSidereal(gSid, true).name;
+    const dir = vedhaDirectionOf(g, pos[g].speed);
+    const targetStar = vedhaTarget(gStar28, dir);
+    if (!targetStar || !result[targetStar]) continue;
+    if (MALEFIC_GRAHAS.includes(g)) result[targetStar].tejiHits.push(g);
+    else result[targetStar].mandiHits.push(g);
+  }
+  return result;
+}
+
+/* Ch. XV, "Impact of Planets on Prices, due to Vedha of Signs" — a second,
+   independent price rule from the same chapter: each of the 9 classical
+   grahas gets its own Rise/Fall commodity clause(s) per zodiac sign it
+   transits (not Vedha-based like the star table above — a plain "graha X in
+   sign Y" placement rule). Transcribed and independently cross-verified
+   against the source text (chunked transcription + independent re-derivation
+   pass, each sign checked twice); one genuine source-layout error was caught
+   and corrected in the raw extraction — Gemini's "Moon in Gemini:" header
+   prints fused onto the tail of what is actually Moon's own wrapped Rise
+   clause, with that whole clause misread as a second Sun clause in a naive
+   read. Some cells carry two Rise (or two Fall) clauses for the same graha
+   (the source itself does this, not a transcription artifact) — kept as
+   separate entries, in print order. Aries is the only sign where Rahu and
+   Ketu share one combined "Rahu / Ketu in Aries" line; every other sign
+   gives Rahu his own line with NO separate Ketu line at all, which this
+   table preserves rather than inventing a Ketu entry. rise/fall are ""
+   when the source gives no such clause for that entry. */
+const SBC_PRICE_BY_SIGN_PLANET = {
+  Aries: [
+    {planet:"Sun", rise:"Rise in cotton, ghee, oil, til, sarso, almond, gur, sugar, gold & silver.", fall:"Fall in wheat, rice, urad, moong, arhar, gram & peas."},
+    {planet:"Moon", rise:"Rise in wheat, gram, alsi & opium.", fall:""},
+    {planet:"Mars", rise:"Rise in gur, gold, silver, metals, red coral, pearl, wool & cotton.", fall:"Fall in gold & silver."},
+    {planet:"Mars", rise:"", fall:"Fall in wheat & other grains."},
+    {planet:"Mercury", rise:"Rise in animals.", fall:"Fall in gold, silver, metals, wheat, gram, til, mustard oil, cotton, ghee, gur & sugar."},
+    {planet:"Jupiter", rise:"Rise in cotton.", fall:"Fall in gold, silver, copper, gur & silk."},
+    {planet:"Venus", rise:"Rise in gram, wheat, grains, ghee, gold, silver, gur.", fall:""},
+    {planet:"Saturn", rise:"Rise in gold, silver, copper, metals, til, oil, ghee, cotton.", fall:"Fall in wool, til & oil."},
+    {planet:"Rahu / Ketu", rise:"", fall:"Fall in gur, sugar & oil."}
+  ],
+  Taurus: [
+    {planet:"Sun", rise:"Rise in wheat, gram and grains.", fall:""},
+    {planet:"Sun", rise:"Rise in silver, gold, gur, sugar, cotton & oil.", fall:""},
+    {planet:"Moon", rise:"Rise in wheat, gram, urad, til, ground nut, silver & cotton.", fall:"Fall in wheat, gram, arhar, moong and rice."},
+    {planet:"Mars", rise:"", fall:"Fall in animals."},
+    {planet:"Mercury", rise:"Rise in red items, grains, cotton, oil, gold, silver, copper & shares.", fall:""},
+    {planet:"Jupiter", rise:"Rise in wheat, gram & rice, cotton & oil.", fall:""},
+    {planet:"Jupiter", rise:"Rise in cotton, silver & grains.", fall:""},
+    {planet:"Venus", rise:"Rise in gold & silver.", fall:"Fall in salt & red things."},
+    {planet:"Saturn", rise:"Rise in gur, sugar cotton, gold, silver, copper, oils, wheat, grains & rice.", fall:"Fall in grains & cotton."},
+    {planet:"Rahu", rise:"", fall:"Fall in Saturn's transit during last 6 months of the transit period."}
+  ],
+  Gemini: [
+    {planet:"Sun", rise:"Rise in oils, gur, sugar & cotton.", fall:""},
+    {planet:"Moon", rise:"Rise in silk, cotton, steel, oil, gur, sugar, ghee, moong, urad, wheat, gram, rice, gold & silver.", fall:""},
+    {planet:"Mars", rise:"Rise in cotton, wheat & gram.", fall:""},
+    {planet:"Mercury", rise:"Rise in gur, sugar, copper & red items.", fall:""},
+    {planet:"Mercury", rise:"Rise in animals.", fall:""},
+    {planet:"Jupiter", rise:"Rise in copper, steel & ghee.", fall:"Fall in gold, silver & sarso."},
+    {planet:"Venus", rise:"Rise in wheat, gram & rice.", fall:"Fall in cotton, gold, silver, cloth & ground nut."},
+    {planet:"Saturn", rise:"Rise in salt, oils, gur & steel.", fall:"Fall in cotton, cloth, oil, arhar, gur & ghee."},
+    {planet:"Rahu", rise:"Rise in cotton, ghee, grains and yarn.", fall:"Fall in gold and animals."}
+  ],
+  Cancer: [
+    {planet:"Sun", rise:"Rise in gur, sugar; silver, gold, oil, cotton & sarso.", fall:"Fall in silver and gold."},
+    {planet:"Moon", rise:"", fall:"Fall in wheat, gram, matar, arhar, urad, moong & rice."},
+    {planet:"Mars", rise:"Rise in grains, gur, sugar & animals.", fall:"Fall in silver, gold & cotton if aspected by Jupiter."},
+    {planet:"Mercury", rise:"Rise in silver; gur, oil & ground nut for short period.", fall:"Fall in oils, silver, if relation with benefic planets."},
+    {planet:"Jupiter", rise:"", fall:"Fall in cotton, gold, grains & white cloth."},
+    {planet:"Venus", rise:"Rise in cotton, gur, sugar, ghee, wheat & grains.", fall:""},
+    {planet:"Venus", rise:"Rise in cotton, oils, ghee, gur & sugar.", fall:""},
+    {planet:"Saturn", rise:"", fall:"Fall in silver, wheat, gram & arhar."},
+    {planet:"Rahu", rise:"Rise in cotton.", fall:""}
+  ],
+  Leo: [
+    {planet:"Sun", rise:"Rise in steel, copper, brass, gold, silver, wheat & rice.", fall:""},
+    {planet:"Sun", rise:"Rise in silver, gold, gur, cotton, sugar & oil.", fall:""},
+    {planet:"Moon", rise:"", fall:"Fall in grains & shares."},
+    {planet:"Mars", rise:"Rise in camphor, cotton, silver, gold.", fall:""},
+    {planet:"Mercury", rise:"Rise in Silver, gold, copper, steel, gur, sugar, wheat, red chillies & red color items.", fall:""},
+    {planet:"Mercury", rise:"Rise in silver, gold, cotton & woolen items.", fall:""},
+    {planet:"Jupiter", rise:"Rise in ghee, wheat and cotton if alone.", fall:"Fall in gur, sugar & camphor."},
+    {planet:"Venus", rise:"Rise in gold, copper, gram, wheat, ghee, animals.", fall:"Fall in silver, gold, copper and steel."},
+    {planet:"Venus", rise:"", fall:"Fall in silver."},
+    {planet:"Saturn", rise:"Rise in gur, oil, steel, urad, grains and cotton when Saturn is 6° to 7°.", fall:""},
+    {planet:"Rahu", rise:"Rise in oil and kiryana items.", fall:"Fall in wheat & grains."}
+  ],
+  Virgo: [
+    {planet:"Sun", rise:"Rise in oil, cotton & red items.", fall:"Fall in silver & shares."},
+    {planet:"Moon", rise:"Rise in gold, silver & steel.", fall:"Fall in cotton."},
+    {planet:"Mars", rise:"Rise in cotton, gold, silver, wool, wheat and all type of red items.", fall:""},
+    {planet:"Mercury", rise:"Rise in wheat, gram, gur, sugar & haldi.", fall:"Fall in cotton & silver."},
+    {planet:"Jupiter", rise:"Rise in rice, wheat, moong, urad, gram, oil, ghee, gur & sugar.", fall:"Fall in cotton, silver & grains."},
+    {planet:"Venus", rise:"Rise in silver, wheat, grains, gur, woolen clothes and rice.", fall:""},
+    {planet:"Saturn", rise:"Rise in cotton, gur, sugar, grains - for some time.", fall:"Fall in gold & silver."},
+    {planet:"Rahu", rise:"Rise in cotton.", fall:"Fall in oil, sarso & til."}
+  ],
+  Libra: [
+    {planet:"Sun", rise:"Rise in wheat, gram, gold & copper.", fall:"Fall in silver & cotton."},
+    {planet:"Moon", rise:"", fall:"Fall in rice, ghee, ground nut, silver & gold."},
+    {planet:"Mars", rise:"Rise in gur, sugar, wheat, urad, moong & grains.", fall:"Fall in prices if associated with Jupiter."},
+    {planet:"Mercury", rise:"Rise in cotton, gur, sugar & gold.", fall:"Fall in silver, ground nut & oils."},
+    {planet:"Jupiter", rise:"Rise in gold & cotton.", fall:"Fall in ghee, oil & sarso."},
+    {planet:"Venus", rise:"Rise in gold, gur & sugar.", fall:"Fall in cotton & silver."},
+    {planet:"Saturn", rise:"Rise in gur, cotton, sugar & grains.", fall:"Fall in cotton when Saturn is 15° in Libra."},
+    {planet:"Rahu", rise:"Rise in grains.", fall:""}
+  ],
+  Scorpio: [
+    {planet:"Sun", rise:"Rise in cotton, copper, gold, silver & woolen items.", fall:"Fall in red colored items."},
+    {planet:"Moon", rise:"", fall:"Fall in gold, silver & pearls."},
+    {planet:"Mars", rise:"Rise in gur, gold, silver & cotton.", fall:""},
+    {planet:"Mercury", rise:"Rise in ghee, oil, silver & gold.", fall:"Fall in grains."},
+    {planet:"Jupiter", rise:"Rise in cotton, gold, silver, copper, ghee, oil, gur & urad, dal & grains for short period.", fall:""},
+    {planet:"Venus", rise:"Rise in wheat, urad, moong, moth, bajra, silver and gur.", fall:""},
+    {planet:"Saturn", rise:"Rise in wheat, gram, masoor, cotton & silver.", fall:"Fall in prices if Saturn has benefic aspect."},
+    {planet:"Rahu", rise:"Rise in cotton, gold & silver for short period.", fall:""}
+  ],
+  Sagittarius: [
+    {planet:"Sun", rise:"Rise in cotton, til, oil, gold, silver.", fall:"Fall in grains."},
+    {planet:"Moon", rise:"", fall:"Fall in til, oil, cotton & cotton clothes."},
+    {planet:"Mars", rise:"Rise in cotton, silver, metals, ghee, grains and animals.", fall:""},
+    {planet:"Mercury", rise:"Rise in cotton & silver if relation with malefic planets, otherwise fall in price.", fall:""},
+    {planet:"Jupiter", rise:"Rise in gur if associated with Saturn.", fall:"Fall in sugar, gur, wheat, salt, oil, ghee, gold, silver, brass, steel, copper & coins."},
+    {planet:"Venus", rise:"Rise in wheat, gram, grains, silver, gold & copper.", fall:"Fall in cotton."},
+    {planet:"Saturn", rise:"Rise in wheat, gram, grains, gur, sugar & coal.", fall:""},
+    {planet:"Rahu", rise:"Rise in cotton & animals after a month.", fall:""}
+  ],
+  Capricorn: [
+    {planet:"Sun", rise:"Rise in ghee, oil, gur, sugar & cotton.", fall:"Fall in wheat & grains."},
+    {planet:"Moon", rise:"Rise in all types of metals.", fall:""},
+    {planet:"Mars", rise:"Rise in gold, silver, copper, gur, ghee, oil & wool etc.", fall:"Fall in grains when having benefic aspect."},
+    {planet:"Mercury", rise:"Rise in cotton, gold, silver.", fall:"Fall in grains."},
+    {planet:"Jupiter", rise:"Rise in wheat, gram, cotton, copper, gold, silver.", fall:"Fall in prices when Jupiter has benefic relations."},
+    {planet:"Venus", rise:"Rise in shares, gur, ghee, wheat, gram & grains.", fall:""},
+    {planet:"Saturn", rise:"Rise in cotton, silver, gold, copper, wheat, oil & all types of grains.", fall:""},
+    {planet:"Rahu", rise:"Rise in gram & wheat.", fall:"Fall in gur & sarso."}
+  ],
+  Aquarius: [
+    {planet:"Sun", rise:"Rise in ghee, oil, salt & ground nut.", fall:""},
+    {planet:"Moon", rise:"", fall:"Fall in cotton, wheat, grains, gur & sugar."},
+    {planet:"Moon", rise:"Rise in oil, til & ground nut.", fall:"Fall in cotton, gold & silver."},
+    {planet:"Mars", rise:"Rise in wheat, grains, gur & gold.", fall:"Fall in silver & cotton."},
+    {planet:"Mercury", rise:"Rise in ghee, oil, gur & sugar.", fall:"Fall in silver & cotton."},
+    {planet:"Jupiter", rise:"Rise in gold, copper, brass, steel etc. after 3 months & cotton upto 6 months.", fall:""},
+    {planet:"Venus", rise:"Rise in cotton when Venus is 24°.", fall:""},
+    {planet:"Saturn", rise:"Rise in oils, silver, grains & shares.", fall:"Fall in silver, gur, wheat, gram, moong & white things."},
+    {planet:"Rahu", rise:"Rise in oils & other items if related to malefic planets.", fall:"Fall in prices if related to benefic planets."}
+  ],
+  Pisces: [
+    {planet:"Sun", rise:"Rise in oil, gur, sugar, cotton & gold.", fall:"Fall in silver possible."},
+    {planet:"Moon", rise:"", fall:"Fall in gold & silver."},
+    {planet:"Mars", rise:"Rise in gold, cotton, woolen items.", fall:"Fall in silver."},
+    {planet:"Mercury", rise:"Rise in gold & silver for short period.", fall:"Fall in gur, cotton & sugar."},
+    {planet:"Jupiter", rise:"Rise in cotton for 6 months, also rise in wheat, gur, urad, sugar, salt etc.", fall:""},
+    {planet:"Venus", rise:"Rise in silver.", fall:"Fall in grains, oil, gur & sugar if benefic relation."},
+    {planet:"Saturn", rise:"Rise in gur, sugar, ghee & grains, gold & silver for first 6 months.", fall:"Fall in prices afterwards."},
+    {planet:"Rahu", rise:"Rise in grains & cotton.", fall:"Fall in gold & silver."}
+  ]
+};
+// Live: each classical graha's own current sign, looked up against the table above.
+function sbcPriceBySignLiveNow(pos){
+  const out = {};
+  for (const g of GRAHA_LIST){
+    const sign = SIGNS[Math.floor(norm360(pos[g].sidereal)/30)];
+    const rows = (SBC_PRICE_BY_SIGN_PLANET[sign]||[]).filter(e=>e.planet.split('/').map(s=>s.trim()).includes(g));
+    out[g] = { sign, rows };
+  }
+  return out;
+}
+
+/* Ch. XV, "Special norms for Teji & Mandi" (p.61-62) — per-planet advisory
+   rules. Live-computed rather than shown as a static reference list: the
+   ~15 clauses below that name a discrete, checkable condition (a
+   conjunction, a dignity, a sign quality, a direction of motion) are
+   evaluated live against the real sky by sbcSpecialConditionsLiveNow();
+   a handful of the source's clauses are genuinely NOT discrete conditions
+   (e.g. "Moon: an indicator of daily fluctuations", "Venus: causes both
+   Mandi & Teji", "Saturn: causes Teji" with no stated trigger) and are left
+   out rather than forced into a fake live check. "Conjunct" below means
+   same-sign, this app's existing convention for a planetary conjunction
+   (see ch. XLII śl.14's Full/New-Moon rule elsewhere in this app). Uranus
+   and Neptune are computed only for this engine (see OUTER_PLANET_ELEMENTS/
+   computeOuterPositions() above) and Pluto is not computed at all (see that
+   comment) — the 2 clauses naming Pluto specifically stay uncomputed.
+   The source calls Uranus "Hershel," per an editor's bracketed note. */
+// Classical combustion (Astāngata) orbs — standard across Vedic astrology
+// texts generally (this chapter doesn't itself define an orb), used only to
+// support its own "Sun: trend reverses if Sun is with a combust planet"
+// clause. Mercury/Venus get a tighter orb when retrograde, per the same
+// standard convention.
+const COMBUSTION_ORB_DEG = { Moon:12, Mars:17, Mercury:14, Jupiter:11, Venus:10, Saturn:15 };
+function findCombustPlanet(pos){
+  for (const g of Object.keys(COMBUSTION_ORB_DEG)){
+    let diff = Math.abs(norm360(pos[g].sidereal - pos.Sun.sidereal));
+    if (diff>180) diff = 360-diff;
+    const orb = (g==="Mercury" && pos.Mercury.speed<0) ? 12 : (g==="Venus" && pos.Venus.speed<0) ? 8 : COMBUSTION_ORB_DEG[g];
+    if (diff<=orb) return g;
+  }
+  return null;
+}
+// Backward day-step search (capped at 40 days) for how long a graha has sat
+// in its current sign — used only for the ">25 days" Mercury clause.
+function daysInCurrentSign(graha, pos, jd, ayanamsaMode){
+  const startSign = Math.floor(norm360(pos[graha].sidereal)/30);
+  for (let i=1;i<=40;i++){
+    const p = computePositions(jd-i, 0, 0, ayanamsaMode);
+    if (Math.floor(norm360(p[graha].sidereal)/30) !== startSign) return i-1;
+  }
+  return 40;
+}
+function sbcSpecialConditionsLiveNow(pos, jd, ayanamsaMode){
+  const outer = computeOuterPositions(jd, ayanamsaMode);
+  const allSid = {}; GRAHA_LIST.forEach(g=>allSid[g]=pos[g].sidereal); allSid.Uranus=outer.Uranus.sidereal; allSid.Neptune=outer.Neptune.sidereal;
+  const signIdxOf = g => Math.floor(norm360(allSid[g])/30);
+  const sameSign = (a,b) => signIdxOf(a)===signIdxOf(b);
+  // Sun/Moon take an article in flowing conjunction phrases ("conjunct the
+  // Sun" / "en conjunción con el Sol") the way no other graha name does;
+  // GRAHA_ES itself deliberately carries no article (it's also used in
+  // plain table cells elsewhere).
+  const EN_ARTICLE = {Sun:"the Sun", Moon:"the Moon"}, ES_ARTICLE = {Sun:"el Sol", Moon:"la Luna"};
+  const OUTER_ES = {Uranus:"Urano", Neptune:"Neptuno"}; // ordinary Spanish names, unlike this source's own idiosyncratic "Hershel"
+  const enOf = g => EN_ARTICLE[g] || g, esOf = g => ES_ARTICLE[g] || GRAHA_ES[g] || OUTER_ES[g] || g;
+
+  const items = [];
+  const push = (kind, en, es) => items.push({kind, en, es});
+
+  if (sameSign("Mercury","Sun")){
+    const dig = dignityTier("Mercury", pos.Mercury.sidereal);
+    if (dig==="Exalted") push("teji", "Mercury is exalted, conjunct the Sun", "Mercurio está exaltado, en conjunción con el Sol");
+    else if (dig==="Debilitated") push("mandi", "Mercury is debilitated, conjunct the Sun", "Mercurio está debilitado, en conjunción con el Sol");
+    else push("info", "Mercury conjunct the Sun — expect a lot of fluctuation", "Mercurio en conjunción con el Sol — se espera mucha fluctuación");
+  }
+  {
+    const diff = norm360(pos.Mercury.sidereal - pos.Sun.sidereal);
+    if (diff>0 && diff<180) push("mandi", "Mercury is ahead of the Sun", "Mercurio va por delante del Sol");
+  }
+  if (pos.Mercury.speed<0) push("info", "Mercury is retrograde — today's trend likely holds for about 7 days", "Mercurio está retrógrado — la tendencia de hoy probablemente se mantenga unos 7 días");
+  {
+    const days = daysInCurrentSign("Mercury", pos, jd, ayanamsaMode);
+    if (days>25) push("info", `Mercury has held ${SIGNS[signIdxOf("Mercury")]} for over 25 days — sudden, short-lived fluctuations likely`, `Mercurio lleva más de 25 días en ${SIGNS[signIdxOf("Mercury")]} — se esperan fluctuaciones repentinas y breves`);
+  }
+  {
+    const jupSign = SIGNS[signIdxOf("Jupiter")];
+    if (SIGN_QUALITY[jupSign]==="Moving") push("mandi", `Jupiter is in ${jupSign}, a moveable sign`, `Júpiter está en ${jupSign}, un signo móvil`);
+  }
+  {
+    const p = MALEFIC_GRAHAS.filter(m=>sameSign("Jupiter",m));
+    if (p.length) push("teji", `Jupiter conjunct ${p.map(enOf).join("/")}`, `Júpiter en conjunción con ${p.map(esOf).join("/")}`);
+  }
+  if (sameSign("Jupiter","Uranus")) push("teji", "Jupiter conjunct Uranus — sudden Teji", "Júpiter en conjunción con Urano — Teji repentino");
+  if (sameSign("Venus","Mercury")) push("mandi", "Venus conjunct Mercury", "Venus en conjunción con Mercurio");
+  {
+    const p = ["Rahu","Neptune"].filter(x=>sameSign("Saturn",x));
+    if (p.length) push("teji", `Saturn conjunct ${p.map(enOf).join(" & ")} — Teji due to shortage`, `Saturno en conjunción con ${p.map(esOf).join(" y ")} — Teji por escasez`);
+  }
+  {
+    const p = ["Saturn","Neptune"].filter(x=>sameSign("Mars",x));
+    if (p.length) push("teji", `Mars conjunct ${p.map(enOf).join(" & ")}`, `Marte en conjunción con ${p.map(esOf).join(" y ")}`);
+  }
+  {
+    const mal = MALEFIC_GRAHAS.filter(m=>sameSign("Uranus",m));
+    if (mal.length) push("teji", `Uranus conjunct ${mal.map(enOf).join("/")}`, `Urano en conjunción con ${mal.map(esOf).join("/")}`);
+    const ben = BENEFIC_GRAHAS.filter(m=>sameSign("Uranus",m));
+    if (ben.length) push("mandi", `Uranus conjunct ${ben.map(enOf).join("/")}`, `Urano en conjunción con ${ben.map(esOf).join("/")}`);
+  }
+  {
+    const mal = MALEFIC_GRAHAS.filter(m=>sameSign("Neptune",m));
+    if (mal.length) push("teji", `Neptune conjunct ${mal.map(enOf).join("/")}`, `Neptuno en conjunción con ${mal.map(esOf).join("/")}`);
+    const ben = BENEFIC_GRAHAS.filter(m=>sameSign("Neptune",m));
+    if (ben.length) push("mandi", `Neptune conjunct ${ben.map(enOf).join("/")}`, `Neptuno en conjunción con ${ben.map(esOf).join("/")}`);
+  }
+  {
+    const cp = findCombustPlanet(pos);
+    if (cp) push("info", `${enOf(cp)} is combust — any Sun-driven Teji/Mandi trend elsewhere on this page reads reversed`, `${esOf(cp)} está ${cp==="Moon"?"combusta":"combusto"} — cualquier tendencia de Teji/Mandi impulsada por el Sol en esta página se lee invertida`);
+  }
+  return items;
+}
+
+/* =========================================================================
+   CHAPTER XVI — "Forecasting Methodology: Impact of Vedha on Hindu Casts"
+   (M.K. Agarwal, Mystics of Sarvato Bhadra Chakra, ed. Chistabo 2012, p.63)
+   — a short chapter: specifically Saturn's Vedha (not malefics generally,
+   despite the chapter's own opening line saying "Malefic Planets" — every
+   worked example in the text names Saturn only) lands on one of the 28
+   stars; which of 4 named groups that star falls in determines who
+   "suffers." Live-checked below by reusing this app's own Vedha-casting
+   machinery for Saturn specifically, plus a check of whether any of the 4
+   benefic-exception planets are independently landing their own Vedha on
+   that same star (source: "In case there is benefic Vedha by benefic
+   Planets - Jupiter, Venus, Mercury & Moon, benefic results will take place"
+   instead).
+
+   Transcription note: the source's "other casts" group is introduced as
+   "the remaining 12 Stars" but only 11 names are actually printed —
+   independently re-derived and confirmed against the source text (not a
+   transcription slip on this app's part; the book's own printed list is
+   short one star). Checking all 28 stars against the 4 named groups (16
+   stars) plus this printed 11-star "others" list accounts for 27 of 28 —
+   Ardra is the one star never named anywhere in the chapter, and is very
+   likely the star silently dropped from the printed list (which would make
+   the source's own stated count of 12 arithmetically correct). This app
+   does NOT insert Ardra into the transcribed list — the group below is kept
+   to exactly the 11 names the source prints — but flags a Saturn-on-Ardra
+   Vedha as an unresolved case in the UI rather than silently miscategorizing
+   it into one of the 4 named groups or the printed "others" list. */
+const CH16_CASTE_GROUPS = {
+  brahmins: ["Krittika", "P.Phalguni", "P.Shada", "P.Bhadrapada"],
+  vaishyas: ["Revati", "Anuradha", "Magha", "Rohini"],
+  sudras: ["Punarvasu", "Aswini", "Hasta", "Abhijit"],
+  kshatriyas: ["Pushya", "U.Phalguni", "U.Shada", "U.Bhadrapada"],
+  others: ["Bharani", "Mrigasira", "Ashlesha", "Chitra", "Swati", "Visakha", "Jyeshta", "Moola", "Sravana", "Dhanishta", "Satabisha"],
+  beneficExceptionPlanets: ["Jupiter", "Venus", "Mercury", "Moon"]
+};
+function ch16CasteGroupOf(star){
+  if (!star) return null;
+  for (const key of ["brahmins","vaishyas","sudras","kshatriyas","others"]){
+    if (CH16_CASTE_GROUPS[key].includes(star)) return key;
+  }
+  return star === "Ardra" ? "unresolved" : null;
+}
+function ch16CasteVedhaLiveNow(pos){
+  const satSid = pos.Saturn.sidereal;
+  const satStar = nakshatraFromSidereal(satSid, true).name;
+  const satDir = vedhaDirectionOf("Saturn", pos.Saturn.speed);
+  const targetStar = vedhaTarget(satStar, satDir);
+  const group = ch16CasteGroupOf(targetStar);
+  const beneficOverrides = CH16_CASTE_GROUPS.beneficExceptionPlanets.filter(g=>{
+    const gSid = pos[g].sidereal;
+    const gStar = nakshatraFromSidereal(gSid, true).name;
+    const gDir = vedhaDirectionOf(g, pos[g].speed);
+    return vedhaTarget(gStar, gDir) === targetStar;
+  });
+  return { satStar, satDir, targetStar, group, beneficOverrides };
+}
+
 /* Kālapuruṣa ("cosmic body") sign-to-body-zone map — the standard classical
    correspondence (Aries=head ... Pisces=feet) used across Jyotiṣa/Āyurveda for
    reading "which part of the body a sign governs." Descriptions here (goodFor /
@@ -1820,12 +2284,33 @@ const PLANET_ELEMENTS = {
   Saturn:  {a:[9.54149883,-0.00003065], e:[0.05550825,-0.00032044], i:[2.49424102,0.00451969],
             L:[50.07571329,1222.11494724], w:[92.86136063,0.54179478], O:[113.63998702,-0.25015002]}
 };
+/* Uranus/Neptune — same JPL "Table 1" Keplerian-elements-and-rates format as
+   PLANET_ELEMENTS above (1800-2050 AD validity window), independently
+   confirmed byte-identical across two separate JPL pages (ssd.jpl.nasa.gov's
+   PDF and HTML renderings of the same table) before use. Deliberately kept
+   OUT of PLANET_ELEMENTS/GRAHA_LIST/computePositions()'s main loop — these
+   two exist only to feed the ch. XV "Special norms for Teji & Mandi" live
+   rule engine (computeOuterPositions() below, called only from
+   sbcSpecialConditionsLiveNow()), per the user's explicit request that
+   outer-planet positions be computed in the background and never surfaced
+   as their own displayed graha elsewhere in this app (no planet table row,
+   no dignity, no Vedha casting — none of that machinery applies to them).
+   Pluto is NOT included: JPL removed it from this table after its 2006
+   reclassification, and a simple 2-body Kepler orbit is a poor fit for it
+   regardless (strong 3:2 resonance with Neptune) — the 2 special-norm
+   clauses naming Pluto specifically are left uncomputed. */
+const OUTER_PLANET_ELEMENTS = {
+  Uranus:  {a:[19.18916464,-0.00196176], e:[0.04725744,-0.00004397], i:[0.77263783,-0.00242939],
+            L:[313.23810451,428.48202785], w:[170.95427630,0.40805281], O:[74.01692503,0.04240589]},
+  Neptune: {a:[30.06992276,0.00026291], e:[0.00859048,0.00005105], i:[1.77004347,0.00035372],
+            L:[-55.12002969,218.45945325], w:[44.96476227,-0.32241464], O:[131.78422574,-0.00508664]}
+};
 function keplerSolve(Mrad, e){
   let E = Mrad; for(let i=0;i<12;i++){ E = E - (E - e*Math.sin(E) - Mrad)/(1 - e*Math.cos(E)); }
   return E;
 }
 function heliocentricEcliptic(elName, T){
-  const el = PLANET_ELEMENTS[elName];
+  const el = PLANET_ELEMENTS[elName] || OUTER_PLANET_ELEMENTS[elName];
   const a = el.a[0]+el.a[1]*T, e = el.e[0]+el.e[1]*T, i = el.i[0]+el.i[1]*T;
   const L = el.L[0]+el.L[1]*T, w = el.w[0]+el.w[1]*T, O = el.O[0]+el.O[1]*T;
   const Mdeg = norm360(L - w), wp = norm360(w - O); // argument of perihelion
@@ -1917,6 +2402,25 @@ function computePositions(jd, latDeg, lonDegEast, ayanamsaMode){
   out._ayanamsa = ay;
   out._ascTropical = ascendantTropical(jd, latDeg, lonDegEast);
   out._ascSidereal = norm360(out._ascTropical - ay);
+  return out;
+}
+
+/* Uranus/Neptune sidereal longitude + speed — deliberately separate from
+   computePositions()/GRAHA_LIST (see OUTER_PLANET_ELEMENTS comment above).
+   Only sbcSpecialConditionsLiveNow() calls this; nothing else in this app
+   should. */
+function computeOuterPositions(jd, ayanamsaMode){
+  const T = centuriesJ2000(jd);
+  const ay = ayanamsaMode === "tropical" ? 0 : lahiriAyanamsa(T);
+  const dt = 0.5;
+  const Tp = centuriesJ2000(jd+dt), Tm = centuriesJ2000(jd-dt);
+  const out = {};
+  ["Uranus","Neptune"].forEach(p=>{
+    const now = geocentricLongitude(p,T), fwd = geocentricLongitude(p,Tp), back = geocentricLongitude(p,Tm);
+    let dFwd = norm360(fwd-now); if (dFwd>180) dFwd-=360;
+    let dBack = norm360(now-back); if (dBack>180) dBack-=360;
+    out[p] = { tropical:now, speed:(dFwd+dBack)/(2*dt), sidereal:norm360(now-ay) };
+  });
   return out;
 }
 </script>
@@ -3139,6 +3643,31 @@ function renderChart(pos, ascSign){
   return svg;
 }
 
+/* Zone color-coding added per the user's reference scan of the book's own
+   SketchUp-drawn chart (ch. XVIII, p.68): that diagram tints each of the 4
+   cardinal arms of the 28-star ring in a different color and gives every
+   cell a small Varga (cell) index number. This app reproduces the part that
+   can be stated with confidence — which 7 stars sit in which cardinal arm
+   (ch. III, already correct in this function before this pass) and the 4
+   vowel corners — recolored by arm and given full star-name labels. It does
+   NOT attempt to reproduce the book's own per-cell Varga numbers (1-32
+   around this ring) or its inner rings (Rāśi glyphs, pada/consonant
+   sub-grid, Tithi/weekday corner blocks): those sub-cell numbers are small
+   enough in the source scan that transcribing them by eye risks silently
+   baking in a wrong reading, the same failure mode already caught once in
+   this session's ch. XV Vedha-of-Signs table. Ask for a closer/cropped scan
+   of p.68 if those inner layers are wanted later. */
+const SBC_ZONE = { East:"east", South:"south", West:"west", North:"north" };
+// Fixed 3-letter codes (not a blind character-slice, which cut names like
+// "Krittika"/"Punarvasu" mid-word) — shown in the ring cell, with the full
+// name in an SVG <title> hover tooltip.
+const NAK28_SHORT = {
+  Aswini:"Asw", Bharani:"Bha", Krittika:"Kri", Rohini:"Roh", Mrigasira:"Mri", Ardra:"Ard",
+  Punarvasu:"Pun", Pushya:"Pus", Ashlesha:"Ash", Magha:"Mag", "P.Phalguni":"PPh", "U.Phalguni":"UPh",
+  Hasta:"Has", Chitra:"Chi", Swati:"Swa", Visakha:"Vis", Anuradha:"Anu", Jyeshta:"Jye", Moola:"Moo",
+  "P.Shada":"PSh", "U.Shada":"USh", Abhijit:"Abh", Sravana:"Sra", Dhanishta:"Dha", Satabisha:"Sat",
+  "P.Bhadrapada":"PBh", "U.Bhadrapada":"UBh", Revati:"Rev"
+};
 function renderSBCRing(hitStarSet, refStar){
   // Perimeter ring per ch. III: East(top, L->R)=Krittika..Ashlesha, South(right,T->B)=Magha..Visakha,
   // West(bottom, R->L visually but stored L->R)=Anuradha..Sravana, North(left, T->B)=Dhanishta..Bharani.
@@ -3146,34 +3675,67 @@ function renderSBCRing(hitStarSet, refStar){
   const SOUTH=["Magha","P.Phalguni","U.Phalguni","Hasta","Chitra","Swati","Visakha"];
   const WEST=["Anuradha","Jyeshta","Moola","P.Shada","U.Shada","Abhijit","Sravana"];
   const NORTH=["Dhanishta","Satabisha","P.Bhadrapada","U.Bhadrapada","Revati","Aswini","Bharani"];
-  const cell = 40, pad=1, size=cell*9;
-  let svg = `<svg viewBox="0 0 ${size} ${size}" width="100%" style="max-width:520px;display:block;margin:0 auto;">`;
-  function drawCell(cx, cy, label, starName){
-    const isRef = starName===refStar;
-    const isHit = hitStarSet.has(starName);
-    let fill = "var(--cell-bg)", stroke="var(--chart-line)", tcol="var(--cell-ink)";
+  const ZONE_STYLE = {
+    east:  {bg:"var(--zone-east-bg)",  line:"var(--zone-east-line)"},
+    south: {bg:"var(--zone-south-bg)", line:"var(--zone-south-line)"},
+    west:  {bg:"var(--zone-west-bg)",  line:"var(--zone-west-line)"},
+    north: {bg:"var(--zone-north-bg)", line:"var(--zone-north-line)"}
+  };
+  const cell = 44, pad=1, size=cell*9;
+  let svg = `<svg viewBox="0 0 ${size} ${size}" width="100%" style="max-width:560px;display:block;margin:0 auto;">`;
+  function drawCell(cx, cy, mainLabel, starName, zone){
+    const isRef = starName && starName===refStar;
+    const isHit = starName && hitStarSet.has(starName);
+    const zs = zone ? ZONE_STYLE[zone] : null;
+    let fill = zs ? zs.bg : "var(--cell-bg)";
+    let stroke = zs ? zs.line : "var(--chart-line)";
+    let tcol = "var(--cell-ink)";
     if (isHit && isHit.type==="bad"){ fill="var(--hit-bad-bg)"; stroke="var(--hit-bad-line)"; tcol="var(--hit-bad-ink)"; }
     else if (isHit && isHit.type==="good"){ fill="var(--hit-good-bg)"; stroke="var(--hit-good-line)"; tcol="var(--hit-good-ink)"; }
-    if (isRef){ stroke="var(--gold)"; }
-    svg += `<rect x="${cx*cell+pad}" y="${cy*cell+pad}" width="${cell-2*pad}" height="${cell-2*pad}" style="fill:${fill};stroke:${stroke}" stroke-width="${isRef?2:1}"/>`;
-    svg += `<text x="${cx*cell+cell/2}" y="${cy*cell+cell/2+3}" text-anchor="middle" font-size="8.5" style="fill:${tcol}" font-family="var(--mono)">${label}</text>`;
+    const strokeFinal = isRef ? "var(--gold)" : stroke;
+    // Affliction badge: a shape (✕ malefic / ✦ benefic), not just a fill tint, so a hit
+    // reads correctly even against a zone color close in hue — plus a pulsing halo (reuses
+    // the same pp-pulse keyframe as the Pañcha Pakshi panel, which already respects
+    // prefers-reduced-motion) so it also doesn't depend on color perception at all.
+    let badge = "";
+    if (isHit){
+      const badgeColor = isHit.type==="bad" ? "var(--hit-bad-line)" : "var(--hit-good-line)";
+      const glyph = isHit.type==="bad" ? "✕" : "✦";
+      const bx = cx*cell+cell-10, by = cy*cell+10;
+      badge = `<circle cx="${bx}" cy="${by}" r="7" class="pp-pulse" style="fill:${badgeColor}"/>
+      <circle cx="${bx}" cy="${by}" r="6" style="fill:${badgeColor};stroke:var(--chart-bg)" stroke-width="1.5"/>
+      <text x="${bx}" y="${by+3}" text-anchor="middle" font-size="8" font-weight="700" style="fill:#fff" font-family="var(--mono)">${glyph}</text>`;
+    }
+    svg += `<g>${starName?`<title>${starName}</title>`:""}<rect x="${cx*cell+pad}" y="${cy*cell+pad}" width="${cell-2*pad}" height="${cell-2*pad}" style="fill:${fill};stroke:${strokeFinal}" stroke-width="${isRef?2.5:1}"/>
+    <text x="${cx*cell+cell/2}" y="${cy*cell+cell/2+4}" text-anchor="middle" font-size="12" style="fill:${tcol}" font-family="var(--mono)" font-weight="${isRef?"700":"500"}">${mainLabel}</text>${badge}</g>`;
   }
-  const abbr = s=> s.replace("P.","P·").replace("U.","U·").slice(0,7);
   // corners (vowels, ch. III corner assignment — schematic, not a claim of exact original cell numbering)
-  drawCell(0,0,"A","__A");
-  drawCell(8,0,"ĀĀ","__AA");
-  drawCell(8,8,"E","__E");
-  drawCell(0,8,"AI","__EE");
-  EAST.forEach((s,i)=>drawCell(1+i,0,abbr(s),s));
-  SOUTH.forEach((s,i)=>drawCell(8,1+i,abbr(s),s));
-  WEST.forEach((s,i)=>drawCell(7-i,8,abbr(s),s));
-  NORTH.forEach((s,i)=>drawCell(0,1+i,abbr(s),s));
+  drawCell(0,0,"A",null,null);
+  drawCell(8,0,"ĀĀ",null,null);
+  drawCell(8,8,"E",null,null);
+  drawCell(0,8,"AI",null,null);
+  EAST.forEach((s,i)=>drawCell(1+i,0,NAK28_SHORT[s],s,SBC_ZONE.East));
+  SOUTH.forEach((s,i)=>drawCell(8,1+i,NAK28_SHORT[s],s,SBC_ZONE.South));
+  WEST.forEach((s,i)=>drawCell(7-i,8,NAK28_SHORT[s],s,SBC_ZONE.West));
+  NORTH.forEach((s,i)=>drawCell(0,1+i,NAK28_SHORT[s],s,SBC_ZONE.North));
   // interior — decorative label
   svg += `<rect x="${cell+pad}" y="${cell+pad}" width="${7*cell-2*pad}" height="${7*cell-2*pad}" fill="none" style="stroke:var(--line-soft)" stroke-width="1" stroke-dasharray="3,4"/>`;
+  const dir = (x,y,label)=>svg += `<text x="${x}" y="${y}" text-anchor="middle" font-size="10" letter-spacing="2" style="fill:var(--chart-label);opacity:0.55" font-family="var(--mono)">${label}</text>`;
+  dir(size/2, 14, "EAST"); dir(size-12, size/2, "SOUTH");
+  svg += `<text x="${size/2}" y="${size-8}" text-anchor="middle" font-size="10" letter-spacing="2" style="fill:var(--chart-label);opacity:0.55" font-family="var(--mono)">WEST</text>`;
+  svg += `<text x="12" y="${size/2}" text-anchor="middle" font-size="10" letter-spacing="2" style="fill:var(--chart-label);opacity:0.55" font-family="var(--mono)" transform="rotate(-90 12 ${size/2})">NORTH</text>`;
   svg += `<text x="${size/2}" y="${size/2-6}" text-anchor="middle" font-size="12" style="fill:var(--chart-label)" font-family="var(--serif)" font-style="italic">Sarvato Bhadra</text>`;
   svg += `<text x="${size/2}" y="${size/2+12}" text-anchor="middle" font-size="12" style="fill:var(--chart-label)" font-family="var(--serif)" font-style="italic">Chakra</text>`;
   svg += `</svg>`;
   return svg;
+}
+function sbcZoneLegendHtml(){
+  return `<div class="chakra-legend" style="margin-top:6px;">
+    <div class="li"><span class="sw" style="background:var(--zone-east-bg);border:1px solid var(--zone-east-line)"></span> ${T('East arm — Krittika..Ashlesha','Brazo Este — Krittika..Ashlesha')}</div>
+    <div class="li"><span class="sw" style="background:var(--zone-south-bg);border:1px solid var(--zone-south-line)"></span> ${T('South arm — Magha..Visakha','Brazo Sur — Magha..Visakha')}</div>
+    <div class="li"><span class="sw" style="background:var(--zone-west-bg);border:1px solid var(--zone-west-line)"></span> ${T('West arm — Anuradha..Sravana','Brazo Oeste — Anuradha..Sravana')}</div>
+    <div class="li"><span class="sw" style="background:var(--zone-north-bg);border:1px solid var(--zone-north-line)"></span> ${T('North arm — Dhanishta..Bharani','Brazo Norte — Dhanishta..Bharani')}</div>
+  </div>`;
 }
 
 /* Simple front-facing silhouette, one shape per Kālapuruṣa zone, ordered
@@ -3709,9 +4271,9 @@ function runAnalysis(){
   }).join('');
 
   html += `<div class="grid2">
-    <div class="panel"><div class="hd"><h2>${T('Rāśi chart at the muhūrta','Carta Rāśi en el muhūrta')}</h2><span class="note">${T('North Indian format','formato norteño indio')}</span></div>
+    <div class="panel"><div class="hd"><h2>${T('Current D1 (Janma)','D1 (Janma) Actual')}</h2><span class="note">${T('North Indian format','formato norteño indio')}</span></div>
       <div class="bd">${renderChart(pos, panch.ascSign)}</div></div>
-    <div class="panel"><div class="hd"><h2>${T('Navamsa (D9) chart','Carta Navāṁśa (D9)')}</h2><span class="note">${T('planet strength, not scored','fuerza planetaria, no puntuado')}</span></div>
+    <div class="panel"><div class="hd"><h2>${T('D9 (Navamsa) Current','D9 (Navamsa) Actual')}</h2><span class="note">${T('planet strength, not scored','fuerza planetaria, no puntuado')}</span></div>
       <div class="bd">${renderChart(navPos, navAscSign)}</div></div>
   </div><div style="height:20px"></div>
 
@@ -3721,12 +4283,13 @@ function runAnalysis(){
         ${renderSBCRing(getHit, refP.star)}
         <div class="chakra-legend" style="margin-top:12px;">
           <div class="li"><span class="sw" style="background:rgba(209,169,78,0.5);border:1px solid var(--gold)"></span> ${T('reference star (Janma Nakṣatra)','estrella de referencia (Janma Nakṣatra)')}</div>
-          <div class="li"><span class="sw" style="background:rgba(79,157,122,0.35);border:1px solid var(--jade)"></span> ${T('benefic Vedha landing here now','Vedha benéfico cayendo aquí ahora')}</div>
-          <div class="li"><span class="sw" style="background:rgba(193,68,46,0.35);border:1px solid var(--vermilion)"></span> ${T('malefic Vedha landing here now','Vedha maléfico cayendo aquí ahora')}</div>
+          <div class="li"><span class="sw" style="background:rgba(79,157,122,0.35);border:1px solid var(--jade)"></span> ${T('benefic Vedha landing here now (pulsing ✦ badge)','Vedha benéfico cayendo aquí ahora (insignia ✦ pulsante)')}</div>
+          <div class="li"><span class="sw" style="background:rgba(193,68,46,0.35);border:1px solid var(--vermilion)"></span> ${T('malefic Vedha landing here now (pulsing ✕ badge)','Vedha maléfico cayendo aquí ahora (insignia ✕ pulsante)')}</div>
         </div>
+        ${sbcZoneLegendHtml()}
       </div>
     </div>
-    <div class="panel"><div class="hd"><h2>${T('Navamsa strength (D1 vs D9)','Fuerza Navāṁśa (D1 vs D9)')}</h2><span class="note">${T('informational only','solo informativo')}</span></div>
+    <div class="panel"><div class="hd"><h2>${T('Planet, sign, dignity, rulership, friendship etc.','Planeta, signo, dignidad, señorío, amistad, etc.')}</h2><span class="note">${T('Current Transit','Tránsito Actual')}</span></div>
       <div class="bd">
         <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>D1</th><th>D9</th><th></th></tr></thead><tbody>${navStrengthRows}</tbody></table></div>
         <div class="hint" style="margin-top:10px; line-height:1.6;">${T('Mystics of SBC on this: "Determine the strength as per standard practice & indicate these planets in SBC" — advisory language, not a point formula the way ch. IX/X gives explicit numbers for Vedha grading. So this table is shown for context only and does NOT feed into the SBC score below; a graha strong here but weak in D1 (or vice versa) is worth weighing yourself when reading the verdict. Vargottama (gold row) = same sign in both D1 and D9, classically a real strength marker.','Mystics of SBC sobre esto: "Determina la fuerza según la práctica estándar e indica estos planetas en el SBC" — lenguaje orientativo, no una fórmula de puntos como la que ch. IX/X da con números explícitos para la gradación de Vedha. Por eso esta tabla se muestra solo como contexto y NO se incorpora a la puntuación SBC de abajo; un graha fuerte aquí pero débil en D1 (o viceversa) conviene sopesarlo tú al leer el veredicto. Vargottama (fila dorada) = mismo signo en D1 y D9, clásicamente un indicador real de fuerza.')}</div>
@@ -3919,6 +4482,39 @@ function renderNatalPage(){
   });
   const lagnaVargottama = lagnaSign === navLagnaSign;
 
+  // Natal Ashtakavarga strength — the same Bhinna/Sarva engine the (former)
+  // Transit Strength page uses, here read at each graha's own NATAL sign:
+  // how many bindus its own Bhinnāṣṭakavarga assigns to the sign it was born
+  // in. A third, independent lens on natal placement strength alongside the
+  // D1/D9 dignity columns (dignity = sign relationship; bindus = the
+  // 8-source contribution count), shown side by side, not merged into either.
+  const natalBhinna = {};
+  ASHTAK_GRAHAS.forEach(g=>{ natalBhinna[g] = computeBhinnashtakavarga(g, birthPos); });
+  const natalSarva = computeSarvashtakavarga(birthPos);
+  const lagnaSignIdx = SIGNS.indexOf(lagnaSign);
+  const ashtakNatalRows = (()=>{
+    let rows = `<tr>
+      <td class="wide">Lagna</td>
+      <td>${lagnaSign}</td>
+      <td>—</td>
+      <td><span class="tag ${sarvaTier(natalSarva[lagnaSignIdx]).tag}">${natalSarva[lagnaSignIdx]}</span></td>
+    </tr>`;
+    GRAHA_LIST.forEach(g=>{
+      const signIdx = Math.floor(norm360(birthPos[g].sidereal)/30);
+      const inAshtak = ASHTAK_GRAHAS.includes(g);
+      const bindus = inAshtak ? natalBhinna[g][signIdx] : null;
+      const bTier = inAshtak ? ashtakBindutier(bindus) : null;
+      const sarvaVal = natalSarva[signIdx];
+      rows += `<tr>
+        <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
+        <td>${SIGNS[signIdx]}</td>
+        <td>${inAshtak ? `<span class="tag ${bTier.tag}">${ashtakBindulabel(bindus)}</span>` : '—'}</td>
+        <td><span class="tag ${sarvaTier(sarvaVal).tag}">${sarvaVal}</span></td>
+      </tr>`;
+    });
+    return rows;
+  })();
+
   container.innerHTML = `
     <div class="panel">
       <div class="hd"><h2>${T('Natal General Reading','Lectura Natal General')}</h2><span class="note">D1 + D9 · ${T('initial snapshot','impresión inicial')}</span></div>
@@ -3927,7 +4523,7 @@ function renderNatalPage(){
       </div>
     </div>
 
-    <div class="grid2">
+    <div class="grid3panel">
       <div class="panel"><div class="hd"><h2>${T('D1 (Rāśi) positions','Posiciones D1 (Rāśi)')}</h2><span class="note">${T('natal','natal')}</span></div>
         <div class="bd">
           <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Position','Posición')}</th><th>${T('Dignity','Dignidad')}</th></tr></thead><tbody>${positionRows(birthPos, birthPos._ascSidereal)}</tbody></table></div>
@@ -3938,8 +4534,13 @@ function renderNatalPage(){
           <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Position','Posición')}</th><th>${T('Dignity','Dignidad')}</th></tr></thead><tbody>${positionRows(navPos, navLagnaSidereal)}</tbody></table></div>
         </div>
       </div>
+      <div class="panel"><div class="hd"><h2>${T('Ashtakavarga natal strength','Fuerza natal de Ashtakavarga')}</h2><span class="note">${T('natal','natal')}</span></div>
+        <div class="bd">
+          <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Sign','Signo')}</th><th>${T('Bhinna bindus','Bindus Bhinna')}</th><th>Sarva</th></tr></thead><tbody>${ashtakNatalRows}</tbody></table></div>
+        </div>
+      </div>
     </div>
-    <div class="hint" style="margin:8px 0 0;">${T('(r) = retrograde at birth. Dignity (own/exalted/friend/neutral/enemy/debilitated) is read off the sign each chart places the graha in — the same rule for both D1 and D9.','(r) = retrógrado al nacer. La dignidad (propio/exaltado/amigo/neutral/enemigo/debilitado) se lee según el signo en que cada carta ubica al graha — la misma regla para D1 y D9.')}</div>
+    <div class="hint" style="margin:8px 0 0;">${T('(r) = retrograde at birth. Dignity (own/exalted/friend/neutral/enemy/debilitated) is read off the sign each chart places the graha in — the same rule for both D1 and D9. The third table is a separate, independent lens on the same natal placements: how many bindus (0–8) each graha\'s own Bhinnāṣṭakavarga assigns to the sign it was born in (M.S. Mehta/K.N. Rao, ch. II–III; 5+ strong, 4 average, 0–3 weak), plus the Sarvāṣṭakavarga total (all 7 grahas\' bindus) for that sign — average 28, above is supportive, below 25 weak. Dignity measures the graha\'s relationship to its sign; bindus count contributions from 8 sources — the two can genuinely disagree about the same placement, which is why they\'re shown side by side rather than merged. Rāhu/Ketu have no Bhinnāṣṭakavarga in this source (7 grahas only), so they show only the Sarva column.','(r) = retrógrado al nacer. La dignidad (propio/exaltado/amigo/neutral/enemigo/debilitado) se lee según el signo en que cada carta ubica al graha — la misma regla para D1 y D9. La tercera tabla es una lente separada e independiente sobre las mismas posiciones natales: cuántos bindus (0–8) asigna el propio Bhinnāṣṭakavarga de cada graha al signo en que nació (M.S. Mehta/K.N. Rao, cap. II–III; 5+ fuerte, 4 promedio, 0–3 débil), más el total de Sarvāṣṭakavarga (los bindus de los 7 graha) para ese signo — promedio 28, por encima es favorable, por debajo de 25 débil. La dignidad mide la relación del graha con su signo; los bindus cuentan contribuciones de 8 fuentes — los dos pueden discrepar genuinamente sobre la misma posición, por eso se muestran lado a lado en vez de fusionados. Rāhu/Ketu no tienen Bhinnāṣṭakavarga en esta fuente (solo 7 graha), así que muestran solo la columna Sarva.')}</div>
     <div style="height:8px"></div>
 
     <div class="panel"><div class="hd"><h2>${T('Functional benefic / malefic by house lordship','Benéfico / maléfico funcional por señorío de casas')}</h2><span class="note">Mystics of SBC, ch. II</span></div>
@@ -4219,7 +4820,7 @@ function renderNakshatraPage(){
           <div class="k">${T('Jupiter in','Júpiter en')}</div><div class="v">${nakshatraFromSidereal(norm360(pos.Jupiter.sidereal), false).name}</div>
           <div class="k">${T('Vatsara year','Año Vatsara')}</div><div class="v"><b style="color:var(--gold);">${jupVatsara.name}</b></div>
         </div>
-        <div class="hint" style="margin-top:6px;">${jupVatsara.text}</div>` : `<div class="hint">${T('Could not resolve — please report this.','No se pudo resolver — por favor repórtalo.')}</div>`}
+        <div class="effect-box"><div class="effect-label">${T('What the source says happens this Vatsara year','Lo que dice la fuente que sucede este año Vatsara')}</div><div class="effect-text">${jupVatsara.text}</div></div>` : `<div class="hint">${T('Could not resolve — please report this.','No se pudo resolver — por favor repórtalo.')}</div>`}
 
         <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('60-year cycle','Ciclo de 60 años')}</h3>
         <div class="kv">
@@ -4227,7 +4828,7 @@ function renderNakshatraPage(){
           <div class="k">Yuga</div><div class="v">${j60.yugaIdx+1}/12 — ${T(j60.yugaDeity,j60.yugaDeity)}</div>
           <div class="k">${T('Generic name','Nombre genérico')}</div><div class="v">${j60.subYear.name} <span style="color:var(--slate);">(${T('sacred to','sagrado a')} ${j60.subYear.deity})</span></div>
         </div>
-        <div class="hint" style="margin-top:6px;">${j60pred}</div>
+        <div class="effect-box"><div class="effect-label">${T('What the source says happens in a year named','Lo que dice la fuente que sucede en un año llamado')} ${j60name}</div><div class="effect-text">${j60pred}</div></div>
         <div class="hint" style="margin-top:10px; line-height:1.6;">${T('This app\'s own reconstruction of the 60-year count: anchored on the chapter\'s own unambiguous statement ("Kaliyuga commenced in Vijaya, the 27th year from Prabhava") plus the standard Kaliyuga epoch and the chapter\'s own solar-to-Jupiter-year conversion factor, rather than the harder-to-read digit-heavy formula the translator\'s own footnote flags as uncertain in the source scan.','Reconstrucción propia de esta app del conteo de 60 años: anclada en la declaración inequívoca del capítulo ("Kaliyuga comenzó en Vijaya, el año 27 desde Prabhava") más la época estándar de Kaliyuga y el propio factor de conversión de años solares a años de Júpiter del capítulo, en vez de la fórmula con muchos dígitos que la propia nota del traductor señala como incierta en el escaneo de la fuente.')}</div>
       </div>
     </div>`;
@@ -5560,7 +6161,15 @@ function renderHoraryPage(){
         </div>
         <div class="grid2" style="margin-top:14px;">
           <div class="panel"><div class="hd"><h2>Sarvato Bhadra Chakra</h2><span class="note">${T('perimeter ring, ch. III','anillo perimetral, cap. III')}</span></div>
-            <div class="bd">${renderSBCRing(getHit, r.star)}</div></div>
+            <div class="bd">
+              ${renderSBCRing(getHit, r.star)}
+              <div class="chakra-legend" style="margin-top:12px;">
+                <div class="li"><span class="sw" style="background:rgba(209,169,78,0.5);border:1px solid var(--gold)"></span> ${T('reference star (Janma Nakṣatra)','estrella de referencia (Janma Nakṣatra)')}</div>
+                <div class="li"><span class="sw" style="background:rgba(79,157,122,0.35);border:1px solid var(--jade)"></span> ${T('benefic Vedha landing here now','Vedha benéfico cayendo aquí ahora')}</div>
+                <div class="li"><span class="sw" style="background:rgba(193,68,46,0.35);border:1px solid var(--vermilion)"></span> ${T('malefic Vedha landing here now','Vedha maléfico cayendo aquí ahora')}</div>
+              </div>
+              ${sbcZoneLegendHtml()}
+            </div></div>
           <div class="panel"><div class="hd"><h2>${T('Affliction readings','Lecturas de aflicción')}</h2><span class="note">${T('ch. Horary Astrology, p.27-28','cap. Horaria, p.27-28')}</span></div>
             <div class="bd">
               <div class="kv" style="grid-template-columns: 130px 1fr;">
@@ -5615,6 +6224,11 @@ function renderSignificatorsPage(){
   const pos = computePositions(jd, 0, 0, ay);
   const signVedhaHits = sbcSignVedhaLiveNow(pos);
   const moonNak = nakshatraFromSidereal(norm360(pos.Moon.sidereal), false).name;
+  const moonNak28 = nakshatraFromSidereal(norm360(pos.Moon.sidereal), true).name;
+  const tejiMandiLive = sbcTejiMandiLiveNow(pos);
+  const priceBySignLive = sbcPriceBySignLiveNow(pos);
+  const ch16Live = ch16CasteVedhaLiveNow(pos);
+  const specialConditions = sbcSpecialConditionsLiveNow(pos, jd, ay);
 
   const countryRows = SIGNS.map(s=>{
     const c = SBC_COUNTRY_SIGNIFICATORS[s];
@@ -5661,6 +6275,54 @@ function renderSignificatorsPage(){
       <td style="font-size:11px; color:var(--slate);">${afflictionCell}</td></tr>`;
   }).join('');
 
+  const tejiMandiRows = NAK28_ORDER.map(star=>{
+    const row = SBC_TEJI_MANDI_STARS[star];
+    const hit = tejiMandiLive[star];
+    const isMoon = star===moonNak28;
+    const tags = [
+      hit.tejiHits.length ? `<span class="tag bad">${T('Teji (↑)','Teji (↑)')}: ${hit.tejiHits.map(g=>T(g,GRAHA_ES[g])).join(', ')}</span>` : '',
+      hit.mandiHits.length ? `<span class="tag good">${T('Mandi (↓)','Mandi (↓)')}: ${hit.mandiHits.map(g=>T(g,GRAHA_ES[g])).join(', ')}</span>` : ''
+    ].filter(Boolean).join(' ') || `<span class="tag neutral">${T('no Vedha now','sin Vedha ahora')}</span>`;
+    return `<tr${isMoon?' style="background:var(--house1);font-weight:600;"':''}>
+      <td class="wide">${isMoon?'→ ':''}${star}</td>
+      <td style="font-size:11.5px;">${row.commodities}</td>
+      <td style="font-size:10.5px; color:var(--slate);">${row.direction}${row.duration?` · ${row.duration}`:''}</td>
+      <td>${tags}</td>
+    </tr>`;
+  }).join('');
+
+  const priceBySignRows = GRAHA_LIST.map(g=>{
+    const live = priceBySignLive[g];
+    const clauses = live.rows.length ? live.rows.map(r=>{
+      const parts = [r.rise, r.fall].filter(Boolean);
+      return `<div style="margin-bottom:4px;">${parts.join(' ')}</div>`;
+    }).join('') : `<span class="hint" style="display:inline;">${T('no entry for this sign in the source','sin entrada para este signo en la fuente')}</span>`;
+    return `<tr><td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${T(g,GRAHA_ES[g])}</td>
+      <td class="wide">${live.sign}</td>
+      <td style="font-size:11px;">${clauses}</td></tr>`;
+  }).join('');
+
+  const ch16GroupLabel = {
+    brahmins: T('Brahmins','Brahmanes'), vaishyas: T('Vaishyas','Vaishyas'),
+    sudras: T('Sudras','Sudras'), kshatriyas: T('Kshatriyas','Kshatriyas'),
+    others: T('other casts in the world','otras castas del mundo'),
+    unresolved: T('unresolved — see note on Ardra below','sin resolver — ver nota sobre Ardra abajo')
+  };
+  const ch16GroupRows = ["brahmins","vaishyas","sudras","kshatriyas","others"].map(key=>{
+    const isCurrent = ch16Live.group===key;
+    return `<tr${isCurrent?' style="background:rgba(176,50,32,0.08);"':''}>
+      <td class="wide">${ch16GroupLabel[key]}${isCurrent?` <span class="tag bad">${T('Saturn\'s Vedha lands here now','el Vedha de Saturno cae aquí ahora')}</span>`:''}</td>
+      <td style="font-size:11.5px;">${CH16_CASTE_GROUPS[key].join(', ')}</td>
+    </tr>`;
+  }).join('');
+
+  const specialConditionsHtml = specialConditions.length
+    ? `<div class="effect-box"><div class="effect-label">${T('Special conditions active right now (ch. XV, "Special norms for Teji &amp; Mandi")','Condiciones especiales activas ahora mismo (cap. XV, "Normas especiales para Teji y Mandi")')}</div>
+        <div class="pillrow" style="margin-top:4px;">${specialConditions.map(c=>
+          `<span class="tag ${c.kind==='teji'?'bad':c.kind==='mandi'?'good':'neutral'}">${c.kind==='teji'?'↑ ':c.kind==='mandi'?'↓ ':''}${T(c.en,c.es)}</span>`
+        ).join('')}</div></div>`
+    : `<div class="hint">${T('No special condition from this chapter is active right now.','Ninguna condición especial de este capítulo está activa ahora mismo.')}</div>`;
+
   container.innerHTML = `
     <div class="panel">
       <div class="hd"><h2>${T('World &amp; Commodity Significators','Significadores Mundiales y de Materias Primas')}</h2><span class="note">Mystics of SBC, ch. XVII</span></div>
@@ -5698,8 +6360,41 @@ function renderSignificatorsPage(){
       </div>
     </div>
 
+    <div class="panel" style="border-color:var(--gold-dim);"><div class="hd"><h2>${T('Nakṣatra price signals — Teji / Mandi','Señales de precio por Nakṣatra — Teji / Mandi')}</h2><span class="note">Mystics of SBC, ch. XV</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px;">${T('A distinct chapter from ch. XVII above: each of the 28 stars carries the same commodity list whether it takes Teji or Mandi — malefic Vedha on the star means the price of its commodities RISES (Teji), benefic Vedha means it FALLS (Mandi). Checked live below against every graha\'s current Vedha-casting position, the same mechanism the main gauge uses for a birth star.','Un capítulo distinto del cap. XVII de arriba: cada una de las 28 estrellas lleva la misma lista de materias primas tanto si toma Teji como Mandi — Vedha maléfico sobre la estrella significa que el precio de sus materias primas SUBE (Teji), Vedha benéfico significa que BAJA (Mandi). Se comprueba en vivo abajo contra la posición de Vedha actual de cada graha, el mismo mecanismo que usa el indicador principal para una estrella natal.')}</div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Star','Estrella')}</th><th>${T('Commodities','Materias primas')}</th><th>${T('Direction / duration','Dirección / duración')}</th><th>${T('Live signal','Señal en vivo')}</th></tr></thead><tbody>${tejiMandiRows}</tbody></table></div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('Direction/duration column: where the source states one ("Impact starts from North & remains for 60 days"), both are shown; most rows give only a direction. Four rows (Anuradha, P.Shada, Sravana, P.Bhadrapada) had their direction line visibly displaced onto the following row in the source PDF\'s own text layer — resolved against a photographed scan of the original page rather than the raw extraction.','Columna dirección/duración: donde la fuente da ambas ("el impacto comienza desde el Norte y dura 60 días"), se muestran las dos; la mayoría de filas solo dan una dirección. Cuatro filas (Anuradha, P.Shada, Sravana, P.Bhadrapada) tenían su línea de dirección visiblemente desplazada a la fila siguiente en la propia capa de texto del PDF fuente — resuelto contra una foto escaneada de la página original en vez de la extracción cruda.')}</div>
+        <div style="margin-top:12px;">${specialConditionsHtml}</div>
+        <div class="hint" style="margin-top:6px; line-height:1.6;">${T('The box above live-checks the same chapter\'s "Special norms for Teji &amp; Mandi" (p.61-62) — conjunctions, dignities, sign qualities and retrograde/duration conditions that modify or reinforce the star table above, evaluated against the real sky right now rather than left as a static list. Uranus and Neptune are computed only to support this specific check (verified against JPL\'s own published orbital elements) — they don\'t appear anywhere else in this app. A few of the source\'s clauses (Pluto-specific ones; ambient statements with no stated trigger, like "Venus causes both Mandi &amp; Teji") aren\'t checkable and are left out rather than faked.','El recuadro de arriba comprueba en vivo las "Normas especiales para Teji y Mandi" del mismo capítulo (p.61-62) — conjunciones, dignidades, cualidades de signo y condiciones de retrogradación/duración que modifican o refuerzan la tabla de estrellas de arriba, evaluadas contra el cielo real ahora mismo en vez de dejarlas como una lista estática. Urano y Neptuno se calculan solo para respaldar esta comprobación específica (verificados contra los elementos orbitales publicados por el JPL) — no aparecen en ninguna otra parte de esta app. Algunas cláusulas de la fuente (las específicas de Plutón; afirmaciones ambientales sin condición declarada, como "Venus causa tanto Mandi como Teji") no son comprobables y se dejan fuera en vez de simularlas.')}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Price direction by transit sign','Dirección de precios por signo en tránsito')}</h2><span class="note">Mystics of SBC, ch. XV</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px;">${T('A second, independent rule from the same chapter: each graha carries its own Rise/Fall commodity clause(s) per zodiac sign it occupies (not Vedha-based — a plain placement rule). Shown live below against each graha\'s own current sign. Some cells give two Rise (or two Fall) clauses for one graha — the source itself does this. Aries is the only sign where Rahu and Ketu share one combined line; every other sign gives Rahu his own line with no separate Ketu line at all.','Una segunda regla, independiente, del mismo capítulo: cada graha lleva su propia cláusula de Alza/Baja de materias primas según el signo del zodiaco que ocupa (no basada en Vedha — una simple regla de posición). Se muestra en vivo abajo contra el signo actual de cada graha. Algunas celdas dan dos cláusulas de Alza (o dos de Baja) para un mismo graha — así lo hace la propia fuente. Aries es el único signo donde Rahu y Ketu comparten una línea combinada; todos los demás signos dan a Rahu su propia línea sin línea separada para Ketu.')}</div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Current sign','Signo actual')}</th><th>${T('Rise / Fall','Alza / Baja')}</th></tr></thead><tbody>${priceBySignRows}</tbody></table></div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Impact of Vedha on Hindu castes','Impacto del Vedha sobre las castas hindúes')}</h2><span class="note">Mystics of SBC, ch. XVI</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px;">${T('A short, separate chapter: specifically Saturn\'s Vedha (every worked example in the source names Saturn, despite its own opening line saying "malefic planets") landing on one of the 28 stars determines which caste "suffers." Checked live below against Saturn\'s own current Vedha-casting star.','Un capítulo corto y aparte: específicamente el Vedha de Saturno (todos los ejemplos resueltos en la fuente nombran a Saturno, a pesar de que su propia frase inicial dice "planetas maléficos") cayendo sobre una de las 28 estrellas determina qué casta "sufre." Se comprueba en vivo abajo contra la estrella que recibe el Vedha de Saturno ahora mismo.')}</div>
+        <div class="kv">
+          <div class="k">${T('Saturn is on','Saturno está en')}</div><div class="v">${ch16Live.satStar} <span style="color:var(--slate); font-size:11px;">(${T(ch16Live.satDir,{Front:'Frente',Right:'Derecha',Left:'Izquierda'}[ch16Live.satDir])} ${T('Vedha','Vedha')})</span></div>
+          <div class="k">${T('Vedha lands on','El Vedha cae sobre')}</div><div class="v">${ch16Live.targetStar||'—'}</div>
+          <div class="k">${T('Affected group','Grupo afectado')}</div><div class="v"><span class="tag bad">${ch16GroupLabel[ch16Live.group]||T('none named in the source','ninguno nombrado en la fuente')}</span></div>
+        </div>
+        ${ch16Live.beneficOverrides.length ? `<div class="okbox" style="margin-top:10px;">${T('Benefic override active:','Anulación benéfica activa:')} ${ch16Live.beneficOverrides.map(g=>T(g,GRAHA_ES[g])).join(', ')} ${T('also cast Vedha on this same star right now — the source states this brings benefic results instead of suffering.','también lanzan Vedha sobre esta misma estrella ahora mismo — la fuente indica que esto trae resultados benéficos en vez de sufrimiento.')}</div>` : ''}
+        <div class="tblwrap" style="margin-top:12px;"><table><thead><tr><th>${T('Group','Grupo')}</th><th>${T('Stars','Estrellas')}</th></tr></thead><tbody>${ch16GroupRows}</tbody></table></div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The source introduces the last group as "the remaining 12 Stars" but prints only 11 names (Bharani, Mrigasira, Ashlesha, Chitra, Swati, Visakha, Jyeshta, Moola, Sravana, Dhanishta, Satabisha) — a gap in the source itself, independently confirmed, not a transcription slip here. Checking all 4 named groups (16 stars) plus this 11-star list against the full 28 leaves exactly one star never mentioned anywhere in the chapter: Ardra — very likely the star silently missing from the printed list (which would make the source\'s own stated count of 12 correct). This app does not insert Ardra into the list above; if Saturn\'s Vedha ever lands on Ardra specifically, the "Affected group" reading above will show as unresolved rather than guess.','La fuente presenta el último grupo como "las 12 Estrellas restantes" pero solo imprime 11 nombres (Bharani, Mrigasira, Ashlesha, Chitra, Swati, Visakha, Jyeshta, Moola, Sravana, Dhanishta, Satabisha) — un vacío en la propia fuente, confirmado de forma independiente, no un descuido de transcripción aquí. Al comprobar los 4 grupos nombrados (16 estrellas) más esta lista de 11 contra las 28 totales, queda exactamente una estrella nunca mencionada en el capítulo: Ardra — muy probablemente la estrella que falta en silencio de la lista impresa (lo que haría correcto el recuento de 12 que da la propia fuente). Esta app no inserta Ardra en la lista de arriba; si el Vedha de Saturno cae alguna vez específicamente sobre Ardra, la lectura de "Grupo afectado" de arriba aparecerá como sin resolver en vez de adivinar.')}</div>
+        <div class="hint" style="margin-top:8px;">${T('The source\'s own closing exception: "In case there is benefic Vedha by benefic Planets - Jupiter, Venus, Mercury & Moon, benefic results will take place" — checked live above as the benefic-override note whenever one of those 4 independently lands its own Vedha on the same star Saturn is striking.','Excepción propia de la fuente: "En caso de que haya Vedha benéfico de planetas benéficos - Júpiter, Venus, Mercurio y Luna, se producirán resultados benéficos" — comprobado en vivo arriba como la nota de anulación benéfica cuando uno de esos 4 lanza su propio Vedha de forma independiente sobre la misma estrella que Saturno está afectando.')}</div>
+      </div>
+    </div>
+
     <footer class="notes" style="line-height:1.8;">
       <b>${T('Source.','Fuente.')}</b> ${T('M.K. Agarwal, <i>Mystics of Sarvato Bhadra Chakra &amp; Astrological Predictions</i> (ed. Chistabo, 2012), Chapter XVII, "Significators for Countries, States, Cities, Commodities &amp; other matters," p.64-67 — transcribed directly.','M.K. Agarwal, <i>Mystics of Sarvato Bhadra Chakra &amp; Astrological Predictions</i> (ed. Chistabo, 2012), Capítulo XVII, "Significadores de países, estados, ciudades, materias primas y otros asuntos," p.64-67 — transcrito directamente.')}
+      <br><br>${T('The Teji/Mandi and transit-sign panels above additionally draw on Chapter XV, "Forecasting Methodology: How to Determine Prices of Commodities," p.55-62 — transcribed and, for the parts flagged above, independently cross-verified against the source. That chapter\'s "Special norms for Teji &amp; Mandi" (p.61-62) is folded into the colored box on the Teji/Mandi panel as a live rule check rather than shown as its own static list — see that panel\'s own note for which clauses are checked live and which aren\'t checkable. The Hindu-castes panel draws on Chapter XVI, "Forecasting Methodology: Impact of Vedha on Hindu Casts," p.63 — likewise independently verified, with the source\'s own 11-of-12 gap in its "other casts" list flagged rather than silently corrected.','Los paneles de Teji/Mandi y signo en tránsito de arriba además se basan en el Capítulo XV, "Metodología de pronóstico: Cómo determinar los precios de las materias primas," p.55-62 — transcrito y, en las partes señaladas arriba, verificado de forma independiente contra la fuente. Las "Normas especiales para Teji y Mandi" de ese capítulo (p.61-62) están integradas en el recuadro de color del panel de Teji/Mandi como una comprobación de reglas en vivo en vez de mostrarse como una lista estática aparte — ver la nota de ese panel para saber qué cláusulas se comprueban en vivo y cuáles no son comprobables. El panel de castas hindúes se basa en el Capítulo XVI, "Metodología de pronóstico: Impacto del Vedha sobre las castas hindúes," p.63 — verificado igualmente de forma independiente, señalando el vacío de 11 de 12 en su lista de "otras castas" en vez de corregirlo en silencio.')}
     </footer>
   `;
 }
