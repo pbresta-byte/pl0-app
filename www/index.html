@@ -1586,9 +1586,9 @@ const VEDHA_TABLE = {
    in the whole chapter, and what this app hooks its live signal to below,
    reusing VEDHA_TABLE's own signVedha data (the same mechanism the main
    gauge already uses for a birth Rāśi, just checked here across all 12
-   signs at once). Everything else in this chapter (which planet/star rules
-   which part of India, which star/sign/planet governs which commodity) is
-   static reference data — shown live only via the affliction check. */
+   signs at once). Everything else in this chapter (which star/sign/planet
+   governs which commodity) is static reference data — shown live only via
+   the affliction check. */
 const SBC_COUNTRY_SIGNIFICATORS = {
   Aries:       { countries:"England, Germany, Denmark, Poland (Pt.), Syria, Lebanon, Japan, Peru, Palestine, India (Pt.)", cities:"Chicago, Birmingham, Florence, Damascus, Naples, Utrecht", india:"Chennai, Vadodara" },
   Taurus:      { countries:"Ireland, Persia, Cyprus, South Russia, Holland, Switzerland, Poland (Pt.), Georgia, Chile, Austria, Asia Minor", cities:"Dublin, St. Louis", india:"Delhi, Hastinapur, Mathura, Surat, Maharashtra, Karnataka, Alwar, Ujjain, Madhya Pradesh, Rajasthan" },
@@ -1603,24 +1603,6 @@ const SBC_COUNTRY_SIGNIFICATORS = {
   Aquarius:    { countries:"Sweden (Pt.), Poland (Pt.), Red Russia, Arabia (Pt.), Abyssinia", cities:"Hamburg, Brighton, Salisbury", india:"—" },
   Pisces:      { countries:"Sahara, Portugal, Calabria, Sicily, Malta, Cape of Good Hope, S. Asia Minor, Sri Lanka, Egypt (Pt.)", cities:"Lancaster, Alexandria, Chicago, Preston", india:"Kolkata" }
 };
-const SBC_PLANET_INDIA_REGIONS = {
-  Sun:"Bengal, Bihar, Odisha, Kaushambi, Kalinga, Tamil Nadu (E), Vindhya forest, Nagadha, Saurashtra, Narmada, Burdwan",
-  Moon:"Kerala (Pt.), Broach", Mars:"Andhra Pradesh, Konkan, Vindhyachal, Narmada (Pt.), Chola, Ujjain, Godavari, Kerala (Pt.)",
-  Mercury:"Saurashtra, Himalayan region, Mathura, NW India", Jupiter:"Punjab (E), U.P. (W), Kashmir (Pt.)",
-  Venus:"Malwa, Taxila, Kashmir (Pt.)", Saturn:"Rajasthan, Saurashtra, Punjab (Pt.), Haryana, Delhi",
-  Rahu:"Hilly areas", Ketu:"Desert regions of India"
-};
-const SBC_KRUM_CHAKRA_ZONES = [
-  { stars:["Krittika","Rohini","Mrigasira"], zone:"Central India", states:"U.P. (S/W), Madhya Pradesh (Pt.), Rajasthan (desert), Haryana, Gadwal", cities:"Ayodhya, Prayag, Hastinapur, Mathura, Pandu, Chittor, Udaipur, Garmukteswar, Alwar, Ujjain, Jaipur, Bharatpur, Kampila, Kurukshetra, Ajmer" },
-  { stars:["Ardra","Punarvasu","Pushya"], zone:"Eastern India", states:"Bihar (S), Odisha (N), Nagaland, U.P. (E), Bengal (N), Assam (Pt.)", cities:"Puri, Bhubaneswar, Varanasi, Patna, Malda, Gaya, Cuttack, Kohima" },
-  { stars:["Ashlesha","Magha","P.Phalguni"], zone:"SE India, Delhi", states:"Bihar (Pt.), Odisha (Pt.), Vidarbha, Tripura, Andhra (E), Vindhya, M.P. (Pt.), Delhi", cities:"Rajgir, Nicobar Islands, Andaman Islands, Gwalior, Chhatarpur, Bilaspur" },
-  { stars:["U.Phalguni","Hasta","Chitra"], zone:"Southern India", states:"Kerala, Konkan, Maharashtra (S), Tamil Nadu, Andhra, Karnataka", cities:"Nashik, Kanchi, Danda Karanya, Kolhapur, Chennai, Bijapur, Nilgiri, Tanjore, Coimbatore, Trivandrum, Rameswaram, Jalgaon, Calicut, Raichur, Mysore, Bangalore, Cochin" },
-  { stars:["Swati","Visakha","Anuradha"], zone:"SW India", states:"Saurashtra, Gujarat, Kathiawar, Maharashtra (Pt.)", cities:"Girnar, Nashik, Sabarmati, Surat, Mumbai, Ahmedabad, Rajkot" },
-  { stars:["Jyeshta","Moola","P.Shada"], zone:"Western India", states:"Punjab (W), Rajasthan (W), Maharashtra (W), Gujarat (W)", cities:"Amritsar, Jaisalmer, Bhuj, Kandla, Okha, Dwarka, Abu, Jodhpur" },
-  { stars:["U.Shada","Sravana","Dhanishta"], zone:"NW India", states:"Kashmir (Pt.), Kullu Valley, Himalayan region", cities:"Srinagar, Jammu, Manali" },
-  { stars:["Satabisha","P.Bhadrapada","U.Bhadrapada"], zone:"Northern India", states:"Kashmir (N), Kailash Parvat, Uttarakhand, Nepal (Pt.)", cities:"Mansarovar, Kailash, Tehri Garhwal, Nainital, Kedarnath, Badrinath" },
-  { stars:["Revati","Aswini","Bharani"], zone:"NE India", states:"Kashmir (NE), Sikkim, Bhutan, Assam (Pt.), Arunachal", cities:"Rajouri, Kullu, Cherrapunji" }
-];
 const SBC_STAR_COMMODITIES = {
   Aswini:"Rice, ghee, clothes, minerals", Bharani:"Chillies, millets, wheat, rice, jowar",
   Krittika:"Rice, oats, metals, sesame, gems, diamonds, grams, oils, gold, silver", Rohini:"Grains, woollen blankets, metals, liquids",
@@ -5197,7 +5179,6 @@ function renderSignificatorsPage(){
   const pos = computePositions(jd, 0, 0, ay);
   const signVedhaHits = sbcSignVedhaLiveNow(pos);
   const moonNak = nakshatraFromSidereal(norm360(pos.Moon.sidereal), false).name;
-  const moonZoneIdx = SBC_KRUM_CHAKRA_ZONES.findIndex(z=>z.stars.includes(moonNak));
 
   const countryRows = SIGNS.map(s=>{
     const c = SBC_COUNTRY_SIGNIFICATORS[s];
@@ -5207,24 +5188,6 @@ function renderSignificatorsPage(){
       <td style="font-size:11.5px;">${c.countries}</td>
       <td style="font-size:11.5px;">${c.cities}</td>
       <td style="font-size:11.5px;">${c.india}</td>
-    </tr>`;
-  }).join('');
-
-  const planetIndiaRows = GRAHA_LIST.map(g=>{
-    const sid = pos[g].sidereal;
-    const sign = SIGNS[Math.floor(norm360(sid)/30)];
-    return `<tr><td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${T(g,GRAHA_ES[g])}</td>
-      <td style="font-size:11.5px;">${SBC_PLANET_INDIA_REGIONS[g]}</td>
-      <td style="font-size:11px; color:var(--slate);">${T('now in','ahora en')} ${sign}</td></tr>`;
-  }).join('');
-
-  const zoneRows = SBC_KRUM_CHAKRA_ZONES.map((z,i)=>{
-    const isMoon = i===moonZoneIdx;
-    return `<tr${isMoon?' style="background:var(--house1);font-weight:600;"':''}>
-      <td class="wide">${isMoon?'→ ':''}${z.zone}</td>
-      <td style="font-size:11px;">${z.stars.join(', ')}</td>
-      <td style="font-size:11.5px;">${z.states}</td>
-      <td style="font-size:11px; color:var(--slate);">${z.cities}</td>
     </tr>`;
   }).join('');
 
@@ -5256,14 +5219,6 @@ function renderSignificatorsPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Ruling signs — countries &amp; cities of the world','Signos regentes — países y ciudades del mundo')}</h2><span class="note">${T('live affliction check','comprobación de aflicción en vivo')}</span></div>
       <div class="bd"><div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Countries','Países')}</th><th>${T('Cities','Ciudades')}</th><th>India</th></tr></thead><tbody>${countryRows}</tbody></table></div></div>
-    </div>
-
-    <div class="panel"><div class="hd"><h2>${T('Planets — regions of India','Planetas — regiones de India')}</h2></div>
-      <div class="bd"><div class="tblwrap"><table><thead><tr><th>${T('Planet','Planeta')}</th><th>${T('Region ruled','Región gobernada')}</th><th>${T('Live','En vivo')}</th></tr></thead><tbody>${planetIndiaRows}</tbody></table></div></div>
-    </div>
-
-    <div class="panel"><div class="hd"><h2>${T('Stars — regions of India (Krum Chakra)','Estrellas — regiones de India (Krum Chakra)')}</h2><span class="note">${T('current row: today\'s Moon Nakṣatra','fila actual: Nakṣatra lunar de hoy')}</span></div>
-      <div class="bd"><div class="tblwrap"><table><thead><tr><th>${T('Zone','Zona')}</th><th>${T('Stars','Estrellas')}</th><th>${T('States','Estados')}</th><th>${T('Cities','Ciudades')}</th></tr></thead><tbody>${zoneRows}</tbody></table></div></div>
     </div>
 
     <div class="panel"><div class="hd"><h2>${T('Commodities by star','Materias primas por estrella')}</h2><span class="note">${T('current row: today\'s Moon Nakṣatra','fila actual: Nakṣatra lunar de hoy')}</span></div>
