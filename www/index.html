@@ -403,6 +403,7 @@
         <button type="button" data-page="pageRemedies" data-i18n="navRemedies">Remedies &amp; Combinations</button>
         <button type="button" data-page="pageCommodities" data-i18n="navCommodities">Commodity Signals</button>
         <button type="button" data-page="pageHorary" data-i18n="navHorary">Horary / Praśna (SBC)</button>
+        <button type="button" data-page="pageSignificators" data-i18n="navSignificators">World &amp; Commodity Significators</button>
       </div>
     </div>
     <div>
@@ -561,6 +562,10 @@
   <div class="result-col" id="horaryPageContent" style="max-width:900px; margin:0 auto;"></div>
 </div>
 
+<div id="pageSignificators" class="page">
+  <div class="result-col" id="significatorsPageContent" style="max-width:1000px; margin:0 auto;"></div>
+</div>
+
 
 <script>
 /* =========================================================================
@@ -624,6 +629,7 @@ const I18N = {
   navRemedies: { en:`Remedies &amp; Combinations`, es:`Remedios y Combinaciones` },
   navCommodities: { en:`Commodity Signals`, es:`Señales de Materias Primas` },
   navHorary: { en:`Horary / Praśna (SBC)`, es:`Horaria / Praśna (SBC)` },
+  navSignificators: { en:`World &amp; Commodity Significators`, es:`Significadores Mundiales y de Materias Primas` },
   profileLbl: { en:`Saved profile`, es:`Perfil guardado` },
   profileNamePh: { en:`Profile name…`, es:`Nombre del perfil…` },
   profileSave: { en:`Save`, es:`Guardar` },
@@ -1587,6 +1593,121 @@ const VEDHA_TABLE = {
   "U.Bhadrapada":{front:"Hasta",       right:"P.Shada",      left:"Ardra",        signVedha:[]},
   Revati:        {front:"U.Phalguni",  right:"Moola",        left:"Mrigasira",    signVedha:["Aquarius","Capricorn"]}
 };
+
+/* =========================================================================
+   CHAPTER XVII — "Significators for Countries, States, Cities, Commodities
+   & other matters" (M.K. Agarwal, Mystics of Sarvato Bhadra Chakra, ed.
+   Chistabo 2012, p.64-67). Directly transcribed. This is a SEPARATE, older
+   classical significator system from the sign-only SIGN_COMMODITIES table
+   already used on the Commodity Signals page (that one is Bṛhat Saṁhitā
+   ch. XLI) — the two are shown side by side on this page rather than
+   merged, since they're different sources giving genuinely different lists
+   even for the same sign.
+
+   The chapter's own P.S. after the country/city table: "Whenever these
+   signs are afflicted and having Vedha of Sun, Mars, Saturn, Rahu & Ketu,
+   these parts of the world suffer" — the one explicit live-checkable rule
+   in the whole chapter, and what this app hooks its live signal to below,
+   reusing VEDHA_TABLE's own signVedha data (the same mechanism the main
+   gauge already uses for a birth Rāśi, just checked here across all 12
+   signs at once). Everything else in this chapter (which planet/star rules
+   which part of India, which star/sign/planet governs which commodity) is
+   static reference data — shown live only via the affliction check. */
+const SBC_COUNTRY_SIGNIFICATORS = {
+  Aries:       { countries:"England, Germany, Denmark, Poland (Pt.), Syria, Lebanon, Japan, Peru, Palestine, India (Pt.)", cities:"Chicago, Birmingham, Florence, Damascus, Naples, Utrecht", india:"Chennai, Vadodara" },
+  Taurus:      { countries:"Ireland, Persia, Cyprus, South Russia, Holland, Switzerland, Poland (Pt.), Georgia, Chile, Austria, Asia Minor", cities:"Dublin, St. Louis", india:"Delhi, Hastinapur, Mathura, Surat, Maharashtra, Karnataka, Alwar, Ujjain, Madhya Pradesh, Rajasthan" },
+  Gemini:      { countries:"U.S.A., England (West), Belgium, Egypt (Lower), Canada, Armenia, NE Coastal Africa, Germany (Pt.), France (Pt.)", cities:"London, Melbourne, San Francisco, Tripoli, Nuremberg, Plymouth", india:"—" },
+  Cancer:      { countries:"Holland (Pt.), Scotland, New Zealand, NW Africa, Mauritius, Paraguay, USSR (Pt.)", cities:"Stockholm, Manchester, Algiers, Milan, Tunis, New York, Amsterdam, Venice, Geneva, Georgia", india:"Rajasthan, Gujarat, Kathiawad, Sindh" },
+  Leo:         { countries:"France, Italy, Sicily, Romania (N), the Alps, Bohemia, Tibet", cities:"Philadelphia, Damascus, Prague, Rome, Chicago, Portsmouth, Bath, Lancashire, California", india:"Mumbai" },
+  Virgo:       { countries:"Turkey, Switzerland (Pt.), West Indies, Greece (Pt.), Mesopotamia, Brazil, Babylonia, Kurdistan, India (Pt.), China (Pt.), Canada (Pt.)", cities:"Boston, Paris, Los Angeles, Jerusalem, California, Virginia, Baghdad", india:"Pune, Nagpur" },
+  Libra:       { countries:"China (N), Tibet, Burma (Myanmar), Indo-China, Japan (Pt.), Egypt (N), Austria (Pt.), Argentina, India (Pt.), U.S.A. (Pt.)", cities:"Lisbon, Vienna, Frankfurt, Copenhagen, Johannesburg, Leeds, Middleton", india:"Kashmir, Varanasi, NE & NW India, Haridwar, Gaya" },
+  Scorpio:     { countries:"Algeria, Norway, Morocco, Syria (N), Queensland, Brazil (Pt.), Bavaria, Sweden, Iran", cities:"Liverpool, Baltimore, Newcastle, Washington, Dover", india:"Chennai, Hyderabad" },
+  Sagittarius: { countries:"Saudi Arabia, Australia, Spain, France (Pt.), Hungary, Madagascar, Italy (Pt.), Naples, Africa", cities:"Toronto, Sunderland, Nottingham, Regensburg, Budapest, Peking, Bradford, Cologne", india:"Gwalior, Indore, Hyderabad, Maharashtra" },
+  Capricorn:   { countries:"Afghanistan (Pt.), Mexico, Bulgaria, Albania, Syria (Pt.), Bangladesh, Greece (Pt.), Bosnia, India (Pt.)", cities:"Brussels, Port Said, Tokyo, Oxford, Moscow", india:"Punjab, West Bengal, Bihar, Odisha" },
+  Aquarius:    { countries:"Sweden (Pt.), Poland (Pt.), Red Russia, Arabia (Pt.), Abyssinia", cities:"Hamburg, Brighton, Salisbury", india:"—" },
+  Pisces:      { countries:"Sahara, Portugal, Calabria, Sicily, Malta, Cape of Good Hope, S. Asia Minor, Sri Lanka, Egypt (Pt.)", cities:"Lancaster, Alexandria, Chicago, Preston", india:"Kolkata" }
+};
+const SBC_PLANET_INDIA_REGIONS = {
+  Sun:"Bengal, Bihar, Odisha, Kaushambi, Kalinga, Tamil Nadu (E), Vindhya forest, Nagadha, Saurashtra, Narmada, Burdwan",
+  Moon:"Kerala (Pt.), Broach", Mars:"Andhra Pradesh, Konkan, Vindhyachal, Narmada (Pt.), Chola, Ujjain, Godavari, Kerala (Pt.)",
+  Mercury:"Saurashtra, Himalayan region, Mathura, NW India", Jupiter:"Punjab (E), U.P. (W), Kashmir (Pt.)",
+  Venus:"Malwa, Taxila, Kashmir (Pt.)", Saturn:"Rajasthan, Saurashtra, Punjab (Pt.), Haryana, Delhi",
+  Rahu:"Hilly areas", Ketu:"Desert regions of India"
+};
+const SBC_KRUM_CHAKRA_ZONES = [
+  { stars:["Krittika","Rohini","Mrigasira"], zone:"Central India", states:"U.P. (S/W), Madhya Pradesh (Pt.), Rajasthan (desert), Haryana, Gadwal", cities:"Ayodhya, Prayag, Hastinapur, Mathura, Pandu, Chittor, Udaipur, Garmukteswar, Alwar, Ujjain, Jaipur, Bharatpur, Kampila, Kurukshetra, Ajmer" },
+  { stars:["Ardra","Punarvasu","Pushya"], zone:"Eastern India", states:"Bihar (S), Odisha (N), Nagaland, U.P. (E), Bengal (N), Assam (Pt.)", cities:"Puri, Bhubaneswar, Varanasi, Patna, Malda, Gaya, Cuttack, Kohima" },
+  { stars:["Ashlesha","Magha","P.Phalguni"], zone:"SE India, Delhi", states:"Bihar (Pt.), Odisha (Pt.), Vidarbha, Tripura, Andhra (E), Vindhya, M.P. (Pt.), Delhi", cities:"Rajgir, Nicobar Islands, Andaman Islands, Gwalior, Chhatarpur, Bilaspur" },
+  { stars:["U.Phalguni","Hasta","Chitra"], zone:"Southern India", states:"Kerala, Konkan, Maharashtra (S), Tamil Nadu, Andhra, Karnataka", cities:"Nashik, Kanchi, Danda Karanya, Kolhapur, Chennai, Bijapur, Nilgiri, Tanjore, Coimbatore, Trivandrum, Rameswaram, Jalgaon, Calicut, Raichur, Mysore, Bangalore, Cochin" },
+  { stars:["Swati","Visakha","Anuradha"], zone:"SW India", states:"Saurashtra, Gujarat, Kathiawar, Maharashtra (Pt.)", cities:"Girnar, Nashik, Sabarmati, Surat, Mumbai, Ahmedabad, Rajkot" },
+  { stars:["Jyeshta","Moola","P.Shada"], zone:"Western India", states:"Punjab (W), Rajasthan (W), Maharashtra (W), Gujarat (W)", cities:"Amritsar, Jaisalmer, Bhuj, Kandla, Okha, Dwarka, Abu, Jodhpur" },
+  { stars:["U.Shada","Sravana","Dhanishta"], zone:"NW India", states:"Kashmir (Pt.), Kullu Valley, Himalayan region", cities:"Srinagar, Jammu, Manali" },
+  { stars:["Satabisha","P.Bhadrapada","U.Bhadrapada"], zone:"Northern India", states:"Kashmir (N), Kailash Parvat, Uttarakhand, Nepal (Pt.)", cities:"Mansarovar, Kailash, Tehri Garhwal, Nainital, Kedarnath, Badrinath" },
+  { stars:["Revati","Aswini","Bharani"], zone:"NE India", states:"Kashmir (NE), Sikkim, Bhutan, Assam (Pt.), Arunachal", cities:"Rajouri, Kullu, Cherrapunji" }
+];
+const SBC_STAR_COMMODITIES = {
+  Aswini:"Rice, ghee, clothes, minerals", Bharani:"Chillies, millets, wheat, rice, jowar",
+  Krittika:"Rice, oats, metals, sesame, gems, diamonds, grams, oils, gold, silver", Rohini:"Grains, woollen blankets, metals, liquids",
+  Mrigasira:"Yellow grain, resins, buildings, animals, gems", Ardra:"Oils, salt, liquids, sandal, scents",
+  Punarvasu:"Cotton, threads, sesame", Pushya:"Silver, gold, ghee, rice, rock salt, asafoetida, mustard, oil",
+  Ashlesha:"Jaggery, sugar, dried ginger, red lentils, wheat, chillies, rice", Magha:"Oil, sesame, ghee, moong, gram, jaggery, linseed",
+  "P.Phalguni":"Woollen clothes, blankets, wool, sesame, oil, silver", "U.Phalguni":"Black gram, moong, rice, salt",
+  Hasta:"Sandal, camphor", Chitra:"Gold, gems, jaggery, black gram, moong, animals",
+  Swati:"Chillies, oil, asafoetida", Visakha:"Rice, wheat, moong, red lentils, moth beans",
+  Anuradha:"Pigeon peas (tuar/arhar), grains, rice, moth beans, gram", Jyeshta:"Jaggery, clothes, camphor, asafoetida",
+  Moola:"Cotton, liquids, grains, salt", "P.Shada":"Grains, ghee, fruits",
+  "U.Shada":"Animals, steel, brass, copper", Abhijit:"Moong, dried ginger, betel nuts, dry fruits",
+  Sravana:"Sugar, betel nuts, dry fruits", Dhanishta:"Gold, silver, gems, pearls, diamonds",
+  Satabisha:"Oil, wines", "P.Bhadrapada":"Metals, grains, medicines",
+  "U.Bhadrapada":"Jaggery, sugar, sesame, mustard, oils", Revati:"Pearls, gems, betel nuts"
+};
+const SBC_SIGN_COMMODITIES = {
+  Aries:"Cotton, clothes, wool, mustard, gold, wheat, red sandal, red coral, copper, iron, medicines, iron-co. shares, jute, textiles, rice, sugar",
+  Taurus:"Sugar, cotton, thread, wheat, salt, ghee, milk, rice, jute, textiles & shares",
+  Gemini:"Cotton, jute, blankets, musk, saffron, millet, corn, cluster beans, ghee, paper",
+  Cancer:"Silver, mercury, banana, grocery items, coconut, tea",
+  Leo:"Jaggery, grain, leather goods, skins, sugar, gold, rice",
+  Virgo:"Pigeon peas, peas, moong, moth beans, wheat, clothes, sugar, gram, cluster beans, rice, grains & foodstuffs",
+  Libra:"Black gram, wheat, coconut, pigeon peas, peas, black mustard, cotton, silk, rice",
+  Scorpio:"Jaggery, sugar, iron, scents, sesame, dark-colored goods, sugarcane, metals, wool, chemicals, leather, oilseeds & fats",
+  Sagittarius:"Salt, weapons, rubber, printed cloth, sea produce, animals, turmeric, arms",
+  Capricorn:"Gold, iron, coal, tin, lead, sugarcane, timber, copper, zinc, oilseeds",
+  Aquarius:"Gems, black gram (urad), sesame, oil, electrical goods, water products, artificial fertilizer, coal, iron",
+  Pisces:"Gems, pearls, diamonds, ghee, oil, fish & fish products, weapons, water products, perfumery, medicines"
+};
+const SBC_PLANET_COMMODITIES = {
+  Sun:"Rice, honey, herbs, copper, gold, gems, oil, silk, grains, cotton, groundnut",
+  Moon:"Silver, milk, oil, wines, glass, ghee, food items, rice, wheat, salt, pearl, sugarcane, honey",
+  Mars:"Jaggery, cluster beans, turmeric, gold, rice, oilseeds, coffee, tea, metal, iron, hardware, steel, gram, copper, wine",
+  Mercury:"Wheat, grains, silk, textiles, sugar, cotton, copper, green cloth, pigeon peas, groundnut, peas",
+  Jupiter:"Gold, silver, turmeric, rubber, food items, zinc, grams, jute, tobacco, luxury items, tin, salt",
+  Venus:"Cotton, sugar, jute, textiles, wheat, rice, silver, silk, glass, copper, wine, spices, grains, jute products, diamond, ghee, oil",
+  Saturn:"Metals, steel, coal, lead, cement, copper, oilseeds, mustard, groundnuts, wool, iron, jute, leather goods, sesame, black gram, gram",
+  Rahu:"Metal, wireless & electrical goods, iron, hessonite garnet (gomed), sesame, black gram",
+  Ketu:"Wireless & electrical goods, all items of black colour",
+  Uranus:"Aluminium, electrical goods, aerated water, vehicles, radio equipment",
+  Neptune:"Tea, raw cotton, medicines, surgical goods, oil, tobacco, drugs, kerosene, toxic items",
+  Pluto:"Rubber, tin, turmeric, leather, watches, machinery, copper, zinc, arms, liquor, steel, drugs"
+};
+// The chapter's own P.S.: "Whenever these signs are afflicted and having
+// Vedha of Sun, Mars, Saturn, Rahu & Ketu, these parts of the world
+// suffer." Reuses VEDHA_TABLE's signVedha data — the same field the main
+// gauge already checks for a birth Rāśi — checked here across all 12 signs.
+function sbcSignVedhaLiveNow(pos){
+  const hits = {};
+  SIGNS.forEach(s=>{ hits[s] = []; });
+  for (const g of GRAHA_LIST){
+    if (!MALEFIC_GRAHAS.includes(g)) continue;
+    const gSid = pos[g].sidereal;
+    const gStar28 = nakshatraFromSidereal(gSid, true).name;
+    const row = VEDHA_TABLE[gStar28];
+    if (!row || !row.signVedha || !row.signVedha.length) continue;
+    // Same check evaluateVedha() already uses for a birth Rāśi — row.signVedha
+    // is a property of the graha's OWN star, independent of Vedha direction.
+    row.signVedha.forEach(sign => hits[sign].push(g));
+  }
+  return hits;
+}
 
 /* Kālapuruṣa ("cosmic body") sign-to-body-zone map — the standard classical
    correspondence (Aries=head ... Pisces=feet) used across Jyotiṣa/Āyurveda for
@@ -3525,6 +3646,7 @@ function showPage(pageId){
   if (pageId === 'pageRemedies') renderRemediesPage();
   if (pageId === 'pageCommodities') renderCommoditiesPage();
   if (pageId === 'pageHorary') renderHoraryPage();
+  if (pageId === 'pageSignificators') renderSignificatorsPage();
 }
 
 // Nakṣatra Categories page — a fixed property of the reference person's own
@@ -4783,6 +4905,112 @@ function renderHoraryPage(){
   `;
 }
 
+// ---- World & Commodity Significators (Chapter XVII) ----
+// Always live, independent of any reference person — same convention as
+// Commodities/Anatomy/Horary. Static reference data throughout except the
+// one live signal the chapter itself calls out (see sbcSignVedhaLiveNow's
+// comment above): which of the 12 signs is currently under malefic Vedha,
+// per the chapter's own P.S. that afflicted signs mean "these parts of the
+// world suffer."
+function renderSignificatorsPage(){
+  const container = document.getElementById('significatorsPageContent');
+  if (!container) return;
+
+  const n = new Date();
+  const jd = julianDay(n.getFullYear(), n.getMonth()+1, n.getDate(), n.getHours(), n.getMinutes(), n.getSeconds(), -n.getTimezoneOffset()/60);
+  const ay = document.getElementById('ayanamsaMode') ? document.getElementById('ayanamsaMode').value : 'lahiri';
+  const pos = computePositions(jd, 0, 0, ay);
+  const signVedhaHits = sbcSignVedhaLiveNow(pos);
+  const moonNak = nakshatraFromSidereal(norm360(pos.Moon.sidereal), false).name;
+  const moonZoneIdx = SBC_KRUM_CHAKRA_ZONES.findIndex(z=>z.stars.includes(moonNak));
+
+  const countryRows = SIGNS.map(s=>{
+    const c = SBC_COUNTRY_SIGNIFICATORS[s];
+    const afflicted = signVedhaHits[s].length>0;
+    return `<tr${afflicted?' style="background:rgba(176,50,32,0.06);"':''}>
+      <td class="wide">${s}${afflicted?` <span class="tag bad">${T('afflicted','afligido')}: ${signVedhaHits[s].map(g=>T(g,GRAHA_ES[g])).join(', ')}</span>`:''}</td>
+      <td style="font-size:11.5px;">${c.countries}</td>
+      <td style="font-size:11.5px;">${c.cities}</td>
+      <td style="font-size:11.5px;">${c.india}</td>
+    </tr>`;
+  }).join('');
+
+  const planetIndiaRows = GRAHA_LIST.map(g=>{
+    const sid = pos[g].sidereal;
+    const sign = SIGNS[Math.floor(norm360(sid)/30)];
+    return `<tr><td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${T(g,GRAHA_ES[g])}</td>
+      <td style="font-size:11.5px;">${SBC_PLANET_INDIA_REGIONS[g]}</td>
+      <td style="font-size:11px; color:var(--slate);">${T('now in','ahora en')} ${sign}</td></tr>`;
+  }).join('');
+
+  const zoneRows = SBC_KRUM_CHAKRA_ZONES.map((z,i)=>{
+    const isMoon = i===moonZoneIdx;
+    return `<tr${isMoon?' style="background:var(--house1);font-weight:600;"':''}>
+      <td class="wide">${isMoon?'→ ':''}${z.zone}</td>
+      <td style="font-size:11px;">${z.stars.join(', ')}</td>
+      <td style="font-size:11.5px;">${z.states}</td>
+      <td style="font-size:11px; color:var(--slate);">${z.cities}</td>
+    </tr>`;
+  }).join('');
+
+  const starCommodityRows = NAK28_ORDER.map(star=>{
+    const isMoon = star===moonNak;
+    return `<tr${isMoon?' style="background:var(--house1);font-weight:600;"':''}><td class="wide">${isMoon?'→ ':''}${star}</td><td style="font-size:11.5px;">${SBC_STAR_COMMODITIES[star]}</td></tr>`;
+  }).join('');
+
+  const signCommodityRows = SIGNS.map(s=>{
+    const afflicted = signVedhaHits[s].length>0;
+    return `<tr${afflicted?' style="background:rgba(176,50,32,0.06);"':''}><td class="wide">${s}${afflicted?` <span class="tag bad">${T('afflicted','afligido')}</span>`:''}</td><td style="font-size:11.5px;">${SBC_SIGN_COMMODITIES[s]}</td></tr>`;
+  }).join('');
+
+  const planetCommodityRows = Object.keys(SBC_PLANET_COMMODITIES).map(g=>{
+    const isClassical = GRAHA_LIST.includes(g);
+    const sign = isClassical ? SIGNS[Math.floor(norm360(pos[g].sidereal)/30)] : null;
+    return `<tr><td class="wide" style="color:${isClassical&&MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':(isClassical?'var(--jade)':'var(--slate)')}">${T(g,GRAHA_ES[g]||g)}</td>
+      <td style="font-size:11.5px;">${SBC_PLANET_COMMODITIES[g]}</td>
+      <td style="font-size:11px; color:var(--slate);">${isClassical ? (T('now in','ahora en')+' '+sign) : T('not in this app\'s astronomical engine','fuera del motor astronómico de esta app')}</td></tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('World &amp; Commodity Significators','Significadores Mundiales y de Materias Primas')}</h2><span class="note">Mystics of SBC, ch. XVII</span></div>
+      <div class="bd">
+        <div class="hint">${T('A separate, older classical significator system from the Commodity Signals page (that one is Bṛhat Saṁhitā ch. XLI/XLII) — shown side by side rather than merged, since the two sources genuinely disagree on some lists even for the same sign. The one live signal in this chapter: it states that whenever a sign is afflicted by Vedha of Sun, Mars, Saturn, Rāhu or Ketu, the parts of the world it governs "suffer" — checked live below and highlighted in red.','Un sistema de significadores clásico distinto y más antiguo que la página de Señales de Materias Primas (esa es del Bṛhat Saṁhitā cap. XLI/XLII) — se muestra en paralelo en vez de fusionado, ya que las dos fuentes realmente difieren en algunas listas incluso para el mismo signo. La única señal en vivo de este capítulo: indica que cuando un signo está afligido por Vedha del Sol, Marte, Saturno, Rāhu o Ketu, las partes del mundo que gobierna "sufren" — se comprueba en vivo abajo y se resalta en rojo.')}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Ruling signs — countries &amp; cities of the world','Signos regentes — países y ciudades del mundo')}</h2><span class="note">${T('live affliction check','comprobación de aflicción en vivo')}</span></div>
+      <div class="bd"><div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Countries','Países')}</th><th>${T('Cities','Ciudades')}</th><th>India</th></tr></thead><tbody>${countryRows}</tbody></table></div></div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Planets — regions of India','Planetas — regiones de India')}</h2></div>
+      <div class="bd"><div class="tblwrap"><table><thead><tr><th>${T('Planet','Planeta')}</th><th>${T('Region ruled','Región gobernada')}</th><th>${T('Live','En vivo')}</th></tr></thead><tbody>${planetIndiaRows}</tbody></table></div></div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Stars — regions of India (Krum Chakra)','Estrellas — regiones de India (Krum Chakra)')}</h2><span class="note">${T('current row: today\'s Moon Nakṣatra','fila actual: Nakṣatra lunar de hoy')}</span></div>
+      <div class="bd"><div class="tblwrap"><table><thead><tr><th>${T('Zone','Zona')}</th><th>${T('Stars','Estrellas')}</th><th>${T('States','Estados')}</th><th>${T('Cities','Ciudades')}</th></tr></thead><tbody>${zoneRows}</tbody></table></div></div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Commodities by star','Materias primas por estrella')}</h2><span class="note">${T('current row: today\'s Moon Nakṣatra','fila actual: Nakṣatra lunar de hoy')}</span></div>
+      <div class="bd"><div class="tblwrap"><table><thead><tr><th>${T('Star','Estrella')}</th><th>${T('Commodities','Materias primas')}</th></tr></thead><tbody>${starCommodityRows}</tbody></table></div></div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Commodities by sign','Materias primas por signo')}</h2><span class="note">${T('live affliction check','comprobación de aflicción en vivo')}</span></div>
+      <div class="bd"><div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Commodities','Materias primas')}</th></tr></thead><tbody>${signCommodityRows}</tbody></table></div></div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Commodities by planet','Materias primas por planeta')}</h2><span class="note">${T('includes Uranus/Neptune/Pluto per the source','incluye Urano/Neptuno/Plutón según la fuente')}</span></div>
+      <div class="bd"><div class="tblwrap"><table><thead><tr><th>${T('Planet','Planeta')}</th><th>${T('Commodities','Materias primas')}</th><th>${T('Live','En vivo')}</th></tr></thead><tbody>${planetCommodityRows}</tbody></table></div>
+      <div class="hint" style="margin-top:8px;">${T('Uranus, Neptune and Pluto are given by the source but aren\'t part of this app\'s astronomical engine (which only computes the 9 classical grahas) — shown for completeness, no live position.','Urano, Neptuno y Plutón aparecen en la fuente pero no forman parte del motor astronómico de esta app (que solo calcula los 9 graha clásicos) — se muestran por completitud, sin posición en vivo.')}</div>
+      </div>
+    </div>
+
+    <footer class="notes" style="line-height:1.8;">
+      <b>${T('Source.','Fuente.')}</b> ${T('M.K. Agarwal, <i>Mystics of Sarvato Bhadra Chakra &amp; Astrological Predictions</i> (ed. Chistabo, 2012), Chapter XVII, "Significators for Countries, States, Cities, Commodities &amp; other matters," p.64-67 — transcribed directly.','M.K. Agarwal, <i>Mystics of Sarvato Bhadra Chakra &amp; Astrological Predictions</i> (ed. Chistabo, 2012), Capítulo XVII, "Significadores de países, estados, ciudades, materias primas y otros asuntos," p.64-67 — transcrito directamente.')}
+    </footer>
+  `;
+}
+
 // Independent of runAnalysis()/the muhūrta being judged — always reflects the
 // real current moment. Re-run on bird-dropdown change and on a 60s interval.
 //
@@ -5003,6 +5231,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if (document.getElementById('pageRemedies').classList.contains('active')) renderRemediesPage();
     if (document.getElementById('pageCommodities').classList.contains('active')) renderCommoditiesPage();
     if (document.getElementById('pageHorary').classList.contains('active')) renderHoraryPage();
+    if (document.getElementById('pageSignificators').classList.contains('active')) renderSignificatorsPage();
   });
   document.getElementById('chartPanchapakshi').addEventListener('change', renderPPPanel);
 
