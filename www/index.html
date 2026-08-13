@@ -396,6 +396,7 @@
       <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false">☰</button>
       <div class="hamburger-menu" id="hamburgerMenu" role="menu">
         <button type="button" data-page="pageMuhurta" class="active" data-i18n="navMuhurta">Muhūrta Gauge</button>
+        <button type="button" data-page="pageNatal" data-i18n="navNatal">Natal General Reading</button>
         <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">Nakṣatra Categories</button>
         <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
         <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Auspicious Calendar</button>
@@ -534,6 +535,10 @@
 </div>
 </div> <!-- /pageMuhurta -->
 
+<div id="pageNatal" class="page">
+  <div class="result-col" id="natalPageContent" style="max-width:1000px; margin:0 auto;"></div>
+</div>
+
 <div id="pageNakshatra" class="page">
   <div class="result-col" id="nakshatraPageContent" style="max-width:900px; margin:0 auto;"></div>
 </div>
@@ -622,6 +627,7 @@ const I18N = {
   chartPanchaLbl: { en:`Line — Pañcha Pakshi live Yama chart`, es:`Línea — gráfico Yama en vivo de Pañcha Pakshi` },
   chartMenuHint: { en:`More chart types can be added to this menu later.`, es:`Más tipos de gráfico se pueden añadir a este menú más adelante.` },
   navMuhurta: { en:`Muhūrta Gauge`, es:`Muhūrta Gauge` },
+  navNatal: { en:`Natal General Reading`, es:`Lectura Natal General` },
   navNakshatra: { en:`Nakṣatra Categories`, es:`Categorías de Nakṣatra` },
   navAnatomy: { en:`Anatomy`, es:`Anatomía` },
   navCalendar: { en:`Auspicious Calendar`, es:`Calendario auspicioso` },
@@ -3693,6 +3699,7 @@ function showPage(pageId){
   document.querySelectorAll('#hamburgerMenu button').forEach(b=>b.classList.toggle('active', b.dataset.page===pageId));
   document.getElementById('hamburgerMenu').classList.remove('open');
   document.getElementById('hamburgerBtn').setAttribute('aria-expanded','false');
+  if (pageId === 'pageNatal') renderNatalPage();
   if (pageId === 'pageNakshatra') renderNakshatraPage();
   if (pageId === 'pageAnatomy') renderAnatomyPage();
   if (pageId === 'pageCalendar') renderCalendarPage();
@@ -3702,6 +3709,126 @@ function showPage(pageId){
   if (pageId === 'pageHorary') renderHoraryPage();
   if (pageId === 'pageSignificators') renderSignificatorsPage();
 }
+
+// ---- Natal General Reading (D1 + D9) ----
+// Needs actual birth date/time/place ("Compute from birth data" mode on
+// the Muhūrta Gauge page) — a Lagna, and therefore house-lordships and a
+// Navāṁśa chart, can't be derived from just a manually-picked star. This
+// page is entirely natal (never changes with the current date), unlike
+// almost everything else in this app, which is either live or keyed to a
+// chosen muhūrta moment.
+function renderNatalPage(){
+  const container = document.getElementById('natalPageContent');
+  if (!container) return;
+
+  const refInfo = getReferencePanchaka();
+  const birthPos = refInfo.birthPos;
+
+  if (!birthPos){
+    container.innerHTML = `<div class="panel"><div class="hd"><h2>${T('Natal General Reading','Lectura Natal General')}</h2></div>
+      <div class="bd"><div class="hint">${T('This page needs a full birth date, time and place — switch "Mode" to "Compute from birth date / time / place" on the Muhūrta Gauge page (field 1). A manually-picked star alone doesn\'t give a Lagna, so there\'s no house-lordship or Navāṁśa to read here.','Esta página necesita fecha, hora y lugar de nacimiento completos — cambia "Modo" a "Calcular desde fecha / hora / lugar de nacimiento" en la página Muhūrta Gauge (campo 1). Una estrella elegida manualmente por sí sola no da un Lagna, así que no hay señorío de casas ni Navāṁśa que leer aquí.')}</div></div>
+    </div>`;
+    return;
+  }
+
+  const refP = refInfo.panch;
+  const lagnaSign = SIGNS[Math.floor(norm360(birthPos._ascSidereal)/30)];
+  const lagnaIdx = SIGNS.indexOf(lagnaSign);
+  const navPos = computeNavamsaPos(birthPos);
+  const navLagnaSidereal = navamsaSidereal(birthPos._ascSidereal);
+  const navLagnaSign = SIGNS[Math.floor(navLagnaSidereal/30)];
+  const isWaxingMoon = refP._panch ? refP._panch.paksha === "Shukla" : true;
+
+  const snapRow = (labelEn, labelEs, d1Sign, d9Sign) => {
+    const vargottama = d1Sign === d9Sign;
+    return `<tr${vargottama?' style="background:var(--house1);"':''}>
+      <td class="wide">${T(labelEn,labelEs)}</td>
+      <td>${d1Sign}</td>
+      <td>${d9Sign}</td>
+      <td>${vargottama?`<span class="tag gold">Vargottama</span>`:''}</td>
+    </tr>`;
+  };
+
+  const lordships = houseLordshipsFromLagna(lagnaIdx);
+  const funcRows = GRAHA_LIST.filter(g=>lordships[g]).map(g=>{
+    const nature = naturalNatureForLordship(g, birthPos, isWaxingMoon);
+    const v = functionalVerdict(g, lordships[g], nature, birthPos);
+    const overall = v.score>0.5 ? {label:T('Leans functionally benefic','Se inclina funcionalmente benéfico'), cls:'good'}
+      : v.score<-0.5 ? {label:T('Leans functionally malefic','Se inclina funcionalmente maléfico'), cls:'bad'}
+      : {label:T('Mixed / neutral','Mixto / neutral'), cls:'neutral'};
+    return `<tr>
+      <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
+      <td style="font-size:11px;">${lordships[g].map(h=>T(h+ordinalSuffix(h), 'casa '+h)).join(', ')}</td>
+      <td style="font-size:11px;">${T(nature==='benefic'?'Natural benefic':'Natural malefic', nature==='benefic'?'Benéfico natural':'Maléfico natural')}</td>
+      <td style="font-size:10.5px; color:var(--ink-dim);">${v.tags.map(t=>t.text).join('; ')}</td>
+      <td><span class="tag ${overall.cls}">${overall.label}</span></td>
+    </tr>`;
+  }).join('');
+
+  const rajYoga = checkRajYoga(lordships, birthPos);
+  let rajYogaHtml;
+  if (rajYoga.pairs.length || rajYoga.dualRulers.length){
+    const parts = [];
+    rajYoga.dualRulers.forEach(g=>parts.push(`<span class="tag good">${gNameNatal(g)} — ${T('rules both a Kendra and a Trikoṇa (Yogakāraka)','gobierna un Kendra y un Trikoṇa (Yogakāraka)')}</span>`));
+    rajYoga.pairs.forEach(p=>parts.push(`<span class="tag good">${gNameNatal(p.a)} + ${gNameNatal(p.b)} — ${p.kind}</span>`));
+    rajYogaHtml = `<div class="pillrow">${parts.join('')}</div>`;
+  } else {
+    rajYogaHtml = `<div class="hint">${T('No Kendra-Trikoṇa conjunction, mutual exchange, or single-planet dual rulership found from this Lagna.','No se encontró conjunción Kendra-Trikoṇa, intercambio mutuo, ni señorío dual de un solo planeta desde este Lagna.')}</div>`;
+  }
+
+  const vargottamaList = GRAHA_LIST.filter(g=>{
+    const d1 = SIGNS[Math.floor(norm360(birthPos[g].sidereal)/30)];
+    const d9 = SIGNS[Math.floor(norm360(navPos[g].sidereal)/30)];
+    return d1===d9;
+  });
+  const lagnaVargottama = lagnaSign === navLagnaSign;
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('Natal General Reading','Lectura Natal General')}</h2><span class="note">D1 + D9 · ${T('initial snapshot','impresión inicial')}</span></div>
+      <div class="bd">
+        <div class="hint">${T('A first-look read of the birth chart, combining the Rāśi (D1) and Navāṁśa (D9) charts. The functional benefic/malefic table and Rāja Yoga check are sourced from Mystics of SBC ch. II — a Lagna-dependent house-lordship system, genuinely different from the fixed benefic/malefic list SBC\'s own Vedha scoring uses elsewhere in this app. The D1/D9 snapshot and Vargottama summary use this app\'s existing chart-computation machinery. This page is entirely natal — it never changes with today\'s date.','Una primera lectura de la carta natal, combinando las cartas Rāśi (D1) y Navāṁśa (D9). La tabla de benéfico/maléfico funcional y la comprobación de Rāja Yoga provienen del cap. II de Mystics of SBC — un sistema de señorío de casas dependiente del Lagna, genuinamente distinto de la lista fija de benéfico/maléfico que usa la puntuación de Vedha del propio SBC en otras partes de esta app. El resumen D1/D9 y de Vargottama usan la maquinaria de cálculo de cartas ya existente en esta app. Esta página es enteramente natal — nunca cambia con la fecha de hoy.')}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('D1 / D9 snapshot','Instantánea D1 / D9')}</h2></div>
+      <div class="bd">
+        <div class="tblwrap"><table><thead><tr><th></th><th>D1 (Rāśi)</th><th>D9 (Navāṁśa)</th><th></th></tr></thead><tbody>
+          ${snapRow('Lagna (Ascendant)','Lagna (Ascendente)', lagnaSign, navLagnaSign)}
+          ${snapRow('Moon — '+refP.star, 'Luna — '+refP.star, refP.sign, SIGNS[Math.floor(norm360(navPos.Moon.sidereal)/30)])}
+          ${snapRow('Sun', 'Sol', SIGNS[Math.floor(norm360(birthPos.Sun.sidereal)/30)], SIGNS[Math.floor(norm360(navPos.Sun.sidereal)/30)])}
+        </tbody></table></div>
+        <div class="hint" style="margin-top:8px;">${T('Gold row = Vargottama (same sign in both charts) — classically a real strength marker.','Fila dorada = Vargottama (mismo signo en ambas cartas) — clásicamente un indicador real de fuerza.')}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Functional benefic / malefic by house lordship','Benéfico / maléfico funcional por señorío de casas')}</h2><span class="note">Mystics of SBC, ch. II</span></div>
+      <div class="bd">
+        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Rules','Gobierna')}</th><th>${T('Natural','Natural')}</th><th>${T('Applicable rules','Reglas aplicables')}</th><th>${T('Net','Neto')}</th></tr></thead><tbody>${funcRows}</tbody></table></div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('Direct from the source: "Lords of 3rd, 6th and 11th houses are always malefic... Lords of 5th & 9th are 100% benefic... Benefic lords of 4th, 7th & 10th are 100% malefic unless they occupy their own or exaltation sign... Malefic lords of 4th, 7th, 10th are 100% benefic [Yogakāraka]... Lord of 8th house is most malefic... Lord of 8th house when also lord of Ascendant gives 50% benefic results." When one graha rules more than one house, every applicable rule is listed rather than forced into a single number — the source doesn\'t resolve those conflicts itself.','Directo de la fuente: "Los señores de las casas 3, 6 y 11 son siempre maléficos... Los señores de las casas 5 y 9 son 100% benéficos... Los señores benéficos de las casas 4, 7 y 10 son 100% maléficos salvo que ocupen su propio signo o el de exaltación... Los señores maléficos de las casas 4, 7, 10 son 100% benéficos [Yogakāraka]... El señor de la casa 8 es el más maléfico... El señor de la casa 8 cuando también es señor del Ascendente da 50% de resultados benéficos." Cuando un graha gobierna más de una casa, se listan todas las reglas aplicables en vez de forzar un solo número — la fuente misma no resuelve esos conflictos.')}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Rāja Yoga check','Comprobación de Rāja Yoga')}</h2><span class="note">Mystics of SBC, ch. II</span></div>
+      <div class="bd">
+        ${rajYogaHtml}
+        <div class="hint" style="margin-top:10px;">${T('Source: "Lords of 1st, 4th, 7th, 10th, 5th and 9th houses, if related to each other, especially by conjunction or exchange of Kendra Lord with Trikoṇa lord, give Rāja Yogas."','Fuente: "Los señores de las casas 1, 4, 7, 10, 5 y 9, si están relacionados entre sí, especialmente por conjunción o intercambio del señor de Kendra con el señor de Trikoṇa, dan Rāja Yogas."')}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Vargottama summary','Resumen de Vargottama')}</h2></div>
+      <div class="bd">
+        <div class="pillrow">
+          ${lagnaVargottama?`<span class="tag gold">Lagna</span>`:''}
+          ${vargottamaList.map(g=>`<span class="tag gold">${gNameNatal(g)}</span>`).join('')}
+          ${(!lagnaVargottama && !vargottamaList.length)?`<span class="tag neutral">${T('None found','No se encontró ninguno')}</span>`:''}
+        </div>
+        <div class="hint" style="margin-top:8px;">${T('Vargottama = same sign in D1 and D9 — a graha (or the Lagna itself) placed this way is classically read as more reliably delivering its significations.','Vargottama = mismo signo en D1 y D9 — un graha (o el propio Lagna) ubicado así se lee clásicamente como más fiable a la hora de dar sus significados.')}</div>
+      </div>
+    </div>
+  `;
+}
+function gNameNatal(g){ return T(g, GRAHA_ES[g]); }
 
 // Nakṣatra Categories page — a fixed property of the reference person's own
 // horoscope (Janma Nakṣatra, same refP used for Tārā Bala/Nāḍī on the main
@@ -4362,6 +4489,101 @@ function isOwnOrExalt(graha, sid){
   if (EXALT[graha] && sign === EXALT[graha].sign) return true;
   const rel = GRAHA_SIGN_REL[graha];
   return !!(rel && rel.own.includes(signIdx+1));
+}
+
+/* =========================================================================
+   NATAL FUNCTIONAL BENEFIC/MALEFIC — Mystics of SBC ch. II, "Misc. matters
+   about horoscope." A genuinely different (and more standard/Parashari)
+   system than the fixed BENEFIC_GRAHAS/MALEFIC_GRAHAS used everywhere else
+   in this app for SBC's own Vedha grading (ch. IX) — that one is SBC's own
+   simplification for a transit system; this one is the book's own natal
+   house-lordship rule set, quoted directly below each function, and is
+   Lagna-DEPENDENT (the same graha can be benefic from one Ascendant and
+   malefic from another) the way SBC's fixed list never is. Deliberately
+   kept as its own separate system rather than merged into BENEFIC_GRAHAS. */
+
+// "Malefic planets are Sun, weak Moon [setting, losing light, waning],
+// Mars, Saturn, Rahu & Ketu & Mercury - whenever with a malefic planet.
+// Jupiter, Venus, Mercury - whenever alone & waxing Moon are benefic
+// planets." — needs the birth positions + birth Pakṣa to evaluate Moon/Mercury.
+function naturalNatureForLordship(graha, birthPos, isWaxingMoon){
+  if (["Sun","Mars","Saturn","Rahu","Ketu"].includes(graha)) return "malefic";
+  if (graha === "Moon") return isWaxingMoon ? "benefic" : "malefic";
+  if (graha === "Jupiter" || graha === "Venus") return "benefic";
+  if (graha === "Mercury"){
+    const mercSignIdx = Math.floor(norm360(birthPos.Mercury.sidereal)/30);
+    const conjunctMalefic = ["Sun","Mars","Saturn","Rahu","Ketu"].some(m=>Math.floor(norm360(birthPos[m].sidereal)/30)===mercSignIdx);
+    return conjunctMalefic ? "malefic" : "benefic";
+  }
+  return "neutral";
+}
+// Which houses (1-12) each of the 9 grahas rules, counted from a given
+// Lagna sign — Rahu/Ketu own no sign in this scheme (the book discusses
+// them separately, by house-placement, not lordship) so they never appear.
+function houseLordshipsFromLagna(lagnaSignIdx){
+  const map = {};
+  for (let h=1; h<=12; h++){
+    const signIdx = (lagnaSignIdx + h - 1) % 12;
+    const lord = SIGN_LORD[SIGNS[signIdx]];
+    (map[lord] = map[lord] || []).push(h);
+  }
+  return map;
+}
+// The book's own rule ladder, applied per ruled house and combined. Houses
+// a graha rules simultaneously can pull in different directions (e.g. a
+// natural malefic ruling both a Kendra, 100% benefic there, AND the 3rd,
+// always malefic there) — every applicable rule is kept and shown, rather
+// than collapsed into one number the source doesn't actually resolve.
+function functionalVerdict(graha, houses, naturalNature, birthPos){
+  const tags = [];
+  let score = 0;
+  const isLagnaLord = houses.includes(1);
+  houses.forEach(h=>{
+    if (h===1){ tags.push({h, text:T('Lagna lord','señor del Lagna'), score:0}); }
+    else if ([3,6,11].includes(h)){ tags.push({h, text:T(`${h}${ordinalSuffix(h)} lord — always malefic`,`señor de casa ${h} — siempre maléfico`), score:-1}); }
+    else if ([5,9].includes(h)){ tags.push({h, text:T(`${h}${ordinalSuffix(h)} lord — 100% benefic (Trikoṇa)`,`señor de casa ${h} — 100% benéfico (Trikoṇa)`), score:2}); }
+    else if ([4,7,10].includes(h)){
+      if (naturalNature==="benefic"){
+        const ownExalt = isOwnOrExalt(graha, birthPos[graha].sidereal);
+        if (ownExalt) tags.push({h, text:T(`${h}${ordinalSuffix(h)} lord (Kendra) — own/exalted, escapes Kendrādhipati doṣa`,`señor de casa ${h} (Kendra) — propio/exaltado, escapa al Kendrādhipati doṣa`), score:1});
+        else tags.push({h, text:T(`${h}${ordinalSuffix(h)} lord (Kendra) — natural benefic turns functionally malefic here`,`señor de casa ${h} (Kendra) — benéfico natural se vuelve funcionalmente maléfico aquí`), score:-1});
+      } else {
+        tags.push({h, text:T(`${h}${ordinalSuffix(h)} lord (Kendra) — natural malefic turns Yogakāraka (strongly benefic) here`,`señor de casa ${h} (Kendra) — maléfico natural se vuelve Yogakāraka (fuertemente benéfico) aquí`), score:2});
+      }
+    }
+    else if (h===8){ tags.push({h, text:T(`8th lord — most malefic${isLagnaLord?' (also Lagna lord: 50% benefic)':''}`,`señor de casa 8 — el más maléfico${isLagnaLord?' (también señor del Lagna: 50% benéfico)':''}`), score:isLagnaLord?-0.5:-2}); }
+    else if ([2,12].includes(h)){ tags.push({h, text:T(`${h}${ordinalSuffix(h)} lord — neutral (unless it also owns another house above)`,`señor de casa ${h} — neutral (salvo que también gobierne otra casa de arriba)`), score:0}); }
+  });
+  score = tags.reduce((s,t)=>s+t.score,0);
+  return { tags, score };
+}
+// "Lords of 1st, 4th, 7th, 10th, 5th and 9th houses, if related to each
+// other, especially by conjunction or exchange of Kendra Lord with
+// Trikoṇa lord, give Raj Yogas." Checks every (Kendra-lord, Trikoṇa-lord)
+// pair for same-sign conjunction or mutual sign-exchange; a single graha
+// ruling both a Kendra and a Trikoṇa is flagged separately (a strong
+// Yogakāraka condition in its own right, distinct from the two-lord case
+// the quote above describes).
+function checkRajYoga(lordships, birthPos){
+  const kendraHouses = [1,4,7,10], trikonaHouses = [5,9];
+  const kendraLords = Object.keys(lordships).filter(g=>lordships[g].some(h=>kendraHouses.includes(h)));
+  const trikonaLords = Object.keys(lordships).filter(g=>lordships[g].some(h=>trikonaHouses.includes(h)));
+  const dualRulers = kendraLords.filter(g=>trikonaLords.includes(g));
+  const pairs = [];
+  kendraLords.forEach(kg=>{
+    if (dualRulers.includes(kg)) return; // covered by dualRulers instead
+    trikonaLords.forEach(tg=>{
+      if (kg===tg) return;
+      const kSign = Math.floor(norm360(birthPos[kg].sidereal)/30);
+      const tSign = Math.floor(norm360(birthPos[tg].sidereal)/30);
+      if (kSign===tSign){ pairs.push({a:kg, b:tg, kind:T('conjunction','conjunción')}); return; }
+      // mutual exchange: kg sits in a sign tg owns, and tg sits in a sign kg owns
+      const kInTgSign = SIGN_LORD[SIGNS[kSign]] === tg;
+      const tInKgSign = SIGN_LORD[SIGNS[tSign]] === kg;
+      if (kInTgSign && tInKgSign) pairs.push({a:kg, b:tg, kind:T('mutual exchange (parivartana)','intercambio mutuo (parivartana)')});
+    });
+  });
+  return { pairs, dualRulers };
 }
 // Natal check only (Mahāpuruṣa Yoga is a birth-chart feature, not a transit
 // one) — needs the reference person's full birth positions, only available
@@ -5347,6 +5569,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     populateProfileSelect();
     initTheme();
     runAnalysis();
+    if (document.getElementById('pageNatal').classList.contains('active')) renderNatalPage();
     if (document.getElementById('pageNakshatra').classList.contains('active')) renderNakshatraPage();
     if (document.getElementById('pageAnatomy').classList.contains('active')) renderAnatomyPage();
     if (document.getElementById('pageCalendar').classList.contains('active')) renderCalendarPage();
