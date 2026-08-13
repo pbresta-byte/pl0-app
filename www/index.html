@@ -3655,14 +3655,26 @@ function renderNatalPage(){
   const navLagnaSign = SIGNS[Math.floor(navLagnaSidereal/30)];
   const isWaxingMoon = refP._panch ? refP._panch.paksha === "Shukla" : true;
 
-  const snapRow = (labelEn, labelEs, d1Sign, d9Sign) => {
-    const vargottama = d1Sign === d9Sign;
-    return `<tr${vargottama?' style="background:var(--house1);"':''}>
-      <td class="wide">${T(labelEn,labelEs)}</td>
-      <td>${d1Sign}</td>
-      <td>${d9Sign}</td>
-      <td>${vargottama?`<span class="tag gold">Vargottama</span>`:''}</td>
+  const positionRows = (pos, ascSidereal) => {
+    const ascSign = SIGNS[Math.floor(norm360(ascSidereal)/30)];
+    const ascDeg = norm360(ascSidereal)%30;
+    let rows = `<tr>
+      <td class="wide">Lagna</td>
+      <td>${ascSign} ${fmtDeg(ascDeg)}</td>
+      <td>—</td>
     </tr>`;
+    GRAHA_LIST.forEach(g=>{
+      const sid = norm360(pos[g].sidereal);
+      const sign = SIGNS[Math.floor(sid/30)];
+      const deg = sid%30;
+      const retro = pos[g].speed<0;
+      rows += `<tr>
+        <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
+        <td>${sign} ${fmtDeg(deg)}${retro?` <small style="color:var(--vermilion);">(${T('r','r')})</small>`:''}</td>
+        <td>${dignity(g, sid)}</td>
+      </tr>`;
+    });
+    return rows;
   };
 
   const lordships = houseLordshipsFromLagna(lagnaIdx);
@@ -3703,20 +3715,24 @@ function renderNatalPage(){
     <div class="panel">
       <div class="hd"><h2>${T('Natal General Reading','Lectura Natal General')}</h2><span class="note">D1 + D9 · ${T('initial snapshot','impresión inicial')}</span></div>
       <div class="bd">
-        <div class="hint">${T('A first-look read of the birth chart, combining the Rāśi (D1) and Navāṁśa (D9) charts. The functional benefic/malefic table and Rāja Yoga check are sourced from Mystics of SBC ch. II — a Lagna-dependent house-lordship system, genuinely different from the fixed benefic/malefic list SBC\'s own Vedha scoring uses elsewhere in this app. The D1/D9 snapshot and Vargottama summary use this app\'s existing chart-computation machinery. This page is entirely natal — it never changes with today\'s date.','Una primera lectura de la carta natal, combinando las cartas Rāśi (D1) y Navāṁśa (D9). La tabla de benéfico/maléfico funcional y la comprobación de Rāja Yoga provienen del cap. II de Mystics of SBC — un sistema de señorío de casas dependiente del Lagna, genuinamente distinto de la lista fija de benéfico/maléfico que usa la puntuación de Vedha del propio SBC en otras partes de esta app. El resumen D1/D9 y de Vargottama usan la maquinaria de cálculo de cartas ya existente en esta app. Esta página es enteramente natal — nunca cambia con la fecha de hoy.')}</div>
+        <div class="hint">${T('A first-look read of the birth chart, from the Rāśi (D1) and Navāṁśa (D9) charts. The functional benefic/malefic table and Rāja Yoga check are sourced from Mystics of SBC ch. II — a Lagna-dependent house-lordship system, genuinely different from the fixed benefic/malefic list SBC\'s own Vedha scoring uses elsewhere in this app. The position tables and Vargottama summary use this app\'s existing chart-computation machinery. This page is entirely natal — it never changes with today\'s date.','Una primera lectura de la carta natal, a partir de las cartas Rāśi (D1) y Navāṁśa (D9). La tabla de benéfico/maléfico funcional y la comprobación de Rāja Yoga provienen del cap. II de Mystics of SBC — un sistema de señorío de casas dependiente del Lagna, genuinamente distinto de la lista fija de benéfico/maléfico que usa la puntuación de Vedha del propio SBC en otras partes de esta app. Las tablas de posiciones y el resumen de Vargottama usan la maquinaria de cálculo de cartas ya existente en esta app. Esta página es enteramente natal — nunca cambia con la fecha de hoy.')}</div>
       </div>
     </div>
 
-    <div class="panel"><div class="hd"><h2>${T('D1 / D9 snapshot','Instantánea D1 / D9')}</h2></div>
-      <div class="bd">
-        <div class="tblwrap"><table><thead><tr><th></th><th>D1 (Rāśi)</th><th>D9 (Navāṁśa)</th><th></th></tr></thead><tbody>
-          ${snapRow('Lagna (Ascendant)','Lagna (Ascendente)', lagnaSign, navLagnaSign)}
-          ${snapRow('Moon — '+refP.star, 'Luna — '+refP.star, refP.sign, SIGNS[Math.floor(norm360(navPos.Moon.sidereal)/30)])}
-          ${snapRow('Sun', 'Sol', SIGNS[Math.floor(norm360(birthPos.Sun.sidereal)/30)], SIGNS[Math.floor(norm360(navPos.Sun.sidereal)/30)])}
-        </tbody></table></div>
-        <div class="hint" style="margin-top:8px;">${T('Gold row = Vargottama (same sign in both charts) — classically a real strength marker.','Fila dorada = Vargottama (mismo signo en ambas cartas) — clásicamente un indicador real de fuerza.')}</div>
+    <div class="grid2">
+      <div class="panel"><div class="hd"><h2>${T('D1 (Rāśi) positions','Posiciones D1 (Rāśi)')}</h2><span class="note">${T('natal','natal')}</span></div>
+        <div class="bd">
+          <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Position','Posición')}</th><th>${T('Dignity','Dignidad')}</th></tr></thead><tbody>${positionRows(birthPos, birthPos._ascSidereal)}</tbody></table></div>
+        </div>
+      </div>
+      <div class="panel"><div class="hd"><h2>${T('D9 (Navāṁśa) positions','Posiciones D9 (Navāṁśa)')}</h2><span class="note">${T('natal','natal')}</span></div>
+        <div class="bd">
+          <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Position','Posición')}</th><th>${T('Dignity','Dignidad')}</th></tr></thead><tbody>${positionRows(navPos, navLagnaSidereal)}</tbody></table></div>
+        </div>
       </div>
     </div>
+    <div class="hint" style="margin:8px 0 0;">${T('(r) = retrograde at birth. Dignity (own/exalted/friend/neutral/enemy/debilitated) is read off the sign each chart places the graha in — the same rule for both D1 and D9.','(r) = retrógrado al nacer. La dignidad (propio/exaltado/amigo/neutral/enemigo/debilitado) se lee según el signo en que cada carta ubica al graha — la misma regla para D1 y D9.')}</div>
+    <div style="height:8px"></div>
 
     <div class="panel"><div class="hd"><h2>${T('Functional benefic / malefic by house lordship','Benéfico / maléfico funcional por señorío de casas')}</h2><span class="note">Mystics of SBC, ch. II</span></div>
       <div class="bd">
