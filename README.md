@@ -13,7 +13,9 @@ Every rule is transcribed from a named classical source (cited inline in the app
 
 ## Use it now
 
-**Live:** https://claude.ai/code/artifact/35b5b1b9-d2a6-423c-bd82-649b053ea57b (private artifact — this link is for you, not for sharing)
+**Shareable link:** https://pbresta-byte.github.io/muhurta-gauge/ — public URL, works for anyone with the link on desktop or mobile (installable as a home-screen app via the browser's "Add to Home Screen"). It's unlisted, not indexed by search engines (`noindex` + `robots.txt`).
+
+Also available as a private claude.ai artifact for personal use: https://claude.ai/code/artifact/35b5b1b9-d2a6-423c-bd82-649b053ea57b (not for sharing — requires your claude.ai login).
 
 The app is also a single self-contained HTML file with no build step and no server — you can just open [`www/index.html`](www/index.html) directly in any browser.
 
