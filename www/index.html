@@ -1496,31 +1496,49 @@ const PRASNA_DIRECTION_REMEDY = [
    ========================================================================= */
 
 // Ch. XLI, śl. 2-8 — the commodities each zodiac sign governs.
+// "modern"/"modernEs" is this app's own annotation, not a translation of the
+// source — added only where a listed article is still a standard traded
+// commodity today under essentially the same name (grain, cotton, metals,
+// sugar), so nothing is being invented or substituted; left blank where the
+// classical article (e.g. Kodrava millet, lily root, shell-gems) has no
+// clean modern-market equivalent, rather than force a stretch.
 const SIGN_COMMODITIES = {
   Aries:       { en:["Cotton & woollen fabric","Leather oil-jars","Beans","Wheat","Rāgī","Barley","Dry crops generally","Gold"],
-                 es:["Algodón y tela de lana","Tinajas de aceite de cuero","Frijoles","Trigo","Rāgī","Cebada","Cultivos secos en general","Oro"] },
+                 es:["Algodón y tela de lana","Tinajas de aceite de cuero","Frijoles","Trigo","Rāgī","Cebada","Cultivos secos en general","Oro"],
+                 modern:"cotton, wheat & barley futures; gold", modernEs:"futuros de algodón, trigo y cebada; oro" },
   Taurus:      { en:["Cloth generally","Flowers","Wheat","Rice","Barley","Buffaloes","Cows"],
-                 es:["Telas en general","Flores","Trigo","Arroz","Cebada","Búfalos","Vacas"] },
+                 es:["Telas en general","Flores","Trigo","Arroz","Cebada","Búfalos","Vacas"],
+                 modern:"wheat, rice & barley futures; live cattle", modernEs:"futuros de trigo, arroz y cebada; ganado en pie" },
   Gemini:      { en:["Autumnal crops","Creepers","Lily root","Cotton"],
-                 es:["Cultivos otoñales","Enredaderas","Raíz de lirio","Algodón"] },
+                 es:["Cultivos otoñales","Enredaderas","Raíz de lirio","Algodón"],
+                 modern:"cotton futures", modernEs:"futuros de algodón" },
   Cancer:      { en:["Kodrava (millet)","Plantains","Bent grass","Fruits","Roots","Leaves","Bark"],
-                 es:["Kodrava (mijo)","Plátanos","Pasto doblado","Frutas","Raíces","Hojas","Corteza"] },
+                 es:["Kodrava (mijo)","Plátanos","Pasto doblado","Frutas","Raíces","Hojas","Corteza"],
+                 modern:null, modernEs:null },
   Leo:         { en:["Food grains","Sugarcane juice products","Hides","Jaggery"],
-                 es:["Granos alimenticios","Productos de jugo de caña","Pieles","Jaggery (panela)"] },
+                 es:["Granos alimenticios","Productos de jugo de caña","Pieles","Jaggery (panela)"],
+                 modern:"sugar futures", modernEs:"futuros de azúcar" },
   Virgo:       { en:["Common flax","Barley","Horse gram","Wheat","Kidney beans","Nishpava (a legume)"],
-                 es:["Lino común","Cebada","Garbanzo caballar","Trigo","Frijoles riñón","Nishpava (legumbre)"] },
+                 es:["Lino común","Cebada","Garbanzo caballar","Trigo","Frijoles riñón","Nishpava (legumbre)"],
+                 modern:"wheat & barley futures; pulses", modernEs:"futuros de trigo y cebada; legumbres" },
   Libra:       { en:["Black gram","Wheat","Mustard seed"],
-                 es:["Gramo negro","Trigo","Semilla de mostaza"] },
+                 es:["Gramo negro","Trigo","Semilla de mostaza"],
+                 modern:"wheat futures; mustard/rapeseed (canola) futures", modernEs:"futuros de trigo; futuros de mostaza/colza (canola)" },
   Scorpio:     { en:["Sugarcane","Wet (irrigated) grains","Metals","Woollen fabric"],
-                 es:["Caña de azúcar","Granos de regadío","Metales","Tela de lana"] },
+                 es:["Caña de azúcar","Granos de regadío","Metales","Tela de lana"],
+                 modern:"sugar futures; base/industrial metals", modernEs:"futuros de azúcar; metales base/industriales" },
   Sagittarius: { en:["Horses","Salt","Cloth","Weapons","Gingelly (sesame) seeds","Roots"],
-                 es:["Caballos","Sal","Tela","Armas","Semillas de ajonjolí","Raíces"] },
+                 es:["Caballos","Sal","Tela","Armas","Semillas de ajonjolí","Raíces"],
+                 modern:null, modernEs:null },
   Capricorn:   { en:["Timber","Shrubs","Wet grains","Sugarcane","Gold","Black-lead (galena)"],
-                 es:["Madera","Arbustos","Granos de regadío","Caña de azúcar","Oro","Plomo negro (galena)"] },
+                 es:["Madera","Arbustos","Granos de regadío","Caña de azúcar","Oro","Plomo negro (galena)"],
+                 modern:"lumber futures; sugar futures; gold", modernEs:"futuros de madera; futuros de azúcar; oro" },
   Aquarius:    { en:["Water-fruits & flowers","Gems","Articles of varied shape"],
-                 es:["Frutas y flores acuáticas","Gemas","Artículos de formas variadas"] },
+                 es:["Frutas y flores acuáticas","Gemas","Artículos de formas variadas"],
+                 modern:null, modernEs:null },
   Pisces:      { en:["Pearls & shell-gems","Diamonds","Various oils","Fish"],
-                 es:["Perlas y gemas de concha","Diamantes","Aceites diversos","Pescado"] }
+                 es:["Perlas y gemas de concha","Diamantes","Aceites diversos","Pescado"],
+                 modern:"vegetable-oil futures (soybean, palm)", modernEs:"futuros de aceites vegetales (soja, palma)" }
 };
 
 // Ch. XLI, śl. 10 (Venus) and śl. 10-11 (malefics) — the two unambiguous
@@ -5692,30 +5710,44 @@ function commodityLiveNow(ayanamsaMode){
 }
 
 /* =========================================================================
-   MODERN SYNTHESIS — equities and government bonds/treasuries did not exist
-   when Bṛhat Saṁhitā was written, so there is nothing to transcribe for
-   them from ch. XLI/XLII. Explicitly this app's own synthesis: it applies
-   standard, widely-documented Vedic planetary significations (karakatva —
-   e.g. Bṛhat Parāśara Horā Śāstra's karaka chapter) to two modern
-   instrument categories, reusing the same dignity()/dignityTier() sign-
-   dignity classification already used elsewhere in this app (though not
-   dignityWeight()'s Vedha-strength scale — that grades how hard a Vedha hit
-   lands, not whether a placement is favourable, which is what this panel
-   actually wants) rather than inventing a new one. Not validated Jyotish
-   teaching, not financial advice.
+   MODERN SYNTHESIS — equities, government bonds/treasuries and currency
+   exchange did not exist when Bṛhat Saṁhitā was written, so there is
+   nothing to transcribe for them from ch. XLI/XLII. Explicitly this app's
+   own synthesis: it applies standard, widely-documented Vedic planetary
+   significations (karakatva — e.g. Bṛhat Parāśara Horā Śāstra's karaka
+   chapter) to three modern instrument categories, reusing the same
+   dignity()/dignityTier() sign-dignity classification already used
+   elsewhere in this app (though not dignityWeight()'s Vedha-strength scale
+   — that grades how hard a Vedha hit lands, not whether a placement is
+   favourable, which is what this panel actually wants) rather than
+   inventing a new one. Not validated Jyotish teaching, not financial advice.
 
    Mercury (trade/commerce — Vaṇik karaka) is read as primary for equities,
    with Jupiter (a Dhana/wealth karaka, also karaka of growth/expansion) as
    a secondary tailwind and Rāhu flagged separately as the classical
-   speculation/mania significator. This is the LOOSER of the two mappings:
-   equity ownership also brushes Jupiter's and Venus's wealth significations,
-   so collapsing "stocks" to one planet is a real simplification.
+   speculation/mania significator. This is the LOOSEST of the three
+   mappings: equity ownership also brushes Jupiter's and Venus's wealth
+   significations, so collapsing "stocks" to one planet is a real
+   simplification.
 
    Saturn (structure, long duration, government administration) is the
-   TIGHTER fit for government bonds/treasuries — sovereign, long-duration,
+   TIGHTEST fit for government bonds/treasuries — sovereign, long-duration,
    fixed-structure debt lines up closely with Saturn's standard karakas. The
    Sun, classical karaka of the ruling authority/the state, is read as
    secondary context for the issuing government.
+
+   Currency exchange is read through the Moon rather than Mercury, kept
+   primary here to avoid duplicating the equities reading: silver (Rajata)
+   is the Moon's standard commodity signification already used elsewhere on
+   this page (the "Commodities by planet" table on the World & Commodity
+   Significators page lists Moon → silver directly) and silver was the
+   literal specie many currencies, including the rupee, were struck from —
+   plus the Moon is the fastest-moving graha tracked on this page, apt for
+   how quickly FX rates move. Mercury (trade/exchange) sits as secondary
+   context, and Rāhu — already this app's standing significator for foreign/
+   international matters (see SBC_PLANET_SECTORS.Rahu below) — is flagged
+   for the same reason it's flagged on equities: speculative mania, doubly
+   relevant to a market that is by definition a foreign exchange.
    ========================================================================= */
 /* Equities by Industry Sector — Mystics of SBC ch. V ("All about Planets",
    Significations of Planets) and ch. VI ("All about Signs", Significations
@@ -5765,8 +5797,9 @@ function modernSynthesisLiveNow(ayanamsaMode){
     return { graha:g, sign:SIGNS[Math.floor(sid/30)], dignityStr:dignity(g, sid), tier:dignityTier(g, sid), retrograde:retro };
   };
   return {
-    stocks: { primary:readGraha('Mercury'), secondary:readGraha('Jupiter'), flag:readGraha('Rahu') },
-    bonds:  { primary:readGraha('Saturn'),  secondary:readGraha('Sun') }
+    stocks:   { primary:readGraha('Mercury'), secondary:readGraha('Jupiter'), flag:readGraha('Rahu') },
+    bonds:    { primary:readGraha('Saturn'),  secondary:readGraha('Sun') },
+    currency: { primary:readGraha('Moon'),    secondary:readGraha('Mercury'), flag:readGraha('Rahu') }
   };
 }
 // A plain favourable/unfavourable read of a graha's own sign-dignity —
@@ -5805,9 +5838,11 @@ function renderCommoditiesPage(){
       r.maleficsFlourish.length ? `<span class="tag good">${r.maleficsFlourish.map(gName).join('/')} ${T('in 3rd/6th/10th/11th → flourish','en 3.ª/6.ª/10.ª/11.ª → abundancia')}</span>` : '',
       r.maleficsScarce.length ? `<span class="tag bad">${r.maleficsScarce.map(gName).join('/')} ${T('elsewhere → scarce &amp; dear','en otra casa → escasez y precio alto')}</span>` : ''
     ].filter(Boolean).join(' ');
+    const modern = SIGN_COMMODITIES[r.sign].modern;
+    const modernHtml = modern ? `<div style="font-size:10px; color:var(--slate); font-style:italic; margin-top:3px;">${T('still trades today as','aún se comercia hoy como')}: ${T(modern, SIGN_COMMODITIES[r.sign].modernEs)}</div>` : '';
     return `<tr>
       <td class="wide">${r.sign}</td>
-      <td style="font-size:11.5px;">${commoditiesOf(r.sign)}</td>
+      <td style="font-size:11.5px;">${commoditiesOf(r.sign)}${modernHtml}</td>
       <td>${venusTag} ${maleficTags}
         <div class="hint" style="margin-top:4px;">${T('Jupiter','Júpiter')} ${r.jupiterOffset}${T(ordinalSuffix(r.jupiterOffset),'.ª')}, ${T('Mercury','Mercurio')} ${r.mercuryOffset}${T(ordinalSuffix(r.mercuryOffset),'.ª')} ${T('house from this sign — no verdict asserted (see note below)','casa desde este signo — sin veredicto (ver nota abajo)')}</div>
       </td>
@@ -5949,10 +5984,10 @@ function renderCommoditiesPage(){
     </div>
 
     <div class="panel">
-      <div class="hd"><h2>${T('Modern Synthesis — Stocks &amp; Treasuries','Síntesis Moderna — Acciones y Bonos del Tesoro')}</h2><span class="note">${T("this app's own synthesis — not ch. XLI/XLII","síntesis propia de esta app — no cap. XLI/XLII")}</span></div>
+      <div class="hd"><h2>${T('Modern Synthesis — Stocks, Treasuries &amp; Currency','Síntesis Moderna — Acciones, Bonos y Divisas')}</h2><span class="note">${T("this app's own synthesis — not ch. XLI/XLII","síntesis propia de esta app — no cap. XLI/XLII")}</span></div>
       <div class="bd">
-        <div class="warnbox">${T('Equities and government bonds did not exist when Bṛhat Saṁhitā was written, so nothing below is transcribed from it. This section applies standard Vedic planetary significations (karakatva) to two modern instrument categories, using the same dignity engine the SBC score uses elsewhere in this app. Not validated Jyotish teaching, not financial advice.','Las acciones y los bonos del Tesoro no existían cuando se escribió el Bṛhat Saṁhitā, así que nada de lo siguiente se transcribe de él. Esta sección aplica las significaciones planetarias védicas estándar (karakatva) a dos categorías de instrumentos modernos, usando el mismo motor de dignidad que la puntuación SBC usa en otras partes de esta app. No es enseñanza jyotish validada, ni asesoría financiera.')}</div>
-        <div class="hint" style="margin-top:8px;">${T('In modern markets these two are often read in tension with one another (risk-on / risk-off — rising yields pressuring equities, or the reverse). This app deliberately does not assume that relationship: the two readings below are independent astrological reads of their own significators, not coupled to each other.','En los mercados modernos, estos dos suelen leerse en tensión mutua (risk-on / risk-off — rendimientos al alza presionando la renta variable, o al revés). Esta app deliberadamente no asume esa relación: las dos lecturas de abajo son lecturas astrológicas independientes de sus propios significadores, no acopladas entre sí.')}</div>
+        <div class="warnbox">${T('Equities, government bonds and currency exchange did not exist when Bṛhat Saṁhitā was written, so nothing below is transcribed from it. This section applies standard Vedic planetary significations (karakatva) to three modern instrument categories, using the same dignity engine the SBC score uses elsewhere in this app. Not validated Jyotish teaching, not financial advice.','Las acciones, los bonos del Tesoro y el cambio de divisas no existían cuando se escribió el Bṛhat Saṁhitā, así que nada de lo siguiente se transcribe de él. Esta sección aplica las significaciones planetarias védicas estándar (karakatva) a tres categorías de instrumentos modernos, usando el mismo motor de dignidad que la puntuación SBC usa en otras partes de esta app. No es enseñanza jyotish validada, ni asesoría financiera.')}</div>
+        <div class="hint" style="margin-top:8px;">${T('In modern markets equities and bonds are often read in tension with one another (risk-on / risk-off — rising yields pressuring equities, or the reverse), and currency strength interacts with both. This app deliberately does not assume any of those relationships: the three readings below are independent astrological reads of their own significators, not coupled to each other.','En los mercados modernos, las acciones y los bonos suelen leerse en tensión mutua (risk-on / risk-off — rendimientos al alza presionando la renta variable, o al revés), y la fortaleza de una divisa interactúa con ambos. Esta app deliberadamente no asume ninguna de esas relaciones: las tres lecturas de abajo son lecturas astrológicas independientes de sus propios significadores, no acopladas entre sí.')}</div>
 
         <h3 style="margin-top:16px; margin-bottom:4px; font-size:13px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Equities / Stocks','Acciones / Renta Variable')}</h3>
         <div class="hint">${T('Mercury — the classical trade/commerce significator — read as primary; Jupiter (a wealth/growth karaka) as a secondary tailwind; Rāhu flagged separately as the classical speculation significator. The looser of the two mappings on this page: equity ownership also brushes Jupiter\'s and Venus\'s own wealth significations.','Mercurio — el significador clásico del comercio — se lee como primario; Júpiter (un karaka de riqueza/crecimiento) como impulso secundario; Rāhu señalado aparte como el significador clásico de la especulación. El más laxo de los dos mapeos de esta página: la propiedad de acciones también roza las significaciones de riqueza propias de Júpiter y Venus.')}</div>
@@ -5967,6 +6002,14 @@ function renderCommoditiesPage(){
         <div class="kv" style="margin-top:8px;">
           ${synthRow('Saturn (primary)','Saturno (primario)', synth.bonds.primary)}
           ${synthRow('Sun (state context)','Sol (contexto estatal)', synth.bonds.secondary)}
+        </div>
+
+        <h3 style="margin-top:18px; margin-bottom:4px; font-size:13px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Currency / FX','Divisas / FX')}</h3>
+        <div class="hint">${T('The Moon — not Mercury — is read as primary here, to avoid just repeating the equities reading. Silver (Rajata) is the Moon\'s standard commodity signification (see "Commodities by planet" on the World & Commodity Significators page), and silver was the literal specie many currencies, including the rupee, were struck from; the Moon is also the fastest-moving graha tracked on this page, apt for how quickly FX rates move. Mercury (trade/exchange) sits as secondary context, and Rāhu — this app\'s standing foreign/international significator (see the Equities by Sector panel below) — is flagged again here, doubly apt for a market that is by definition a foreign exchange. A single reading necessarily collapses what is really a pair of currencies into one sentiment, which is the real simplification in this mapping.','La Luna — no Mercurio — se lee como primaria aquí, para no repetir simplemente la lectura de renta variable. La plata (Rajata) es la significación estándar de materia prima de la Luna (ver "Materias primas por planeta" en la página de Significadores Mundiales y de Materias Primas), y la plata fue el metal literal con que se acuñaron muchas divisas, incluida la rupia; la Luna también es el graha de movimiento más rápido rastreado en esta página, apto para la rapidez con que se mueven los tipos de cambio. Mercurio (comercio/intercambio) aparece como contexto secundario, y Rāhu — el significador estable de esta app para asuntos extranjeros/internacionales (ver el panel de Renta Variable por Sector abajo) — se señala de nuevo aquí, doblemente apto para un mercado que por definición es un cambio extranjero. Una sola lectura necesariamente reduce lo que en realidad es un par de divisas a un solo sentimiento, que es la verdadera simplificación de este mapeo.')}</div>
+        <div class="kv" style="margin-top:8px;">
+          ${synthRow('Moon (primary)','Luna (primaria)', synth.currency.primary)}
+          ${synthRow('Mercury (context)','Mercurio (contexto)', synth.currency.secondary)}
+          ${synthRow('Rāhu (speculative flag)','Rāhu (bandera especulativa)', synth.currency.flag)}
         </div>
 
         <div class="hint" style="margin-top:14px;">${T('Gold is not synthesized here — it\'s directly sourced, not extrapolated, and gets its own dedicated panel near the top of this page.','El oro no se sintetiza aquí — está directamente documentado, no extrapolado, y tiene su propio panel dedicado cerca del inicio de esta página.')}</div>
