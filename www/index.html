@@ -176,6 +176,19 @@
   .hamburger-menu button.active{ color:var(--gold); }
   .page{ display:none; }
   .page.active{ display:block; }
+
+  .place-results{
+    position:relative; z-index:15; margin-top:-8px; margin-bottom:10px;
+    border:1px solid var(--line); background:var(--panel);
+    box-shadow:0 6px 18px rgba(0,0,0,0.18); max-height:220px; overflow-y:auto;
+  }
+  .place-results button{
+    display:block; width:100%; text-align:left; padding:8px 12px; border:none; background:none;
+    font-family:var(--serif); font-size:13px; color:var(--ink-dim); cursor:pointer; border-bottom:1px solid var(--line-soft);
+  }
+  .place-results button:last-child{ border-bottom:none; }
+  .place-results button:hover{ background:var(--panel-2); color:var(--gold); }
+  .place-results button small{ display:block; color:var(--slate); font-size:10.5px; margin-top:1px; }
   .plaque h1{
     margin:0; font-weight:400; font-size:26px; letter-spacing:0.04em;
     color:var(--ink);
@@ -438,8 +451,10 @@
         <button type="button" data-page="pageAntara" data-i18n="navAntara">Antara Chakra (Portents)</button>
         <button type="button" data-page="pageRemedies" data-i18n="navRemedies">Remedies &amp; Combinations</button>
         <button type="button" data-page="pageCommodities" data-i18n="navCommodities">Commodity Signals</button>
+        <button type="button" data-page="pageCurrencies" data-i18n="navCurrencies">Currencies</button>
         <button type="button" data-page="pageHorary" data-i18n="navHorary">Horary / Praśna (SBC)</button>
         <button type="button" data-page="pageSignificators" data-i18n="navSignificators">World &amp; Commodity Significators</button>
+        <button type="button" data-page="pageChintamani" data-i18n="navChintamani">Muhūrta Chintāmaṇi</button>
       </div>
     </div>
     <div>
@@ -476,18 +491,22 @@
           <button class="btn ghost" id="profileDeleteBtn" type="button" style="flex:1; margin-top:0;" data-i18n="profileDelete">Delete</button>
         </div>
       </div>
-      <div class="hint" data-i18n="profileHint" style="margin-bottom:12px;">Save the birth data below as a named profile — stored on this device, unlimited slots.</div>
+      <div class="hint" data-i18n="profileHint" style="margin-bottom:6px;">Save the birth data below as a named profile — stored on this device, up to 20 slots.</div>
+      <div id="profileMsg" class="hint" style="display:none; margin-bottom:12px; color:var(--vermilion);"></div>
 
       <div id="refBirthBlock">
         <label data-i18n="birthDate">Birth date</label>
-        <input type="date" id="bDate" value="1990-09-30">
+        <input type="date" id="bDate">
         <div class="row2">
-          <div><label data-i18n="birthTime">Birth time (local)</label><input type="time" id="bTime" value="17:54" step="60"></div>
-          <div><label data-i18n="utcOffset">UTC offset (hrs)</label><input type="number" id="bTZ" value="-4" step="0.5"></div>
+          <div><label data-i18n="birthTime">Birth time (local)</label><input type="time" id="bTime" step="60"></div>
+          <div><label data-i18n="utcOffset">UTC offset (hrs)</label><input type="number" id="bTZ" step="0.5" placeholder="e.g. -4"></div>
         </div>
+        <label data-i18n="birthPlace">Place of birth</label>
+        <input type="text" id="bPlaceSearch" data-i18n-placeholder="birthPlacePh" placeholder="Search city or country…" autocomplete="off">
+        <div id="bPlaceResults" class="place-results" style="display:none;"></div>
         <div class="row2">
-          <div><label data-i18n="lat">Latitude (+N)</label><input type="number" id="bLat" value="25.7617" step="0.0001"></div>
-          <div><label data-i18n="lon">Longitude (+E)</label><input type="number" id="bLon" value="-80.1918" step="0.0001"></div>
+          <div><label data-i18n="lat">Latitude (+N)</label><input type="number" id="bLat" step="0.0001" placeholder="e.g. 25.7617"></div>
+          <div><label data-i18n="lon">Longitude (+E)</label><input type="number" id="bLon" step="0.0001" placeholder="e.g. -80.1918"></div>
         </div>
         <label data-i18n="nameOpt">Name (optional)</label>
         <input type="text" id="bName" data-i18n-placeholder="namePh" placeholder="e.g. Rohan, Meera…">
@@ -502,6 +521,9 @@
         <div><label data-i18n="timeLbl">Time (local)</label><input type="time" id="mTime" step="60"></div>
         <div><label data-i18n="utcOffset">UTC offset (hrs)</label><input type="number" id="mTZ" value="-4" step="0.5"></div>
       </div>
+      <label data-i18n="momentPlace">Place</label>
+      <input type="text" id="mPlaceSearch" data-i18n-placeholder="momentPlacePh" placeholder="Search city or country…" autocomplete="off">
+      <div id="mPlaceResults" class="place-results" style="display:none;"></div>
       <div class="row2">
         <div><label data-i18n="lat">Latitude (+N)</label><input type="number" id="mLat" value="25.7617" step="0.0001"></div>
         <div><label data-i18n="lon">Longitude (+E)</label><input type="number" id="mLon" value="-80.1918" step="0.0001"></div>
@@ -527,6 +549,14 @@
       <legend data-i18n="leg4">4 · Charts</legend>
       <label class="toggle"><input type="checkbox" id="chartPanchapakshi" checked> <span data-i18n="chartPanchaLbl">Line — Pañcha Pakshi live Yama chart</span></label>
       <div class="hint" data-i18n="chartMenuHint">More chart types can be added to this menu later.</div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-i18n="leg5">5 · Bird From a Name (Pañcha Pakshi)</legend>
+      <div class="hint" data-i18n="nameToBirdHint">Identify someone else's Pañcha Pakshi bird from the first vowel sound of their name, for when their birth star is unknown (Table No.4) — a separate method from the reference person's own birth-star bird above, and independent of everything else on this page.</div>
+      <label data-i18n="nameToBirdLbl">Name</label>
+      <input type="text" id="nameToBirdInput" data-i18n-placeholder="nameToBirdPh" placeholder="e.g. Gopal, Priya…">
+      <div id="nameToBirdResult" style="margin-top:10px;"></div>
     </fieldset>
 
     <button class="btn" id="computeBtn" data-i18n="castBtn">Cast &amp; Judge Muhūrta</button>
@@ -586,6 +616,14 @@
   <div class="result-col" id="commoditiesPageContent" style="max-width:900px; margin:0 auto;"></div>
 </div>
 
+<div id="pageCurrencies" class="page">
+  <div class="result-col" id="currenciesPageContent" style="max-width:900px; margin:0 auto;"></div>
+</div>
+
+<div id="pageChintamani" class="page">
+  <div class="result-col" id="chintamaniPageContent" style="max-width:1000px; margin:0 auto;"></div>
+</div>
+
 <div id="pageHorary" class="page">
   <div class="result-col" id="horaryPageContent" style="max-width:900px; margin:0 auto;"></div>
 </div>
@@ -624,6 +662,10 @@ const I18N = {
   lat: { en:`Latitude (+N)`, es:`Latitud (+N)` },
   lon: { en:`Longitude (+E)`, es:`Longitud (+E)` },
   nameOpt: { en:`Name (optional)`, es:`Nombre (opcional)` },
+  birthPlace: { en:`Place of birth`, es:`Lugar de nacimiento` },
+  birthPlacePh: { en:`Search city or country…`, es:`Buscar ciudad o país…` },
+  momentPlace: { en:`Place`, es:`Lugar` },
+  momentPlacePh: { en:`Search city or country…`, es:`Buscar ciudad o país…` },
   leg2: { en:`2 · Moment To Judge (Muhūrta)`, es:`2 · Momento a evaluar (Muhūrta)` },
   dateLbl: { en:`Date`, es:`Fecha` },
   timeLbl: { en:`Time (local)`, es:`Hora (local)` },
@@ -639,6 +681,10 @@ const I18N = {
   leg4: { en:`4 · Charts`, es:`4 · Gráficos` },
   chartPanchaLbl: { en:`Line — Pañcha Pakshi live Yama chart`, es:`Línea — gráfico Yama en vivo de Pañcha Pakshi` },
   chartMenuHint: { en:`More chart types can be added to this menu later.`, es:`Más tipos de gráfico se pueden añadir a este menú más adelante.` },
+  leg5: { en:`5 · Bird From a Name (Pañcha Pakshi)`, es:`5 · Ave a partir de un nombre (Pañcha Pakshi)` },
+  nameToBirdHint: { en:`Identify someone else's Pañcha Pakshi bird from the first vowel sound of their name, for when their birth star is unknown (Table No.4) — a separate method from the reference person's own birth-star bird above, and independent of everything else on this page.`, es:`Identifica el ave Pañcha Pakshi de otra persona a partir del primer sonido vocálico de su nombre, para cuando no se conoce su estrella de nacimiento (Tabla N.º 4) — un método aparte del ave por estrella de nacimiento de la persona de referencia de arriba, e independiente de todo lo demás en esta página.` },
+  nameToBirdLbl: { en:`Name`, es:`Nombre` },
+  nameToBirdPh: { en:`e.g. Gopal, Priya…`, es:`p. ej. Gopal, Priya…` },
   navMuhurta: { en:`Muhūrta Gauge`, es:`Muhūrta Gauge` },
   navNatal: { en:`Natal General Reading`, es:`Lectura Natal General` },
   navDasha: { en:`Vimśottari Daśā`, es:`Vimśottari Daśā` },
@@ -648,13 +694,16 @@ const I18N = {
   navAntara: { en:`Antara Chakra (Portents)`, es:`Antara Chakra (Presagios)` },
   navRemedies: { en:`Remedies &amp; Combinations`, es:`Remedios y Combinaciones` },
   navCommodities: { en:`Commodity Signals`, es:`Señales de Materias Primas` },
+  navCurrencies: { en:`Currencies`, es:`Divisas` },
   navHorary: { en:`Horary / Praśna (SBC)`, es:`Horaria / Praśna (SBC)` },
   navSignificators: { en:`World &amp; Commodity Significators`, es:`Significadores Mundiales y de Materias Primas` },
+  navChintamani: { en:`Muhūrta Chintāmaṇi`, es:`Muhūrta Chintāmaṇi` },
   profileLbl: { en:`Saved profile`, es:`Perfil guardado` },
   profileNamePh: { en:`Profile name…`, es:`Nombre del perfil…` },
   profileSave: { en:`Save`, es:`Guardar` },
   profileDelete: { en:`Delete`, es:`Eliminar` },
-  profileHint: { en:`Save the birth data below as a named profile — stored on this device, unlimited slots.`, es:`Guarda los datos de nacimiento de abajo como un perfil con nombre — almacenado en este dispositivo, espacios ilimitados.` },
+  profileHint: { en:`Save the birth data below as a named profile — stored on this device, up to 20 slots.`, es:`Guarda los datos de nacimiento de abajo como un perfil con nombre — almacenado en este dispositivo, hasta 20 espacios.` },
+  profileLimitMsg: { en:`Profile limit reached (20). Delete one before saving a new one.`, es:`Límite de perfiles alcanzado (20). Elimina uno antes de guardar otro.` },
   profileUnsaved: { en:`— Unsaved —`, es:`— Sin guardar —` },
   castBtn: { en:`Cast &amp; Judge Muhūrta`, es:`Calcular y evaluar Muhūrta` },
   resetBtn: { en:`Reset to demo values`, es:`Restablecer valores de ejemplo` },
@@ -2253,6 +2302,48 @@ function sunLongitude(T){
   return norm360(L0 + C);
 }
 
+// ---- Sunrise/sunset (Meeus ch.28 equation-of-time formula + standard
+// hour-angle-at-horizon method; low precision, consistent with sunLongitude
+// above) — LOCAL civil sunrise/sunset in decimal hours for a given civil
+// date/location. Added to replace this app's earlier "sunrise fixed at
+// 6am" simplification in the Pañcha Pakshi Yama engine (computePanchapakshiDay
+// below) with the real, season/latitude-dependent value the source itself
+// calls for ("the beginning of the day is reckoned from Sun rise to Sun
+// set"). Validated against known almanac sunrise/sunset times for Miami,
+// New York and Greenwich (within ~1-2 min) and Reykjavik's June near-
+// midnight-sun (within ~1 min) before being wired in.
+// h0=-0.8333° is the standard altitude used for sunrise/sunset (atmospheric
+// refraction ~34' + solar disk semi-diameter ~16'). Returns null for the
+// (rare) case where the sun doesn't cross the horizon that day at this
+// latitude — callers fall back to the fixed 6am/18h model in that case.
+function sunriseSunsetLocal(year, month1to12, day, latDeg, lonDegEast, tzOffsetHours){
+  const jdNoon = julianDay(year, month1to12, day, 12, 0, 0, tzOffsetHours);
+  const T = centuriesJ2000(jdNoon);
+  const L0 = norm360(280.46646 + 36000.76983*T + 0.0003032*T*T);
+  const M  = norm360(357.52911 + 35999.05029*T - 0.0001537*T*T);
+  const e  = 0.016708634 - 0.000042037*T - 0.0000001267*T*T;
+  const eps = 23.4392911 - 0.0130042*T; // mean obliquity of the ecliptic, degrees
+  const y = Math.pow(Math.tan(eps*DEG/2), 2);
+  const eotRad = y*sinD(2*L0) - 2*e*sinD(M) + 4*e*y*sinD(M)*cosD(2*L0) - 0.5*y*y*sinD(4*L0) - 1.25*e*e*sinD(2*M);
+  const eotMin = eotRad * 229.1831; // radians -> minutes (1 rad = 1440/(2*PI) min)
+
+  const lambda = sunLongitude(T);
+  const delta = Math.asin(sinD(eps)*sinD(lambda)) / DEG; // solar declination, degrees
+
+  const h0 = -0.8333;
+  const cosH0 = (sinD(h0) - sinD(latDeg)*sinD(delta)) / (cosD(latDeg)*cosD(delta));
+  if (cosH0 <= -1 || cosH0 >= 1) return null; // polar day/night at this latitude/date
+  const H0 = Math.acos(cosH0) / DEG; // degrees
+
+  const solarNoonUTCMin = 720 - 4*lonDegEast - eotMin;
+  const toLocalHr = utcMin => (((utcMin/60 + tzOffsetHours) % 24) + 24) % 24;
+  return {
+    sunriseHr: toLocalHr(solarNoonUTCMin - 4*H0),
+    sunsetHr:  toLocalHr(solarNoonUTCMin + 4*H0),
+    solarNoonHr: toLocalHr(solarNoonUTCMin)
+  };
+}
+
 // ---- Moon (Meeus ch.47, truncated to leading ~16 terms; ~0.01-0.05° typical)
 function moonLongitude(T){
   const Lp = norm360(218.3164477 + 481267.88123421*T - 0.0015786*T*T);
@@ -3043,8 +3134,11 @@ function scoreForInstant(year, month1to12, day, hh, mm, opts){
     civilDate.setHours(hh, mm||0, 0, 0);
     const weekdayName = WEEKDAYS[civilDate.getDay()];
     const half = panch.paksha === "Shukla" ? "bright" : "dark";
-    const hourFromSix = (hh + (mm||0)/60) - 6;
-    pp = ppStateForInstant(weekdayName, half, hourFromSix, refP);
+    const sun = sunriseSunsetLocal(year, month1to12, day, lat, lon, tz);
+    const sunriseHr = sun ? sun.sunriseHr : 6;
+    const dayLenHrs = sun ? ((sun.sunsetHr - sun.sunriseHr + 24) % 24) : 12;
+    const hourFromSunrise = (hh + (mm||0)/60) - sunriseHr;
+    pp = ppStateForInstant(weekdayName, half, hourFromSunrise, refP, dayLenHrs);
   }
   const {score, reasons} = scoreMuhurta({maleficHits:vedha.maleficHits, beneficHits:vedha.beneficHits, tara, latta, upagraha, pp, weighDignity, doshas});
   return {score, tier:tierFor(score), reasons, panch, vedha, tara, latta, upagraha, pp};
@@ -3283,24 +3377,47 @@ const PP_NIGHT_ABSTRACT = [["Eating",42],["Sleeping",18],["Walking",42],["Dying"
 // Build the full day: 10 main periods (headline state per bird) plus 50 finer
 // sub-periods (main state x abstract-activity sub-state, per Table No.5's formula)
 // for a smooth ~12-48 min resolution curve.
-function computePanchapakshiDay(weekdayName, half){
+//
+// dayLenHrs/nightLenHrs (optional, default 12/12 — the book's own printed
+// equinox table): the 5 main Yama boundaries and their 50 abstract
+// sub-periods now scale proportionally to the REAL local sunrise-to-sunset
+// (day) and sunset-to-next-sunrise (night) span — see sunriseSunsetLocal()
+// above — rather than a fixed 6:00-18:00 assumption. This mirrors the
+// classical Hindu "Ghatika" system the source itself invokes (ch."Division
+// of Time": "the day comprising 60 ghatikas... beginning of the day is
+// reckoned from Sun rise to Sun set"): a Yama (12 ghatikas = 1/5 of
+// daylight) is a proportional slice of daylight, not a fixed clock length,
+// exactly like the ghatika it's built from. At dayLenHrs=nightLenHrs=12
+// this reduces exactly to the book's own printed "6.00 A.M. to 8.24 A.M."
+// table (p.17) — the equinox special case. nightLenHrs defaults to
+// 24-dayLenHrs (tonight's true length, to TOMORROW's sunrise, differs from
+// this by well under a minute even at solstice, since day-length changes
+// only a few minutes per day at most near equinox and far less near
+// solstice — treated as negligible, consistent with this app's low-
+// precision philosophy elsewhere).
+function computePanchapakshiDay(weekdayName, half, dayLenHrs, nightLenHrs){
+  if (dayLenHrs == null) dayLenHrs = 12;
+  if (nightLenHrs == null) nightLenHrs = 24 - dayLenHrs;
+  const dayPeriodLen = dayLenHrs / 5, nightPeriodLen = nightLenHrs / 5;
   const natural = half === "dark" ? PP_NATURAL_DARK : PP_NATURAL_BRIGHT;
   const periods = [];
   const subPeriods = [];
   for (let slot=0; slot<10; slot++){
     const isDay = slot < 5;
     const periodIdx = slot % 5;
-    const startHr = slot * PP_PERIOD_LEN_HRS;
+    const periodLen = isDay ? dayPeriodLen : nightPeriodLen;
+    const startHr = isDay ? periodIdx*dayPeriodLen : dayLenHrs + periodIdx*nightPeriodLen;
     const byBird = {};
     PP_BIRDS.forEach(bird=>{
       const state = ppState(bird, periodIdx, weekdayName, half, isDay);
       byBird[bird] = { state, strength: natural[bird] * PP_ACT_FACTOR[state] };
     });
-    periods.push({ slot, isDay, startHr, endHr:startHr+PP_PERIOD_LEN_HRS, byBird });
+    periods.push({ slot, isDay, startHr, endHr:startHr+periodLen, byBird });
 
+    const scale = periodLen / PP_PERIOD_LEN_HRS; // proportional Ghatika scaling of the book's fixed-minute sub-table
     let cursor = startHr;
     (isDay ? PP_DAY_ABSTRACT : PP_NIGHT_ABSTRACT).forEach(([abState, mins])=>{
-      const dur = mins/60;
+      const dur = (mins/60) * scale;
       const subByBird = {};
       PP_BIRDS.forEach(bird=>{
         const mainState = byBird[bird].state;
@@ -3310,33 +3427,152 @@ function computePanchapakshiDay(weekdayName, half){
       cursor += dur;
     });
   }
-  return { half, periods, subPeriods };
+  return { half, periods, subPeriods, dayLenHrs, nightLenHrs };
+}
+
+// Generic version of the lookup below: a bird's main/abstract state at an
+// arbitrary moment, for ANY bird (not just a reference person's fixed life
+// bird) — used both by ppStateForInstant (birth-star-based bird) and by the
+// vowel-sound bird lookup (PP_VOWEL_GROUPS) further below, which needs the
+// same live-state math for a bird picked by name-vowel instead of birth star.
+// hourFromSunrise: decimal hours since that calendar date's REAL local
+// sunrise (see sunriseSunsetLocal()) — not a fixed 6am anchor. dayLenHrs/
+// nightLenHrs default to 12/12 (equinox) when the caller has no location.
+function ppStateForBirdAtInstant(bird, weekdayName, half, hourFromSunrise, dayLenHrs, nightLenHrs){
+  if (!bird) return null;
+  if (dayLenHrs == null) dayLenHrs = 12;
+  if (nightLenHrs == null) nightLenHrs = 24 - dayLenHrs;
+  const totalLen = dayLenHrs + nightLenHrs;
+  const hfs = ((hourFromSunrise % totalLen) + totalLen) % totalLen;
+  const dayHalf = hfs < dayLenHrs ? "day" : "night";
+  const localHr = dayHalf === "day" ? hfs : hfs - dayLenHrs;
+  const ppDay = computePanchapakshiDay(weekdayName, half, dayLenHrs, nightLenHrs);
+  const subs = dayHalf==='day' ? ppDay.subPeriods.slice(0,25) : ppDay.subPeriods.slice(25,50);
+  const curSub = subs.find(p=>{
+    const ls=p.startHr-(dayHalf==='day'?0:dayLenHrs), le=p.endHr-(dayHalf==='day'?0:dayLenHrs);
+    return localHr>=ls && localHr<le;
+  }) || subs[subs.length-1];
+  return { ...curSub.byBird[bird], bird, dayHalf };
 }
 
 // Reference person's life-bird main/abstract state at an arbitrary moment —
 // generalizes the "curState" lookup used by the live Yama panel (which only
 // ever looks at real "now") so the scoring engine can evaluate any moment.
-// hourFromSix: decimal hours since 6:00am that calendar day (may exceed 24
-// when the caller is sampling into the small hours of the following date).
-// `half` here is the Pakṣa of the MOMENT being evaluated — it only selects
-// which day's activity-state table to read (that genuinely does change day
-// to day). The life bird itself is refP.lifeBird, fixed once at birth —
-// never re-derived from `half`, or it would silently change bird identity
-// every time the real-world Pakṣa flips.
-function ppStateForInstant(weekdayName, half, hourFromSix, refP){
+// hourFromSunrise: decimal hours since that date's real local sunrise (may
+// exceed the day/night span when the caller is sampling into the small
+// hours of the following date). `half` here is the Pakṣa of the MOMENT
+// being evaluated — it only selects which day's activity-state table to
+// read (that genuinely does change day to day). The life bird itself is
+// refP.lifeBird, fixed once at birth — never re-derived from `half`, or it
+// would silently change bird identity every time the real-world Pakṣa flips.
+function ppStateForInstant(weekdayName, half, hourFromSunrise, refP, dayLenHrs, nightLenHrs){
   if (!refP.star) return null;
-  const lifeBird = refP.lifeBird;
-  if (!lifeBird) return null;
-  const hfs = ((hourFromSix % 24) + 24) % 24;
-  const dayHalf = hfs < 12 ? "day" : "night";
-  const localHr = dayHalf === "day" ? hfs : hfs - 12;
-  const ppDay = computePanchapakshiDay(weekdayName, half);
-  const subs = dayHalf==='day' ? ppDay.subPeriods.slice(0,25) : ppDay.subPeriods.slice(25,50);
-  const curSub = subs.find(p=>{
-    const ls=p.startHr-(dayHalf==='day'?0:12), le=p.endHr-(dayHalf==='day'?0:12);
-    return localHr>=ls && localHr<le;
-  }) || subs[subs.length-1];
-  return { ...curSub.byBird[lifeBird], bird:lifeBird, dayHalf };
+  if (!refP.lifeBird) return null;
+  return ppStateForBirdAtInstant(refP.lifeBird, weekdayName, half, hourFromSunrise, dayLenHrs, nightLenHrs);
+}
+
+/* Table No. 4, "Identification of Birds from First Sound of the [Name]"
+   (Pulippani & Rao, Biorhythms of Natal Moon, 1993, "Fundamentals
+   Explained" ch., p.27-33) — a SEPARATE classical method from the
+   birth-star bird lookup above: used when a person's birth star is
+   unknown, or to guess a third party's bird from their name alone. The
+   11 Dravidian Tamil vowel-sounds are grouped into 5, each tied to one
+   bird in Bright Half and a different bird in Dark Half of the Moon (the
+   birth-star bird is fixed for life; this one is NOT — it flips with
+   today's Pakṣa). Cross-checked against the book's own worked prose
+   examples, which spell out each group's bird pair in full sentences
+   (e.g. "...for short and long vowels A, AA... the bird for bright half
+   will be Vulture and for the dark half, it will be Peacock") — these
+   agree exactly with the raw Table No.4 grid, so both were used to
+   confirm each other rather than trusting either alone. Distinct from
+   this app's SBC "Vowel Vedha" (see the Pañcaka Vedha breakdown below),
+   which is explicitly not modeled — that gap needs the full 81-Varga
+   grid, not just the SBC perimeter this app has. This is a wholly
+   different book and system, not a workaround for that gap. */
+const PP_VOWEL_GROUPS = [
+  { key:'A',  label:'A · AA · I · OW', bright:'Vulture', dark:'Peacock' },
+  { key:'E',  label:'E (short/long)',  bright:'Owl',     dark:'Vulture' },
+  { key:'U',  label:'U (short/long)',  bright:'Crow',    dark:'Owl' },
+  { key:'EA', label:'EA (short/long)', bright:'Cock',    dark:'Peacock' },
+  { key:'O',  label:'O (short/long)',  bright:'Peacock', dark:'Crow' }
+];
+
+/* Best-effort English-letter heuristic for Table No.4's "first vowel sound
+   of the name" rule, letting a user type an arbitrary name rather than only
+   reading the static table above. IMPORTANT LIMITATION, disclosed rather
+   than hidden: the book's own worked examples (p.28-33) are internally
+   AMBIGUOUS for two shapes, not just hard to parse —
+     - a bare leading "I" with nothing before it: "Ivanhoe" is placed in
+       group A, "Indra Kumar" in group E, same letter shape.
+     - a bare leading "E" followed directly by a consonant: "Eve" and
+       "Eshwardas" are placed in group E, "Esther" in group EA — "Eshwardas"
+       and "Esther" even share the same first two letters "ES".
+   These distinctions come from which actual Dravidian/Devanagari vowel the
+   name-giver intended (spelled out in the book's own parallel Nagari
+   column), which plain English spelling does not preserve. Rather than
+   silently pick one, this function flags those two shapes as ambiguous and
+   returns both candidate groups. All other rules below were validated
+   against every one of the book's ~20 remaining unambiguous worked examples
+   (Amar Nath, Annie, Vasanthraj, Thaara, Arthor, Valantine, Eaishvarya,
+   Shailendra Kumar, Goutham, Cowldry, Vijay Kumar, Victor, Veerendra,
+   Umapathy, Urmila, Suraj Kumar, Ruth, Perumal, Devraj, Chokkalingam,
+   Omprakash, Yogeshvar) — 100% match. Two further examples ("Tillman",
+   "Ekanath") are NOT in that validation set: the letters the book analyzes
+   for them don't match the name it prints (e.g. "Tillman" is analyzed as
+   if it were spelled with a leading "U"), which reads as a transcription
+   slip in the source rather than a rule to fit. One more, "Jacob" (JA),
+   is placed in group EA despite matching the "consonant+A" shape that
+   every other example (Vasanthraj/VA, Valantine/VA) puts in group A — kept
+   as a disclosed, unresolved exception rather than special-cased away. */
+function classifyNameVowelGroup(name){
+  const s = (name||'').trim().toUpperCase().replace(/[^A-Z]/g,'');
+  if (!s) return { group:null, ambiguous:false, candidates:[] };
+  const CONS = '[B-DF-HJ-NP-TV-Z]';
+  if (new RegExp(`^${CONS}*O[UW]`).test(s)) return { group:'A', ambiguous:false, candidates:['A'] };
+  if (new RegExp(`^${CONS}*E?AI`).test(s)) return { group:'A', ambiguous:false, candidates:['A'] };
+  if (new RegExp(`^I(${CONS}|$)`).test(s)) return { group:null, ambiguous:true, candidates:['A','E'] };
+  if (new RegExp(`^${CONS}+I`).test(s)) return { group:'E', ambiguous:false, candidates:['E'] };
+  if (new RegExp(`^${CONS}*EE`).test(s)) return { group:'E', ambiguous:false, candidates:['E'] };
+  if (new RegExp(`^E${CONS}`).test(s)) return { group:null, ambiguous:true, candidates:['E','EA'] };
+  if (new RegExp(`^${CONS}+E${CONS}`).test(s)) return { group:'EA', ambiguous:false, candidates:['EA'] };
+  if (new RegExp(`^${CONS}*U`).test(s)) return { group:'U', ambiguous:false, candidates:['U'] };
+  if (new RegExp(`^${CONS}*O`).test(s)) return { group:'O', ambiguous:false, candidates:['O'] };
+  if (new RegExp(`^${CONS}*A`).test(s)) return { group:'A', ambiguous:false, candidates:['A'] };
+  return { group:null, ambiguous:false, candidates:[] };
+}
+
+// Live render for the "5 · Bird From a Name" panel — self-contained (reads
+// its own #nameToBirdInput, writes only #nameToBirdResult) so it never
+// disturbs, and is never disturbed by, the main runAnalysis() re-render.
+function renderNameToBird(){
+  const resultEl = document.getElementById('nameToBirdResult');
+  const inputEl = document.getElementById('nameToBirdInput');
+  if (!resultEl || !inputEl) return;
+  const name = inputEl.value;
+  if (!name.trim()){ resultEl.innerHTML = ''; return; }
+
+  const cls = classifyNameVowelGroup(name);
+  const live = ppLiveNow();
+
+  const birdRow = (groupKey)=>{
+    const vg = PP_VOWEL_GROUPS.find(g=>g.key===groupKey);
+    const bird = live.half === 'bright' ? vg.bright : vg.dark;
+    const st = ppStateForBirdAtInstant(bird, live.weekdayEN, live.half, live.dayHalf==='day'?live.localHr:live.localHr+live.dayLenHrs, live.dayLenHrs, live.nightLenHrs);
+    return `<div class="kv" style="margin-top:6px;">
+      <div class="k">${T('Vowel group','Grupo vocálico')}</div><div class="v">${vg.label}</div>
+      <div class="k">${T('Bird (today\'s Pakṣa)','Ave (Pakṣa de hoy)')}</div><div class="v">${T(bird,PP_BIRDS_ES[bird])}</div>
+      <div class="k">${T('State now','Estado ahora')}</div><div class="v">${st?`${T(st.mainState,PP_STATES_ES[st.mainState])} · ${T(st.abstractState,PP_STATES_ES[st.abstractState])}`:'—'}</div>
+    </div>`;
+  };
+
+  if (cls.ambiguous){
+    resultEl.innerHTML = `<div class="hint">${T('This name\'s first vowel sound is one the book itself resolves inconsistently across its own examples (see method note below) — both candidates shown rather than guessing.','El primer sonido vocálico de este nombre es uno que el propio libro resuelve de forma inconsistente entre sus propios ejemplos (ver nota de método abajo) — se muestran ambos candidatos en vez de adivinar.')}</div>
+      ${cls.candidates.map(birdRow).join('')}`;
+  } else if (cls.group){
+    resultEl.innerHTML = birdRow(cls.group);
+  } else {
+    resultEl.innerHTML = `<div class="hint">${T('No recognizable vowel sound found at the start of that name.','No se encontró un sonido vocálico reconocible al inicio de ese nombre.')}</div>`;
+  }
 }
 </script>
 <script>
@@ -3862,26 +4098,43 @@ function renderSaptarishiTable(currentRishi){
   <div class="hint" style="margin-top:8px;">${T(`Table 23 continues past the core seven with two more: ${extraRows}. Outside the 28-star cycle above (Table 24), but together with the seven core Ṛṣis they complete a full nine-graha kāraka set.`, `La Tabla 23 continúa más allá de los siete principales con dos más: ${extraRows}. Fuera del ciclo de 28 estrellas de arriba (Tabla 24), pero junto con los siete Ṛṣis principales completan un conjunto completo de kāraka de los nueve graha.`)}</div>`;
 }
 
-const PP_DAY_LABELS_CLOCK   = ["6:00 AM","8:24 AM","10:48 AM","1:12 PM","3:36 PM","6:00 PM"];
-const PP_NIGHT_LABELS_CLOCK = ["6:00 PM","8:24 PM","10:48 PM","1:12 AM","3:36 AM","6:00 AM"];
-
-/* Single-bird, single-half (12h) Yama biorhythm chart, plotted at the book's
-   ~12-48 min abstract-activity resolution. If liveLocalHr (0..12, relative to
-   this half's start) falls within the plotted window, a marker sits directly
-   on the bird's own line at that point — not a separate vertical rule. */
-function renderPanchapakshi12hChart(dayData, dayHalf, bird, liveLocalHr, birdMax){
+/* Single-bird, single-half Yama biorhythm chart, plotted at the book's
+   ~12-48 min abstract-activity resolution. If liveLocalHr (0..halfLenHrs,
+   relative to this half's start) falls within the plotted window, a marker
+   sits directly on the bird's own line at that point — not a separate
+   vertical rule.
+   halfStartHr: the real local clock hour (decimal) this half begins —
+   sunrise for the day half, sunset for the night half (see
+   sunriseSunsetLocal()) — used only to label the 6 Yama-boundary ticks with
+   real clock times instead of the book's fixed "6:00/8:24/..." table.
+   dayData.dayLenHrs/nightLenHrs (from computePanchapakshiDay) size the
+   x-axis to this half's REAL length rather than a fixed 12h. */
+function renderPanchapakshi12hChart(dayData, dayHalf, bird, liveLocalHr, birdMax, halfStartHr){
   const W=1000, H=340, padL=54, padR=26, padT=22, padB=42;
   const plotW = W - padL - padR, plotH = H - padT - padB;
-  const xOf = hr => padL + (hr/12)*plotW;
+  const halfLenHrs = dayHalf === "day" ? dayData.dayLenHrs : dayData.nightLenHrs;
+  const periodLen = halfLenHrs / 5;
+  const xOf = hr => padL + (hr/halfLenHrs)*plotW;
   // Each bird's own ceiling is its natural strength (Ruling main x Ruling abstract = 1.0x1.0xnatural),
   // so the y-axis runs 0..birdMax rather than a shared 0..1.0 scale — a bird with a low natural
   // strength (e.g. Peacock, 0.125) still fills the chart and shows its own ebb and flow clearly.
   const yOf = s => padT + (1 - s/birdMax)*plotH;
   const subs = dayHalf === "day" ? dayData.subPeriods.slice(0,25) : dayData.subPeriods.slice(25,50);
-  const baseHr = dayHalf === "day" ? 0 : 12;
-  const labels = dayHalf === "day" ? PP_DAY_LABELS_CLOCK : PP_NIGHT_LABELS_CLOCK;
+  const baseHr = dayHalf === "day" ? 0 : dayData.dayLenHrs;
+
+  const startClock = halfStartHr != null ? halfStartHr : (dayHalf === "day" ? 6 : 18);
+  const labels = [];
+  for (let i=0;i<=5;i++) labels.push(fmtHM(startClock + i*periodLen));
 
   let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block;margin:0 auto;">`;
+
+  // Light alternating background banding, one block per Yama, so the 5
+  // periods read as distinct blocks along the x-axis at a glance.
+  for (let i=0;i<5;i++){
+    if (i%2!==1) continue;
+    const x0 = xOf(i*periodLen), x1 = xOf((i+1)*periodLen);
+    svg += `<rect x="${x0.toFixed(1)}" y="${padT}" width="${(x1-x0).toFixed(1)}" height="${plotH}" style="fill:var(--panel-2)" opacity="0.5"/>`;
+  }
 
   [0,0.2,0.4,0.6,0.8,1.0].forEach(frac=>{
     const s = frac*birdMax;
@@ -3891,7 +4144,7 @@ function renderPanchapakshi12hChart(dayData, dayHalf, bird, liveLocalHr, birdMax
   });
 
   for (let i=0;i<=5;i++){
-    const x = xOf(i*PP_PERIOD_LEN_HRS);
+    const x = xOf(i*periodLen);
     svg += `<line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${padT+plotH}" style="stroke:var(--chart-line)" stroke-width="1"/>`;
     svg += `<text x="${x.toFixed(1)}" y="${padT+plotH+16}" text-anchor="middle" font-size="9.5" style="fill:var(--chart-label)" font-family="var(--mono)">${labels[i]}</text>`;
   }
@@ -3909,7 +4162,7 @@ function renderPanchapakshi12hChart(dayData, dayHalf, bird, liveLocalHr, birdMax
   });
   if (liveLocalHr != null && !liveXY && subs.length){
     const lastP = subs[subs.length-1];
-    liveXY = [xOf(12), yOf(lastP.byBird[bird].strength)];
+    liveXY = [xOf(halfLenHrs), yOf(lastP.byBird[bird].strength)];
   }
 
   svg += `<path d="${d}" fill="none" style="stroke:${colorVar}" stroke-width="3" stroke-linejoin="round"/>`;
@@ -3932,16 +4185,25 @@ function ppContextForDate(d, ayanamsaMode){
   return { half: panch.paksha === "Shukla" ? "bright" : "dark", weekdayEN: WEEKDAYS[d.getDay()] };
 }
 
-// Real-world "right now" context for the live Yama chart — independent of the
-// muhūrta date/time being judged elsewhere on the page.
+// Real-world "right now" context for the live Yama chart — independent of
+// the muhūrta DATE/TIME being judged elsewhere on the page (this always
+// reflects the actual current clock), but reuses that section's LOCATION
+// fields (Moment to Judge lat/lon/tz) for real sunrise/sunset, since this
+// app has no device geolocation and that's the only location on the page.
 function ppLiveNow(){
   const n = new Date();
   const ay = document.getElementById('ayanamsaMode').value;
   const ctx = ppContextForDate(n, ay);
-  const hourFromSix = ((n.getHours() + n.getMinutes()/60) - 6 + 24) % 24;
-  const dayHalf = hourFromSix < 12 ? "day" : "night";
-  const localHr = dayHalf === "day" ? hourFromSix : hourFromSix - 12;
-  return { half:ctx.half, weekdayEN:ctx.weekdayEN, dayHalf, localHr, date:n };
+  const loc = readDateTime("m");
+  const sun = sunriseSunsetLocal(n.getFullYear(), n.getMonth()+1, n.getDate(), loc.lat, loc.lon, loc.tz);
+  const sunriseHr = sun ? sun.sunriseHr : 6;
+  const sunsetHr = sun ? sun.sunsetHr : 18;
+  const dayLenHrs = sun ? ((sun.sunsetHr - sun.sunriseHr + 24) % 24) : 12;
+  const nightLenHrs = 24 - dayLenHrs;
+  const hourFromSunrise = ((n.getHours() + n.getMinutes()/60) - sunriseHr + 24) % 24;
+  const dayHalf = hourFromSunrise < dayLenHrs ? "day" : "night";
+  const localHr = dayHalf === "day" ? hourFromSunrise : hourFromSunrise - dayLenHrs;
+  return { half:ctx.half, weekdayEN:ctx.weekdayEN, dayHalf, localHr, date:n, dayLenHrs, nightLenHrs, sunriseHr, sunsetHr, lat:loc.lat, lon:loc.lon, tz:loc.tz };
 }
 
 /* =========================================================================
@@ -3998,31 +4260,45 @@ const PP_OUTCOME_TEXT = {
 // Scan forward from right now, across today's remaining sub-periods and all of
 // tomorrow's (tomorrow's own weekday/paksha computed independently, since a
 // tithi boundary can flip the half overnight), for the best-ranked horary
-// moment for the given bird.
-function ppFindBestSlot(bird, ayanamsaMode){
+// moment for the given bird. latDeg/lonDegEast/tzOffsetHours: real sunrise
+// anchor for "today"/"tomorrow" (see sunriseSunsetLocal()) — each date gets
+// its own sunrise since day length itself drifts slightly day to day.
+function ppFindBestSlot(bird, ayanamsaMode, latDeg, lonDegEast, tzOffsetHours){
   const now = new Date();
-  const nowHourFromSix = ((now.getHours() + now.getMinutes()/60) - 6 + 24) % 24;
-  const cycleStart = new Date(now);
-  if (now.getHours() < 6) cycleStart.setDate(cycleStart.getDate()-1);
-  cycleStart.setHours(6,0,0,0);
+  const cycleDate = new Date(now);
+  let sun = sunriseSunsetLocal(cycleDate.getFullYear(), cycleDate.getMonth()+1, cycleDate.getDate(), latDeg, lonDegEast, tzOffsetHours);
+  let sunriseHr = sun ? sun.sunriseHr : 6;
+  if ((now.getHours() + now.getMinutes()/60) < sunriseHr){
+    cycleDate.setDate(cycleDate.getDate()-1);
+    sun = sunriseSunsetLocal(cycleDate.getFullYear(), cycleDate.getMonth()+1, cycleDate.getDate(), latDeg, lonDegEast, tzOffsetHours);
+    sunriseHr = sun ? sun.sunriseHr : 6;
+  }
+  const dayLenHrs = sun ? ((sun.sunsetHr - sun.sunriseHr + 24) % 24) : 12;
+  const cycleStart = new Date(cycleDate);
+  cycleStart.setHours(Math.floor(sunriseHr), Math.round((sunriseHr%1)*60), 0, 0);
+  const nowHourFromSunrise = (now.getTime() - cycleStart.getTime()) / 3600000;
 
-  const todayCtx = ppContextForDate(now, ayanamsaMode);
-  const todayDay = computePanchapakshiDay(todayCtx.weekdayEN, todayCtx.half);
-  const tomorrowDate = new Date(now.getTime() + 24*3600*1000);
+  const todayCtx = ppContextForDate(cycleDate, ayanamsaMode);
+  const todayDay = computePanchapakshiDay(todayCtx.weekdayEN, todayCtx.half, dayLenHrs);
+  const todayTotalLen = todayDay.dayLenHrs + todayDay.nightLenHrs;
+
+  const tomorrowDate = new Date(cycleDate.getTime() + 24*3600*1000);
+  const tomorrowSun = sunriseSunsetLocal(tomorrowDate.getFullYear(), tomorrowDate.getMonth()+1, tomorrowDate.getDate(), latDeg, lonDegEast, tzOffsetHours);
+  const tomorrowDayLenHrs = tomorrowSun ? ((tomorrowSun.sunsetHr - tomorrowSun.sunriseHr + 24) % 24) : 12;
   const tomorrowCtx = ppContextForDate(tomorrowDate, ayanamsaMode);
-  const tomorrowDay = computePanchapakshiDay(tomorrowCtx.weekdayEN, tomorrowCtx.half);
+  const tomorrowDay = computePanchapakshiDay(tomorrowCtx.weekdayEN, tomorrowCtx.half, tomorrowDayLenHrs);
 
   const candidates = [];
   todayDay.subPeriods.forEach(p=>{
-    if (p.endHr <= nowHourFromSix) return;
+    if (p.endHr <= nowHourFromSunrise) return;
     const st = p.byBird[bird];
     const tier = ppHoraryTier(st.mainState, st.abstractState);
-    if (tier) candidates.push({ absStart: Math.max(p.startHr, nowHourFromSix), absEnd: p.endHr, tier, mainState:st.mainState, half:todayCtx.half });
+    if (tier) candidates.push({ absStart: Math.max(p.startHr, nowHourFromSunrise), absEnd: p.endHr, tier, mainState:st.mainState, half:todayCtx.half });
   });
   tomorrowDay.subPeriods.forEach(p=>{
     const st = p.byBird[bird];
     const tier = ppHoraryTier(st.mainState, st.abstractState);
-    if (tier) candidates.push({ absStart: p.startHr+24, absEnd: p.endHr+24, tier, mainState:st.mainState, half:tomorrowCtx.half });
+    if (tier) candidates.push({ absStart: p.startHr+todayTotalLen, absEnd: p.endHr+todayTotalLen, tier, mainState:st.mainState, half:tomorrowCtx.half });
   });
   if (!candidates.length) return null;
 
@@ -4037,12 +4313,732 @@ function ppFindBestSlot(bird, ayanamsaMode){
 </script>
 <script>
 /* =========================================================================
+   MUHŪRTA CHINTĀMAṆI — "GENERAL CHECKS"
+   Acharya Ram, trans. Girish Chand Sharma (1996), Śaka 1522/1600 CE. A
+   second classical muhūrta authority alongside M.K. Agarwal's SBC, added
+   2026-08-16 per user request/research pass.
+
+   By explicit user direction, this whole page is DELIBERATELY NOT folded
+   into scoreMuhurta()'s numeric score — each check below stands alone and
+   shows its own outright auspicious/inauspicious/informational verdict,
+   the way the source text itself reads (it almost never scores
+   numerically; see the research artifact). Also by explicit direction,
+   region-locked variants the source itself scopes to a specific area
+   (e.g. "only in Madhya Deśa", "only in Punjab/Bengal/Nepal", Kulika's
+   extra potency "between Vindhya and Himāchal") are skipped rather than
+   encoded as conditions — treated as universal where the source gives a
+   universal form, dropped where it doesn't.
+
+   Naming: this app already uses Krishna Chand Sharma's translation's
+   Aswini/Mrigasira/Visakha/Jyeshta/P.Shada/U.Shada/Sravana/Satabisha/
+   P.Bhadrapada/U.Bhadrapada spellings (NAK27/NAK28_ORDER) for the SBC
+   material — reused here rather than Chintamani's own IAST-ish spelling,
+   so the two sources' nakshatra references line up in the UI.
+   ========================================================================= */
+
+// ---- 1. Nakshatra temperament x weekday (ch. 2 p.49-52) ----
+const CHINTAMANI_NAK_TEMPERAMENT = [
+  { key:'dhruva', nameEn:'Dhruva — Fixed', nameEs:'Dhruva — Fijo', day:'Sunday',
+    stars:['U.Phalguni','U.Shada','U.Bhadrapada','Rohini'],
+    goodFor:{en:'permanent, fixed undertakings — house-building, sowing, peace rites, gardening', es:'iniciativas permanentes y fijas — construcción de casas, siembra, ritos de paz, jardinería'} },
+  { key:'chara', nameEn:'Chara — Movable', nameEs:'Chara — Móvil', day:'Monday',
+    stars:['Swati','Punarvasu','Sravana','Dhanishta','Satabisha'],
+    goodFor:{en:'travel-adjacent and moving activities — riding, garden walks', es:'actividades de movimiento — cabalgar, paseos por el jardín'} },
+  { key:'ugra', nameEn:'Ugra — Cruel', nameEs:'Ugra — Cruel', day:'Tuesday',
+    stars:['P.Phalguni','P.Shada','P.Bhadrapada','Bharani','Magha'],
+    goodFor:{en:'the source names only aggressive/harmful acts here (ambush, arson, weapons) — not ordinary undertakings', es:'la fuente solo nombra aquí actos agresivos/dañinos (emboscada, incendio, armas) — no iniciativas ordinarias'} },
+  { key:'mishra', nameEn:'Mishra — Mixed', nameEs:'Mishra — Mixto', day:'Wednesday',
+    stars:['Visakha','Krittika'],
+    goodFor:{en:'fire-rites and mixed-type work', es:'ritos de fuego y trabajo de tipo mixto'} },
+  { key:'kshipra', nameEn:'Kshipra — Light/Quick', nameEs:'Kshipra — Ligero/Rápido', day:'Thursday',
+    stars:['Hasta','Aswini','Pushya','Abhijit'],
+    goodFor:{en:'selling, weapons-training, jewelry-making, the arts', es:'venta, entrenamiento con armas, joyería, las artes'} },
+  { key:'mridu', nameEn:'Mridu — Gentle', nameEs:'Mridu — Suave', day:'Friday',
+    stars:['Mrigasira','Revati','Chitra','Anuradha'],
+    goodFor:{en:'learning, singing, clothes, games, friendship matters', es:'aprendizaje, canto, ropa, juegos, asuntos de amistad'} },
+  { key:'tikshna', nameEn:'Tikshna — Sharp', nameEs:'Tikshna — Agudo', day:'Saturday',
+    stars:['Moola','Jyeshta','Ardra','Ashlesha'],
+    goodFor:{en:'the source lists ritual malefic rites, ambush and animal-taming here — not ordinary undertakings', es:'la fuente enumera aquí ritos maléficos rituales, emboscada y doma de animales — no iniciativas ordinarias'} }
+];
+function chintamaniNakTemperament(nak28Name){
+  return CHINTAMANI_NAK_TEMPERAMENT.find(c=>c.stars.includes(nak28Name)) || null;
+}
+
+// ---- 2. The 28 Ananda-etc Chara Yogas (ch. 1 p.17-19) ----
+const CHINTAMANI_28YOGA_ANCHOR = { Sunday:'Aswini', Monday:'Mrigasira', Tuesday:'Ashlesha', Wednesday:'Hasta', Thursday:'Anuradha', Friday:'U.Shada', Saturday:'Satabisha' };
+const CHINTAMANI_28YOGA_NAMES = [
+  'Ananda','Kaladanda','Dhoomra','Dhata','Saumya','Dhwanksha','Ketu','Shrivatsa','Vajra','Mudgar',
+  'Kshetra','Mitra','Manasa','Padma','Lumba','Utpata','Mrityu','Kana','Siddhi','Shubha',
+  'Amrita','Musala','Gada','Matanga','Raksha','Chara','Sushthira','Pravardhamana'
+];
+const CHINTAMANI_28YOGA_BAD = new Set(['Kaladanda','Dhoomra','Dhwanksha','Vajra','Mudgar','Padma','Lumba','Utpata','Mrityu','Kana','Musala','Gada','Raksha']);
+function chintamaniCharaYoga(nak28Name, weekdayName){
+  const anchor = CHINTAMANI_28YOGA_ANCHOR[weekdayName];
+  const anchorIdx = NAK28_ORDER.indexOf(anchor), curIdx = NAK28_ORDER.indexOf(nak28Name);
+  if (anchorIdx < 0 || curIdx < 0) return null;
+  const pos = (curIdx - anchorIdx + 28) % 28;
+  const name = CHINTAMANI_28YOGA_NAMES[pos];
+  return { name, bad: CHINTAMANI_28YOGA_BAD.has(name), position: pos+1 };
+}
+
+// ---- 3. Gochara Vedha — house-based transit obstruction from Janma Rāśi
+// (ch. 4 p.102-105). Deliberately distinct from this app's existing
+// nakshatra-pair SBC Vedha (Agarwal) -- same name in classical usage, a
+// different mechanism; UI must not present this as a variant of the SBC
+// ring. Viparita (reversal) rule not modeled -- flagged, not guessed at. ----
+const CHINTAMANI_GOCHARA = {
+  Sun:     { aus:[6,10,3,11], vedha:[12,4,9,5] },
+  Moon:    { aus:[10,3,11,1,6,7], vedha:[4,9,8,5,12,2] },
+  Mars:    { aus:[6,11,3], vedha:[9,5,12] },
+  Mercury: { aus:[2,4,6,8,10,11], vedha:[5,3,9,1,8,12] },
+  Jupiter: { aus:[5,2,9,7,11], vedha:[4,12,10,3,8] },
+  Venus:   { aus:[1,2,3,4,5,8,9,11,12], vedha:[8,7,1,10,9,5,11,6,3] },
+  Saturn:  { aus:[6,11,3], vedha:[9,5,12] },
+  Rahu:    { aus:[6,11,3], vedha:[9,5,12] },
+  Ketu:    { aus:[6,11,3], vedha:[9,5,12] }
+};
+const CHINTAMANI_GOCHARA_EXEMPT_PAIRS = [['Sun','Saturn'],['Moon','Mercury']];
+function chintamaniGocharaVedha(pos, natalMoonSign){
+  const natalIdx = SIGNS.indexOf(natalMoonSign);
+  if (natalIdx < 0) return [];
+  const houseOf = g => ((Math.floor(norm360(pos[g].sidereal)/30) - natalIdx + 12) % 12) + 1;
+  const houses = {}; GRAHA_LIST.forEach(g=>{ houses[g] = houseOf(g); });
+  const results = [];
+  GRAHA_LIST.forEach(g=>{
+    const rule = CHINTAMANI_GOCHARA[g];
+    const auIdx = rule.aus.indexOf(houses[g]);
+    if (auIdx < 0) return; // not in an auspicious house right now -- nothing to report
+    const vedhaHouse = rule.vedha[auIdx];
+    const occupiers = GRAHA_LIST.filter(g2=>g2!==g && houses[g2]===vedhaHouse);
+    const exemptOccupiers = occupiers.filter(g2=>CHINTAMANI_GOCHARA_EXEMPT_PAIRS.some(pair=>pair.includes(g)&&pair.includes(g2)));
+    const blockingOccupiers = occupiers.filter(g2=>!exemptOccupiers.includes(g2));
+    results.push({ graha:g, house:houses[g], vedhaHouse, blocked: blockingOccupiers.length>0, blockingOccupiers, exemptOccupiers });
+  });
+  return results;
+}
+
+// ---- 4. Tārā cycle-tapering (ch. 4 p.108-109) ----
+// The app's own computeTara()/taraForOffset() already computes which of
+// the 9 Tārās applies but has no cycle memory (a flat ((offset-1)%9)
+// lookup) -- this refines the 3 bad Tārās (Vipath/Pratyari/Naidhana, this
+// app's names for the source's Vipat/Pratyari/Vadha) across the 3 passes
+// through the 27-star cycle: fully bad on pass 1; only the Vipath's first
+// pada and Pratyari/Naidhana's last pada stay bad on pass 2; fully
+// auspicious by pass 3. Read-only refinement of the existing tara object,
+// does not alter scoreMuhurta()'s own use of it.
+const CHINTAMANI_TARA_BAD = new Set(['Vipath','Pratyari','Naidhana']);
+function chintamaniTaraTapering(tara, moonNak28Pada){
+  if (!tara || !CHINTAMANI_TARA_BAD.has(tara.name)) return null;
+  const cycle = Math.floor((tara.offset - 1) / 9) + 1; // 1, 2 or 3
+  let stillBad;
+  if (cycle === 1) stillBad = true;
+  else if (cycle === 2) stillBad = (tara.name === 'Vipath' && moonNak28Pada === 1) || (tara.name !== 'Vipath' && moonNak28Pada === 4);
+  else stillBad = false;
+  return { cycle, stillBad };
+}
+
+// ---- 5. Bhadra (Vishti karaṇa) mouth/tail + Moon-sign potency (ch. 1
+// p.31-37). The source's own point: Bhadra only lands "on Earth" (i.e.
+// actually bites) when the Moon is in Aquarius/Pisces/Cancer/Leo at the
+// time -- the other 8 signs send its effect to Svarga or Pātāla, nowhere
+// that touches a muhūrta. Mouth/tail ghati sub-split not modeled (needs
+// the book's own prahara arithmetic per weekday, not yet transcribed) --
+// this only implements the Earth/Svarga/Pātāla gate, flagged as such. ----
+const CHINTAMANI_BHADRA_EARTH_SIGNS = ['Aquarius','Pisces','Cancer','Leo'];
+function chintamaniBhadraCheck(panch, moonSign){
+  if (!panch.karana || panch.karana.name !== 'Vishti') return null;
+  const onEarth = CHINTAMANI_BHADRA_EARTH_SIGNS.includes(moonSign);
+  return { active: onEarth, moonSign };
+}
+
+// ---- 6. Panchaka doṣa (ch. 2 p.81-82) ----
+// Moon transiting the last 3 padas of Dhanishta through all of Satabisha,
+// P.Bhadrapada, U.Bhadrapada and Revati.
+function chintamaniPanchaka(nak28Name, nak28Pada){
+  if (nak28Name === 'Dhanishta') return nak28Pada >= 2;
+  return ['Satabisha','P.Bhadrapada','U.Bhadrapada','Revati'].includes(nak28Name);
+}
+
+// ---- 7. Kulika / Kālabelā / Yamaghaṇṭa / Kaṇṭaka (ch.1 śl.36-37, p.26-29,
+// confirmed against a clean scan 2026-08-16 -- both the stated algorithm
+// AND its own worked Sunday example were verified to reproduce exactly).
+// Algorithm (śl.37): count the weekday forward to Saturday/Wednesday/
+// Thursday/Tuesday respectively (inclusive, 1..7), double it -- that is
+// the Muhūrta number (1-15, of the 15 forty-eight-minute Muhūrtas spanning
+// daylight only; the source states these four are not inauspicious at
+// night). Verified: Sunday -> Kantaka=6, Ardhayāma=7 (separate source,
+// ch.6 śl.64, not derived here), Kālabelā=8, Yamaghaṇṭa=10, Kulika=14,
+// matching the book's own printed "Table of Evil Muhūrtas" (p.29) exactly
+// everywhere it could be cross-checked. That printed table has 1-2 further
+// entries per day beyond these four (Ardhayāma being one) that aren't yet
+// derived from a stated general formula -- not guessed at here.
+const CHINTAMANI_MUHURTA_LEN = 12/15; // 48 min, daylight only
+function chintamaniMuhurtaCount(fromDay, toDay){
+  return ((WEEKDAYS.indexOf(toDay) - WEEKDAYS.indexOf(fromDay) + 7) % 7) + 1;
+}
+function chintamaniDaySlots(weekdayName, sunriseHr, sunsetHr){
+  const slot = muhurtaNum => { const s = sunriseHr + (muhurtaNum-1)*CHINTAMANI_MUHURTA_LEN; return { startHr: s, endHr: s+CHINTAMANI_MUHURTA_LEN }; };
+  return {
+    kulika: slot(chintamaniMuhurtaCount(weekdayName,'Saturday')*2),
+    kalabela: slot(chintamaniMuhurtaCount(weekdayName,'Wednesday')*2),
+    yamaghanta: slot(chintamaniMuhurtaCount(weekdayName,'Thursday')*2),
+    kantaka: slot(chintamaniMuhurtaCount(weekdayName,'Tuesday')*2)
+  };
+}
+
+function chintamaniGeneralChecks(pos, panch, refP, weekdayName, sunriseHr, sunsetHr){
+  const moonSign = SIGNS[Math.floor(norm360(pos.Moon.sidereal)/30)];
+  const nak28 = panch.nak28;
+  const checks = {};
+  checks.temperament = chintamaniNakTemperament(nak28.name);
+  checks.charaYoga = chintamaniCharaYoga(nak28.name, weekdayName);
+  checks.gocharaVedha = refP.sign ? chintamaniGocharaVedha(pos, refP.sign) : null;
+  checks.taraTapering = refP.star ? chintamaniTaraTapering(computeTara(pos, refP), nak28.pada) : null;
+  checks.bhadra = chintamaniBhadraCheck(panch, moonSign);
+  checks.panchaka = chintamaniPanchaka(nak28.name, nak28.pada);
+  checks.daySlots = chintamaniDaySlots(weekdayName, sunriseHr, sunsetHr);
+  return checks;
+}
+
+/* =========================================================================
+   MUHŪRTA CHINTĀMAṆI — "ACTIVITY GUIDELINE" (Path B)
+   Per user direction (2026-08-16): let the user choose which life-area
+   they're judging the moment for, and show that activity's own checklist
+   from the source as an outright verdict -- not folded into the numeric
+   score, and not the same rules for every activity the way the SBC score
+   currently is. Three activities implemented with concrete source rules;
+   more can follow the same {key, checks:[{run(ctx)->{ok,label}}], verdict}
+   shape. Region-locked variants skipped throughout, per direction.
+   ========================================================================= */
+
+function isRiktaTithi(tithiNum){ return [4,9,14].includes(tithiNum<=15?tithiNum:tithiNum-15); }
+
+// ---- Marriage (ch. 6-8) ----
+// Dhruva(U.Phalguni,U.Shada,U.Bhadrapada,Rohini) + Kshipra(Hasta,Aswini,Pushya)
+// + Mridu(Mrigasira,Revati,Chitra,Anuradha) + Sravana/Dhanishta/Moola/Magha/Swati
+// -- ch.7 p.226 (bride's FIRST homecoming; the marriage muhūrta itself
+// coincides with this per the chapter's own opening note), confirmed
+// word-for-word against a clean scan 2026-08-16.
+const CHINTAMANI_MARRIAGE_NAKS = ['U.Phalguni','U.Shada','U.Bhadrapada','Rohini','Hasta','Aswini','Pushya','Mrigasira','Revati','Chitra','Anuradha','Sravana','Dhanishta','Moola','Magha','Swati'];
+function chintamaniMarriageGuideline(pos, panch, mdt){
+  const checks = [];
+  checks.push({ label:T('Not a Rikta tithi (4th/9th/14th)','No es Tithi Rikta (4.ª/9.ª/14.ª)'), ok: !isRiktaTithi(panch.tithiNum), cite:'ch.7 p.226' });
+  checks.push({ label:T('Not Amāvasyā','No es Amāvasyā'), ok: panch.tithiName !== 'Amavasya', cite:'ch.8 p.227' });
+  const moonSign = SIGNS[Math.floor(norm360(pos.Moon.sidereal)/30)];
+  const bhadra = chintamaniBhadraCheck(panch, moonSign);
+  checks.push({ label:T('Bhadrā not active on Earth right now','Bhadrā no está activa en la Tierra ahora'), ok: !bhadra || !bhadra.active, cite:'ch.1 p.31-37, ch.6 p.183' });
+  checks.push({ label:T('Moon nakṣatra is in the favoured list (16 named)','La Nakṣatra lunar está en la lista favorecida (16 nombradas)'), ok: CHINTAMANI_MARRIAGE_NAKS.includes(panch.nak28.name), cite:'ch.7 p.226' });
+  const jupCombust = Math.abs(norm360(pos.Jupiter.sidereal-pos.Sun.sidereal))<=COMBUSTION_ORB_DEG.Jupiter || Math.abs(360-Math.abs(norm360(pos.Jupiter.sidereal-pos.Sun.sidereal)))<=COMBUSTION_ORB_DEG.Jupiter;
+  const venCombust = Math.abs(norm360(pos.Venus.sidereal-pos.Sun.sidereal))<=COMBUSTION_ORB_DEG.Venus || Math.abs(360-Math.abs(norm360(pos.Venus.sidereal-pos.Sun.sidereal)))<=COMBUSTION_ORB_DEG.Venus;
+  checks.push({ label:T('Jupiter not combust','Júpiter no combusto'), ok: !jupCombust, cite:'ch.6 p.183' });
+  checks.push({ label:T('Venus not combust','Venus no combusta'), ok: !venCombust, cite:'ch.6 p.183' });
+  checks.push({ label:T('Jupiter not in Leo (Siṃha-stha Guru doṣa)','Júpiter no está en Leo (doṣa Siṃha-stha Guru)'), ok: SIGNS[Math.floor(norm360(pos.Jupiter.sidereal)/30)] !== 'Leo', cite:'ch.1 p.40' });
+  checks.push({ label:T('Jupiter not in Capricorn (own debilitation)','Júpiter no está en Capricornio (su debilitación)'), ok: SIGNS[Math.floor(norm360(pos.Jupiter.sidereal)/30)] !== 'Capricorn', cite:'ch.1 p.40' });
+  return checks;
+}
+
+// ---- Travel (ch. 11) ----
+const CHINTAMANI_TRAVEL_SUN_GOOD = ['Sagittarius','Aries','Leo'];
+const CHINTAMANI_TRAVEL_SUN_LONG = ['Cancer','Pisces','Scorpio'];
+const CHINTAMANI_DIKSHOOLA = { // direction blocked on these weekdays
+  East:['Monday','Saturday'], South:['Thursday'], West:['Sunday','Friday'], North:['Tuesday','Wednesday']
+};
+// ch.11 śl.20-23, p.249-251 (confirmed via clean scan 2026-08-16): a
+// month x tithi(1-12) x direction table. Table mechanics per the source's
+// own prose (p.249): reading down a lunar month's column gives tithis
+// 1..12 in order, but shifted by (month# - 1) positions and wrapping --
+// Pausha's column is 1,2,...,12; Magha's is 2,3,...,12,1; etc. Verified
+// the resulting colValue(M,R) = ((R+M-2) mod 12)+1 formula against both
+// of the source's own worked statements (Pausha column, and Magha's
+// "vacant cell gets Pratipada"). Effects (12 per direction) transcribed
+// directly from the printed grid.
+const CHINTAMANI_MONTHS_FROM_PAUSHA = ['Pausha','Magha','Phalguna','Chaitra','Vaishakha','Jyeshtha','Ashadha','Shravana','Bhadrapada','Ashwina','Kartika','Margashirsha'];
+const CHINTAMANI_DIR_TITHI_EFFECT = {
+  East:  ['Comfort','Zero','Loss of Money','Profit','Profit','Fear','Profit','Pain','Comfort','Pain','Death','Zero'],
+  South: ['Pain','Poverty','Pain','Comfort','Profit of Money','Profit','Pain','Comfort','Profit','Pain','Profit','Comfort'],
+  West:  ['Fear','Poverty','Fulfilment of Desire','Auspicious','Profit of Money','Death','Profit of Money','Pain','Success','Profit of Money','Profit','Death'],
+  North: ['Project of Money','Mixed Effects','Profit of Money','Profit of Money','Comfort','Income of Money','Comfort','Comfort','Pain','Wealth','Zero','Pain']
+};
+const CHINTAMANI_EFFECT_TONE = {
+  Comfort:'good', Profit:'good', 'Profit of Money':'good', 'Income of Money':'good', Wealth:'good', Success:'good', 'Fulfilment of Desire':'good', Auspicious:'good',
+  Zero:'neutral', 'Mixed Effects':'neutral', 'Project of Money':'neutral',
+  Pain:'bad', Poverty:'bad', Fear:'bad', Death:'bad', 'Loss of Money':'bad'
+};
+// Lunar month approximated from the Sun's current sidereal sign (Sun in
+// Sagittarius ~ Pausha, etc.) -- NOT an exact Amānta-month boundary (which
+// needs the actual new-moon syzygy), disclosed as such wherever shown.
+function chintamaniApproxLunarMonth(sunSign){
+  const idx = ((SIGNS.indexOf(sunSign) - SIGNS.indexOf('Sagittarius') + 12) % 12);
+  return idx + 1; // 1=Pausha .. 12=Margashirsha
+}
+function chintamaniDirTithiEffect(monthFromPausha1to12, tithiNum1to30, direction){
+  if (!direction || !CHINTAMANI_DIR_TITHI_EFFECT[direction]) return null;
+  const t = tithiNum1to30 > 15 ? tithiNum1to30 - 15 : tithiNum1to30;
+  if (t > 12) return null; // table covers tithis 1-12 only; 13/14/15 are Rikta-adjacent, handled separately
+  let R = ((t - monthFromPausha1to12 + 1) % 12 + 12) % 12; if (R===0) R = 12;
+  const effect = CHINTAMANI_DIR_TITHI_EFFECT[direction][R-1];
+  return { effect, tone: CHINTAMANI_EFFECT_TONE[effect] || 'neutral' };
+}
+
+function chintamaniTravelGuideline(pos, panch, weekdayName, direction){
+  const checks = [];
+  const sunSign = SIGNS[Math.floor(norm360(pos.Sun.sidereal)/30)];
+  const isVijayadashami = panch.paksha==='Shukla' && panch.tithiNum===10; // simplified: tithi only, month not cross-checked
+  checks.push({ label:T('Not a Rikta tithi (4th/9th/14th)','No es Tithi Rikta (4.ª/9.ª/14.ª)'), ok: !isRiktaTithi(panch.tithiNum) || isVijayadashami, cite:'ch.11 śl.9' });
+  checks.push({ label:T('Not the 6th, 8th or 12th tithi','No es la Tithi 6.ª, 8.ª o 12.ª'), ok: ![6,8,12,21,23,27].includes(panch.tithiNum) || isVijayadashami, cite:'ch.11 śl.9' });
+  checks.push({ label:T('Sun’s sign favours travel','El signo del Sol favorece el viaje'), ok: CHINTAMANI_TRAVEL_SUN_GOOD.includes(sunSign), info: CHINTAMANI_TRAVEL_SUN_LONG.includes(sunSign) ? T('neutral, but the source says the journey will run long','neutral, pero la fuente dice que el viaje se alargará') : null, cite:'ch.11 śl.8' });
+  if (direction){
+    const blockedDays = CHINTAMANI_DIKSHOOLA[direction] || [];
+    checks.push({ label:T(`${direction} is not Diś-Śūla blocked today`,`${direction} no está bloqueada por Diś-Śūla hoy`), ok: !blockedDays.includes(weekdayName), cite:'ch.11 śl.10' });
+    const monthNum = chintamaniApproxLunarMonth(sunSign);
+    const dte = chintamaniDirTithiEffect(monthNum, panch.tithiNum, direction);
+    if (dte){
+      checks.push({ label:T(`${direction} tithi/month effect: ${dte.effect}`,`Efecto de tithi/mes en ${direction}: ${dte.effect}`), ok: dte.tone!=='bad',
+        info: T(`Month approximated as ${CHINTAMANI_MONTHS_FROM_PAUSHA[monthNum-1]} from the Sun's current sign — not an exact lunar-month boundary.`,`Mes aproximado como ${CHINTAMANI_MONTHS_FROM_PAUSHA[monthNum-1]} a partir del signo actual del Sol — no es un límite exacto de mes lunar.`),
+        cite:'ch.11 śl.20-23' });
+    }
+  }
+  return checks;
+}
+
+// ---- Relocation / city compatibility (ch. 12 §1-2) ----
+// Rāśi-from-name: ch.12 p.290's own "Table for Knowing Rāśi According to
+// the First Letter of One's Name" (27 nakṣatras x 4 padas = 108 syllables),
+// transcribed directly from a clean scan (2026-08-16) -- deliberately its
+// OWN letter table rather than reusing the SBC book's NAK_PADA_CONSONANTS
+// (Agarwal ch.III, used for the Horary/Praśna page), since the two are
+// different books' own transliterations of the same 9-padas-per-Rāśi
+// nāmakaraṇa system and shouldn't be cross-wired. Verified the scan's own
+// worked example (Kritika: "Aries 1 Taurus 3") against the plain formula
+// below (globalPada/9) -- matches exactly, confirming the formula is a
+// correct shortcut for this table rather than a separate approximation.
+const CHINTAMANI_NAME_LETTERS = {
+  Aswini:["Choo","Che","Cho","La"], Bharani:["Le","Loo","Le","Lo"],
+  Krittika:["Aa","I","U","Ae"], Rohini:["Au","Va","Vi","Vu"],
+  Mrigasira:["Ve","Vo","Ka","Ki"], Ardra:["Koo","Gha","Anga","Chha"],
+  Punarvasu:["Ke","Ko","Ha","Hi"], Pushya:["Hoo","He","Ho","Da"],
+  Ashlesha:["De","Doo","De","Do"], Magha:["Ma","Mee","Mu","Me"],
+  "P.Phalguni":["Mo","Ta","Tee","Too"], "U.Phalguni":["Te","To","Pa","Pee"],
+  Hasta:["Poo","Sha","Na","Thh"], Chitra:["Pe","Po","Ra","Ree"],
+  Swati:["Roo","Re","Ro","Ta"], Visakha:["Tee","Too","Te","To"],
+  Anuradha:["Na","Nee","Noo","Ne"], Jyeshta:["No","Ya","Yee","Yu"],
+  Moola:["Ye","Yo","Bha","Bhee"], "P.Shada":["Bhoo","Dha","Pha","Thha"],
+  "U.Shada":["Bhe","Jo","Jo","Jee"], Sravana:["Khee","Khoo","Khe","Kho"],
+  Dhanishta:["Ga","Ge","Goo","Ge"], Satabisha:["Go","Sa","See","Soo"],
+  "P.Bhadrapada":["Se","So","Da","Di"], "U.Bhadrapada":["Du","Thha","Aa","Yan"],
+  Revati:["De","Do","Cha","Chee"]
+};
+const CHINTAMANI_NAME_LETTER_INDEX = [];
+(function(){
+  NAK27.forEach((s,starIdx)=>{
+    CHINTAMANI_NAME_LETTERS[s.n].forEach((syl,pada)=>{
+      CHINTAMANI_NAME_LETTER_INDEX.push({syl:syl.toLowerCase(), starIdx, pada:pada+1});
+    });
+  });
+  CHINTAMANI_NAME_LETTER_INDEX.sort((a,b)=> b.syl.length - a.syl.length); // longest-prefix match wins
+})();
+function chintamaniRashiFromName(text){
+  const alpha = ((text||'').trim().match(/[A-Za-z]+/) || [''])[0].toLowerCase();
+  if (!alpha) return null;
+  const match = CHINTAMANI_NAME_LETTER_INDEX.find(e=>alpha.startsWith(e.syl));
+  if (!match) return null;
+  const globalPada = match.starIdx*4 + (match.pada-1); // 0..107
+  return SIGNS[Math.floor(globalPada/9)];
+}
+const CHINTAMANI_CITY_HOUSE_EFFECT = {
+  3:{en:'enmity',es:'enemistad'}, 4:{en:'loss',es:'pérdida'}, 6:{en:'disease',es:'enfermedad'},
+  7:{en:'loss',es:'pérdida'}, 8:{en:'enmity',es:'enemistad'}, 12:{en:'disease',es:'enfermedad'}
+};
+const CHINTAMANI_RASHI_AVOID_DIR = {
+  Taurus:'center', Leo:'center', Capricorn:'center', Gemini:'center',
+  Scorpio:'East', Pisces:'Southeast', Virgo:'Southwest', Sagittarius:'West',
+  Libra:'Northwest', Aries:'North', Aquarius:'Northeast'
+};
+function chintamaniRelocationCheck(personName, cityName){
+  const personRashi = chintamaniRashiFromName(personName);
+  const cityRashi = chintamaniRashiFromName(cityName);
+  if (!personRashi || !cityRashi) return null;
+  const houseFromPerson = ((SIGNS.indexOf(cityRashi) - SIGNS.indexOf(personRashi) + 12) % 12) + 1;
+  const auspicious = [2,5,9,10,11].includes(houseFromPerson);
+  const effect = CHINTAMANI_CITY_HOUSE_EFFECT[houseFromPerson] || null;
+  const avoidDir = CHINTAMANI_RASHI_AVOID_DIR[personRashi] || null;
+  return { personRashi, cityRashi, houseFromPerson, auspicious, effect, avoidDir };
+}
+
+/* =========================================================================
+   TWO-PERSON COMPATIBILITY — AṢṬAKOOTA (Guṇa Milan) + VIMŚOPAKA BALA
+   ch. 6 "Marriage Sanskaras," p.157-174 (Aṣṭakoota) and p.216 (Vimśopaka).
+   User-approved standalone feature (2026-08-16), separate from the
+   single-moment muhūrta score entirely -- this compares two BIRTH CHARTS,
+   not a moment. Varna/Vashya/Tārā/Yoni/Graha-Maitri/Bhakoota point tables
+   below are transcribed directly from clean scans of pp.157-162 (2026-08-16).
+   Nāḍī and Gaṇa (the remaining 2 of the 8 kootas) were not among the pages
+   supplied clean, so those two use the standard classical grouping/point
+   tables general to Vedic astrology rather than this book's own printed
+   grid -- flagged here, not silently presented as this-book-sourced like
+   the other six.
+   ========================================================================= */
+
+const ASHTAKOOTA_VARNA_SIGN = {
+  Cancer:'Brahmin', Scorpio:'Brahmin', Pisces:'Brahmin',
+  Aries:'Kshatriya', Leo:'Kshatriya', Sagittarius:'Kshatriya',
+  Taurus:'Vaishya', Virgo:'Vaishya', Capricorn:'Vaishya',
+  Gemini:'Shudra', Aquarius:'Shudra', Libra:'Shudra'
+};
+const ASHTAKOOTA_VARNA_RANK = {Brahmin:4, Kshatriya:3, Vaishya:2, Shudra:1};
+function ashtakootaVarna(brideSign, groomSign){
+  const b = ASHTAKOOTA_VARNA_SIGN[brideSign], g = ASHTAKOOTA_VARNA_SIGN[groomSign];
+  return { points: ASHTAKOOTA_VARNA_RANK[g] >= ASHTAKOOTA_VARNA_RANK[b] ? 1 : 0, max:1, note:`${b} / ${g}` };
+}
+
+// 5-Vashya version (p.158, "according to another book") -- used over the
+// book's own primary 4-category table since only this version gives a
+// complete Rāśi mapping in the source; Sagittarius/Capricorn split at their
+// midpoint per the source's own "latter half / first half" wording.
+function ashtakootaVashyaCategory(signIdx, degInSign){
+  const s = SIGNS[signIdx];
+  if (s==='Aries' || s==='Taurus') return 'Chatushpada';
+  if (s==='Gemini' || s==='Virgo' || s==='Libra') return 'Nara';
+  if (s==='Sagittarius') return degInSign < 15 ? 'Nara' : 'Chatushpada';
+  if (s==='Capricorn') return degInSign < 15 ? 'Jalachara' : 'Chatushpada';
+  if (s==='Cancer' || s==='Pisces' || s==='Aquarius') return 'Jalachara';
+  if (s==='Leo') return 'Banachara';
+  return 'Keeta'; // Scorpio
+}
+const ASHTAKOOTA_VASHYA_POINTS = {
+  Chatushpada: {Chatushpada:2, Nara:1, Jalachara:1, Banachara:0, Keeta:1},
+  Nara: {Chatushpada:1, Nara:2, Jalachara:0.5, Banachara:0, Keeta:1},
+  Jalachara: {Chatushpada:1, Nara:0.5, Jalachara:2, Banachara:1, Keeta:1},
+  Banachara: {Chatushpada:0, Nara:0, Jalachara:1, Banachara:2, Keeta:0},
+  Keeta: {Chatushpada:1, Nara:0, Jalachara:1, Banachara:0, Keeta:2}
+};
+function ashtakootaVashya(brideSid, groomSid){
+  const b = ashtakootaVashyaCategory(Math.floor(norm360(brideSid)/30), norm360(brideSid)%30);
+  const g = ashtakootaVashyaCategory(Math.floor(norm360(groomSid)/30), norm360(groomSid)%30);
+  return { points: ASHTAKOOTA_VASHYA_POINTS[b][g], max:2, note:`${b} / ${g}` };
+}
+
+// Tārā (p.159 śl.24): count each way through the 27-star cycle, remainder
+// mod 9 of 3/5/7 is inauspicious -- 3pts if both directions land good,
+// 1.5 if one, 0 if both bad. Confirmed this collapses the printed 9x9
+// grid exactly (every "good" row/column value gives an identical pattern,
+// likewise every "bad" one), so implemented as the stated rule directly.
+function ashtakootaTara(brideStar, groomStar){
+  const bIdx = NAK27.findIndex(s=>s.n===brideStar), gIdx = NAK27.findIndex(s=>s.n===groomStar);
+  const bg = ((gIdx - bIdx + 27) % 27) + 1, gb = ((bIdx - gIdx + 27) % 27) + 1;
+  const isBad = n => [3,5,7].includes(((n-1)%9)+1);
+  const goodCount = (isBad(bg)?0:1) + (isBad(gb)?0:1);
+  return { points: goodCount===2?3:goodCount===1?1.5:0, max:3, note:`${bg}/${gb}` };
+}
+
+// Yoni (p.160): simplified to the classical system's best-known feature --
+// same yoni = full marks, named "enemy" pairs = zero, everything else a
+// flat middle value. The book's own printed 14x14 grid has finer-grained
+// intermediate values (1/2/3) that could refine this, but several cells
+// were not confidently legible from the scan provided -- using the
+// coarser, high-confidence version rather than risk mistranscribed digits
+// in a compatibility score. Flag for refinement if a cleaner scan of
+// p.160 becomes available.
+const ASHTAKOOTA_YONI = {
+  Aswini:'Horse', Satabisha:'Horse', Bharani:'Elephant', Revati:'Elephant',
+  Krittika:'Sheep', Pushya:'Sheep', Rohini:'Serpent', Mrigasira:'Serpent',
+  Ardra:'Dog', Moola:'Dog', Punarvasu:'Cat', Ashlesha:'Cat',
+  Magha:'Rat', 'P.Phalguni':'Rat', 'U.Phalguni':'Cow', 'U.Bhadrapada':'Cow',
+  Hasta:'Buffalo', Swati:'Buffalo', Chitra:'Tiger', Visakha:'Tiger',
+  Anuradha:'Deer', Jyeshta:'Deer', 'P.Shada':'Monkey', Sravana:'Monkey',
+  'U.Shada':'Mongoose', Dhanishta:'Lion', 'P.Bhadrapada':'Lion'
+};
+const ASHTAKOOTA_YONI_ENEMY = [['Cow','Tiger'],['Elephant','Lion'],['Horse','Buffalo'],['Dog','Deer'],['Sheep','Monkey'],['Serpent','Mongoose'],['Rat','Cat']];
+function ashtakootaYoni(brideStar, groomStar){
+  const b = ASHTAKOOTA_YONI[brideStar], g = ASHTAKOOTA_YONI[groomStar];
+  const isEnemy = ASHTAKOOTA_YONI_ENEMY.some(pair=>pair.includes(b)&&pair.includes(g)&&b!==g);
+  const points = b===g ? 4 : isEnemy ? 0 : 2;
+  return { points, max:4, note:`${b} / ${g}` };
+}
+
+// Graha Maitri (p.161): full point grid transcribed from a clean scan
+// 2026-08-16, keyed by each person's Moon-sign LORD (reusing this app's
+// existing SIGN_LORD table).
+const ASHTAKOOTA_GRAHA_MAITRI = {
+  Sun:     {Sun:5, Moon:5, Mars:5, Mercury:4, Jupiter:5, Venus:0, Saturn:0},
+  Moon:    {Sun:5, Moon:5, Mars:4, Mercury:1, Jupiter:4, Venus:0.5, Saturn:0.5},
+  Mars:    {Sun:5, Moon:4, Mars:5, Mercury:0.5, Jupiter:5, Venus:3, Saturn:0.5},
+  Mercury: {Sun:4, Moon:1, Mars:0.5, Mercury:5, Jupiter:0.5, Venus:5, Saturn:4},
+  Jupiter: {Sun:5, Moon:4, Mars:5, Mercury:0.5, Jupiter:5, Venus:0.5, Saturn:3},
+  Venus:   {Sun:0, Moon:0.5, Mars:3, Mercury:5, Jupiter:0.5, Venus:5, Saturn:5},
+  Saturn:  {Sun:0, Moon:0.5, Mars:0.5, Mercury:4, Jupiter:3, Venus:5, Saturn:5}
+};
+function ashtakootaGrahaMaitri(brideSign, groomSign){
+  const b = SIGN_LORD[brideSign], g = SIGN_LORD[groomSign];
+  return { points: ASHTAKOOTA_GRAHA_MAITRI[b][g], max:5, note:`${b} / ${g}` };
+}
+
+// Gaṇa (standard classical grouping -- not among the pages supplied clean,
+// see module note above) -- Deva/Manushya/Rakshasa, max 6 points.
+const ASHTAKOOTA_GANA = {
+  Aswini:'Deva', Mrigasira:'Deva', Punarvasu:'Deva', Pushya:'Deva', Hasta:'Deva', Swati:'Deva', Anuradha:'Deva', Sravana:'Deva', Revati:'Deva',
+  Bharani:'Manushya', Rohini:'Manushya', Ardra:'Manushya', 'P.Phalguni':'Manushya', 'U.Phalguni':'Manushya', 'P.Shada':'Manushya', 'U.Shada':'Manushya', 'P.Bhadrapada':'Manushya', 'U.Bhadrapada':'Manushya',
+  Krittika:'Rakshasa', Ashlesha:'Rakshasa', Magha:'Rakshasa', Chitra:'Rakshasa', Visakha:'Rakshasa', Jyeshta:'Rakshasa', Moola:'Rakshasa', Dhanishta:'Rakshasa', Satabisha:'Rakshasa'
+};
+const ASHTAKOOTA_GANA_POINTS = { Deva:{Deva:6,Manushya:5,Rakshasa:1}, Manushya:{Deva:5,Manushya:6,Rakshasa:0}, Rakshasa:{Deva:1,Manushya:0,Rakshasa:6} };
+function ashtakootaGana(brideStar, groomStar){
+  const b = ASHTAKOOTA_GANA[brideStar], g = ASHTAKOOTA_GANA[groomStar];
+  return { points: ASHTAKOOTA_GANA_POINTS[b][g], max:6, note:`${b} / ${g}` };
+}
+
+// Bhakoota (p.162): confirmed the printed 12x12 grid collapses exactly to
+// the standard classical rule (Rāśi-distance 2/5/6/8/9/12 = dosha) --
+// verified cell-by-cell against Aries' own row before adopting the formula.
+function ashtakootaBhakoota(brideSign, groomSign){
+  const dist = ((SIGNS.indexOf(groomSign) - SIGNS.indexOf(brideSign) + 12) % 12) + 1;
+  const dosha = [2,5,6,8,9,12].includes(dist);
+  return { points: dosha?0:7, max:7, note:dosha?T('afflicted','afligido'):T('clear','despejado'), dosha };
+}
+
+// Nāḍī (standard classical grouping -- not among the pages supplied clean;
+// same Nāḍī = 0, different = full 8 points, the single heaviest koota).
+const ASHTAKOOTA_NADI = ['Adi','Madhya','Antya']; // cycles every 3 stars starting Aswini
+function ashtakootaNadi(brideStar, groomStar){
+  const bIdx = NAK27.findIndex(s=>s.n===brideStar)%3, gIdx = NAK27.findIndex(s=>s.n===groomStar)%3;
+  const same = bIdx===gIdx;
+  return { points: same?0:8, max:8, note:`${ASHTAKOOTA_NADI[bIdx]} / ${ASHTAKOOTA_NADI[gIdx]}`, same };
+}
+
+function computeAshtakoota(posA, posB){
+  const brideStar = nakshatraFromSidereal(posA.Moon.sidereal,false).name;
+  const groomStar = nakshatraFromSidereal(posB.Moon.sidereal,false).name;
+  const brideSign = SIGNS[Math.floor(norm360(posA.Moon.sidereal)/30)];
+  const groomSign = SIGNS[Math.floor(norm360(posB.Moon.sidereal)/30)];
+  const kootas = [
+    { key:'varna', label:T('Varna','Varna'), ...ashtakootaVarna(brideSign, groomSign) },
+    { key:'vashya', label:T('Vashya','Vashya'), ...ashtakootaVashya(posA.Moon.sidereal, posB.Moon.sidereal) },
+    { key:'tara', label:T('Tārā','Tārā'), ...ashtakootaTara(brideStar, groomStar) },
+    { key:'yoni', label:T('Yoni','Yoni'), ...ashtakootaYoni(brideStar, groomStar) },
+    { key:'grahamaitri', label:T('Graha Maitri','Graha Maitri'), ...ashtakootaGrahaMaitri(brideSign, groomSign) },
+    { key:'gana', label:T('Gaṇa','Gaṇa'), ...ashtakootaGana(brideStar, groomStar) },
+    { key:'bhakoota', label:T('Bhakoota','Bhakoota'), ...ashtakootaBhakoota(brideSign, groomSign) },
+    { key:'nadi', label:T('Nāḍī','Nāḍī'), ...ashtakootaNadi(brideStar, groomStar) }
+  ];
+  const total = kootas.reduce((s,k)=>s+k.points, 0);
+  const maxTotal = kootas.reduce((s,k)=>s+k.max, 0); // 36
+  const bhakootaDosha = kootas.find(k=>k.key==='bhakoota').dosha;
+  const nadiSame = kootas.find(k=>k.key==='nadi').same;
+  // Grading, p.157: normal scale, or the Dusta-Bhakoota-shifted scale if
+  // Bhakoota itself is afflicted -- confirmed exact thresholds from a
+  // clean scan 2026-08-16.
+  let grade;
+  if (bhakootaDosha){
+    grade = total<=20 ? T('Unsuitable','No apto') : total<=25 ? T('Medium','Medio') : total<=30 ? T('Excellent','Excelente') : T('Most excellent','Excelentísimo');
+  } else {
+    grade = total<=16 ? T('Unsuitable','No apto') : total<=20 ? T('Medium','Medio') : total<=31 ? T('Excellent','Excelente') : T('Most excellent','Excelentísimo');
+  }
+  return { kootas, total, maxTotal, grade, bhakootaDosha, nadiSame, brideStar, groomStar, brideSign, groomSign };
+}
+
+// Vimśopaka Bala (ch.6 p.216) -- explicit point-weighted planetary
+// strength (own/exalted/friendly sign etc, reusing this app's existing
+// dignityTier()), out of 20. This grades the MOMENT (e.g. the marriage
+// lagna), not a comparison between two charts -- shown alongside the
+// Aṣṭakoota comparison since the source presents both in the same
+// chapter, but conceptually distinct from it.
+const ASHTAKOOTA_VIMSOPAKA_WEIGHT = { Moon:5, Sun:3.5, Jupiter:3, Mercury:2, Venus:2, Saturn:1.5, Rahu:1.5, Ketu:1.5, Mars:1.5 };
+function chintamaniVimshopakaBala(pos){
+  let total = 0;
+  const rows = GRAHA_LIST.map(g=>{
+    const tier = dignityTier(g, pos[g].sidereal);
+    const favourable = ['Exalted','Own','Own (per source note)','Friend'].includes(tier);
+    const earned = favourable ? ASHTAKOOTA_VIMSOPAKA_WEIGHT[g] : 0;
+    total += earned;
+    return { graha:g, tier, weight:ASHTAKOOTA_VIMSOPAKA_WEIGHT[g], earned };
+  });
+  const grade = total<5 ? T('Reject this ascendant','Rechazar este ascendente') : total<=10 ? T('Low','Bajo') : total<=15 ? T('Medium','Medio') : T('Excellent','Excelente');
+  return { rows, total, max:20, grade };
+}
+</script>
+<script>
+/* =========================================================================
    ORCHESTRATION / UI WIRING
    ========================================================================= */
+
+/* World place lookup for the birth/moment location fields (2026-08-16
+   request) — an embedded static list, not a live geocoding API, consistent
+   with this app's offline-first/no-external-deps design (it needs to keep
+   working with no network, including inside the Android/Capacitor wrapper).
+   Every sovereign state's capital, plus a set of additional high-population
+   cities for a few large/federal countries where the capital alone is a
+   poor proxy for "where most users actually are" (US, India, China, etc).
+   Coordinates are city-centre lat/lon to ~0.01°; `tz` is the location's
+   STANDARD-time UTC offset (no daylight saving applied) — matching this
+   app's own "UTC offset (hrs)" field, which is likewise a fixed offset the
+   user sets by hand. Selecting a place fills lat/lon/UTC-offset as a
+   starting point only: for DST periods, or for historical dates before a
+   country's current time-zone rules took effect, the offset still needs
+   checking by hand, same as this app's existing precision-note footer
+   already asks of Sun/Moon/planet accuracy generally. */
+const WORLD_PLACES = [
+  ["Algiers","Algeria",36.75,3.06,1],["Luanda","Angola",-8.84,13.23,1],["Porto-Novo","Benin",6.50,2.62,1],
+  ["Gaborone","Botswana",-24.66,25.91,2],["Ouagadougou","Burkina Faso",12.37,-1.53,0],["Gitega","Burundi",-3.43,29.93,2],
+  ["Praia","Cabo Verde",14.93,-23.51,-1],["Yaoundé","Cameroon",3.87,11.52,1],["Bangui","Central African Republic",4.36,18.56,1],
+  ["N'Djamena","Chad",12.11,15.03,1],["Moroni","Comoros",-11.70,43.26,3],["Kinshasa","DR Congo",-4.32,15.31,1],
+  ["Brazzaville","Congo",-4.27,15.24,1],["Yamoussoukro","Côte d'Ivoire",6.83,-5.29,0],["Djibouti","Djibouti",11.59,43.15,3],
+  ["Cairo","Egypt",30.04,31.24,2],["Malabo","Equatorial Guinea",3.75,8.78,1],["Asmara","Eritrea",15.34,38.93,3],
+  ["Mbabane","Eswatini",-26.32,31.13,2],["Addis Ababa","Ethiopia",9.03,38.74,3],["Libreville","Gabon",0.42,9.45,1],
+  ["Banjul","Gambia",13.45,-16.58,0],["Accra","Ghana",5.60,-0.19,0],["Conakry","Guinea",9.64,-13.58,0],
+  ["Bissau","Guinea-Bissau",11.86,-15.60,0],["Nairobi","Kenya",-1.29,36.82,3],["Maseru","Lesotho",-29.31,27.48,2],
+  ["Monrovia","Liberia",6.30,-10.80,0],["Tripoli","Libya",32.89,13.19,2],["Antananarivo","Madagascar",-18.88,47.51,3],
+  ["Lilongwe","Malawi",-13.96,33.79,2],["Bamako","Mali",12.65,-8.00,0],["Nouakchott","Mauritania",18.08,-15.98,0],
+  ["Port Louis","Mauritius",-20.16,57.50,4],["Rabat","Morocco",34.02,-6.83,1],["Maputo","Mozambique",-25.97,32.57,2],
+  ["Windhoek","Namibia",-22.56,17.08,2],["Niamey","Niger",13.51,2.11,1],["Abuja","Nigeria",9.08,7.40,1],
+  ["Lagos","Nigeria",6.52,3.38,1],["Kigali","Rwanda",-1.94,30.06,2],["São Tomé","São Tomé and Príncipe",0.33,6.73,0],
+  ["Dakar","Senegal",14.72,-17.47,0],["Victoria","Seychelles",-4.62,55.45,4],["Freetown","Sierra Leone",8.48,-13.23,0],
+  ["Mogadishu","Somalia",2.05,45.32,3],["Pretoria","South Africa",-25.75,28.19,2],["Cape Town","South Africa",-33.92,18.42,2],
+  ["Johannesburg","South Africa",-26.20,28.05,2],["Juba","South Sudan",4.85,31.58,3],["Khartoum","Sudan",15.50,32.56,2],
+  ["Dodoma","Tanzania",-6.16,35.75,3],["Dar es Salaam","Tanzania",-6.79,39.21,3],["Lomé","Togo",6.13,1.22,0],
+  ["Tunis","Tunisia",36.81,10.18,1],["Kampala","Uganda",0.35,32.58,3],["Lusaka","Zambia",-15.39,28.32,2],["Harare","Zimbabwe",-17.83,31.05,2],
+
+  ["Kabul","Afghanistan",34.56,69.21,4.5],["Yerevan","Armenia",40.18,44.51,4],["Baku","Azerbaijan",40.41,49.87,4],
+  ["Manama","Bahrain",26.23,50.59,3],["Dhaka","Bangladesh",23.81,90.41,6],["Thimphu","Bhutan",27.47,89.64,6],
+  ["Bandar Seri Begawan","Brunei",4.94,114.95,8],["Phnom Penh","Cambodia",11.56,104.92,7],["Beijing","China",39.90,116.41,8],
+  ["Shanghai","China",31.23,121.47,8],["Shenzhen","China",22.54,114.06,8],["Guangzhou","China",23.13,113.26,8],
+  ["Hong Kong","Hong Kong",22.32,114.17,8],["Nicosia","Cyprus",35.19,33.38,2],["Tbilisi","Georgia",41.72,44.79,4],
+  ["New Delhi","India",28.61,77.21,5.5],["Mumbai","India",19.08,72.88,5.5],["Bangalore","India",12.97,77.59,5.5],
+  ["Chennai","India",13.08,80.27,5.5],["Kolkata","India",22.57,88.36,5.5],["Hyderabad","India",17.39,78.49,5.5],
+  ["Pune","India",18.52,73.86,5.5],["Ahmedabad","India",23.03,72.59,5.5],["Jaipur","India",26.91,75.79,5.5],
+  ["Lucknow","India",26.85,80.95,5.5],["Jakarta","Indonesia",-6.21,106.85,7],["Tehran","Iran",35.69,51.39,3.5],
+  ["Baghdad","Iraq",33.31,44.36,3],["Jerusalem","Israel",31.77,35.21,2],["Tel Aviv","Israel",32.08,34.78,2],
+  ["Tokyo","Japan",35.68,139.65,9],["Osaka","Japan",34.69,135.50,9],["Amman","Jordan",31.95,35.93,2],
+  ["Astana","Kazakhstan",51.18,71.45,6],["Almaty","Kazakhstan",43.24,76.90,6],["Kuwait City","Kuwait",29.38,47.98,3],
+  ["Bishkek","Kyrgyzstan",42.87,74.59,6],["Vientiane","Laos",17.97,102.60,7],["Beirut","Lebanon",33.89,35.50,2],
+  ["Kuala Lumpur","Malaysia",3.14,101.69,8],["Malé","Maldives",4.18,73.51,5],["Ulaanbaatar","Mongolia",47.89,106.91,8],
+  ["Naypyidaw","Myanmar",19.76,96.08,6.5],["Yangon","Myanmar",16.87,96.20,6.5],["Kathmandu","Nepal",27.72,85.32,5.75],
+  ["Pyongyang","North Korea",39.02,125.75,9],["Muscat","Oman",23.59,58.41,4],["Islamabad","Pakistan",33.68,73.05,5],
+  ["Karachi","Pakistan",24.86,67.01,5],["Lahore","Pakistan",31.55,74.34,5],["Manila","Philippines",14.60,120.98,8],
+  ["Doha","Qatar",25.29,51.53,3],["Riyadh","Saudi Arabia",24.71,46.68,3],["Jeddah","Saudi Arabia",21.54,39.17,3],
+  ["Singapore","Singapore",1.35,103.82,8],["Seoul","South Korea",37.57,126.98,9],["Colombo","Sri Lanka",6.93,79.85,5.5],
+  ["Damascus","Syria",33.51,36.28,2],["Taipei","Taiwan",25.03,121.57,8],["Dushanbe","Tajikistan",38.56,68.79,5],
+  ["Bangkok","Thailand",13.75,100.50,7],["Dili","Timor-Leste",-8.56,125.57,9],["Ashgabat","Turkmenistan",37.95,58.38,5],
+  ["Abu Dhabi","United Arab Emirates",24.47,54.37,4],["Dubai","United Arab Emirates",25.20,55.27,4],
+  ["Tashkent","Uzbekistan",41.30,69.24,5],["Hanoi","Vietnam",21.03,105.85,7],["Ho Chi Minh City","Vietnam",10.82,106.63,7],
+  ["Sana'a","Yemen",15.35,44.21,3],["Ankara","Turkey",39.93,32.86,3],["Istanbul","Turkey",41.01,28.98,3],
+  ["Moscow","Russia",55.75,37.62,3],["St. Petersburg","Russia",59.93,30.34,3],
+
+  ["Tirana","Albania",41.33,19.82,1],["Andorra la Vella","Andorra",42.51,1.52,1],["Vienna","Austria",48.21,16.37,1],
+  ["Minsk","Belarus",53.90,27.57,3],["Brussels","Belgium",50.85,4.35,1],["Sarajevo","Bosnia and Herzegovina",43.86,18.41,1],
+  ["Sofia","Bulgaria",42.70,23.32,2],["Zagreb","Croatia",45.81,15.98,1],["Prague","Czech Republic",50.08,14.44,1],
+  ["Copenhagen","Denmark",55.68,12.57,1],["Tallinn","Estonia",59.44,24.75,2],["Helsinki","Finland",60.17,24.94,2],
+  ["Paris","France",48.86,2.35,1],["Marseille","France",43.30,5.37,1],["Berlin","Germany",52.52,13.40,1],
+  ["Frankfurt","Germany",50.11,8.68,1],["Munich","Germany",48.14,11.58,1],["Athens","Greece",37.98,23.73,2],
+  ["Budapest","Hungary",47.50,19.04,1],["Reykjavik","Iceland",64.15,-21.94,0],["Dublin","Ireland",53.35,-6.26,0],
+  ["Rome","Italy",41.90,12.50,1],["Milan","Italy",45.46,9.19,1],["Riga","Latvia",56.95,24.11,2],
+  ["Vaduz","Liechtenstein",47.14,9.52,1],["Vilnius","Lithuania",54.69,25.28,2],["Luxembourg","Luxembourg",49.61,6.13,1],
+  ["Valletta","Malta",35.90,14.51,1],["Chisinau","Moldova",47.01,28.86,2],["Monaco","Monaco",43.73,7.42,1],
+  ["Podgorica","Montenegro",42.44,19.26,1],["Amsterdam","Netherlands",52.37,4.90,1],["Skopje","North Macedonia",41.99,21.43,1],
+  ["Oslo","Norway",59.91,10.75,1],["Warsaw","Poland",52.23,21.01,1],["Kraków","Poland",50.06,19.94,1],
+  ["Lisbon","Portugal",38.72,-9.14,0],["Bucharest","Romania",44.43,26.10,2],["San Marino","San Marino",43.94,12.45,1],
+  ["Belgrade","Serbia",44.79,20.45,1],["Bratislava","Slovakia",48.15,17.11,1],["Ljubljana","Slovenia",46.06,14.51,1],
+  ["Madrid","Spain",40.42,-3.70,1],["Barcelona","Spain",41.39,2.17,1],["Stockholm","Sweden",59.33,18.07,1],
+  ["Bern","Switzerland",46.95,7.45,1],["Zurich","Switzerland",47.37,8.54,1],["Kyiv","Ukraine",50.45,30.52,2],
+  ["London","United Kingdom",51.51,-0.13,0],["Manchester","United Kingdom",53.48,-2.24,0],["Vatican City","Vatican City",41.90,12.45,1],
+
+  ["Ottawa","Canada",45.42,-75.70,-5],["Toronto","Canada",43.65,-79.38,-5],["Vancouver","Canada",49.28,-123.12,-8],
+  ["Montreal","Canada",45.50,-73.57,-5],["Calgary","Canada",51.05,-114.07,-7],
+  ["Washington","United States",38.91,-77.04,-5],["New York","United States",40.71,-74.01,-5],
+  ["Los Angeles","United States",34.05,-118.24,-8],["Chicago","United States",41.88,-87.63,-6],
+  ["Houston","United States",29.76,-95.37,-6],["Phoenix","United States",33.45,-112.07,-7],
+  ["Philadelphia","United States",39.95,-75.16,-5],["San Antonio","United States",29.42,-98.49,-6],
+  ["San Diego","United States",32.72,-117.16,-8],["Dallas","United States",32.78,-96.80,-6],
+  ["San Francisco","United States",37.77,-122.42,-8],["Seattle","United States",47.61,-122.33,-8],
+  ["Denver","United States",39.74,-104.99,-7],["Boston","United States",42.36,-71.06,-5],
+  ["Atlanta","United States",33.75,-84.39,-5],["Miami","United States",25.76,-80.19,-5],
+  ["Honolulu","United States",21.31,-157.86,-10],["Anchorage","United States",61.22,-149.90,-9],
+  ["Mexico City","Mexico",19.43,-99.13,-6],["Guadalajara","Mexico",20.68,-103.35,-6],
+  ["Guatemala City","Guatemala",14.63,-90.51,-6],["Belmopan","Belize",17.25,-88.77,-6],
+  ["San Salvador","El Salvador",13.69,-89.19,-6],["Tegucigalpa","Honduras",14.10,-87.22,-6],
+  ["Managua","Nicaragua",12.11,-86.24,-6],["San José","Costa Rica",9.93,-84.08,-6],
+  ["Panama City","Panama",8.98,-79.52,-5],["Havana","Cuba",23.13,-82.38,-5],["Kingston","Jamaica",17.97,-76.79,-5],
+  ["Port-au-Prince","Haiti",18.59,-72.31,-5],["Santo Domingo","Dominican Republic",18.49,-69.93,-4],
+  ["Nassau","The Bahamas",25.05,-77.36,-5],["Bridgetown","Barbados",13.10,-59.62,-4],
+  ["Port of Spain","Trinidad and Tobago",10.66,-61.52,-4],
+
+  ["Buenos Aires","Argentina",-34.60,-58.38,-3],["Sucre","Bolivia",-19.03,-65.26,-4],["La Paz","Bolivia",-16.50,-68.15,-4],
+  ["Brasília","Brazil",-15.79,-47.88,-3],["São Paulo","Brazil",-23.55,-46.63,-3],["Rio de Janeiro","Brazil",-22.91,-43.17,-3],
+  ["Salvador","Brazil",-12.97,-38.51,-3],["Santiago","Chile",-33.45,-70.67,-4],["Bogotá","Colombia",4.71,-74.07,-5],
+  ["Medellín","Colombia",6.25,-75.56,-5],["Quito","Ecuador",-0.18,-78.47,-5],["Guayaquil","Ecuador",-2.19,-79.89,-5],
+  ["Georgetown","Guyana",6.80,-58.16,-4],["Asunción","Paraguay",-25.28,-57.63,-4],["Lima","Peru",-12.05,-77.04,-5],
+  ["Paramaribo","Suriname",5.87,-55.17,-3],["Montevideo","Uruguay",-34.90,-56.16,-3],["Caracas","Venezuela",10.48,-66.90,-4],
+
+  ["Canberra","Australia",-35.28,149.13,10],["Sydney","Australia",-33.87,151.21,10],["Melbourne","Australia",-37.81,144.96,10],
+  ["Brisbane","Australia",-27.47,153.03,10],["Perth","Australia",-31.95,115.86,8],["Adelaide","Australia",-34.93,138.60,9.5],
+  ["Suva","Fiji",-18.14,178.44,12],["Wellington","New Zealand",-41.29,174.78,12],["Auckland","New Zealand",-36.85,174.76,12],
+  ["Port Moresby","Papua New Guinea",-9.44,147.18,10],["Apia","Samoa",-13.83,-171.76,13],
+  ["Honiara","Solomon Islands",-9.43,159.95,11],["Nuku'alofa","Tonga",-21.14,-175.20,13],["Port Vila","Vanuatu",-17.73,168.32,11]
+];
+
+// Filters WORLD_PLACES by a case-insensitive substring against "City" or
+// "City, Country", ranks city-name-prefix matches first, caps results.
+function searchPlaces(query, limit){
+  const q = (query||'').trim().toLowerCase();
+  if (!q) return [];
+  const scored = [];
+  WORLD_PLACES.forEach(p=>{
+    const [city, country] = p;
+    const cLow = city.toLowerCase(), coLow = country.toLowerCase();
+    let score = -1;
+    if (cLow.startsWith(q)) score = 0;
+    else if (cLow.includes(q)) score = 1;
+    else if (coLow.startsWith(q)) score = 2;
+    else if (coLow.includes(q)) score = 3;
+    if (score >= 0) scored.push({p, score});
+  });
+  scored.sort((a,b)=> a.score - b.score || a.p[0].localeCompare(b.p[0]));
+  return scored.slice(0, limit||8).map(s=>s.p);
+}
+
+// Wires a "<prefix>PlaceSearch" text input + "<prefix>PlaceResults" dropdown
+// to fill <prefix>Lat/<prefix>Lon/<prefix>TZ on selection. Self-contained
+// (only touches its own three fields + the search input/dropdown), so it
+// never needs re-wiring after a runAnalysis() re-render — those fields live
+// in the static control column, not the dynamically-replaced results area.
+function wirePlaceSearch(prefix){
+  const input = document.getElementById(prefix+'PlaceSearch');
+  const results = document.getElementById(prefix+'PlaceResults');
+  if (!input || !results) return;
+  input.addEventListener('input', ()=>{
+    const matches = searchPlaces(input.value);
+    if (!matches.length){ results.style.display = 'none'; results.innerHTML = ''; return; }
+    results.innerHTML = matches.map(([city,country,lat,lon,tz])=>
+      `<button type="button" data-lat="${lat}" data-lon="${lon}" data-tz="${tz}" data-label="${escHtml(city)}, ${escHtml(country)}">${escHtml(city)}<small>${escHtml(country)} · ${lat.toFixed(2)}, ${lon.toFixed(2)} · UTC${tz>=0?'+':''}${tz}</small></button>`
+    ).join('');
+    results.style.display = 'block';
+  });
+  results.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    document.getElementById(prefix+'Lat').value = btn.dataset.lat;
+    document.getElementById(prefix+'Lon').value = btn.dataset.lon;
+    document.getElementById(prefix+'TZ').value = btn.dataset.tz;
+    input.value = btn.dataset.label;
+    results.style.display = 'none';
+    results.innerHTML = '';
+    runAnalysis();
+  });
+  document.addEventListener('click', (e)=>{
+    if (!e.target.closest('#'+prefix+'PlaceSearch') && !e.target.closest('#'+prefix+'PlaceResults')){
+      results.style.display = 'none';
+    }
+  });
+}
 
 const GRAHA_ES = {Sun:"Sol",Moon:"Luna",Mars:"Marte",Mercury:"Mercurio",Jupiter:"Júpiter",Venus:"Venus",Saturn:"Saturno",Rahu:"Rahu",Ketu:"Ketu"};
 
 function pad2(n){ return String(n).padStart(2,'0'); }
+// Decimal hour (0..24) -> "H:MM AM/PM", used for real sunrise/sunset display.
+function fmtHM(hrDecimal){
+  const hr = ((hrDecimal%24)+24)%24;
+  const hh24 = Math.floor(hr), mm = Math.round((hr-hh24)*60);
+  const hh12 = ((hh24+11)%12)+1;
+  return `${hh12}:${String(mm).padStart(2,'0')} ${hh24<12?'AM':'PM'}`;
+}
 function nowLocalParts(){
   const d = new Date();
   return { date:`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`, time:`${pad2(d.getHours())}:${pad2(d.getMinutes())}` };
@@ -4056,8 +5052,12 @@ function setDefaults(){
   document.getElementById('mTZ').value = localTZOffsetHours();
 }
 
-// ---- Reference person profiles (localStorage, unlimited slots) ----
+// ---- Reference person profiles (localStorage, capped) ----
+// User-requested explicit cap (2026-08-16), rather than truly unlimited, as
+// a guard against on-device storage pressure -- 20 was given as an
+// acceptable upper bound.
 const PROFILE_KEY = 'muhurtaProfiles';
+const PROFILE_LIMIT = 20;
 function loadProfiles(){
   try{ const p = JSON.parse(localStorage.getItem(PROFILE_KEY)); return Array.isArray(p) ? p : []; }catch(e){ return []; }
 }
@@ -4075,13 +5075,18 @@ function snapshotReferenceFields(){
   };
 }
 function applyReferenceFields(p){
-  document.getElementById('bDate').value = p.bDate || '1990-09-30';
-  document.getElementById('bTime').value = p.bTime || '17:54';
-  document.getElementById('bTZ').value = p.bTZ !== undefined && p.bTZ !== '' ? p.bTZ : -4;
-  document.getElementById('bLat').value = p.bLat !== undefined && p.bLat !== '' ? p.bLat : 25.7617;
-  document.getElementById('bLon').value = p.bLon !== undefined && p.bLon !== '' ? p.bLon : -80.1918;
+  document.getElementById('bDate').value = p.bDate || '';
+  document.getElementById('bTime').value = p.bTime || '';
+  document.getElementById('bTZ').value = p.bTZ !== undefined ? p.bTZ : '';
+  document.getElementById('bLat').value = p.bLat !== undefined ? p.bLat : '';
+  document.getElementById('bLon').value = p.bLon !== undefined ? p.bLon : '';
   document.getElementById('bName').value = p.bName || '';
 }
+// Explicit demo values for the "Reset to demo values" button — kept
+// available on demand rather than as the silent page-load default, so the
+// published app doesn't ship with anyone's real-looking birth data baked
+// into the source (2026-08-16 request).
+const DEMO_BIRTH = { bDate:'1990-09-30', bTime:'17:54', bTZ:-4, bLat:25.7617, bLon:-80.1918, bName:'' };
 function findProfileIndexByLabel(profiles, label){
   return profiles.findIndex(p=>p.label === label);
 }
@@ -4207,6 +5212,15 @@ function computeDehaChakra(pos, panch, refP, tara){
 function tagFor(sign){ return sign==="good" ? `<span class="tag good">${T('favourable','favorable')}</span>` : sign==="bad" ? `<span class="tag bad">${T('unfavourable','desfavorable')}</span>` : `<span class="tag neutral">${T('neutral','neutral')}</span>`; }
 
 function runAnalysis(){
+  // Birth data has no default value on page load (2026-08-16 request, to
+  // avoid shipping real-looking birth data as the public app's silent
+  // default) -- show the placeholder instead of computing on empty/NaN
+  // dates. The "Reset to demo values" button (DEMO_BIRTH) restores a real
+  // example on demand.
+  if (!document.getElementById('bDate').value){
+    document.getElementById('results').innerHTML = `<div style="color:var(--muted); font-family:var(--mono); font-size:12.5px; padding-top:40px;">${T(I18N.placeholderMsg.en, I18N.placeholderMsg.es)}</div>`;
+    return;
+  }
   const refInfo = getReferencePanchaka();
   const refP = refInfo.panch;
 
@@ -4227,12 +5241,23 @@ function runAnalysis(){
   const upagraha = computeUpagraha(pos, refP);
   const weighDignity = document.getElementById('weighDignity').checked;
   const doshas = document.getElementById('weighMuhurtaDosha').checked ? muhurtaDoshas(panch) : [];
+
+  // Real local sunrise/sunset for the moment being judged (mdt's own date +
+  // location) — replaces the earlier fixed-6am Pañcha Pakshi Yama anchor
+  // (see sunriseSunsetLocal()/computePanchapakshiDay()). Computed once here
+  // and reused below by both the score and the "Letters affected" vowel-
+  // group panel, so they stay consistent with each other and with the live
+  // chart on this same page.
+  const mdtWeekdayEN = WEEKDAYS[new Date(mdt.y,mdt.mo-1,mdt.da).getDay()];
+  const mdtHalf = panch.paksha === "Shukla" ? "bright" : "dark";
+  const mdtSun = sunriseSunsetLocal(mdt.y, mdt.mo, mdt.da, mdt.lat, mdt.lon, mdt.tz);
+  const mdtSunriseHr = mdtSun ? mdtSun.sunriseHr : 6;
+  const mdtDayLenHrs = mdtSun ? ((mdtSun.sunsetHr - mdtSun.sunriseHr + 24) % 24) : 12;
+  const mdtHourFromSunrise = (mdt.hh + mdt.mm/60) - mdtSunriseHr;
+
   let pp = null;
   if (document.getElementById('weighPP').checked && refP.star){
-    const weekdayNameEN = WEEKDAYS[new Date(mdt.y,mdt.mo-1,mdt.da).getDay()];
-    const half = panch.paksha === "Shukla" ? "bright" : "dark";
-    const hourFromSix = (mdt.hh + mdt.mm/60) - 6;
-    pp = ppStateForInstant(weekdayNameEN, half, hourFromSix, refP);
+    pp = ppStateForInstant(mdtWeekdayEN, mdtHalf, mdtHourFromSunrise, refP, mdtDayLenHrs);
   }
 
   const {score, reasons} = scoreMuhurta({maleficHits:vedha.maleficHits, beneficHits:vedha.beneficHits, tara, latta, upagraha, pp, weighDignity, doshas});
@@ -4248,6 +5273,26 @@ function runAnalysis(){
   const getHit = { has: s => hitTypeMap.get(s) || false };
 
   const nadi = refP.star ? nadiOfStar(refP.star) : null;
+
+  // "Letters affected right now" — SBC pada-consonants of whichever stars
+  // are currently colored on the ring above (reuses the ch. IX principle
+  // already applied to the reference person's own Consonant Pañcaka below:
+  // a Vedha hit on a Star afflicts that Star's pada-consonants), shown here
+  // for ALL currently-struck stars rather than filtered to one person's own
+  // consonant, since this reads directly off the ring rather than off refP.
+  const struckLetterStars = [...hitTypeMap.keys()].filter(s=>NAK_PADA_CONSONANTS[s]);
+
+  // Panch Pakshi vowel-sound groups (Table No.4, see PP_VOWEL_GROUPS) — a
+  // second, independently-sourced "letters" system, unrelated to SBC. Each
+  // of the 5 vowel groups has one bird for today's Pakṣa (bright/dark half,
+  // already known from panch.paksha), read live with the same real-sunrise
+  // ppState engine (mdtWeekdayEN/mdtHalf/mdtHourFromSunrise/mdtDayLenHrs,
+  // computed above) the reference person's own life-bird uses for scoring.
+  const ppVowelRows = PP_VOWEL_GROUPS.map(vg=>{
+    const bird = mdtHalf === 'bright' ? vg.bright : vg.dark;
+    const st = ppStateForBirdAtInstant(bird, mdtWeekdayEN, mdtHalf, mdtHourFromSunrise, mdtDayLenHrs);
+    return { ...vg, bird, mainState: st ? st.mainState : null, abstractState: st ? st.abstractState : null };
+  });
 
   let html = "";
 
@@ -4312,6 +5357,24 @@ function runAnalysis(){
       <div class="bd">
         <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>D1</th><th>D9</th><th></th></tr></thead><tbody>${navStrengthRows}</tbody></table></div>
         <div class="hint" style="margin-top:10px; line-height:1.6;">${T('Mystics of SBC on this: "Determine the strength as per standard practice & indicate these planets in SBC" — advisory language, not a point formula the way ch. IX/X gives explicit numbers for Vedha grading. So this table is shown for context only and does NOT feed into the SBC score below; a graha strong here but weak in D1 (or vice versa) is worth weighing yourself when reading the verdict. Vargottama (gold row) = same sign in both D1 and D9, classically a real strength marker.','Mystics of SBC sobre esto: "Determina la fuerza según la práctica estándar e indica estos planetas en el SBC" — lenguaje orientativo, no una fórmula de puntos como la que ch. IX/X da con números explícitos para la gradación de Vedha. Por eso esta tabla se muestra solo como contexto y NO se incorpora a la puntuación SBC de abajo; un graha fuerte aquí pero débil en D1 (o viceversa) conviene sopesarlo tú al leer el veredicto. Vargottama (fila dorada) = mismo signo en D1 y D9, clásicamente un indicador real de fuerza.')}</div>
+
+        <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--line);">
+          <h3 style="margin:0 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Letters affected right now','Letras afectadas ahora mismo')}</h3>
+
+          <div style="font-size:11px; color:var(--slate); text-transform:uppercase; letter-spacing:.03em; margin-bottom:4px;">${T('SBC — pada-consonants under Vedha','SBC — consonantes de pada bajo Vedha')} <span style="font-weight:normal; text-transform:none; letter-spacing:normal;">(ch. III/IX)</span></div>
+          ${struckLetterStars.length ? `<div class="pillrow">${struckLetterStars.map(s=>{
+            const hit = hitTypeMap.get(s);
+            return `<span class="tag ${hit.type==='good'?'good':'bad'}">${s}: ${NAK_PADA_CONSONANTS[s].join('/')}</span>`;
+          }).join('')}</div>` : `<div class="hint">${T('No star is currently taking Vedha, so no pada-consonants are afflicted right now.','Ninguna estrella está tomando Vedha ahora mismo, así que ninguna consonante de pada está afligida ahora.')}</div>`}
+
+          <div style="font-size:11px; color:var(--slate); text-transform:uppercase; letter-spacing:.03em; margin:14px 0 4px;">${T('Pañcha Pakshi — vowel-sound groups','Pañcha Pakshi — grupos de sonido vocálico')} <span style="font-weight:normal; text-transform:none; letter-spacing:normal;">(Table No.4)</span></div>
+          <div class="tblwrap"><table><thead><tr><th>${T('First sound','Sonido inicial')}</th><th>${T('Bird now','Ave ahora')}</th><th>${T('State','Estado')}</th></tr></thead><tbody>${ppVowelRows.map(r=>`<tr>
+            <td class="wide">${r.label}</td>
+            <td>${T(r.bird, PP_BIRDS_ES[r.bird])}</td>
+            <td>${r.mainState ? `${T(r.mainState, PP_STATES_ES[r.mainState])} · ${T(r.abstractState, PP_STATES_ES[r.abstractState])}` : '—'}</td>
+          </tr>`).join('')}</tbody></table></div>
+          <div class="hint" style="margin-top:8px; line-height:1.6;">${T('This vowel-sound table is how the source (Pulippani &amp; Rao, ch. "Fundamentals Explained", Table No.4) identifies a person\'s Pañcha Pakshi bird by name when their birth star is unknown — a separate system from the SBC pada-consonants above, not a variant of them. Shown unconditionally since it needs no reference person: one bird per vowel group for today\'s Pakṣa, with that bird\'s live Yama state. Full name → first-vowel-sound parsing (Dravidian phonetics) is not implemented; this shows all 5 groups\' current bird state directly rather than resolving one name to one group.','Esta tabla de sonidos vocálicos es cómo la fuente (Pulippani y Rao, cap. "Fundamentals Explained", Tabla N.º 4) identifica el ave Pañcha Pakshi de una persona por su nombre cuando no se conoce su estrella de nacimiento — un sistema aparte de las consonantes de pada del SBC de arriba, no una variante de ellas. Se muestra sin condiciones porque no necesita persona de referencia: un ave por grupo vocálico para el Pakṣa de hoy, con el estado Yama en vivo de esa ave. El análisis completo nombre → primer sonido vocálico (fonética drávida) no está implementado; esto muestra el estado actual del ave de los 5 grupos directamente en vez de resolver un nombre a un grupo.')}</div>
+        </div>
       </div>
     </div>
   </div>`;
@@ -4421,8 +5484,10 @@ function showPage(pageId){
   if (pageId === 'pageAntara') renderAntaraChakraPage();
   if (pageId === 'pageRemedies') renderRemediesPage();
   if (pageId === 'pageCommodities') renderCommoditiesPage();
+  if (pageId === 'pageCurrencies') renderCurrenciesPage();
   if (pageId === 'pageHorary') renderHoraryPage();
   if (pageId === 'pageSignificators') renderSignificatorsPage();
+  if (pageId === 'pageChintamani') renderChintamaniPage();
 }
 
 // ---- Natal General Reading (D1 + D9) ----
@@ -5984,10 +7049,68 @@ function renderCommoditiesPage(){
     </div>
 
     <div class="panel">
-      <div class="hd"><h2>${T('Modern Synthesis — Stocks, Treasuries &amp; Currency','Síntesis Moderna — Acciones, Bonos y Divisas')}</h2><span class="note">${T("this app's own synthesis — not ch. XLI/XLII","síntesis propia de esta app — no cap. XLI/XLII")}</span></div>
+      <div class="hd"><h2>${T('Modern Synthesis — Government Bonds/Treasuries','Síntesis Moderna — Bonos del Tesoro')}</h2><span class="note">${T("this app's own synthesis — not ch. XLI/XLII","síntesis propia de esta app — no cap. XLI/XLII")}</span></div>
       <div class="bd">
-        <div class="warnbox">${T('Equities, government bonds and currency exchange did not exist when Bṛhat Saṁhitā was written, so nothing below is transcribed from it. This section applies standard Vedic planetary significations (karakatva) to three modern instrument categories, using the same dignity engine the SBC score uses elsewhere in this app. Not validated Jyotish teaching, not financial advice.','Las acciones, los bonos del Tesoro y el cambio de divisas no existían cuando se escribió el Bṛhat Saṁhitā, así que nada de lo siguiente se transcribe de él. Esta sección aplica las significaciones planetarias védicas estándar (karakatva) a tres categorías de instrumentos modernos, usando el mismo motor de dignidad que la puntuación SBC usa en otras partes de esta app. No es enseñanza jyotish validada, ni asesoría financiera.')}</div>
-        <div class="hint" style="margin-top:8px;">${T('In modern markets equities and bonds are often read in tension with one another (risk-on / risk-off — rising yields pressuring equities, or the reverse), and currency strength interacts with both. This app deliberately does not assume any of those relationships: the three readings below are independent astrological reads of their own significators, not coupled to each other.','En los mercados modernos, las acciones y los bonos suelen leerse en tensión mutua (risk-on / risk-off — rendimientos al alza presionando la renta variable, o al revés), y la fortaleza de una divisa interactúa con ambos. Esta app deliberadamente no asume ninguna de esas relaciones: las tres lecturas de abajo son lecturas astrológicas independientes de sus propios significadores, no acopladas entre sí.')}</div>
+        <div class="warnbox">${T('Government bonds did not exist when Bṛhat Saṁhitā was written, so nothing below is transcribed from it. This reading applies standard Vedic planetary significations (karakatva) to a modern instrument category, using the same dignity engine the SBC score uses elsewhere in this app. Not validated Jyotish teaching, not financial advice.','Los bonos del Tesoro no existían cuando se escribió el Bṛhat Saṁhitā, así que nada de lo siguiente se transcribe de él. Esta lectura aplica las significaciones planetarias védicas estándar (karakatva) a una categoría de instrumento moderno, usando el mismo motor de dignidad que la puntuación SBC usa en otras partes de esta app. No es enseñanza jyotish validada, ni asesoría financiera.')}</div>
+        <div class="hint" style="margin-top:8px;">${T('Equities/Stocks and Currency/FX moved to their own Currencies tab (hamburger menu) — see that page for those two readings, plus the sourced Equities by Industry Sector panel. This page keeps only Government Bonds/Treasuries, which is neither a stock nor a currency reading.','Acciones/Renta Variable y Divisas/FX se trasladaron a su propia pestaña de Divisas (menú hamburguesa) — ver esa página para esas dos lecturas, además del panel con fuente de Renta Variable por Sector Industrial. Esta página conserva solo Bonos del Tesoro, que no es ni una lectura de acciones ni de divisas.')}</div>
+
+        <h3 style="margin-top:16px; margin-bottom:4px; font-size:13px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Government Bonds / Treasuries','Bonos del Tesoro / Deuda Soberana')}</h3>
+        <div class="hint">${T('Saturn — structure, long duration, government administration — read as primary; the Sun, classical significator of the ruling authority, as secondary context for the issuing state. The tighter fit of the two mappings this app makes across the Commodities and Currencies pages: sovereign, long-duration, fixed-structure debt lines up closely with Saturn\'s standard karakas.','Saturno — estructura, larga duración, administración de gobierno — se lee como primario; el Sol, significador clásico de la autoridad gobernante, como contexto secundario del estado emisor. El más ajustado de los mapeos que esta app hace entre las páginas de Materias Primas y Divisas: la deuda soberana, de larga duración y estructura fija, coincide de cerca con los karakas estándar de Saturno.')}</div>
+        <div class="kv" style="margin-top:8px;">
+          ${synthRow('Saturn (primary)','Saturno (primario)', synth.bonds.primary)}
+          ${synthRow('Sun (state context)','Sol (contexto estatal)', synth.bonds.secondary)}
+        </div>
+
+        <div class="hint" style="margin-top:14px;">${T('Gold is not synthesized here — it\'s directly sourced, not extrapolated, and gets its own dedicated panel near the top of this page.','El oro no se sintetiza aquí — está directamente documentado, no extrapolado, y tiene su propio panel dedicado cerca del inicio de esta página.')}</div>
+      </div>
+    </div>
+
+    <footer class="notes" style="line-height:1.8;">
+      <b>${T('Sources.','Fuentes.')}</b> ${T('Bṛhat Saṁhitā (Varāhamihira), N. Chidambaram\'s 1884 translation, Chapter XLI ("On Commodities") and Chapter XLII ("On the Price of Commodities"), transcribed directly with the two ambiguous clauses flagged above and below where relevant. Chapter XL ("Sasya Jātaka", vegetable horoscopy) predicts crop yield from the Sun\'s entry into Scorpio or Taurus through many interlocking, mutually-conditional stanzas — genuinely rich material, but it doesn\'t reduce to a clean live check the way ch. XLI-XLII do, so it is cited here for context rather than computed. Śl. 13 of ch. XLII (an Atimitra/"very friendly" planet conjunct the Sun or Moon) is likewise not computed — it needs the fuller five-grade Pañcadhā Maitri (temporal + natural friendship) system, which this app does not yet implement. The Modern Synthesis panel above is separately sourced: general Vedic karaka doctrine (e.g. Bṛhat Parāśara Horā Śāstra\'s karaka chapter) applied by this app to an instrument category the classical texts never addressed — clearly not a transcription of any single named source.','Bṛhat Saṁhitā (Varāhamihira), traducción de N. Chidambaram de 1884, Capítulo XLI ("Sobre las materias primas") y Capítulo XLII ("Sobre el precio de las materias primas"), transcritos directamente con las dos cláusulas ambiguas señaladas arriba y abajo donde corresponde. El Capítulo XL ("Sasya Jātaka", horoscopía vegetal) predice la cosecha a partir de la entrada del Sol en Escorpio o Tauro mediante muchas estrofas entrelazadas y mutuamente condicionales — material genuinamente rico, pero no se reduce a una verificación en vivo limpia como sí lo hacen los cap. XLI-XLII, así que se cita aquí como contexto y no se calcula. La śl. 13 del cap. XLII (un planeta Atimitra/"muy amigo" en conjunción con el Sol o la Luna) tampoco se calcula — requiere el sistema completo de cinco grados de Pañcadhā Maitri (amistad temporal + natural), que esta app aún no implementa. El panel de Síntesis Moderna de arriba tiene fuente aparte: doctrina general védica de karakas (p. ej. el capítulo de karakas del Bṛhat Parāśara Horā Śāstra) aplicada por esta app a una categoría de instrumento que los textos clásicos nunca abordaron — claramente no es una transcripción de una sola fuente nombrada.')}
+      <br><br>${T('The Gold panel additionally draws on Chapter LVII ("Effects of planets moving through the signs of the Zodiac", śl. 61-62 — the weekday rule) and Chapter XXIX ("Vṛkṣāyurveda", śl. 8 &amp; 10 — the botanical omens), and cross-references the Antara Chakra data already sourced from Chapter XL/87 for that page.','El panel de Oro además se basa en el Capítulo LVII ("Efectos de los planetas moviéndose por los signos del Zodiaco", śl. 61-62 — la regla del día de la semana) y el Capítulo XXIX ("Vṛkṣāyurveda", śl. 8 y 10 — los presagios botánicos), y hace referencia cruzada a los datos del Antara Chakra ya obtenidos del Capítulo XL/87 para esa página.')}
+      <br><br>${T('None of this is financial advice — it is a transcription of a 1,500-year-old text\'s own stated method (plus, in the Modern Synthesis panel, this app\'s own extrapolation from it), offered for historical and astrological interest.','Nada de esto es asesoría financiera — es una transcripción del método propio de un texto de 1.500 años de antigüedad (además, en el panel de Síntesis Moderna, una extrapolación propia de esta app a partir de él), ofrecido por su interés histórico y astrológico.')}
+    </footer>
+  `;
+}
+
+/* =========================================================================
+   CURRENCIES — Equities/Stocks and Currency/FX, split out of the Commodity
+   Signals page (2026-08-16 request) into their own hamburger tab, together
+   with the sourced "Equities by Industry Sector" panel (ch. V/VI) that goes
+   with the Equities/Stocks reading. Government Bonds/Treasuries stayed on
+   the Commodities page's Modern Synthesis panel — it's neither a stock nor
+   a currency reading, so it doesn't belong on a page titled Currencies.
+   Reuses modernSynthesisLiveNow()/synthesisTier() and the ch. V/VI sector
+   tables already defined above renderCommoditiesPage(), unchanged.
+   ========================================================================= */
+function renderCurrenciesPage(){
+  const container = document.getElementById('currenciesPageContent');
+  if (!container) return;
+
+  const ay = document.getElementById('ayanamsaMode').value;
+  const synth = modernSynthesisLiveNow(ay);
+  const nSector = new Date();
+  const jdSector = julianDay(nSector.getFullYear(), nSector.getMonth()+1, nSector.getDate(), nSector.getHours(), nSector.getMinutes(), nSector.getSeconds(), -nSector.getTimezoneOffset()/60);
+  const posSector = computePositions(jdSector, 0, 0, ay);
+  const gName = g => T(g, GRAHA_ES[g]);
+  const synthRow = (labelEn, labelEs, r) => {
+    const tier = synthesisTier(r.tier);
+    return `<div class="k">${T(labelEn,labelEs)}</div><div class="v">${r.sign} · ${r.dignityStr}${r.retrograde?` · ${T('retrograde','retrógrado')}`:''} <span class="tag ${tier.cls}">${tier.label}</span></div>`;
+  };
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('Currencies','Divisas')}</h2><span class="note">${T('always live — independent of the SBC score','siempre en vivo — independiente de la puntuación SBC')}</span></div>
+      <div class="bd">
+        <div class="hint">${T('Equities/Stocks and Currency/FX, split out from the Commodity Signals page into their own tab. Like that page, this needs no reference person or chosen moment and stands entirely apart from the Muhūrta Gauge\'s Vedha/Tārā/Latta score.','Acciones/Renta Variable y Divisas/FX, separadas de la página de Señales de Materias Primas en su propia pestaña. Como esa página, esto no necesita persona de referencia ni momento elegido, y es completamente independiente de la puntuación de Vedha/Tārā/Latta del Muhūrta Gauge.')}</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="hd"><h2>${T('Modern Synthesis — Stocks &amp; Currency','Síntesis Moderna — Acciones y Divisas')}</h2><span class="note">${T("this app's own synthesis — not ch. XLI/XLII","síntesis propia de esta app — no cap. XLI/XLII")}</span></div>
+      <div class="bd">
+        <div class="warnbox">${T('Equities and currency exchange did not exist when Bṛhat Saṁhitā was written, so nothing below is transcribed from it. This section applies standard Vedic planetary significations (karakatva) to two modern instrument categories, using the same dignity engine the SBC score uses elsewhere in this app. Not validated Jyotish teaching, not financial advice.','Las acciones y el cambio de divisas no existían cuando se escribió el Bṛhat Saṁhitā, así que nada de lo siguiente se transcribe de él. Esta sección aplica las significaciones planetarias védicas estándar (karakatva) a dos categorías de instrumentos modernos, usando el mismo motor de dignidad que la puntuación SBC usa en otras partes de esta app. No es enseñanza jyotish validada, ni asesoría financiera.')}</div>
+        <div class="hint" style="margin-top:8px;">${T('Government Bonds/Treasuries are read on the Commodity Signals page instead (Modern Synthesis panel there) — this tab covers equities and FX only. The two readings below are independent astrological reads of their own significators, not coupled to each other.','Los Bonos del Tesoro se leen en la página de Señales de Materias Primas (panel de Síntesis Moderna allí) — esta pestaña cubre solo renta variable y FX. Las dos lecturas de abajo son lecturas astrológicas independientes de sus propios significadores, no acopladas entre sí.')}</div>
 
         <h3 style="margin-top:16px; margin-bottom:4px; font-size:13px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Equities / Stocks','Acciones / Renta Variable')}</h3>
         <div class="hint">${T('Mercury — the classical trade/commerce significator — read as primary; Jupiter (a wealth/growth karaka) as a secondary tailwind; Rāhu flagged separately as the classical speculation significator. The looser of the two mappings on this page: equity ownership also brushes Jupiter\'s and Venus\'s own wealth significations.','Mercurio — el significador clásico del comercio — se lee como primario; Júpiter (un karaka de riqueza/crecimiento) como impulso secundario; Rāhu señalado aparte como el significador clásico de la especulación. El más laxo de los dos mapeos de esta página: la propiedad de acciones también roza las significaciones de riqueza propias de Júpiter y Venus.')}</div>
@@ -5997,13 +7120,6 @@ function renderCommoditiesPage(){
           ${synthRow('Rāhu (speculative flag)','Rāhu (bandera especulativa)', synth.stocks.flag)}
         </div>
 
-        <h3 style="margin-top:18px; margin-bottom:4px; font-size:13px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Government Bonds / Treasuries','Bonos del Tesoro / Deuda Soberana')}</h3>
-        <div class="hint">${T('Saturn — structure, long duration, government administration — read as primary; the Sun, classical significator of the ruling authority, as secondary context for the issuing state. The tighter fit of the two mappings on this page: sovereign, long-duration, fixed-structure debt lines up closely with Saturn\'s standard karakas.','Saturno — estructura, larga duración, administración de gobierno — se lee como primario; el Sol, significador clásico de la autoridad gobernante, como contexto secundario del estado emisor. El más ajustado de los dos mapeos de esta página: la deuda soberana, de larga duración y estructura fija, coincide de cerca con los karakas estándar de Saturno.')}</div>
-        <div class="kv" style="margin-top:8px;">
-          ${synthRow('Saturn (primary)','Saturno (primario)', synth.bonds.primary)}
-          ${synthRow('Sun (state context)','Sol (contexto estatal)', synth.bonds.secondary)}
-        </div>
-
         <h3 style="margin-top:18px; margin-bottom:4px; font-size:13px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Currency / FX','Divisas / FX')}</h3>
         <div class="hint">${T('The Moon — not Mercury — is read as primary here, to avoid just repeating the equities reading. Silver (Rajata) is the Moon\'s standard commodity signification (see "Commodities by planet" on the World & Commodity Significators page), and silver was the literal specie many currencies, including the rupee, were struck from; the Moon is also the fastest-moving graha tracked on this page, apt for how quickly FX rates move. Mercury (trade/exchange) sits as secondary context, and Rāhu — this app\'s standing foreign/international significator (see the Equities by Sector panel below) — is flagged again here, doubly apt for a market that is by definition a foreign exchange. A single reading necessarily collapses what is really a pair of currencies into one sentiment, which is the real simplification in this mapping.','La Luna — no Mercurio — se lee como primaria aquí, para no repetir simplemente la lectura de renta variable. La plata (Rajata) es la significación estándar de materia prima de la Luna (ver "Materias primas por planeta" en la página de Significadores Mundiales y de Materias Primas), y la plata fue el metal literal con que se acuñaron muchas divisas, incluida la rupia; la Luna también es el graha de movimiento más rápido rastreado en esta página, apto para la rapidez con que se mueven los tipos de cambio. Mercurio (comercio/intercambio) aparece como contexto secundario, y Rāhu — el significador estable de esta app para asuntos extranjeros/internacionales (ver el panel de Renta Variable por Sector abajo) — se señala de nuevo aquí, doblemente apto para un mercado que por definición es un cambio extranjero. Una sola lectura necesariamente reduce lo que en realidad es un par de divisas a un solo sentimiento, que es la verdadera simplificación de este mapeo.')}</div>
         <div class="kv" style="margin-top:8px;">
@@ -6011,8 +7127,6 @@ function renderCommoditiesPage(){
           ${synthRow('Mercury (context)','Mercurio (contexto)', synth.currency.secondary)}
           ${synthRow('Rāhu (speculative flag)','Rāhu (bandera especulativa)', synth.currency.flag)}
         </div>
-
-        <div class="hint" style="margin-top:14px;">${T('Gold is not synthesized here — it\'s directly sourced, not extrapolated, and gets its own dedicated panel near the top of this page.','El oro no se sintetiza aquí — está directamente documentado, no extrapolado, y tiene su propio panel dedicado cerca del inicio de esta página.')}</div>
       </div>
     </div>
 
@@ -6045,9 +7159,8 @@ function renderCommoditiesPage(){
     </div>
 
     <footer class="notes" style="line-height:1.8;">
-      <b>${T('Sources.','Fuentes.')}</b> ${T('Bṛhat Saṁhitā (Varāhamihira), N. Chidambaram\'s 1884 translation, Chapter XLI ("On Commodities") and Chapter XLII ("On the Price of Commodities"), transcribed directly with the two ambiguous clauses flagged above and below where relevant. Chapter XL ("Sasya Jātaka", vegetable horoscopy) predicts crop yield from the Sun\'s entry into Scorpio or Taurus through many interlocking, mutually-conditional stanzas — genuinely rich material, but it doesn\'t reduce to a clean live check the way ch. XLI-XLII do, so it is cited here for context rather than computed. Śl. 13 of ch. XLII (an Atimitra/"very friendly" planet conjunct the Sun or Moon) is likewise not computed — it needs the fuller five-grade Pañcadhā Maitri (temporal + natural friendship) system, which this app does not yet implement. The Modern Synthesis panel above is separately sourced: general Vedic karaka doctrine (e.g. Bṛhat Parāśara Horā Śāstra\'s karaka chapter) applied by this app to instrument categories the classical texts never addressed — clearly not a transcription of any single named source.','Bṛhat Saṁhitā (Varāhamihira), traducción de N. Chidambaram de 1884, Capítulo XLI ("Sobre las materias primas") y Capítulo XLII ("Sobre el precio de las materias primas"), transcritos directamente con las dos cláusulas ambiguas señaladas arriba y abajo donde corresponde. El Capítulo XL ("Sasya Jātaka", horoscopía vegetal) predice la cosecha a partir de la entrada del Sol en Escorpio o Tauro mediante muchas estrofas entrelazadas y mutuamente condicionales — material genuinamente rico, pero no se reduce a una verificación en vivo limpia como sí lo hacen los cap. XLI-XLII, así que se cita aquí como contexto y no se calcula. La śl. 13 del cap. XLII (un planeta Atimitra/"muy amigo" en conjunción con el Sol o la Luna) tampoco se calcula — requiere el sistema completo de cinco grados de Pañcadhā Maitri (amistad temporal + natural), que esta app aún no implementa. El panel de Síntesis Moderna de arriba tiene fuente aparte: doctrina general védica de karakas (p. ej. el capítulo de karakas del Bṛhat Parāśara Horā Śāstra) aplicada por esta app a categorías de instrumentos que los textos clásicos nunca abordaron — claramente no es una transcripción de una sola fuente nombrada.')}
-      <br><br>${T('The Gold panel additionally draws on Chapter LVII ("Effects of planets moving through the signs of the Zodiac", śl. 61-62 — the weekday rule) and Chapter XXIX ("Vṛkṣāyurveda", śl. 8 &amp; 10 — the botanical omens), and cross-references the Antara Chakra data already sourced from Chapter XL/87 for that page.','El panel de Oro además se basa en el Capítulo LVII ("Efectos de los planetas moviéndose por los signos del Zodiaco", śl. 61-62 — la regla del día de la semana) y el Capítulo XXIX ("Vṛkṣāyurveda", śl. 8 y 10 — los presagios botánicos), y hace referencia cruzada a los datos del Antara Chakra ya obtenidos del Capítulo XL/87 para esa página.')}
-      <br><br>${T('None of this is financial advice — it is a transcription of a 1,500-year-old text\'s own stated method (plus, in the Modern Synthesis panel, this app\'s own extrapolation from it), offered for historical and astrological interest.','Nada de esto es asesoría financiera — es una transcripción del método propio de un texto de 1.500 años de antigüedad (además, en el panel de Síntesis Moderna, una extrapolación propia de esta app a partir de él), ofrecido por su interés histórico y astrológico.')}
+      <b>${T('Sources.','Fuentes.')}</b> ${T('Mystics of Sarvato Bhadra Chakra (M.K. Agarwal), ch. V ("All about Planets") and ch. VI ("All about Signs") for the Equities by Industry Sector panel\'s sourced "General" domain lists, condensed by this app into short sector labels as disclosed above. The Modern Synthesis panel is separately sourced: general Vedic karaka doctrine (e.g. Bṛhat Parāśara Horā Śāstra\'s karaka chapter) applied by this app to two instrument categories the classical texts never addressed — not a transcription of any single named source.','Mystics of Sarvato Bhadra Chakra (M.K. Agarwal), cap. V ("Sobre los planetas") y cap. VI ("Sobre los signos") para las listas de dominios "General" con fuente del panel de Renta Variable por Sector Industrial, condensadas por esta app en etiquetas de sector breves como se indica arriba. El panel de Síntesis Moderna tiene fuente aparte: doctrina general védica de karakas (p. ej. el capítulo de karakas del Bṛhat Parāśara Horā Śāstra) aplicada por esta app a dos categorías de instrumentos que los textos clásicos nunca abordaron — no es una transcripción de una sola fuente nombrada.')}
+      <br><br>${T('None of this is financial advice — offered for historical and astrological interest.','Nada de esto es asesoría financiera — ofrecido por su interés histórico y astrológico.')}
     </footer>
   `;
 }
@@ -6443,6 +7556,264 @@ function renderSignificatorsPage(){
   `;
 }
 
+let chintamaniActivity = ''; // persists the dropdown selection across re-renders
+function renderChintamaniPage(){
+  const container = document.getElementById('chintamaniPageContent');
+  if (!container) return;
+
+  const mdt = readDateTime("m");
+  const ay = document.getElementById('ayanamsaMode').value;
+  const pos = computePositions(mdt.jd, mdt.lat, mdt.lon, ay);
+  const panch = computePanchanga(pos);
+  const refInfo = getReferencePanchaka();
+  const refP = refInfo.panch;
+  const weekdayName = WEEKDAYS[new Date(mdt.y,mdt.mo-1,mdt.da).getDay()];
+  const sun = sunriseSunsetLocal(mdt.y, mdt.mo, mdt.da, mdt.lat, mdt.lon, mdt.tz);
+  const sunriseHr = sun ? sun.sunriseHr : 6, sunsetHr = sun ? sun.sunsetHr : 18;
+  const gName = g => T(g, GRAHA_ES[g]);
+
+  const gc = chintamaniGeneralChecks(pos, panch, refP, weekdayName, sunriseHr, sunsetHr);
+
+  const temperamentHtml = gc.temperament ? `<div class="kv">
+    <div class="k">${T('Class','Clase')}</div><div class="v">${T(gc.temperament.nameEn,gc.temperament.nameEs)} <span class="tag neutral">${gc.temperament.day}</span></div>
+    <div class="k">${T('Suited for','Apto para')}</div><div class="v">${T(gc.temperament.goodFor.en,gc.temperament.goodFor.es)}</div>
+  </div>` : `<div class="hint">${T('Moon\'s current nakṣatra not resolved.','No se resolvió la nakṣatra lunar actual.')}</div>`;
+
+  const yogaHtml = gc.charaYoga ? `<div class="kv"><div class="k">${T('Active yoga','Yoga activo')}</div><div class="v">${gc.charaYoga.name} <span class="tag ${gc.charaYoga.bad?'bad':'good'}">${gc.charaYoga.bad?T('inauspicious','desfavorable'):T('auspicious','favorable')}</span> <span class="hint" style="display:inline;">(${T('position','posición')} ${gc.charaYoga.position}/28)</span></div></div>` : '';
+
+  let gocharaHtml;
+  if (!refP.sign){
+    gocharaHtml = `<div class="hint">${T('Needs a reference person\'s birth Moon sign (field 1) — this reads houses from the natal Janma Rāśi.','Necesita el signo lunar de nacimiento de la persona de referencia (campo 1) — esto lee casas desde la Janma Rāśi natal.')}</div>`;
+  } else if (!gc.gocharaVedha.length){
+    gocharaHtml = `<div class="hint">${T('No graha is transiting one of its own auspicious houses from the natal Moon sign right now.','Ningún graha está transitando ahora mismo una de sus propias casas auspiciosas desde el signo lunar natal.')}</div>`;
+  } else {
+    gocharaHtml = `<div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('House from natal Moon','Casa desde la Luna natal')}</th><th>${T('Vedha house','Casa de Vedha')}</th><th>${T('Status','Estado')}</th></tr></thead><tbody>
+      ${gc.gocharaVedha.map(r=>`<tr><td class="wide">${gName(r.graha)}</td><td>${r.house}</td><td>${r.vedhaHouse}${r.exemptOccupiers.length?` <span class="hint" style="display:inline;">(${r.exemptOccupiers.map(gName).join(',')} ${T('exempt','exento')})</span>`:''}</td>
+      <td><span class="tag ${r.blocked?'bad':'good'}">${r.blocked?T('blocked by','bloqueada por')+' '+r.blockingOccupiers.map(gName).join(', '):T('open — stays auspicious','abierta — sigue auspicioso')}</span></td></tr>`).join('')}
+    </tbody></table></div>`;
+  }
+
+  let taraHtml;
+  if (!refP.star){
+    taraHtml = `<div class="hint">${T('Needs a reference person\'s birth star (field 1).','Necesita la estrella de nacimiento de la persona de referencia (campo 1).')}</div>`;
+  } else if (!gc.taraTapering){
+    taraHtml = `<div class="hint">${T('Today\'s Tārā for the reference person is not one of the three that taper (Vipath/Pratyari/Naidhana).','El Tārā de hoy para la persona de referencia no es uno de los tres que se atenúan (Vipath/Pratyari/Naidhana).')}</div>`;
+  } else {
+    const t = gc.taraTapering;
+    taraHtml = `<div class="kv"><div class="k">${T('Cycle','Ciclo')}</div><div class="v">${t.cycle} / 3</div>
+    <div class="k">${T('Still inauspicious?','¿Sigue siendo desfavorable?')}</div><div class="v"><span class="tag ${t.stillBad?'bad':'good'}">${t.stillBad?T('yes','sí'):T('no — tapered off','no — se atenuó')}</span></div></div>`;
+  }
+
+  const bhadraHtml = !gc.bhadra ? `<div class="hint">${T('Vishti (Bhadrā) karaṇa is not in effect right now.','El karaṇa Vishti (Bhadrā) no está activo ahora mismo.')}</div>` :
+    `<div class="kv"><div class="k">${T('Moon sign','Signo lunar')}</div><div class="v">${gc.bhadra.moonSign}</div>
+    <div class="k">${T('Lands','Cae en')}</div><div class="v"><span class="tag ${gc.bhadra.active?'bad':'good'}">${gc.bhadra.active?T('Earth — active/inauspicious','Tierra — activo/desfavorable'):T('Svarga/Pātāla — dormant','Svarga/Pātāla — inactivo')}</span></div></div>`;
+
+  const panchakaHtml = `<span class="tag ${gc.panchaka?'bad':'good'}">${gc.panchaka?T('Panchaka active','Panchaka activo'):T('Panchaka not active','Panchaka no activo')}</span>`;
+
+  const slotsHtml = `<div class="tblwrap"><table><thead><tr><th></th><th>${T('Window','Ventana')}</th></tr></thead><tbody>
+    <tr><td class="wide">${T('Kantaka','Kaṇṭaka')}</td><td>${fmtHM(gc.daySlots.kantaka.startHr)} – ${fmtHM(gc.daySlots.kantaka.endHr)}</td></tr>
+    <tr><td class="wide">${T('Kālabelā','Kālabelā')}</td><td>${fmtHM(gc.daySlots.kalabela.startHr)} – ${fmtHM(gc.daySlots.kalabela.endHr)}</td></tr>
+    <tr><td class="wide">${T('Yamaghaṇṭa','Yamaghaṇṭa')}</td><td>${fmtHM(gc.daySlots.yamaghanta.startHr)} – ${fmtHM(gc.daySlots.yamaghanta.endHr)}</td></tr>
+    <tr><td class="wide">${T('Kulika','Kulika')}</td><td>${fmtHM(gc.daySlots.kulika.startHr)} – ${fmtHM(gc.daySlots.kulika.endHr)}</td></tr>
+  </tbody></table></div>`;
+
+  // ---- Activity guideline section ----
+  const activityOptions = [
+    ['', T('— choose an activity —','— elige una actividad —')],
+    ['marriage', T('Marriage','Matrimonio')],
+    ['travel', T('Travel / Journey','Viaje')],
+    ['relocation', T('Relocation (city compatibility)','Reubicación (compatibilidad de ciudad)')]
+  ];
+  const optionsHtml = activityOptions.map(([v,l])=>`<option value="${v}" ${chintamaniActivity===v?'selected':''}>${l}</option>`).join('');
+
+  let activityBodyHtml = '';
+  if (chintamaniActivity === 'marriage'){
+    const checks = chintamaniMarriageGuideline(pos, panch, mdt);
+    const failCount = checks.filter(c=>!c.ok).length;
+    const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=2 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
+    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+      <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td><td class="hint" style="font-size:10.5px;">${c.cite}</td></tr>`).join('')}</tbody></table></div>`;
+  } else if (chintamaniActivity === 'travel'){
+    const dirSel = document.getElementById('chintamaniDirection');
+    const direction = dirSel ? dirSel.value : '';
+    const checks = chintamaniTravelGuideline(pos, panch, weekdayName, direction || null);
+    const failCount = checks.filter(c=>!c.ok).length;
+    const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=1 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
+    activityBodyHtml = `
+      <label>${T('Direction of travel (optional)','Dirección del viaje (opcional)')}</label>
+      <select id="chintamaniDirection">${['','North','Northeast','East','Southeast','South','Southwest','West','Northwest'].map(d=>`<option value="${d}" ${direction===d?'selected':''}>${d||T('— not set —','— sin definir —')}</option>`).join('')}</select>
+      <div class="okbox" style="margin:12px 0;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+      <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td><td class="hint" style="font-size:10.5px;">${c.cite}</td></tr>`).join('')}</tbody></table></div>`;
+  } else if (chintamaniActivity === 'relocation'){
+    const personName = document.getElementById('chintamaniPersonName')?.value ?? (document.getElementById('bName').value || '');
+    const cityName = document.getElementById('chintamaniCityName')?.value ?? '';
+    activityBodyHtml = `
+      <div class="row2">
+        <div><label>${T('Person\'s name','Nombre de la persona')}</label><input type="text" id="chintamaniPersonName" value="${escHtml(personName)}" placeholder="${T('e.g. Rohan','p. ej. Rohan')}"></div>
+        <div><label>${T('Candidate city','Ciudad candidata')}</label><input type="text" id="chintamaniCityName" value="${escHtml(cityName)}" placeholder="${T('e.g. Austin','p. ej. Austin')}"></div>
+      </div>
+      <div id="chintamaniRelocationResult" style="margin-top:12px;"></div>`;
+  }
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('Muhūrta Chintāmaṇi','Muhūrta Chintāmaṇi')}</h2><span class="note">Acharya Ram, trans. G.C. Sharma 1996</span></div>
+      <div class="bd">
+        <div class="hint">${T('A second classical muhūrta source alongside the SBC engine above. Deliberately kept separate from the SBC score — everything below is its own outright auspicious/inauspicious read, not a number added to the verdict elsewhere on this app. Region-locked variants from the source (e.g. rules the text itself scopes to a specific province) are skipped rather than applied universally.','Una segunda fuente clásica de muhūrta junto al motor SBC de arriba. Se mantiene deliberadamente separada de la puntuación SBC — todo lo de abajo es su propia lectura auspiciosa/desfavorable directa, no un número que se suma al veredicto de otra parte de esta app. Las variantes de doṣa limitadas a una región (p. ej. reglas que el propio texto restringe a una provincia específica) se omiten en vez de aplicarse universalmente.')}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('General Checks','Comprobaciones Generales')}</h2><span class="note">${T('for the Moment to Judge, field 2','para el Momento a Evaluar, campo 2')}</span></div>
+      <div class="bd">
+        <h3 style="margin-top:0; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Nakṣatra Temperament','Temperamento de Nakṣatra')} <span class="hint" style="display:inline;">ch.2 p.49-52</span></h3>
+        ${temperamentHtml}
+
+        <h3 style="font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('28 Chara Yogas','28 Chara Yogas')} <span class="hint" style="display:inline;">ch.1 p.17-19</span></h3>
+        ${yogaHtml || `<div class="hint">${T('Not resolved.','No resuelto.')}</div>`}
+
+        <h3 style="font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Gochara Vedha (house-based transit)','Gochara Vedha (tránsito por casas)')} <span class="hint" style="display:inline;">ch.4 p.102-105</span></h3>
+        ${gocharaHtml}
+
+        <h3 style="font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Tārā Cycle-Tapering','Atenuación de ciclo de Tārā')} <span class="hint" style="display:inline;">ch.4 p.108-109</span></h3>
+        ${taraHtml}
+
+        <h3 style="font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Bhadrā (Vishti) Earth/Svarga/Pātāla','Bhadrā (Vishti) Tierra/Svarga/Pātāla')} <span class="hint" style="display:inline;">ch.1 p.31-37</span></h3>
+        ${bhadraHtml}
+
+        <h3 style="font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Panchaka Doṣa','Panchaka Doṣa')} <span class="hint" style="display:inline;">ch.2 p.81-82</span></h3>
+        ${panchakaHtml}
+
+        <h3 style="font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Kulika / Kālabelā / Yamaghaṇṭa / Kaṇṭaka','Kulika / Kālabelā / Yamaghaṇṭa / Kaṇṭaka')} <span class="hint" style="display:inline;">ch.1 śl.36-37, p.26-29</span></h3>
+        ${slotsHtml}
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Activity Guideline','Guía por Actividad')}</h2><span class="note">${T('choose what you\'re judging this moment for','elige para qué estás evaluando este momento')}</span></div>
+      <div class="bd">
+        <label>${T('Muhūrta guideline','Guía de muhūrta')}</label>
+        <select id="chintamaniActivitySelect">${optionsHtml}</select>
+        <div style="margin-top:14px;">${activityBodyHtml}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Two-Person Compatibility','Compatibilidad de Dos Personas')}</h2><span class="note">${T('Aṣṭakoota (Guṇa Milan)','Aṣṭakoota (Guṇa Milan)')}</span></div>
+      <div class="bd">
+        <div class="hint">${T('Compares two birth charts — a different question from "is this moment auspicious," and entirely separate from the SBC score and everything else on this app. Person A reuses the reference person\'s birth data (field 1); enter Person B below.','Compara dos cartas natales — una pregunta distinta a "¿es auspicioso este momento?", y completamente aparte de la puntuación SBC y de todo lo demás en esta app. La Persona A reutiliza los datos de nacimiento de la persona de referencia (campo 1); introduce la Persona B abajo.')}</div>
+        <h3 style="margin:14px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Person B','Persona B')}</h3>
+        <div class="row2">
+          <div><label>${T('Name (optional)','Nombre (opcional)')}</label><input type="text" id="pbName" value="${escHtml(chintamaniPersonB.name)}"></div>
+          <div><label>${T('Birth date','Fecha de nacimiento')}</label><input type="date" id="pbDate" value="${chintamaniPersonB.date}"></div>
+        </div>
+        <div class="row2">
+          <div><label>${T('Birth time (local)','Hora de nacimiento (local)')}</label><input type="time" id="pbTime" value="${chintamaniPersonB.time}" step="60"></div>
+          <div><label>${T('UTC offset (hrs)','Desfase UTC (hrs)')}</label><input type="number" id="pbTZ" value="${chintamaniPersonB.tz}" step="0.5" placeholder="${T('e.g. -4','p. ej. -4')}"></div>
+        </div>
+        <div class="row2">
+          <div><label>${T('Latitude (+N)','Latitud (+N)')}</label><input type="number" id="pbLat" value="${chintamaniPersonB.lat}" step="0.0001" placeholder="${T('e.g. 25.7617','p. ej. 25.7617')}"></div>
+          <div><label>${T('Longitude (+E)','Longitud (+E)')}</label><input type="number" id="pbLon" value="${chintamaniPersonB.lon}" step="0.0001" placeholder="${T('e.g. -80.1918','p. ej. -80.1918')}"></div>
+        </div>
+        <div id="ashtakootaResult" style="margin-top:14px;"></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('chintamaniActivitySelect').addEventListener('change', (e)=>{ chintamaniActivity = e.target.value; renderChintamaniPage(); });
+  const dirSel2 = document.getElementById('chintamaniDirection');
+  if (dirSel2) dirSel2.addEventListener('change', renderChintamaniPage);
+  const pn = document.getElementById('chintamaniPersonName'), cn = document.getElementById('chintamaniCityName');
+  if (pn) pn.addEventListener('input', updateChintamaniRelocation);
+  if (cn) cn.addEventListener('input', updateChintamaniRelocation);
+  if (chintamaniActivity === 'relocation') updateChintamaniRelocation();
+
+  ['pbName','pbDate','pbTime','pbTZ','pbLat','pbLon'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', updateAshtakootaResult);
+  });
+  updateAshtakootaResult();
+}
+
+let chintamaniPersonB = { name:'', date:'', time:'', tz:'', lat:'', lon:'' };
+// Self-contained (only touches #ashtakootaResult), same pattern as
+// updateChintamaniRelocation() -- Person B's <input> elements are never
+// rebuilt on keystroke, only this result div.
+function updateAshtakootaResult(){
+  const resultEl = document.getElementById('ashtakootaResult');
+  if (!resultEl) return;
+  chintamaniPersonB = {
+    name: document.getElementById('pbName').value,
+    date: document.getElementById('pbDate').value,
+    time: document.getElementById('pbTime').value,
+    tz: document.getElementById('pbTZ').value,
+    lat: document.getElementById('pbLat').value,
+    lon: document.getElementById('pbLon').value
+  };
+  const bDate = document.getElementById('bDate').value;
+  if (!bDate){
+    resultEl.innerHTML = `<div class="hint">${T('Person A needs birth data — fill in field 1 (Reference Person) first.','La Persona A necesita datos de nacimiento — completa primero el campo 1 (Persona de referencia).')}</div>`;
+    return;
+  }
+  if (!chintamaniPersonB.date || !chintamaniPersonB.time){
+    resultEl.innerHTML = `<div class="hint">${T('Enter Person B\'s birth date and time above to compute compatibility.','Introduce la fecha y hora de nacimiento de la Persona B arriba para calcular la compatibilidad.')}</div>`;
+    return;
+  }
+  const ay = document.getElementById('ayanamsaMode').value;
+  const dtA = readDateTime('b');
+  const posA = computePositions(dtA.jd, dtA.lat, dtA.lon, ay);
+  const [py,pmo,pda] = chintamaniPersonB.date.split('-').map(Number);
+  const [phh,pmm] = chintamaniPersonB.time.split(':').map(Number);
+  const ptz = parseFloat(chintamaniPersonB.tz || '0');
+  const plat = parseFloat(chintamaniPersonB.lat || '0'), plon = parseFloat(chintamaniPersonB.lon || '0');
+  const jdB = julianDay(py,pmo,pda,phh,pmm,0,ptz);
+  const posB = computePositions(jdB, plat, plon, ay);
+
+  const ak = computeAshtakoota(posA, posB);
+  const vim = chintamaniVimshopakaBala(posA); // "the marriage lagna" -- Person A's own current-birth-chart placements, per the source's own single-chart framing (p.216)
+
+  const gradeCls = ak.grade===T('Unsuitable','No apto') ? 'bad' : ak.grade===T('Medium','Medio') ? 'neutral' : 'good';
+  resultEl.innerHTML = `
+    <div class="okbox"><b>${T('Total','Total')}:</b> ${ak.total.toFixed(1)} / 36 — <span class="tag ${gradeCls}">${ak.grade}</span>
+      ${ak.bhakootaDosha ? `<div class="hint" style="margin-top:4px;">${T('Bhakoota is afflicted — the shifted grading scale above applies (≤20/21-25/26-30/30-36).','Bhakoota está afligido — se aplica la escala de calificación desplazada de arriba (≤20/21-25/26-30/30-36).')}</div>` : ''}
+      ${ak.nadiSame ? `<div class="hint" style="margin-top:4px; color:var(--vermilion);">${T('Same Nāḍī (0 points) — classically treated as a serious defect regardless of the total.','Misma Nāḍī (0 puntos) — clásicamente se considera un defecto grave sin importar el total.')}</div>` : ''}
+    </div>
+    <div class="tblwrap" style="margin-top:10px;"><table><thead><tr><th>${T('Koota','Koota')}</th><th>${T('Points','Puntos')}</th><th></th></tr></thead><tbody>
+      ${ak.kootas.map(k=>`<tr><td class="wide">${k.label}</td><td>${k.points} / ${k.max}</td><td class="hint" style="font-size:11px;">${k.note}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="hint" style="margin-top:8px;">${T('Person A','Persona A')}: ${ak.brideStar} · ${ak.brideSign} — ${T('Person B','Persona B')}: ${ak.groomStar} · ${ak.groomSign}. ${T('Yoni and Bhakoota use a simplified read of the source\'s printed grids (see code notes); Nāḍī and Gaṇa use the standard classical tables, not this specific book\'s own printed grid.','Yoni y Bhakoota usan una lectura simplificada de las tablas impresas de la fuente; Nāḍī y Gaṇa usan las tablas clásicas estándar, no la propia tabla impresa de este libro.')}</div>
+
+    <h3 style="margin:16px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Vimśopaka Bala — Person A\'s current placements','Vimśopaka Bala — posiciones actuales de la Persona A')} <span class="hint" style="display:inline;">ch.6 p.216</span></h3>
+    <div class="okbox"><b>${T('Total','Total')}:</b> ${vim.total.toFixed(1)} / 20 — <span class="tag ${vim.total<5?'bad':vim.total<=10?'neutral':'good'}">${vim.grade}</span></div>
+    <div class="tblwrap" style="margin-top:8px;"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Dignity','Dignidad')}</th><th>${T('Weight','Peso')}</th><th>${T('Earned','Obtenido')}</th></tr></thead><tbody>
+      ${vim.rows.map(r=>`<tr><td class="wide">${T(r.graha,GRAHA_ES[r.graha])}</td><td>${trDignity(r.tier)}</td><td>${r.weight}</td><td><span class="tag ${r.earned>0?'good':'neutral'}">${r.earned}</span></td></tr>`).join('')}
+    </tbody></table></div>`;
+}
+
+// Self-contained (only touches #chintamaniRelocationResult), same pattern
+// as renderNameToBird() — so typing a name/city never rebuilds the
+// <input> elements themselves and loses focus/cursor position mid-keystroke.
+function updateChintamaniRelocation(){
+  const resultEl = document.getElementById('chintamaniRelocationResult');
+  if (!resultEl) return;
+  const personName = document.getElementById('chintamaniPersonName').value;
+  const cityName = document.getElementById('chintamaniCityName').value;
+  if (!personName.trim() || !cityName.trim()){
+    resultEl.innerHTML = `<div class="hint">${T('Enter both a name and a city — each one\'s Rāśi is derived from the first vowel/consonant sound of its name (Nakṣatra-pada table, same method used for the Consonant Pañcaka elsewhere in this app), then compared by house-distance.','Introduce un nombre y una ciudad — el Rāśi de cada uno se obtiene del primer sonido vocal/consonante de su nombre (tabla de pada de Nakṣatra, el mismo método usado para el Pañcaka de Consonante en otras partes de esta app), y luego se comparan por distancia de casas.')}</div>`;
+    return;
+  }
+  const rel = chintamaniRelocationCheck(personName, cityName);
+  if (!rel){
+    resultEl.innerHTML = `<div class="hint">${T('First vowel/consonant sound not recognized for one of these — try a different spelling.','No se reconoció el primer sonido vocal/consonante de uno de estos — prueba otra ortografía.')}</div>`;
+    return;
+  }
+  resultEl.innerHTML = `
+    <div class="okbox"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${rel.auspicious?'good':'bad'}">${rel.auspicious?T('Auspicious placement','Ubicación auspiciosa'):T('Inauspicious — ','Desfavorable — ')+(rel.effect?T(rel.effect.en,rel.effect.es):T('no stated effect for this house','sin efecto indicado para esta casa'))}</span></div>
+    <div class="kv" style="margin-top:8px;">
+      <div class="k">${T('Person\'s name-Rāśi','Rāśi del nombre de la persona')}</div><div class="v">${rel.personRashi}</div>
+      <div class="k">${T('City\'s name-Rāśi','Rāśi del nombre de la ciudad')}</div><div class="v">${rel.cityRashi}</div>
+      <div class="k">${T('City is house ___ from person','La ciudad es la casa ___ desde la persona')}</div><div class="v">${rel.houseFromPerson}</div>
+      ${rel.avoidDir ? `<div class="k">${T('Avoid siting toward','Evitar ubicarse hacia')}</div><div class="v">${rel.avoidDir}</div>` : ''}
+    </div>
+    <div class="hint" style="margin-top:10px;">${T('ch.12 §1-2 gives explicit effects only for houses 3/4/6/7/8/12 (enmity/loss/disease/loss/enmity/disease) — the 1st house (same Rāśi) has no stated effect in the source and is shown here as inauspicious-by-default without a named cause.','ch.12 §1-2 da efectos explícitos solo para las casas 3/4/6/7/8/12 (enemistad/pérdida/enfermedad/pérdida/enemistad/enfermedad) — la 1.ª casa (mismo Rāśi) no tiene efecto indicado en la fuente y aquí se muestra como desfavorable por defecto sin una causa nombrada.')}</div>`;
+}
+
 // Independent of runAnalysis()/the muhūrta being judged — always reflects the
 // real current moment. Re-run on bird-dropdown change and on a 60s interval.
 //
@@ -6477,13 +7848,14 @@ function renderPPPanel(){
   }
   ppLastRefStar = refP.star;
 
-  const ppDay = computePanchapakshiDay(live.weekdayEN, live.half);
+  const ppDay = computePanchapakshiDay(live.weekdayEN, live.half, live.dayLenHrs, live.nightLenHrs);
   const selectedBirdMax = (live.half === "dark" ? PP_NATURAL_DARK : PP_NATURAL_BRIGHT)[selectedBird];
-  const chartSvg = renderPanchapakshi12hChart(ppDay, live.dayHalf, selectedBird, live.localHr, selectedBirdMax);
+  const halfStartHr = live.dayHalf === 'day' ? live.sunriseHr : live.sunsetHr;
+  const chartSvg = renderPanchapakshi12hChart(ppDay, live.dayHalf, selectedBird, live.localHr, selectedBirdMax, halfStartHr);
 
   const subs = live.dayHalf==='day' ? ppDay.subPeriods.slice(0,25) : ppDay.subPeriods.slice(25,50);
   const curSub = subs.find(p=>{
-    const ls=p.startHr-(live.dayHalf==='day'?0:12), le=p.endHr-(live.dayHalf==='day'?0:12);
+    const ls=p.startHr-(live.dayHalf==='day'?0:live.dayLenHrs), le=p.endHr-(live.dayHalf==='day'?0:live.dayLenHrs);
     return live.localHr>=ls && live.localHr<le;
   }) || subs[subs.length-1];
   const curState = curSub.byBird[selectedBird];
@@ -6496,7 +7868,7 @@ function renderPPPanel(){
   const cycleDisp = live.dayHalf==='day' ? T('Day Cycle','Ciclo diurno') : T('Night Cycle','Ciclo nocturno');
 
   const ay = document.getElementById('ayanamsaMode').value;
-  const bestSlot = ppFindBestSlot(selectedBird, ay);
+  const bestSlot = ppFindBestSlot(selectedBird, ay, live.lat, live.lon, live.tz);
   const tierLabels = {
     1: T('Ruling in Ruling — the strongest','Reinando en Reinando — el más fuerte'),
     2: T('Eating in Ruling','Comiendo en Reinando'),
@@ -6544,6 +7916,7 @@ function renderPPPanel(){
       <label>${T('Bird','Ave')}:</label>
       <select id="ppBirdSelect">${options}</select>
       <span class="tag gold">${weekdayDisp} · ${halfDisp} · ${cycleDisp} · ${clockStr}</span>
+      <span class="tag neutral">${T('Sunrise','Amanecer')} ${fmtHM(live.sunriseHr)} · ${T('Sunset','Atardecer')} ${fmtHM(live.sunsetHr)}</span>
     </div>
     <div class="tblwrap">${chartSvg}</div>
     <div class="kv" style="margin-top:14px;">
@@ -6605,7 +7978,15 @@ document.addEventListener('DOMContentLoaded', ()=>{
   initTheme();
   setDefaults();
   document.getElementById('computeBtn').addEventListener('click', runAnalysis);
-  document.getElementById('resetBtn').addEventListener('click', ()=>{ setDefaults(); runAnalysis(); });
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    setDefaults();
+    applyReferenceFields(DEMO_BIRTH);
+    document.getElementById('profileSelect').value = '';
+    runAnalysis();
+  });
+
+  wirePlaceSearch('b');
+  wirePlaceSearch('m');
 
   populateProfileSelect();
   document.getElementById('profileSelect').addEventListener('change', (e)=>{
@@ -6621,10 +8002,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
   });
   document.getElementById('profileSaveBtn').addEventListener('click', ()=>{
     const nameInput = document.getElementById('profileNameInput');
+    const msgEl = document.getElementById('profileMsg');
     const name = nameInput.value.trim();
     if (!name){ nameInput.focus(); return; }
     const profiles = loadProfiles();
     const idx = findProfileIndexByLabel(profiles, name);
+    if (idx < 0 && profiles.length >= PROFILE_LIMIT){
+      msgEl.textContent = T(I18N.profileLimitMsg.en, I18N.profileLimitMsg.es);
+      msgEl.style.display = 'block';
+      return;
+    }
+    msgEl.style.display = 'none';
     const data = { label:name, ...snapshotReferenceFields() };
     if (idx >= 0) profiles[idx] = data; else profiles.push(data);
     saveProfilesList(profiles);
@@ -6663,10 +8051,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if (document.getElementById('pageAntara').classList.contains('active')) renderAntaraChakraPage();
     if (document.getElementById('pageRemedies').classList.contains('active')) renderRemediesPage();
     if (document.getElementById('pageCommodities').classList.contains('active')) renderCommoditiesPage();
+    if (document.getElementById('pageCurrencies').classList.contains('active')) renderCurrenciesPage();
     if (document.getElementById('pageHorary').classList.contains('active')) renderHoraryPage();
     if (document.getElementById('pageSignificators').classList.contains('active')) renderSignificatorsPage();
+    if (document.getElementById('pageChintamani').classList.contains('active')) renderChintamaniPage();
+    renderNameToBird();
   });
   document.getElementById('chartPanchapakshi').addEventListener('change', renderPPPanel);
+  document.getElementById('nameToBirdInput').addEventListener('input', renderNameToBird);
 
   document.getElementById('hamburgerBtn').addEventListener('click', (e)=>{
     e.stopPropagation();
