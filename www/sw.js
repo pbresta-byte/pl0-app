@@ -1,4 +1,4 @@
-const CACHE = "muhurta-gauge-v2";
+const CACHE = "pl0-app-v3";
 const ASSETS = [
   "./index.html",
   "./manifest.json",

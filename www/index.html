@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>Muhūrta Gauge — Sarvato Bhadra Chakra Analyzer</title>
+<title>PL0 — Sarvato Bhadra Chakra Analyzer</title>
 
 <!-- ---- PWA / installable app metadata ---- -->
 <link rel="manifest" href="manifest.json">
@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Muhūrta Gauge">
+<meta name="apple-mobile-web-app-title" content="PL0">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
@@ -156,24 +156,44 @@
 
   .hamburger-wrap{ position:relative; display:inline-block; }
   .hamburger-btn{
-    font-family:var(--mono); font-size:16px; line-height:1;
-    color:var(--muted); border:1px solid var(--line); background:var(--panel-2);
-    padding:7px 11px; border-radius:2px; cursor:pointer;
+    display:inline-flex; align-items:center; gap:9px;
+    font-family:var(--serif); font-size:18px; font-weight:500; line-height:1;
+    color:var(--ink); border:1px solid var(--line); background:var(--panel-2);
+    padding:9px 16px; border-radius:2px; cursor:pointer;
   }
-  .hamburger-btn:hover{ color:var(--ink); border-color:var(--gold-dim); }
+  .hamburger-btn .hb-icon{ font-family:var(--mono); font-size:17px; color:var(--muted); }
+  .hamburger-btn:hover{ color:var(--gold); border-color:var(--gold-dim); }
+  .hamburger-btn:hover .hb-icon{ color:var(--gold); }
+  .hamburger-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:29; }
+  .hamburger-overlay.open{ display:block; }
   .hamburger-menu{
-    display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:20;
-    min-width:220px; border:1px solid var(--line); background:var(--panel);
-    box-shadow:0 6px 18px rgba(0,0,0,0.18);
+    display:flex; flex-direction:column;
+    position:fixed; top:0; left:0; bottom:0; z-index:30;
+    width:82%; max-width:320px;
+    background:var(--panel); border-right:1px solid var(--line);
+    transform:translateX(-100%); transition:transform .25s ease;
   }
-  .hamburger-menu.open{ display:block; }
-  .hamburger-menu button{
-    display:block; width:100%; text-align:left; padding:10px 14px; border:none; background:none;
-    font-family:var(--serif); font-size:13.5px; color:var(--ink-dim); cursor:pointer; border-bottom:1px solid var(--line-soft);
+  .hamburger-menu.open{ transform:translateX(0); }
+  .hamburger-menu-head{
+    display:flex; align-items:center; justify-content:space-between; flex:none;
+    padding:20px 18px 16px; border-bottom:1px solid var(--line);
   }
-  .hamburger-menu button:last-child{ border-bottom:none; }
-  .hamburger-menu button:hover{ background:var(--panel-2); color:var(--gold); }
-  .hamburger-menu button.active{ color:var(--gold); }
+  .hamburger-menu-head span{ font-family:var(--serif); font-size:30px; font-weight:500; color:var(--gold); line-height:1; }
+  .hamburger-close{
+    width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:16px; color:var(--muted);
+    border:1px solid var(--line); background:var(--panel-2); border-radius:2px; cursor:pointer;
+  }
+  .hamburger-close:hover{ color:var(--ink); border-color:var(--gold-dim); }
+  .hamburger-menu-list{ overflow-y:auto; flex:1; }
+  .hamburger-menu-list button{
+    display:block; width:100%; text-align:left; padding:15px 18px; border:none; background:none;
+    border-left:3px solid transparent;
+    font-family:var(--serif); font-size:14.5px; color:var(--ink-dim); cursor:pointer; border-bottom:1px solid var(--line-soft);
+  }
+  .hamburger-menu-list button:last-child{ border-bottom:none; }
+  .hamburger-menu-list button:hover{ background:var(--panel-2); color:var(--gold); }
+  .hamburger-menu-list button.active{ color:var(--gold); border-left-color:var(--gold); background:var(--panel-2); }
   .page{ display:none; }
   .page.active{ display:block; }
 
@@ -440,8 +460,17 @@
 <div class="plaque">
   <div style="display:flex; align-items:flex-start; gap:14px;">
     <div class="hamburger-wrap">
-      <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false">☰</button>
-      <div class="hamburger-menu" id="hamburgerMenu" role="menu">
+      <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
+        <span class="hb-icon" aria-hidden="true">☰</span><span data-i18n="navMenuLabel">Menu</span>
+      </button>
+    </div>
+    <div class="hamburger-overlay" id="hamburgerOverlay"></div>
+    <div class="hamburger-menu" id="hamburgerMenu" role="menu">
+      <div class="hamburger-menu-head">
+        <span data-i18n="navMenuTitle">Menu</span>
+        <button class="hamburger-close" id="hamburgerClose" type="button" aria-label="Close menu">✕</button>
+      </div>
+      <div class="hamburger-menu-list">
         <button type="button" data-page="pageMuhurta" class="active" data-i18n="navMuhurta">Muhūrta Gauge</button>
         <button type="button" data-page="pageNatal" data-i18n="navNatal">Natal General Reading</button>
         <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">World Era</button>
@@ -458,7 +487,7 @@
       </div>
     </div>
     <div>
-      <h1>Muhūrta Gauge <span class="accent">— Sarvato Bhadra Chakra</span></h1>
+      <h1>PL0 <span class="accent">— Sarvato Bhadra Chakra</span></h1>
       <div class="sub" data-i18n="subtitle">Panchāṅga · Vedha · Nāḍī · Latta — an instrument for reading the quality of a moment</div>
     </div>
   </div>
@@ -685,6 +714,8 @@ const I18N = {
   nameToBirdHint: { en:`Identify someone else's Pañcha Pakshi bird from the first vowel sound of their name, for when their birth star is unknown (Table No.4) — a separate method from the reference person's own birth-star bird above, and independent of everything else on this page.`, es:`Identifica el ave Pañcha Pakshi de otra persona a partir del primer sonido vocálico de su nombre, para cuando no se conoce su estrella de nacimiento (Tabla N.º 4) — un método aparte del ave por estrella de nacimiento de la persona de referencia de arriba, e independiente de todo lo demás en esta página.` },
   nameToBirdLbl: { en:`Name`, es:`Nombre` },
   nameToBirdPh: { en:`e.g. Gopal, Priya…`, es:`p. ej. Gopal, Priya…` },
+  navMenuLabel: { en:`Menu`, es:`Menú` },
+  navMenuTitle: { en:`Menu`, es:`Menú` },
   navMuhurta: { en:`Muhūrta Gauge`, es:`Muhūrta Gauge` },
   navNatal: { en:`Natal General Reading`, es:`Lectura Natal General` },
   navDasha: { en:`Vimśottari Daśā`, es:`Vimśottari Daśā` },
@@ -5508,13 +5539,17 @@ function renderPageOrBirthDataPlaceholder(pageId){
   spec.render();
 }
 
+function closeHamburgerMenu(){
+  document.getElementById('hamburgerMenu').classList.remove('open');
+  document.getElementById('hamburgerOverlay').classList.remove('open');
+  document.getElementById('hamburgerBtn').setAttribute('aria-expanded','false');
+}
 function showPage(pageId){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const target = document.getElementById(pageId);
   if (target) target.classList.add('active');
-  document.querySelectorAll('#hamburgerMenu button').forEach(b=>b.classList.toggle('active', b.dataset.page===pageId));
-  document.getElementById('hamburgerMenu').classList.remove('open');
-  document.getElementById('hamburgerBtn').setAttribute('aria-expanded','false');
+  document.querySelectorAll('#hamburgerMenu .hamburger-menu-list button').forEach(b=>b.classList.toggle('active', b.dataset.page===pageId));
+  closeHamburgerMenu();
   if (PAGES_NEEDING_BIRTH_DATA[pageId]) renderPageOrBirthDataPlaceholder(pageId);
   if (pageId === 'pageAntara') renderAntaraChakraPage();
   if (pageId === 'pageCommodities') renderCommoditiesPage();
@@ -8091,17 +8126,23 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('hamburgerBtn').addEventListener('click', (e)=>{
     e.stopPropagation();
     const menu = document.getElementById('hamburgerMenu');
+    const overlay = document.getElementById('hamburgerOverlay');
     const open = menu.classList.toggle('open');
+    overlay.classList.toggle('open', open);
     document.getElementById('hamburgerBtn').setAttribute('aria-expanded', open ? 'true' : 'false');
   });
-  document.querySelectorAll('#hamburgerMenu button').forEach(b=>{
+  document.querySelectorAll('#hamburgerMenu .hamburger-menu-list button').forEach(b=>{
     b.addEventListener('click', ()=> showPage(b.dataset.page));
+  });
+  document.getElementById('hamburgerClose').addEventListener('click', closeHamburgerMenu);
+  document.getElementById('hamburgerOverlay').addEventListener('click', closeHamburgerMenu);
+  document.addEventListener('keydown', (e)=>{
+    if (e.key === 'Escape') closeHamburgerMenu();
   });
   document.addEventListener('click', (e)=>{
     const menu = document.getElementById('hamburgerMenu');
-    if (menu.classList.contains('open') && !e.target.closest('.hamburger-wrap')){
-      menu.classList.remove('open');
-      document.getElementById('hamburgerBtn').setAttribute('aria-expanded','false');
+    if (menu.classList.contains('open') && !e.target.closest('.hamburger-menu') && !e.target.closest('.hamburger-wrap')){
+      closeHamburgerMenu();
     }
   });
 

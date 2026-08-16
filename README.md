@@ -1,4 +1,4 @@
-# Muhūrta Gauge — Sarvato Bhadra Chakra Analyzer
+# PL0 — Sarvato Bhadra Chakra Analyzer
 
 A Vedic muhūrta (auspicious-timing) analyzer. Point it at a moment and a reference person's birth star, and it scores how auspicious that moment is — then goes well beyond a single number:
 
@@ -13,7 +13,7 @@ Every rule is transcribed from a named classical source (cited inline in the app
 
 ## Use it now
 
-**Shareable link:** https://pbresta-byte.github.io/muhurta-gauge/ — public URL, works for anyone with the link on desktop or mobile (installable as a home-screen app via the browser's "Add to Home Screen"). It's unlisted, not indexed by search engines (`noindex` + `robots.txt`).
+**Shareable link:** https://pbresta-byte.github.io/pl0-app/ — public URL, works for anyone with the link on desktop or mobile (installable as a home-screen app via the browser's "Add to Home Screen"). It's unlisted, not indexed by search engines (`noindex` + `robots.txt`).
 
 Also available as a private claude.ai artifact for personal use: https://claude.ai/code/artifact/35b5b1b9-d2a6-423c-bd82-649b053ea57b (not for sharing — requires your claude.ai login).
 
