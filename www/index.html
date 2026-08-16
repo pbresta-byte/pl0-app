@@ -5105,6 +5105,15 @@ function readDateTime(prefix, dateOverride){
   const tz = parseFloat(document.getElementById(prefix+"TZ").value || "0");
   const lat = parseFloat(document.getElementById(prefix+"Lat").value || "0");
   const lon = parseFloat(document.getElementById(prefix+"Lon").value || "0");
+  // Birth data has no default value since 2026-08-16 (see runAnalysis's own
+  // guard) -- dEl can genuinely be undefined here (empty bDate, no
+  // dateOverride) for any page that reads reference-person data before the
+  // user has entered any. Return a NaN-carrying sentinel (empty:true)
+  // rather than throw on `.split` of undefined, which used to hard-crash
+  // every page that calls getReferencePanchaka() before birth data exists
+  // -- callers that don't explicitly guard for it just cascade to NaN
+  // output instead of a blank/broken page.
+  if (!dEl) return {jd:NaN, lat, lon, y:NaN, mo:NaN, da:NaN, hh:NaN, mm:NaN, tz, empty:true};
   const [y,mo,da] = dEl.split("-").map(Number);
   const [hh,mm] = t.split(":").map(Number);
   const jd = julianDay(y,mo,da,hh,mm,0, tz);
@@ -5468,6 +5477,37 @@ function runAnalysis(){
 }
 
 // ---- Page navigation (hamburger menu) ----
+// Pages whose render function reads the reference person's birth data
+// (getReferencePanchaka()/readDateTime("b")) unconditionally near the top.
+// Birth data has no default value since 2026-08-16 -- these all used to
+// hard-crash (blank page, real thrown TypeError, not just messy NaN
+// output) on first load or after "Reset to demo values" was never
+// pressed, because readDateTime() called .split() on an undefined date
+// string. Fixed at the source (readDateTime now returns a NaN sentinel
+// instead of throwing) AND here (skip the render entirely and show the
+// same placeholder the main gauge page already uses, rather than let a
+// birth-data page compute on NaN and show garbled output).
+const PAGES_NEEDING_BIRTH_DATA = {
+  pageNatal: {contentId:'natalPageContent', render:()=>renderNatalPage()},
+  pageAshtakavarga: {contentId:'ashtakavargaPageContent', render:()=>renderAshtakavargaPage()},
+  pageDasha: {contentId:'dashaPageContent', render:()=>renderDashaPage()},
+  pageNakshatra: {contentId:'nakshatraPageContent', render:()=>renderNakshatraPage()},
+  pageAnatomy: {contentId:'anatomyPageContent', render:()=>renderAnatomyPage()},
+  pageCalendar: {contentId:'calendarPageContent', render:()=>renderCalendarPage()},
+  pageRemedies: {contentId:'remediesPageContent', render:()=>renderRemediesPage()},
+  pageChintamani: {contentId:'chintamaniPageContent', render:()=>renderChintamaniPage()}
+};
+function renderPageOrBirthDataPlaceholder(pageId){
+  const spec = PAGES_NEEDING_BIRTH_DATA[pageId];
+  if (!spec) return;
+  if (!document.getElementById('bDate').value){
+    const el = document.getElementById(spec.contentId);
+    if (el) el.innerHTML = `<div style="color:var(--muted); font-family:var(--mono); font-size:12.5px; padding-top:40px;">${T(I18N.placeholderMsg.en, I18N.placeholderMsg.es)}</div>`;
+    return;
+  }
+  spec.render();
+}
+
 function showPage(pageId){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const target = document.getElementById(pageId);
@@ -5475,19 +5515,12 @@ function showPage(pageId){
   document.querySelectorAll('#hamburgerMenu button').forEach(b=>b.classList.toggle('active', b.dataset.page===pageId));
   document.getElementById('hamburgerMenu').classList.remove('open');
   document.getElementById('hamburgerBtn').setAttribute('aria-expanded','false');
-  if (pageId === 'pageNatal') renderNatalPage();
-  if (pageId === 'pageAshtakavarga') renderAshtakavargaPage();
-  if (pageId === 'pageDasha') renderDashaPage();
-  if (pageId === 'pageNakshatra') renderNakshatraPage();
-  if (pageId === 'pageAnatomy') renderAnatomyPage();
-  if (pageId === 'pageCalendar') renderCalendarPage();
+  if (PAGES_NEEDING_BIRTH_DATA[pageId]) renderPageOrBirthDataPlaceholder(pageId);
   if (pageId === 'pageAntara') renderAntaraChakraPage();
-  if (pageId === 'pageRemedies') renderRemediesPage();
   if (pageId === 'pageCommodities') renderCommoditiesPage();
   if (pageId === 'pageCurrencies') renderCurrenciesPage();
   if (pageId === 'pageHorary') renderHoraryPage();
   if (pageId === 'pageSignificators') renderSignificatorsPage();
-  if (pageId === 'pageChintamani') renderChintamaniPage();
 }
 
 // ---- Natal General Reading (D1 + D9) ----
@@ -8042,19 +8075,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
     populateProfileSelect();
     initTheme();
     runAnalysis();
-    if (document.getElementById('pageNatal').classList.contains('active')) renderNatalPage();
-    if (document.getElementById('pageAshtakavarga').classList.contains('active')) renderAshtakavargaPage();
-    if (document.getElementById('pageDasha').classList.contains('active')) renderDashaPage();
-    if (document.getElementById('pageNakshatra').classList.contains('active')) renderNakshatraPage();
-    if (document.getElementById('pageAnatomy').classList.contains('active')) renderAnatomyPage();
-    if (document.getElementById('pageCalendar').classList.contains('active')) renderCalendarPage();
+    Object.keys(PAGES_NEEDING_BIRTH_DATA).forEach(pid=>{
+      if (document.getElementById(pid).classList.contains('active')) renderPageOrBirthDataPlaceholder(pid);
+    });
     if (document.getElementById('pageAntara').classList.contains('active')) renderAntaraChakraPage();
-    if (document.getElementById('pageRemedies').classList.contains('active')) renderRemediesPage();
     if (document.getElementById('pageCommodities').classList.contains('active')) renderCommoditiesPage();
     if (document.getElementById('pageCurrencies').classList.contains('active')) renderCurrenciesPage();
     if (document.getElementById('pageHorary').classList.contains('active')) renderHoraryPage();
     if (document.getElementById('pageSignificators').classList.contains('active')) renderSignificatorsPage();
-    if (document.getElementById('pageChintamani').classList.contains('active')) renderChintamaniPage();
     renderNameToBird();
   });
   document.getElementById('chartPanchapakshi').addEventListener('change', renderPPPanel);
