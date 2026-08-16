@@ -527,8 +527,9 @@
         <input type="date" id="bDate">
         <div class="row2">
           <div><label data-i18n="birthTime">Birth time (local)</label><input type="time" id="bTime" step="60"></div>
-          <div><label data-i18n="utcOffset">UTC offset (hrs)</label><input type="number" id="bTZ" step="0.5" placeholder="e.g. -4"></div>
+          <div><label data-i18n="utcOffset">UTC offset (hrs)</label><input type="text" inputmode="decimal" id="bTZ" placeholder="e.g. -4"></div>
         </div>
+        <div id="bTZHint" class="hint" style="display:none; margin-top:-6px; margin-bottom:10px;"></div>
         <label data-i18n="birthPlace">Place of birth</label>
         <input type="text" id="bPlaceSearch" data-i18n-placeholder="birthPlacePh" placeholder="Search city or country…" autocomplete="off">
         <div id="bPlaceResults" class="place-results" style="display:none;"></div>
@@ -547,8 +548,9 @@
       <input type="date" id="mDate">
       <div class="row2">
         <div><label data-i18n="timeLbl">Time (local)</label><input type="time" id="mTime" step="60"></div>
-        <div><label data-i18n="utcOffset">UTC offset (hrs)</label><input type="number" id="mTZ" value="-4" step="0.5"></div>
+        <div><label data-i18n="utcOffset">UTC offset (hrs)</label><input type="text" inputmode="decimal" id="mTZ" value="-4"></div>
       </div>
+      <div id="mTZHint" class="hint" style="display:none; margin-top:-6px; margin-bottom:10px;"></div>
       <label data-i18n="momentPlace">Place</label>
       <input type="text" id="mPlaceSearch" data-i18n-placeholder="momentPlacePh" placeholder="Search city or country…" autocomplete="off">
       <div id="mPlaceResults" class="place-results" style="display:none;"></div>
@@ -5022,20 +5024,90 @@ function searchPlaces(query, limit){
   return scored.slice(0, limit||8).map(s=>s.p);
 }
 
+/* DST auto-adjustment for the place picker (2026-08-16 request, fixes a
+   real 1-hour error for Miami births during Eastern Daylight Time). Places
+   in WORLD_PLACES store standard-time-only offsets (see the note above).
+   Rather than guess at every country's historical/idiosyncratic DST rules
+   -- which is exactly the complexity that note says this app avoids -- this
+   covers only the two large, currently-stable, government-fixed modern
+   rule systems (US/Canada since 2007, EU since 1996). Everywhere else keeps
+   today's standard-time-only behavior and still needs checking by hand. */
+const DST_US_CA_COUNTRIES = new Set(["United States","Canada"]);
+const DST_US_CA_NO_DST_CITIES = new Set(["Phoenix","Honolulu"]); // Arizona, Hawaii
+const DST_EU_COUNTRIES = new Set([
+  "Albania","Andorra","Austria","Belgium","Bosnia and Herzegovina","Bulgaria","Croatia",
+  "Czech Republic","Denmark","Estonia","Finland","France","Germany","Greece","Hungary",
+  "Ireland","Italy","Latvia","Liechtenstein","Lithuania","Luxembourg","Malta","Moldova",
+  "Monaco","Montenegro","Netherlands","North Macedonia","Norway","Poland","Portugal",
+  "Romania","San Marino","Serbia","Slovakia","Slovenia","Spain","Sweden","Switzerland",
+  "Ukraine","United Kingdom","Vatican City"
+]);
+function nthSundayOfMonth(year, month1to12, n){
+  const firstDow = new Date(Date.UTC(year, month1to12-1, 1)).getUTCDay();
+  return 1 + ((7 - firstDow) % 7) + (n-1)*7;
+}
+function lastSundayOfMonth(year, month1to12){
+  const lastDate = new Date(Date.UTC(year, month1to12, 0)).getUTCDate();
+  const lastDow = new Date(Date.UTC(year, month1to12, 0)).getUTCDay();
+  return lastDate - lastDow;
+}
+function isUSCanadaDST(y,mo,da){
+  if (mo < 3 || mo > 11) return false;
+  if (mo > 3 && mo < 11) return true;
+  if (mo === 3) return da >= nthSundayOfMonth(y,3,2);
+  return da < nthSundayOfMonth(y,11,1);
+}
+function isEUDST(y,mo,da){
+  if (mo < 3 || mo > 10) return false;
+  if (mo > 3 && mo < 10) return true;
+  if (mo === 3) return da >= lastSundayOfMonth(y,3);
+  return da < lastSundayOfMonth(y,10);
+}
+// Returns {tz, applied}: the place's standard-time offset, +1h if this
+// specific date falls in that region's DST window under a rule we know.
+function dstAdjustedOffset(city, country, baseTz, dateStr){
+  if (!dateStr) return { tz: baseTz, applied:false };
+  const [y,mo,da] = dateStr.split("-").map(Number);
+  if (!y || !mo || !da) return { tz: baseTz, applied:false };
+  let applied = false;
+  if (DST_US_CA_COUNTRIES.has(country) && !DST_US_CA_NO_DST_CITIES.has(city)) applied = isUSCanadaDST(y,mo,da);
+  else if (DST_EU_COUNTRIES.has(country)) applied = isEUDST(y,mo,da);
+  return { tz: applied ? baseTz+1 : baseTz, applied };
+}
+
 // Wires a "<prefix>PlaceSearch" text input + "<prefix>PlaceResults" dropdown
-// to fill <prefix>Lat/<prefix>Lon/<prefix>TZ on selection. Self-contained
-// (only touches its own three fields + the search input/dropdown), so it
-// never needs re-wiring after a runAnalysis() re-render — those fields live
-// in the static control column, not the dynamically-replaced results area.
+// to fill <prefix>Lat/<prefix>Lon/<prefix>TZ on selection, applying the DST
+// adjustment above against whatever's currently in <prefix>Date. Also
+// re-applies it if that date field changes afterward, as long as the last
+// action was a place pick (typing in the search box again clears the
+// remembered place so a later date edit doesn't silently reapply a stale
+// city's rule). Self-contained (only touches its own fields + the search
+// input/dropdown/hint), so it never needs re-wiring after a runAnalysis()
+// re-render -- those fields live in the static control column, not the
+// dynamically-replaced results area.
 function wirePlaceSearch(prefix){
   const input = document.getElementById(prefix+'PlaceSearch');
   const results = document.getElementById(prefix+'PlaceResults');
+  const dateEl = document.getElementById(prefix+'Date');
+  const tzEl = document.getElementById(prefix+'TZ');
+  const hintEl = document.getElementById(prefix+'TZHint');
   if (!input || !results) return;
+  function applyDst(){
+    if (!input.dataset.baseTz) return;
+    const { tz, applied } = dstAdjustedOffset(input.dataset.city, input.dataset.country, parseFloat(input.dataset.baseTz), dateEl?.value);
+    if (tzEl) tzEl.value = tz;
+    if (hintEl){
+      hintEl.style.display = applied ? '' : 'none';
+      hintEl.textContent = applied ? T(`Daylight Saving in effect for this date — offset adjusted to UTC${tz>=0?'+':''}${tz}. Estimate; verify for dates before modern DST rules.`, `Horario de verano vigente para esta fecha — desfase ajustado a UTC${tz>=0?'+':''}${tz}. Estimado; verificar en fechas anteriores a las reglas modernas de DST.`) : '';
+    }
+  }
   input.addEventListener('input', ()=>{
+    delete input.dataset.baseTz;
+    if (hintEl){ hintEl.style.display = 'none'; hintEl.textContent = ''; }
     const matches = searchPlaces(input.value);
     if (!matches.length){ results.style.display = 'none'; results.innerHTML = ''; return; }
     results.innerHTML = matches.map(([city,country,lat,lon,tz])=>
-      `<button type="button" data-lat="${lat}" data-lon="${lon}" data-tz="${tz}" data-label="${escHtml(city)}, ${escHtml(country)}">${escHtml(city)}<small>${escHtml(country)} · ${lat.toFixed(2)}, ${lon.toFixed(2)} · UTC${tz>=0?'+':''}${tz}</small></button>`
+      `<button type="button" data-lat="${lat}" data-lon="${lon}" data-tz="${tz}" data-city="${escHtml(city)}" data-country="${escHtml(country)}" data-label="${escHtml(city)}, ${escHtml(country)}">${escHtml(city)}<small>${escHtml(country)} · ${lat.toFixed(2)}, ${lon.toFixed(2)} · UTC${tz>=0?'+':''}${tz}</small></button>`
     ).join('');
     results.style.display = 'block';
   });
@@ -5044,7 +5116,10 @@ function wirePlaceSearch(prefix){
     if (!btn) return;
     document.getElementById(prefix+'Lat').value = btn.dataset.lat;
     document.getElementById(prefix+'Lon').value = btn.dataset.lon;
-    document.getElementById(prefix+'TZ').value = btn.dataset.tz;
+    input.dataset.baseTz = btn.dataset.tz;
+    input.dataset.city = btn.dataset.city;
+    input.dataset.country = btn.dataset.country;
+    applyDst();
     input.value = btn.dataset.label;
     results.style.display = 'none';
     results.innerHTML = '';
@@ -5055,6 +5130,7 @@ function wirePlaceSearch(prefix){
       results.style.display = 'none';
     }
   });
+  dateEl?.addEventListener('change', ()=>{ applyDst(); if (input.dataset.baseTz) runAnalysis(); });
 }
 
 const GRAHA_ES = {Sun:"Sol",Moon:"Luna",Mars:"Marte",Mercury:"Mercurio",Jupiter:"Júpiter",Venus:"Venus",Saturn:"Saturno",Rahu:"Rahu",Ketu:"Ketu"};
@@ -7771,7 +7847,7 @@ function renderChintamaniPage(){
         </div>
         <div class="row2">
           <div><label>${T('Birth time (local)','Hora de nacimiento (local)')}</label><input type="time" id="pbTime" value="${chintamaniPersonB.time}" step="60"></div>
-          <div><label>${T('UTC offset (hrs)','Desfase UTC (hrs)')}</label><input type="number" id="pbTZ" value="${chintamaniPersonB.tz}" step="0.5" placeholder="${T('e.g. -4','p. ej. -4')}"></div>
+          <div><label>${T('UTC offset (hrs)','Desfase UTC (hrs)')}</label><input type="text" inputmode="decimal" id="pbTZ" value="${chintamaniPersonB.tz}" placeholder="${T('e.g. -4','p. ej. -4')}"></div>
         </div>
         <div class="row2">
           <div><label>${T('Latitude (+N)','Latitud (+N)')}</label><input type="number" id="pbLat" value="${chintamaniPersonB.lat}" step="0.0001" placeholder="${T('e.g. 25.7617','p. ej. 25.7617')}"></div>
