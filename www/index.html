@@ -529,7 +529,8 @@
           <div><label data-i18n="birthTime">Birth time (local)</label><input type="time" id="bTime" step="60"></div>
           <div><label data-i18n="utcOffset">UTC offset (hrs)</label><input type="text" inputmode="decimal" id="bTZ" placeholder="e.g. -4"></div>
         </div>
-        <div id="bTZHint" class="hint" style="display:none; margin-top:-6px; margin-bottom:10px;"></div>
+        <div class="hint" data-i18n="utcOffsetWarn" style="margin-top:-6px; margin-bottom:6px;">Double-check this UTC offset yourself — it's an estimate (or your own manual entry) and can be wrong for historical dates or unusual regional rules. A wrong offset shifts every computed position, including the ascendant.</div>
+        <div id="bTZHint" class="hint" style="display:none; margin-top:-2px; margin-bottom:10px;"></div>
         <label data-i18n="birthPlace">Place of birth</label>
         <input type="text" id="bPlaceSearch" data-i18n-placeholder="birthPlacePh" placeholder="Search city or country…" autocomplete="off">
         <div id="bPlaceResults" class="place-results" style="display:none;"></div>
@@ -550,7 +551,8 @@
         <div><label data-i18n="timeLbl">Time (local)</label><input type="time" id="mTime" step="60"></div>
         <div><label data-i18n="utcOffset">UTC offset (hrs)</label><input type="text" inputmode="decimal" id="mTZ" value="-4"></div>
       </div>
-      <div id="mTZHint" class="hint" style="display:none; margin-top:-6px; margin-bottom:10px;"></div>
+      <div class="hint" data-i18n="utcOffsetWarn" style="margin-top:-6px; margin-bottom:6px;">Double-check this UTC offset yourself — it's an estimate (or your own manual entry) and can be wrong for historical dates or unusual regional rules. A wrong offset shifts every computed position, including the ascendant.</div>
+      <div id="mTZHint" class="hint" style="display:none; margin-top:-2px; margin-bottom:10px;"></div>
       <label data-i18n="momentPlace">Place</label>
       <input type="text" id="mPlaceSearch" data-i18n-placeholder="momentPlacePh" placeholder="Search city or country…" autocomplete="off">
       <div id="mPlaceResults" class="place-results" style="display:none;"></div>
@@ -687,6 +689,7 @@ const I18N = {
   birthDate: { en:`Birth date`, es:`Fecha de nacimiento` },
   birthTime: { en:`Birth time (local)`, es:`Hora de nacimiento (local)` },
   utcOffset: { en:`UTC offset (hrs)`, es:`Desfase UTC (hrs)` },
+  utcOffsetWarn: { en:`Double-check this UTC offset yourself — it's an estimate (or your own manual entry) and can be wrong for historical dates or unusual regional rules. A wrong offset shifts every computed position, including the ascendant.`, es:`Verifica tú mismo este desfase UTC — es una estimación (o tu propia entrada manual) y puede ser incorrecta en fechas históricas o reglas regionales inusuales. Un desfase incorrecto desplaza todas las posiciones calculadas, incluido el ascendente.` },
   lat: { en:`Latitude (+N)`, es:`Latitud (+N)` },
   lon: { en:`Longitude (+E)`, es:`Longitud (+E)` },
   nameOpt: { en:`Name (optional)`, es:`Nombre (opcional)` },
@@ -7849,6 +7852,7 @@ function renderChintamaniPage(){
           <div><label>${T('Birth time (local)','Hora de nacimiento (local)')}</label><input type="time" id="pbTime" value="${chintamaniPersonB.time}" step="60"></div>
           <div><label>${T('UTC offset (hrs)','Desfase UTC (hrs)')}</label><input type="text" inputmode="decimal" id="pbTZ" value="${chintamaniPersonB.tz}" placeholder="${T('e.g. -4','p. ej. -4')}"></div>
         </div>
+        <div class="hint" style="margin-top:-6px; margin-bottom:6px;">${T("Double-check this UTC offset yourself — it's an estimate (or your own manual entry) and can be wrong for historical dates or unusual regional rules. A wrong offset shifts every computed position, including the ascendant.", "Verifica tú mismo este desfase UTC — es una estimación (o tu propia entrada manual) y puede ser incorrecta en fechas históricas o reglas regionales inusuales. Un desfase incorrecto desplaza todas las posiciones calculadas, incluido el ascendente.")}</div>
         <div class="row2">
           <div><label>${T('Latitude (+N)','Latitud (+N)')}</label><input type="number" id="pbLat" value="${chintamaniPersonB.lat}" step="0.0001" placeholder="${T('e.g. 25.7617','p. ej. 25.7617')}"></div>
           <div><label>${T('Longitude (+E)','Longitud (+E)')}</label><input type="number" id="pbLon" value="${chintamaniPersonB.lon}" step="0.0001" placeholder="${T('e.g. -80.1918','p. ej. -80.1918')}"></div>
