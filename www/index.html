@@ -7622,14 +7622,33 @@ function renderSignificatorsPage(){
     </tr>`;
   }).join('');
 
-  const priceBySignRows = GRAHA_LIST.map(g=>{
+  // Ordered strongest-to-weakest by SBC's OWN "Grading of Aspect" (ch. IX)
+  // strength formula (dignityWeight, already used for the main gauge's Vedha
+  // dignity adjustment) rather than generic Parāśarī dignity — kept
+  // Lagna-free, like the rest of this page, but native to this app's own
+  // system instead of a borrowed one. SBC's table runs OPPOSITE for
+  // malefics: a malefic is weakest (most "tamed") in its own sign and
+  // strongest (most virulent) in an enemy sign, so a malefic can rank near
+  // the top here while still showing a red/unfavorable tag — sort order is
+  // "how forcefully this graha's nature is expressing right now," which for
+  // a malefic means how much affliction, not how lucky the placement is.
+  // Retrograde motion also doubles the weight per that same source table, so
+  // it can outrank an otherwise-stronger sign placement.
+  const priceBySignOrder = [...GRAHA_LIST].sort((a,b)=>
+    dignityWeight(b, pos[b].sidereal, vedhaDirectionOf(b, pos[b].speed)) -
+    dignityWeight(a, pos[a].sidereal, vedhaDirectionOf(a, pos[a].speed)));
+  const priceBySignRows = priceBySignOrder.map(g=>{
     const live = priceBySignLive[g];
+    const tier = dignityTier(g, pos[g].sidereal);
+    const tierCls = (tier==='Exalted') ? 'gold' : (tier==='Own'||tier==='Own (per source note)'||tier==='Friend') ? 'good' : (tier==='Enemy'||tier==='Debilitated') ? 'bad' : 'neutral';
+    const retro = !['Rahu','Ketu','Sun','Moon'].includes(g) && pos[g].speed<0;
     const clauses = live.rows.length ? live.rows.map(r=>{
       const parts = [r.rise, r.fall].filter(Boolean);
       return `<div style="margin-bottom:4px;">${parts.join(' ')}</div>`;
-    }).join('') : `<span class="hint" style="display:inline;">${T('no entry for this sign in the source','sin entrada para este signo en la fuente')}</span>`;
-    return `<tr><td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${T(g,GRAHA_ES[g])}</td>
+    }).join('') : `<span class="hint" style="display:inline;">${T('no entry for this sign','sin entrada para este signo')}</span>`;
+    return `<tr><td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${T(g,GRAHA_ES[g])}${retro?` <small style="color:var(--vermilion);">(${T('r','r')})</small>`:''}</td>
       <td class="wide">${live.sign}</td>
+      <td><span class="tag ${tierCls}">${dignity(g, pos[g].sidereal)}</span></td>
       <td style="font-size:11px;">${clauses}</td></tr>`;
   }).join('');
 
@@ -7699,10 +7718,11 @@ function renderSignificatorsPage(){
       </div>
     </div>
 
-    <div class="panel"><div class="hd"><h2>${T('Price direction by transit sign','Dirección de precios por signo en tránsito')}</h2></div>
+    <div class="panel"><div class="hd"><h2>${T('Price direction by transit sign','Dirección de precios por signo en tránsito')}</h2><span class="note">${T('strongest graha first','graha más fuerte primero')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px;">${T('A second, independent rule: each graha carries its own Rise/Fall commodity clause(s) per zodiac sign it occupies (not Vedha-based — a plain placement rule). Shown live below against each graha\'s own current sign. Some cells give two Rise (or two Fall) clauses for one graha. Aries is the only sign where Rahu and Ketu share one combined line; every other sign gives Rahu his own line with no separate Ketu line at all.','Una segunda regla, independiente: cada graha lleva su propia cláusula de Alza/Baja de materias primas según el signo del zodiaco que ocupa (no basada en Vedha — una simple regla de posición). Se muestra en vivo abajo contra el signo actual de cada graha. Algunas celdas dan dos cláusulas de Alza (o dos de Baja) para un mismo graha. Aries es el único signo donde Rahu y Ketu comparten una línea combinada; todos los demás signos dan a Rahu su propia línea sin línea separada para Ketu.')}</div>
-        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Current sign','Signo actual')}</th><th>${T('Rise / Fall','Alza / Baja')}</th></tr></thead><tbody>${priceBySignRows}</tbody></table></div>
+        <div class="hint" style="margin-bottom:10px;">${T('A second, independent rule: each graha carries its own Rise/Fall commodity clause(s) per zodiac sign it occupies (not Vedha-based — a plain placement rule). Some cells give two Rise (or two Fall) clauses for one graha. Aries is the only sign where Rahu and Ketu share one combined line; every other sign gives Rahu his own line with no separate Ketu line at all.','Una segunda regla, independiente: cada graha lleva su propia cláusula de Alza/Baja de materias primas según el signo del zodiaco que ocupa (no basada en Vedha — una simple regla de posición). Algunas celdas dan dos cláusulas de Alza (o dos de Baja) para un mismo graha. Aries es el único signo donde Rahu y Ketu comparten una línea combinada; todos los demás signos dan a Rahu su propia línea sin línea separada para Ketu.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('Ordered strongest to weakest by this app\'s own SBC-native strength formula (the same "Grading of Aspect" table the main gauge uses for Vedha) rather than true Dig Bala — real directional strength is read from a birth chart\'s own houses, and this page deliberately needs no birth data. That table runs opposite for malefics: a malefic is calmest in its own sign and most virulent in an enemy sign, so a malefic can rank near the top while still showing a red Enemy tag — the order reflects how forcefully a graha\'s nature (favorable or afflicting) is expressing right now, not how lucky the placement is. Retrograde motion doubles the weight, so it can push a graha above an otherwise stronger placement.','Ordenado de más a menos fuerte según la fórmula de fuerza propia de esta app, nativa del SBC (la misma tabla de "Grading of Aspect" que usa el indicador principal para el Vedha), no la Dig Bala real — la fuerza direccional real se lee desde las casas de una carta natal, y esta página deliberadamente no necesita datos de nacimiento. Esa tabla funciona al revés para los maléficos: un maléfico está más calmado en su propio signo y es más virulento en un signo enemigo, así que un maléfico puede aparecer cerca del principio aunque muestre una etiqueta roja de Enemigo — el orden refleja cuán fuerte se expresa la naturaleza de un graha (favorable o aflictiva) ahora mismo, no cuán afortunada es la ubicación. El movimiento retrógrado duplica el peso, así que puede colocar a un graha por encima de una ubicación en principio más fuerte.')}</div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Current sign','Signo actual')}</th><th>${T('Strength','Fuerza')}</th><th>${T('Rise / Fall','Alza / Baja')}</th></tr></thead><tbody>${priceBySignRows}</tbody></table></div>
       </div>
     </div>
 
