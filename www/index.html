@@ -438,7 +438,7 @@
   }
   @keyframes pp-pulse{ 0%,100%{ transform:scale(1); opacity:0.24; } 50%{ transform:scale(2); opacity:0.03; } }
 
-  /* ---------- Auspicious Calendar ---------- */
+  /* ---------- Calendar ---------- */
   .cal-nav{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
   .cal-nav .cal-navbtns{ display:flex; gap:6px; }
   .cal-navbtn{
@@ -452,7 +452,7 @@
   .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
   .cal-cell{
     position:relative; border:1px solid var(--line); border-radius:var(--radius-sm); padding:3px;
-    display:flex; flex-direction:column; align-items:stretch; gap:2px; min-height:72px;
+    display:flex; flex-direction:column; align-items:stretch; gap:2px; min-height:86px;
   }
   .cal-cell.cal-empty{ visibility:hidden; }
   .cal-cell.cal-today{ box-shadow:0 0 0 2px var(--gold-dim) inset; }
@@ -460,12 +460,14 @@
   .cal-daynum:hover{ color:var(--gold); }
   .cal-halves{ display:flex; flex-direction:column; gap:2px; flex:1; }
   .cal-half{
-    position:relative; flex:1; min-height:20px; border-radius:var(--radius-sm); border:1px solid; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; gap:3px; font-family:var(--mono); font-size:10.5px;
+    position:relative; flex:1; min-height:26px; border-radius:var(--radius-sm); border:1px solid; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; font-family:var(--mono); font-size:10px;
+    line-height:1.25; padding:2px 1px; text-align:center;
   }
   .cal-half:hover{ filter:brightness(1.15); }
+  .cal-half .cal-range{ font-size:9px; white-space:nowrap; }
   .cal-star{ position:absolute; top:1px; right:3px; font-size:8.5px; color:var(--gold); }
-  @media (max-width: 600px){ .cal-cell{ min-height:56px; padding:2px; } .cal-half{ font-size:9px; min-height:15px; } }
+  @media (max-width: 600px){ .cal-cell{ min-height:70px; padding:2px; } .cal-half{ font-size:8.5px; min-height:22px; } .cal-half .cal-range{ font-size:7.5px; } }
   .cal-legend{ display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
   .cal-legend .li{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--ink-dim); font-family:var(--mono); }
   .cal-legend .sw{ width:13px; height:13px; border-radius:var(--radius-sm); flex:none; border:1px solid; }
@@ -515,7 +517,7 @@
         <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">World Era</button>
         <button type="button" data-page="pageDasha" data-i18n="navDasha">Vimśottari Daśā</button>
         <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
-        <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Auspicious Calendar</button>
+        <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Calendar</button>
         <button type="button" data-page="pageAntara" data-i18n="navAntara">Antara Chakra (Portents)</button>
         <button type="button" data-page="pageRemedies" data-i18n="navRemedies">Remedies &amp; Combinations</button>
         <button type="button" data-page="pageCommodities" data-i18n="navCommodities">Commodity Signals</button>
@@ -762,7 +764,7 @@ const I18N = {
   navDasha: { en:`Vimśottari Daśā`, es:`Vimśottari Daśā` },
   navNakshatra: { en:`World Era`, es:`Era Mundial` },
   navAnatomy: { en:`Anatomy`, es:`Anatomía` },
-  navCalendar: { en:`Auspicious Calendar`, es:`Calendario auspicioso` },
+  navCalendar: { en:`Calendar`, es:`Calendario` },
   navAntara: { en:`Antara Chakra (Portents)`, es:`Antara Chakra (Presagios)` },
   navRemedies: { en:`Remedies &amp; Combinations`, es:`Remedios y Combinaciones` },
   navCommodities: { en:`Commodity Signals`, es:`Señales de Materias Primas` },
@@ -807,8 +809,8 @@ const I18N = {
   calPeakAt: { en:`peak`, es:`punto máximo` },
   calTapHint: { en:`Tap the day number to open its better half, or tap a ☀/☾ swatch directly to open that half's peak moment.`,
     es:`Toca el número del día para abrir su mejor mitad, o toca directamente un recuadro ☀/☾ para abrir el momento máximo de esa mitad.` },
-  calMethodNote: { en:`<b>Method.</b> Each half-day is sampled every 2 hours (local time) using the same scoring engine as the main gauge, including the dignity and Pañcha Pakshi adjustments if enabled in Options; the swatch reflects the single best moment found in that half, not an average. This is coarser than the minute-level result on the Muhūrta Gauge page — use that page to pin down an exact window inside a promising half.`,
-    es:`<b>Método.</b> Cada media jornada se muestrea cada 2 horas (hora local) con el mismo motor de puntuación que el indicador principal, incluyendo los ajustes de dignidad y Pañcha Pakshi si están activos en Opciones; el recuadro refleja el mejor momento encontrado en esa mitad, no un promedio. Esto es más aproximado que el resultado al minuto de la página Muhūrta Gauge — usa esa página para precisar una ventana exacta dentro de una mitad prometedora.` }
+  calMethodNote: { en:`<b>Method.</b> Each half-day is sampled every 2 hours (local time) using the same scoring engine as the main gauge, including the dignity and Pañcha Pakshi adjustments if enabled in Options. The swatch shows the range actually observed across those samples — lowest to highest — collapsed to one figure when every sample in that half came out the same; colour and the peak time it opens still follow the single best moment found. This is coarser than the minute-level result on the Muhūrta Gauge page — use that page to pin down an exact window inside a promising half. The day/night sampling split itself is unchanged, and matches Pañcha Pakshi's own day-cycle/night-cycle convention.`,
+    es:`<b>Método.</b> Cada media jornada se muestrea cada 2 horas (hora local) con el mismo motor de puntuación que el indicador principal, incluyendo los ajustes de dignidad y Pañcha Pakshi si están activos en Opciones. El recuadro muestra el rango observado en esos muestreos — de menor a mayor — reducido a una sola cifra cuando todos los muestreos de esa mitad dieron el mismo resultado; el color y el momento máximo que abre siguen basándose en el mejor momento encontrado. Esto es más aproximado que el resultado al minuto de la página Muhūrta Gauge — usa esa página para precisar una ventana exacta dentro de una mitad prometedora. La división de muestreo día/noche en sí no cambia, y coincide con la convención propia de ciclo día/noche de Pañcha Pakshi.` }
 };
 
 function applyLanguage(){
@@ -2754,6 +2756,71 @@ function dignityTier(graha, siderealLong){
 }
 function dignity(graha, siderealLong){
   return trDignity(dignityTier(graha, siderealLong));
+}
+
+/* Mūlatrikoṇa -- BPHS verse 51-54, degree ranges verified directly against
+   the source text: within each graha's own sign, a band that outranks Own
+   but sits under Exaltation (verse 59-60's own stated ratio: Exaltation
+   100%, Mūlatrikoṇa 75%, Own 50%).
+   *** ADDITIVE ONLY, LANDMINE NOTE *** -- dignityTier() above is the tier
+   the whole engine's scoring reads (Vedha grading, every "not debilitated"
+   activity check, the moment-gravity election). This is a genuinely
+   MISSING tier in that ladder (it sits between Exalted and Own), but
+   splicing a new case into dignityTier() would change what every one of
+   those existing call sites returns -- exactly the "fatal break" this app
+   has been built to avoid all session. So Mūlatrikoṇa is a separate,
+   parallel fact: computed here, shown as an extra tag next to dignity
+   displays, NEVER folded into dignityTier()'s return value or the score. */
+const MULATRIKONA_RANGES = {
+  Sun:{sign:"Leo", from:0, to:20}, Moon:{sign:"Taurus", from:3, to:30},
+  Mars:{sign:"Aries", from:0, to:12}, Mercury:{sign:"Virgo", from:15, to:20},
+  Jupiter:{sign:"Sagittarius", from:0, to:10}, Venus:{sign:"Libra", from:0, to:15},
+  Saturn:{sign:"Aquarius", from:0, to:20}
+};
+/* Nīcha-Bhaṅga (debility cancellation) -- BPHS ("Anti-dotes to Evils" ch.)
+   gives one concrete worked example (Jupiter debilitated in Capricorn as
+   Lagna, needing cancellation) but not a full systematic rule set in this
+   app's library copy. What's implemented below are the two conditions
+   cited most consistently across the wider tradition -- genuinely
+   standard, but NOT tied to a specific verified verse the way Mūlatrikoṇa
+   and Gaṇḍānta are above. Flagged as such at the render site, per this
+   app's rule for exactly this situation (search hard, then disclose
+   rather than silently present as equally sourced).
+   *** ADDITIVE ONLY *** -- an annotation on top of an EXISTING
+   "debilitated" flag (e.g. the Yajña/Housewarming guidelines), never a
+   replacement for it. The debilitation flag itself is untouched. */
+function nichaBhangaCheck(graha, siderealLong, pos, ascSignIdx){
+  if (DEBIL[graha] !== SIGNS[Math.floor(norm360(siderealLong)/30)]) return null;
+  const debilSign = DEBIL[graha];
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const isKendraFromEither = testSignIdx => {
+    const hFromAsc = ((testSignIdx - ascSignIdx + 12) % 12) + 1;
+    const hFromMoon = ((testSignIdx - moonSignIdx + 12) % 12) + 1;
+    return [1,4,7,10].includes(hFromAsc) || [1,4,7,10].includes(hFromMoon);
+  };
+  // Condition 1: the dispositor (lord) of the debilitation sign itself
+  // stands in a kendra from Lagna or Moon.
+  const dispositor = SIGN_LORD[debilSign];
+  const dispositorSignIdx = Math.floor(norm360(pos[dispositor].sidereal)/30);
+  const cond1 = isKendraFromEither(dispositorSignIdx);
+  // Condition 2: the planet that would be EXALTED in this same sign is
+  // itself in a kendra from Lagna or Moon.
+  const exaltedHere = Object.keys(EXALT).find(g=>EXALT[g].sign===debilSign);
+  let cond2 = false;
+  if (exaltedHere && pos[exaltedHere]){
+    const exaltedHereSignIdx = Math.floor(norm360(pos[exaltedHere].sidereal)/30);
+    cond2 = isKendraFromEither(exaltedHereSignIdx);
+  }
+  return { cancelled: cond1 || cond2, cond1, cond2, dispositor, exaltedHere };
+}
+
+function inMulatrikona(graha, siderealLong){
+  const r = MULATRIKONA_RANGES[graha];
+  if (!r) return null; // Rahu/Ketu have no classically-agreed Mūlatrikoṇa in this system
+  const signIdx = Math.floor(norm360(siderealLong)/30);
+  if (SIGNS[signIdx] !== r.sign) return null;
+  const degInSign = norm360(siderealLong) - signIdx*30;
+  return (degInSign >= r.from && degInSign < r.to) ? r : null;
 }
 
 /* =========================================================================
@@ -4868,6 +4935,56 @@ function chintamaniDaySlots(weekdayName, sunriseHr, sunsetHr){
   };
 }
 
+/* ---- Gaṇḍānta (BPHS, "Evils at Birth" ch.) ----
+   Junction points verified directly against the source text: Nakṣatra
+   Gaṇḍānta at Āśleṣā-Maghā, Jyeṣṭha-Mūla and Revatī-Aśvinī; the coinciding
+   Rāśi Gaṇḍānta at Cancer-Leo, Scorpio-Sagittarius and Pisces-Aries (the
+   two always coincide, since those three nakṣatra pairs are exactly what
+   straddles those three sign boundaries). Checked here as the last/first
+   PADA (3°20') of the relevant star -- BPHS's own more precise measure is
+   narrower ("2 ghaṭis" of each nakṣatra, a time-based unequal-motion
+   figure, not degrees), which would need machinery this app doesn't have
+   (the Nakṣatra Gaṇḍānta pada check already exposes this narrower reading
+   isn't attempted, right in the disclosure text below). This app checks
+   Moon and Lagna; BPHS treats natal Lagna Gaṇḍānta as the most severe of
+   the three, but reading the natal Lagna needs a birth chart this
+   general-checks panel doesn't require. */
+const GANDANTA_END_STARS = ['Ashlesha','Jyeshta','Revati'];   // pada 4 = Gandanta
+const GANDANTA_START_STARS = ['Magha','Moola','Aswini'];      // pada 1 = Gandanta
+function gandantaOfLongitude(siderealLong){
+  const nak = nakshatraFromSidereal(norm360(siderealLong), false);
+  if (GANDANTA_END_STARS.includes(nak.name) && nak.pada===4) return {star:nak.name, edge:'end'};
+  if (GANDANTA_START_STARS.includes(nak.name) && nak.pada===1) return {star:nak.name, edge:'start'};
+  return null;
+}
+function chintamaniGandantaCheck(pos){
+  return { moon: gandantaOfLongitude(pos.Moon.sidereal), lagna: gandantaOfLongitude(pos._ascSidereal) };
+}
+
+/* ---- Puṣkara Bhāga (Jātaka Pārijāta, referencing an earlier ch.VII
+   śl.25 this app's library copy doesn't separately reproduce) ----
+   Verified degree values for the MOON specifically, one per sign, stated
+   by the source itself as auspicious "when a muhūrta, a birth or other
+   such points are under consideration." NOTE: this is Puṣkara BHĀGA -- a
+   single degree point -- not Puṣkara NAVĀṀŚA, a degree RANGE within the
+   Navāṁśa some modern software implements instead. The two are related
+   but not the same figure, and are not conflated here. Since an exact
+   degree match against a continuous ephemeris is practically never true,
+   this app checks a ±1° window around the stated point -- its own
+   operationalization of a point-concept into something checkable, not a
+   width the source itself states. */
+const PUSHKARA_BHAGA_MOON = { Aries:21, Taurus:14, Gemini:18, Cancer:8, Leo:19, Virgo:9, Libra:24, Scorpio:11, Sagittarius:23, Capricorn:14, Aquarius:19, Pisces:9 };
+const PUSHKARA_BHAGA_ORB = 1;
+function chintamaniPushkaraBhaga(pos){
+  const sid = norm360(pos.Moon.sidereal);
+  const signIdx = Math.floor(sid/30);
+  const sign = SIGNS[signIdx];
+  const degInSign = sid - signIdx*30;
+  const target = PUSHKARA_BHAGA_MOON[sign];
+  const active = Math.abs(degInSign - target) <= PUSHKARA_BHAGA_ORB;
+  return { sign, degInSign, target, active };
+}
+
 function chintamaniGeneralChecks(pos, panch, refP, weekdayName, sunriseHr, sunsetHr){
   const moonSign = SIGNS[Math.floor(norm360(pos.Moon.sidereal)/30)];
   const nak28 = panch.nak28;
@@ -4879,6 +4996,8 @@ function chintamaniGeneralChecks(pos, panch, refP, weekdayName, sunriseHr, sunse
   checks.bhadra = chintamaniBhadraCheck(panch, moonSign);
   checks.panchaka = chintamaniPanchaka(nak28.name, nak28.pada);
   checks.daySlots = chintamaniDaySlots(weekdayName, sunriseHr, sunsetHr);
+  checks.gandanta = chintamaniGandantaCheck(pos);
+  checks.pushkaraBhaga = chintamaniPushkaraBhaga(pos);
   return checks;
 }
 
@@ -5103,6 +5222,7 @@ function chintamaniYajnaGuideline(pos, panch){
   checks.push({ label:T('Sun in Uttarāyaṇa (Capricorn–Gemini)','Sol en Uttarāyaṇa (Capricornio–Géminis)'), ok: ['Capricorn','Aquarius','Pisces','Aries','Taurus','Gemini'].includes(sunSign), cite:'ch.9' });
   checks.push({ label:T('Not a Rikta tithi (4th/9th/14th)','No es Tithi Rikta (4.ª/9.ª/14.ª)'), ok: !isRiktaTithi(panch.tithiNum), cite:'ch.9' });
   checks.push({ label:T('Moon nakṣatra is in the favoured list (10 named)','La Nakṣatra lunar está en la lista favorecida (10 nombradas)'), ok: CHINTAMANI_YAJNA_NAKS.includes(panch.nak28.name), cite:'ch.9' });
+  const yajnaAscSignIdx = SIGNS.indexOf(panch.ascSign);
   ['Moon','Mars','Jupiter','Venus'].forEach(g=>{
     const sid = pos[g].sidereal;
     const sign = SIGNS[Math.floor(norm360(sid)/30)];
@@ -5111,8 +5231,14 @@ function chintamaniYajnaGuideline(pos, panch){
     const orb = (g==='Venus' && pos.Venus.speed<0) ? 8 : COMBUSTION_ORB_DEG[g];
     const combust = diff<=orb || (360-diff)<=orb;
     const enemy = dignityTier(g, sid)==='Enemy';
+    const nb = debil ? nichaBhangaCheck(g, sid, pos, yajnaAscSignIdx) : null;
     checks.push({ label:T(`${g} is well-disposed (not debilitated, combust or in an enemy sign)`,`${T(g,GRAHA_ES[g])} está bien dispuesto (no debilitado, combusto ni en signo enemigo)`),
-      ok: !(debil||combust||enemy), cite:'ch.9' });
+      ok: !(debil||combust||enemy), cite:'ch.9',
+      info: nb ? (nb.cancelled
+        ? T(`Debilitated, but by widely-taught (not verse-verified) Nīcha-Bhaṅga criteria this cancels: ${nb.cond1?`${nb.dispositor} (sign lord) is in a kendra`:''}${nb.cond1&&nb.cond2?' and ':''}${nb.cond2?`${nb.exaltedHere} (exalted here) is in a kendra`:''}.`,
+            `Debilitado, pero según criterios de Nīcha-Bhaṅga muy difundidos (no verificados por verso) esto se cancela: ${nb.cond1?`${T(nb.dispositor,GRAHA_ES[nb.dispositor])} (señor del signo) está en un kendra`:''}${nb.cond1&&nb.cond2?' y ':''}${nb.cond2?`${T(nb.exaltedHere,GRAHA_ES[nb.exaltedHere])} (exaltado aquí) está en un kendra`:''}.`)
+        : T('Debilitated, and the widely-taught Nīcha-Bhaṅga cancellation criteria are not met.','Debilitado, y no se cumplen los criterios de Nīcha-Bhaṅga (muy difundidos) para su cancelación.'))
+        : '' });
   });
   checks.push({ label:T('Moon not in Cancer/Capricorn/Pisces/Aquarius (Lagna Śuddhi)','La Luna no está en Cáncer/Capricornio/Piscis/Acuario (Lagna Śuddhi)'), ok: !CHINTAMANI_LAGNA_SHUDDHI_AVOID.includes(SIGNS[Math.floor(norm360(pos.Moon.sidereal)/30)]), cite:'ch.9' });
   checks.push({ label:T('Ascendant not in Cancer/Capricorn/Pisces/Aquarius (Lagna Śuddhi)','El Ascendente no está en Cáncer/Capricornio/Piscis/Acuario (Lagna Śuddhi)'), ok: !CHINTAMANI_LAGNA_SHUDDHI_AVOID.includes(panch.ascSign), cite:'ch.9' });
@@ -5635,6 +5761,58 @@ function ashtakootaNadi(brideStar, groomStar){
   const bIdx = NAK27.findIndex(s=>s.n===brideStar)%3, gIdx = NAK27.findIndex(s=>s.n===groomStar)%3;
   const same = bIdx===gIdx;
   return { points: same?0:8, max:8, note:`${ASHTAKOOTA_NADI[bIdx]} / ${ASHTAKOOTA_NADI[gIdx]}`, same };
+}
+
+/* ---- Kuja/Maṅgala Doṣa -- Mars's marriage-house affliction ----
+   House list and the verse itself verified directly against a real
+   quoted Sanskrit line: "Lagne vyaye ch patale yamitre ch astame kuje /
+   Kanya hariti bhartaram bharta kanya harisyati" -- Mars in the 1st
+   (Lagna), 12th (Vyaya), 4th (Pātāla), 7th or 8th (Aṣṭama) house. The
+   same source that quotes this verse makes the exact point this app
+   already holds to as a rule: the NAME "Maṅgala/Kuja Doṣa" and its
+   popularised marriage-catastrophe reading are a later interpretive
+   layer on a narrower verse about Mars's placement -- "no reference
+   about Mangal Dosha is found in any classical texts... only results
+   of placement of Mars in different houses are given there." Shown
+   plainly, not silently presented as settled doctrine.
+
+   TWO GENUINE, SOURCED VARIANTS -- exposed as a choice, not picked for
+   the reader:
+   1. HOUSE SET: the verse's five houses, or a six-house reading some
+      scholars extend with the 2nd (family/wealth) house.
+   2. REFERENCE POINTS: Lagna only, or the fuller Lagna+Moon+Venus
+      reading (severity by the source's own ordering: Venus strongest,
+      Moon next, Lagna least). A further gender-conditional variant
+      (male: Lagna+Venus only; female: Lagna+Moon only) also appears in
+      the literature but is deliberately NOT implemented -- a
+      gender-conditional check is a separate design question this app
+      hasn't been asked to take on.
+
+   Jupiter's aspect/conjunction on Mars is traditionally said to cancel
+   this doṣa -- but at least one dedicated study directly disputes that
+   (a 370-chart sample finding the opposite). Genuinely contested in the
+   literature the app can verify, so it's shown as informational context
+   only, never as an asserted cancellation -- the same treatment this
+   app already gives Jupiter's/Mercury's ambiguous house-lists on the
+   Commodities page. */
+const KUJA_DOSHA_HOUSES_5 = [1,4,7,8,12];
+const KUJA_DOSHA_HOUSES_6 = [1,2,4,7,8,12];
+function computeKujaDosha(pos, refPoints, includeSecondHouse){
+  const houseSet = includeSecondHouse ? KUJA_DOSHA_HOUSES_6 : KUJA_DOSHA_HOUSES_5;
+  const marsSid = pos.Mars.sidereal;
+  const marsSignIdx = Math.floor(norm360(marsSid)/30);
+  const refSignIdx = {
+    Lagna: Math.floor(norm360(pos._ascSidereal)/30),
+    Moon: Math.floor(norm360(pos.Moon.sidereal)/30),
+    Venus: Math.floor(norm360(pos.Venus.sidereal)/30)
+  };
+  const hits = refPoints.map(rp=>{
+    const house = bsHouseFromAsc(marsSid, refSignIdx[rp]);
+    return { from: rp, house, afflicted: houseSet.includes(house) };
+  });
+  const jupiterSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const jupiterOnMars = jupiterSignIdx===marsSignIdx || aspectsSignWholeSign('Jupiter', jupiterSignIdx, marsSignIdx);
+  return { hits, anyAfflicted: hits.some(h=>h.afflicted), jupiterOnMars };
 }
 
 function computeAshtakoota(posA, posB){
@@ -7107,7 +7285,7 @@ function renderAnatomyPage(){
   `;
 }
 
-// ---- Auspicious Calendar ----
+// ---- Calendar ----
 // Monthly overview: every day is sampled at a handful of local hours using
 // the same scoring engine as the main gauge (scoreForInstant), and the cell
 // shows the single best {score, tier} found that day. Independent of the
@@ -7122,13 +7300,21 @@ const CAL_DAY_HOURS = [6,8,10,12,14,16];
 const CAL_NIGHT_HOURS = [18,20,22,24,26,28];
 const CAL_TIER_VARS = {Uttama:'uttama', Madhyama:'madhyama', Sama:'sama', Ashubha:'ashubha', Varjya:'varjya'};
 
+// Returns the half's best sample (for tier colour and click-to-open, as
+// before) PLUS the min/max score actually observed across the half's
+// sampled hours, and whether that range is flat (same value, to displayed
+// precision, at every sample) -- doesn't change which hours are sampled or
+// the day/night split itself, which mirrors Pañcha Pakshi's own day-cycle
+// convention and is left untouched.
 function scoreCalendarDayHalf(year, month1to12, day, hours, opts){
-  let best = null;
+  let best = null, worst = null;
   for (const hh of hours){
     const r = scoreForInstant(year, month1to12, day, hh, 0, opts);
     if (!best || r.score > best.score) best = {score:r.score, tier:r.tier, hh};
+    if (!worst || r.score < worst.score) worst = {score:r.score, hh};
   }
-  return best;
+  const flat = best.score.toFixed(1) === worst.score.toFixed(1);
+  return {score:best.score, tier:best.tier, hh:best.hh, min:worst.score, max:best.score, flat};
 }
 function scoreCalendarDay(year, month1to12, day, opts){
   return {
@@ -7156,7 +7342,7 @@ function renderCalendarPage(){
   const refInfo = getReferencePanchaka();
   const refP = refInfo.panch;
   if (!refP.star){
-    container.innerHTML = `<div class="panel"><div class="hd"><h2 data-i18n="navCalendar">${T('Auspicious Calendar','Calendario auspicioso')}</h2></div>
+    container.innerHTML = `<div class="panel"><div class="hd"><h2 data-i18n="navCalendar">${T('Calendar','Calendario')}</h2></div>
       <div class="bd"><div class="hint">${T(I18N.calNoRef.en, I18N.calNoRef.es)}</div></div>
     </div>`;
     return;
@@ -7191,15 +7377,19 @@ function renderCalendarPage(){
   const WD_SHORT_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const WD_SHORT_ES = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 
+  const fmtScore = s => `${s>0?'+':''}${s.toFixed(1)}`;
   const halfSwatch = (half, dateNum)=>{
     const varKey = CAL_TIER_VARS[half.tier.name];
     const isBest = half.tier.name === 'Uttama';
     const tierLabel = T(half.tier.label, MUHURTA_TIER_LABEL_ES[half.tier.name]);
     const icon = half.hh < 18 ? '☀' : '☾';
+    const rangeText = half.flat ? fmtScore(half.max) : `${fmtScore(half.min)}→${fmtScore(half.max)}`;
+    const titleRange = half.flat ? T('flat all half','sin variación en esta mitad') : T(`ranged ${fmtScore(half.min)} to ${fmtScore(half.max)}`,`varió de ${fmtScore(half.min)} a ${fmtScore(half.max)}`);
     return `<div class="cal-half" onclick="openCalendarMoment(${calYear},${calMonth+1},${dateNum},${half.hh})"
         style="background:var(--cal-${varKey}-bg); border-color:var(--cal-${varKey}-line); color:var(--cal-${varKey}-line);"
-        title="${tierLabel} · ${half.score>0?'+':''}${half.score.toFixed(1)} · ${pad2(half.hh%24)}:00">
-      ${icon} ${half.score>0?'+':''}${half.score.toFixed(1)}${isBest?'<span class="cal-star">★</span>':''}
+        title="${tierLabel} · ${titleRange} · ${T('peak at','pico a las')} ${pad2(half.hh%24)}:00">
+      <span>${icon}${isBest?'<span class="cal-star">★</span>':''}</span>
+      <span class="cal-range">${rangeText}</span>
     </div>`;
   };
 
@@ -7221,7 +7411,28 @@ function renderCalendarPage(){
     if (dr.night.tier.name==='Uttama') bestMoments.push({dateNum:dr.dateNum, half:'night', ...dr.night});
   });
   bestMoments.sort((a,b)=>b.score-a.score);
+
+  // Best overall this month -- the single highest score found across every
+  // sampled hour, day or night half, regardless of tier, so a rough month
+  // with no Uttama day still gets a definite answer. Independent of the
+  // Uttama-only list above (which can be empty).
+  let bestOverall = null;
+  dayResults.forEach(dr=>{
+    if (!bestOverall || dr.day.score > bestOverall.score) bestOverall = {dateNum:dr.dateNum, half:'day', ...dr.day};
+    if (!bestOverall || dr.night.score > bestOverall.score) bestOverall = {dateNum:dr.dateNum, half:'night', ...dr.night};
+  });
   const localeTag = LANG==='es' ? 'es-ES' : 'en-US';
+  const bestOverallHtml = (()=>{
+    const dateObj = new Date(calYear, calMonth, bestOverall.dateNum, 0);
+    dateObj.setHours(bestOverall.hh);
+    const dateStr = dateObj.toLocaleDateString(localeTag, {weekday:'long', month:'long', day:'numeric'});
+    const halfLabel = T(bestOverall.half==='day'?'Day':'Night', bestOverall.half==='day'?'Día':'Noche');
+    const tierLabel = T(bestOverall.tier.label, MUHURTA_TIER_LABEL_ES[bestOverall.tier.name]);
+    return `<div class="okbox" style="cursor:pointer;" onclick="openCalendarMoment(${calYear},${calMonth+1},${bestOverall.dateNum},${bestOverall.hh})">
+      <b>★ ${T('Best overall this month','Mejor momento del mes')}:</b> ${dateStr} · ${pad2(bestOverall.hh%24)}:00 <span class="tag gold">${halfLabel}</span>
+      <span class="tag good">${fmtScore(bestOverall.score)}</span> <span class="tag neutral">${tierLabel}</span>
+    </div>`;
+  })();
   const bestListHtml = bestMoments.length ? bestMoments.map(m=>{
     const dateObj = new Date(calYear, calMonth, m.dateNum, 0);
     dateObj.setHours(m.hh);
@@ -7237,9 +7448,10 @@ function renderCalendarPage(){
 
   container.innerHTML = `
     <div class="panel">
-      <div class="hd"><h2>${T('Auspicious Calendar','Calendario auspicioso')}</h2><span class="note">${T(I18N.calScoredAgainst.en, I18N.calScoredAgainst.es)}: ${refLabel}</span></div>
+      <div class="hd"><h2>${T('Calendar','Calendario')}</h2><span class="note">${T(I18N.calScoredAgainst.en, I18N.calScoredAgainst.es)}: ${refLabel}</span></div>
       <div class="bd">
         <div class="hint" style="margin-bottom:14px;">${T(I18N.calSubtitle.en, I18N.calSubtitle.es)}</div>
+        ${bestOverallHtml}
         <div class="cal-nav">
           <div class="cal-navbtns">
             <button type="button" class="cal-navbtn" id="calPrevBtn">‹</button>
@@ -8779,6 +8991,20 @@ function renderChintamaniPage(){
 
   const panchakaHtml = `<span class="tag ${gc.panchaka?'bad':'good'}">${gc.panchaka?T('Panchaka active','Panchaka activo'):T('Panchaka not active','Panchaka no activo')}</span>`;
 
+  const gdEdgeLabel = e => e==='end' ? T('ending','terminando') : T('beginning','comenzando');
+  const gandantaHtml = (!gc.gandanta.moon && !gc.gandanta.lagna)
+    ? `<span class="tag good">${T('Not in Gaṇḍānta right now','No está en Gaṇḍānta ahora mismo')}</span>`
+    : `<div class="antara-reflist">
+        ${gc.gandanta.moon ? `<span class="tag bad">${T('Moon','Luna')}: ${gc.gandanta.moon.star} (${gdEdgeLabel(gc.gandanta.moon.edge)})</span>` : ''}
+        ${gc.gandanta.lagna ? `<span class="tag bad">${T('Lagna','Lagna')}: ${gc.gandanta.lagna.star} (${gdEdgeLabel(gc.gandanta.lagna.edge)})</span>` : ''}
+      </div>`;
+
+  const pb = gc.pushkaraBhaga;
+  const pushkaraHtml = `<div class="kv">
+    <div class="k">${T('Moon','Luna')}</div><div class="v">${pb.sign} ${fmtDeg(pb.degInSign)} <span style="color:var(--slate)">(${T('target','objetivo')} ${pb.target}°)</span></div>
+    <div class="k">${T('Status','Estado')}</div><div class="v"><span class="tag ${pb.active?'good':'neutral'}">${pb.active?T('At the Puṣkara Bhāga point','En el punto de Puṣkara Bhāga'):T('Not at the point','No está en el punto')}</span></div>
+  </div>`;
+
   const slotsHtml = `<div class="tblwrap"><table><thead><tr><th></th><th>${T('Window','Ventana')}</th></tr></thead><tbody>
     <tr><td class="wide">${T('Kantaka','Kaṇṭaka')}</td><td>${fmtHM(gc.daySlots.kantaka.startHr)} – ${fmtHM(gc.daySlots.kantaka.endHr)}</td></tr>
     <tr><td class="wide">${T('Kālabelā','Kālabelā')}</td><td>${fmtHM(gc.daySlots.kalabela.startHr)} – ${fmtHM(gc.daySlots.kalabela.endHr)}</td></tr>
@@ -8861,7 +9087,7 @@ function renderChintamaniPage(){
     const failCount = checks.filter(c=>!c.ok).length;
     const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=2 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
     activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
-      <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
+      <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
   } else if (chintamaniActivity === 'shaving'){
     const localHr = mdt.hh + (mdt.mm||0)/60;
     const checks = bsShavingGuideline(panch, weekdayName, localHr, sunriseHr, sunsetHr);
@@ -8915,6 +9141,14 @@ function renderChintamaniPage(){
 
         <h3 style="font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Kulika / Kālabelā / Yamaghaṇṭa / Kaṇṭaka','Kulika / Kālabelā / Yamaghaṇṭa / Kaṇṭaka')}</h3>
         ${slotsHtml}
+
+        <h3 style="font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Gaṇḍānta','Gaṇḍānta')}</h3>
+        ${gandantaHtml}
+        <div class="hint" style="margin-top:6px; line-height:1.6;">${T('The junction where a nakṣatra/sign ends and the next begins — the last quarter of Āśleṣā/Jyeṣṭha/Revatī or the first quarter of Maghā/Mūla/Aśvinī. Checked for the Moon and for the rising sign; a birth chart\'s own Lagna Gaṇḍānta (the most severe of the three in the source) needs a natal chart this panel doesn\'t take.','La juntura donde una nakṣatra/signo termina y comienza el siguiente — el último cuarto de Āśleṣā/Jyeṣṭha/Revatī o el primer cuarto de Maghā/Mūla/Aśvinī. Se revisa para la Luna y para el signo ascendente; el Lagna Gaṇḍānta de una carta natal (el más severo de los tres según la fuente) necesita una carta natal que este panel no usa.')}</div>
+
+        <h3 style="font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Puṣkara Bhāga','Puṣkara Bhāga')}</h3>
+        ${pushkaraHtml}
+        <div class="hint" style="margin-top:6px; line-height:1.6;">${T('A specific degree point within the Moon\'s sign, named as favourable for a muhūrta. Not the same figure as the "Puṣkara Navāṁśa" degree range some modern software checks instead — this is the narrower point-concept, read here with a small window around the exact degree since the Moon\'s position is continuous.','Un punto de grado específico dentro del signo de la Luna, señalado como favorable para un muhūrta. No es la misma cifra que el rango de grados de "Puṣkara Navāṁśa" que revisa en cambio algún software moderno — este es el concepto de punto más estrecho, leído aquí con un pequeño margen alrededor del grado exacto ya que la posición de la Luna es continua.')}</div>
       </div>
     </div>
 
@@ -8943,6 +9177,18 @@ function renderChintamaniPage(){
           <div><label>${T('Latitude (+N)','Latitud (+N)')}</label><input type="number" id="pbLat" value="${chintamaniPersonB.lat}" step="0.0001" placeholder="${T('e.g. 25.7617','p. ej. 25.7617')}"></div>
           <div><label>${T('Longitude (+E)','Longitud (+E)')}</label><input type="number" id="pbLon" value="${chintamaniPersonB.lon}" step="0.0001" placeholder="${T('e.g. -80.1918','p. ej. -80.1918')}"></div>
         </div>
+        <div class="row2" style="margin-top:10px;">
+          <div><label>${T('Kuja Doṣa house set','Conjunto de casas de Kuja Doṣa')}</label>
+            <select id="kujaHouseSetSelect">
+              <option value="5" ${kujaHouseSet==='5'?'selected':''}>${T('The verse\'s five houses (1/4/7/8/12)','Las cinco casas del verso (1/4/7/8/12)')}</option>
+              <option value="6" ${kujaHouseSet==='6'?'selected':''}>${T('Six houses, 2nd included','Seis casas, 2.ª incluida')}</option>
+            </select></div>
+          <div><label>${T('Judged from','Juzgado desde')}</label>
+            <select id="kujaRefPointsSelect">
+              <option value="all" ${kujaRefPoints==='all'?'selected':''}>${T('Lagna, Moon & Venus','Lagna, Luna y Venus')}</option>
+              <option value="lagna" ${kujaRefPoints==='lagna'?'selected':''}>${T('Lagna only','Solo Lagna')}</option>
+            </select></div>
+        </div>
         <div id="ashtakootaResult" style="margin-top:14px;"></div>
       </div>
     </div>
@@ -8961,10 +9207,14 @@ function renderChintamaniPage(){
   ['pbName','pbDate','pbTime','pbTZ','pbLat','pbLon'].forEach(id=>{
     document.getElementById(id).addEventListener('input', updateAshtakootaResult);
   });
+  document.getElementById('kujaHouseSetSelect').addEventListener('change', (e)=>{ kujaHouseSet = e.target.value; updateAshtakootaResult(); });
+  document.getElementById('kujaRefPointsSelect').addEventListener('change', (e)=>{ kujaRefPoints = e.target.value; updateAshtakootaResult(); });
   updateAshtakootaResult();
 }
 
 let chintamaniPersonB = { name:'', date:'', time:'', tz:'', lat:'', lon:'' };
+let kujaHouseSet = '5';     // '5' = verse-only houses, '6' = +2nd house variant
+let kujaRefPoints = 'all';  // 'all' = Lagna+Moon+Venus, 'lagna' = Lagna only
 // Self-contained (only touches #ashtakootaResult), same pattern as
 // updateChintamaniRelocation() -- Person B's <input> elements are never
 // rebuilt on keystroke, only this result div.
@@ -9000,8 +9250,18 @@ function updateAshtakootaResult(){
 
   const ak = computeAshtakoota(posA, posB);
   const vim = chintamaniVimshopakaBala(posA); // "the marriage lagna" -- Person A's own current-birth-chart placements, per the source's own single-chart framing (p.216)
+  const refPointList = kujaRefPoints==='all' ? ['Lagna','Moon','Venus'] : ['Lagna'];
+  const kujaA = computeKujaDosha(posA, refPointList, kujaHouseSet==='6');
+  const kujaB = computeKujaDosha(posB, refPointList, kujaHouseSet==='6');
 
   const gradeCls = ak.grade===T('Unsuitable','No apto') ? 'bad' : ak.grade===T('Medium','Medio') ? 'neutral' : 'good';
+  const kujaVerdict = kujaA.anyAfflicted===kujaB.anyAfflicted
+    ? (kujaA.anyAfflicted ? {label:T('Both afflicted — traditionally considered a matched pairing','Ambos afligidos — tradicionalmente se considera una pareja compatible'), cls:'good'}
+                          : {label:T('Neither afflicted — clear','Ninguno afligido — despejado'), cls:'good'})
+    : {label:T('Only one afflicted — traditionally flagged','Solo uno afligido — tradicionalmente señalado'), cls:'bad'};
+  const kujaRow = (label, k) => `<tr><td class="wide">${label}</td><td>${k.hits.map(h=>`${T(h.from,h.from==='Moon'?'Luna':h.from)}: ${h.house}${T(ordinalSuffix(h.house),'.ª')}${h.afflicted?' ⚠':''}`).join(', ')}</td>
+    <td><span class="tag ${k.anyAfflicted?'bad':'good'}">${k.anyAfflicted?T('afflicted','afligido'):T('clear','despejado')}</span></td></tr>`;
+
   resultEl.innerHTML = `
     <div class="okbox"><b>${T('Total','Total')}:</b> ${ak.total.toFixed(1)} / 36 — <span class="tag ${gradeCls}">${ak.grade}</span>
       ${ak.bhakootaDosha ? `<div class="hint" style="margin-top:4px;">${T('Bhakoota is afflicted — the shifted grading scale above applies (≤20/21-25/26-30/30-36).','Bhakoota está afligido — se aplica la escala de calificación desplazada de arriba (≤20/21-25/26-30/30-36).')}</div>` : ''}
@@ -9012,10 +9272,21 @@ function updateAshtakootaResult(){
     </tbody></table></div>
     <div class="hint" style="margin-top:8px;">${T('Person A','Persona A')}: ${ak.brideStar} · ${ak.brideSign} — ${T('Person B','Persona B')}: ${ak.groomStar} · ${ak.groomSign}. ${T('Yoni and Bhakoota use a simplified reading of their printed grids; Nāḍī and Gaṇa use the standard classical tables.','Yoni y Bhakoota usan una lectura simplificada de sus tablas impresas; Nāḍī y Gaṇa usan las tablas clásicas estándar.')}</div>
 
+    <h3 style="margin:16px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Kuja/Maṅgala Doṣa','Kuja/Maṅgala Doṣa')}</h3>
+    <div class="okbox"><span class="tag ${kujaVerdict.cls}">${kujaVerdict.label}</span></div>
+    <div class="tblwrap" style="margin-top:8px;"><table><thead><tr><th></th><th>${T('Mars\'s house, by reference point','Casa de Marte, por punto de referencia')}</th><th></th></tr></thead><tbody>
+      ${kujaRow(T('Person A','Persona A'), kujaA)}
+      ${kujaRow(T('Person B','Persona B'), kujaB)}
+    </tbody></table></div>
+    <div class="hint" style="margin-top:8px; line-height:1.6;">${T(`This app can't verify a standalone classical basis for "Maṅgala Doṣa" as its own named doctrine — the underlying verse is about Mars\'s house placement, and the doṣa framing is a later, widely-taught reading of it. Jupiter's aspect or conjunction on Mars is traditionally said to lift this affliction; that claim is genuinely disputed even within the tradition, so it's shown below without a verdict.`,
+      `Esta app no puede verificar una base clásica independiente para "Maṅgala Doṣa" como doctrina propia con nombre — el verso subyacente trata de la ubicación de Marte por casa, y el encuadre como doṣa es una lectura posterior y muy difundida de él. Se dice tradicionalmente que el aspecto o conjunción de Júpiter sobre Marte levanta esta aflicción; esa afirmación está genuinamente disputada incluso dentro de la tradición, así que se muestra abajo sin veredicto.`)}
+      ${T('Jupiter on Mars right now','Júpiter sobre Marte ahora mismo')}: <span class="tag neutral">${kujaA.jupiterOnMars?T('yes (Person A\'s chart)','sí (carta de la Persona A)'):T('no (Person A\'s chart)','no (carta de la Persona A)')}</span></div>
+
     <h3 style="margin:16px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Vimśopaka Bala — Person A\'s current placements','Vimśopaka Bala — posiciones actuales de la Persona A')}</h3>
     <div class="okbox"><b>${T('Total','Total')}:</b> ${vim.total.toFixed(1)} / 20 — <span class="tag ${vim.total<5?'bad':vim.total<=10?'neutral':'good'}">${vim.grade}</span></div>
     <div class="tblwrap" style="margin-top:8px;"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Dignity','Dignidad')}</th><th>${T('Weight','Peso')}</th><th>${T('Earned','Obtenido')}</th></tr></thead><tbody>
-      ${vim.rows.map(r=>`<tr><td class="wide">${T(r.graha,GRAHA_ES[r.graha])}</td><td>${trDignity(r.tier)}</td><td>${r.weight}</td><td><span class="tag ${r.earned>0?'good':'neutral'}">${r.earned}</span></td></tr>`).join('')}
+      ${vim.rows.map(r=>{ const mt = inMulatrikona(r.graha, posA[r.graha].sidereal);
+        return `<tr><td class="wide">${T(r.graha,GRAHA_ES[r.graha])}</td><td>${trDignity(r.tier)}${mt?` <span class="tag good" style="font-size:10px;">${T('Mūlatrikoṇa','Mūlatrikoṇa')}</span>`:''}</td><td>${r.weight}</td><td><span class="tag ${r.earned>0?'good':'neutral'}">${r.earned}</span></td></tr>`; }).join('')}
     </tbody></table></div>`;
 }
 
