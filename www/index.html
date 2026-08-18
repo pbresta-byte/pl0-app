@@ -5120,6 +5120,226 @@ function chintamaniYajnaGuideline(pos, panch){
 }
 
 /* =========================================================================
+   BṚHAT SAṀHITĀ (Varāhamihira, tr. M. R. Bhat, vol. 2) — NAKṢATRA & TITHI
+   REFERENCE.  ch. XCVIII "Functions and Properties of the Asterisms"
+   (including its printed "Table of Asterisms, Lunar Days and Muhūrtas,"
+   pp.879-880), ch. XCIX "Functions and Properties of Lunar Days," and
+   ch. CI "Effects of Birth in the Asterisms" (pp.887-893).
+
+   *** ADDITIVE ONLY — NOTES FOR A FUTURE ENGINEER ***
+   None of this feeds the SBC Vedha/Tārā/Latta engine, the muhūrta score,
+   dignityTier/dignityWeight, or the moment-gravity election.  It is
+   reference data plus one new self-contained activity guideline.  Three
+   near-collisions worth keeping straight:
+
+   1. NAKṢATRA CLASS IS DELIBERATELY NOT REDEFINED HERE.  ch. XCVIII v.6-11
+      gives the seven-fold Dhruva / Ugra / Kṣipra / Tīkṣṇa / Mṛdu /
+      Sādhāraṇa / Cara grouping — and it is star-for-star IDENTICAL to
+      CHINTAMANI_NAK_TEMPERAMENT above (Muhūrta Chintāmaṇi ch.2), which the
+      app already uses.  All 27 + Abhijit re-checked 2026-08-18: two
+      independent classical texts agree completely.  So there is ONE table,
+      and everything below calls chintamaniNakTemperament().  Do NOT add a
+      parallel Bṛhat Saṁhitā copy — it would silently fork.
+      Both are separate again from the three-fold Deva/Manuṣya/Rākṣasa Gaṇa
+      inside the Aṣṭakoota matcher.  Three schemes, never to be merged.
+
+   2. THE LIMB COLUMN below is the NAKṢATRA Puruṣa — the stellar deity's
+      body.  It is a DIFFERENT body-map from the sign-based Kālapuruṣa that
+      drives renderBodySilhouette() and computeDehaChakra() (Aries=head …
+      Pisces=feet).  Here Bharaṇī=head and Mūla=feet, so the two disagree by
+      construction.  They must never be cross-indexed; the Anatomy page
+      renders them as two clearly separate panels.
+
+   3. TITHI CLASS (Nandā/Bhadrā/Jayā/Riktā/Pūrṇā) is added as new reference,
+      but isRiktaTithi() — Chintāmaṇi-sourced, already wired into the
+      marriage / travel / yajña / housewarming guidelines — is left alone.
+      Both texts agree that Riktā = 4th/9th/14th, so the shaving guideline
+      below calls the EXISTING isRiktaTithi() rather than opening a second
+      code path to the same fact.
+
+   One internal inconsistency in the source itself, recorded not silently
+   resolved: the ch. XCVIII table assigns Āśleṣā the "9th & 11th" tithis,
+   while ch. XCIX's prose pairs Āśleṣā with the 14th.  The table reading is
+   used below (it is the summarised form) and the prose reading is noted in
+   `tithiAlt` so neither is lost.
+   ========================================================================= */
+
+// Keys match NAK28_ORDER exactly. `stars` is the source's own star-count,
+// which it also uses as a timing unit: ch. XCVIII v.2-3 — the effect of the
+// asterism at a marriage ripens in as many YEARS as it has stars, and an
+// illness begun under it lifts in as many DAYS.
+const BS_NAK = {
+  'Aswini':       { limb:{en:'Knees',es:'Rodillas'}, deity:{en:'the Aśvins (divine physicians)',es:'los Aśvins (médicos divinos)'}, stars:3,
+                    works:{en:'Trade, fine arts',es:'Comercio, bellas artes'}, tithi:'', karana:'', muh:'Dasra — 5th of night',
+                    natal:{en:'Fond of ornaments, lovely in appearance, liked by all, efficient and intelligent.',es:'Aficionado a los adornos, de bello aspecto, querido por todos, eficiente e inteligente.'} },
+  'Bharani':      { limb:{en:'Head',es:'Cabeza'}, deity:{en:'Yama (death)',es:'Yama (la muerte)'}, stars:3,
+                    works:{en:'Destruction, deceit',es:'Destrucción, engaño'}, tithi:'4th', karana:'Viṣṭi', muh:'Yama — 6th of night',
+                    natal:{en:'Carries through what they resolve on; truthful, free from ill health, efficient and happy.',es:'Lleva a cabo lo que se propone; veraz, libre de mala salud, eficiente y feliz.'},
+                    alt:{en:'Parāśara reads this star far more harshly — cruel, untruthful, fickle-minded, a thief.',es:'Parāśara lee esta estrella mucho más duramente — cruel, mentiroso, voluble, ladrón.'} },
+  'Krittika':     { limb:{en:'Hips',es:'Caderas'}, deity:{en:'Agni (fire)',es:'Agni (el fuego)'}, stars:6,
+                    works:{en:'Mixed work — cuts both ways',es:'Trabajo mixto — corta en ambos sentidos'}, tithi:'6th', karana:'', muh:'Āgneya — 7th of night',
+                    natal:{en:'A glutton, drawn to others’ spouses, brilliant and famous.',es:'Glotón, atraído por los cónyuges ajenos, brillante y famoso.'} },
+  'Rohini':       { limb:{en:'Shins (lower legs)',es:'Espinillas (piernas bajas)'}, deity:{en:'Brahmā (the creator)',es:'Brahmā (el creador)'}, stars:5,
+                    works:{en:'Coronation, sowing of seed, and anything meant to last',es:'Coronación, siembra, y todo lo destinado a durar'}, tithi:'1st', karana:'Bālava, Catuṣpāda', muh:'Brahman — 8th of day and 8th of night',
+                    natal:{en:'Truthful, pure, sweet-tongued, steady of mind and lovely in appearance.',es:'Veraz, puro, de habla dulce, de mente firme y bello aspecto.'} },
+  'Mrigasira':    { limb:{en:'Eyes',es:'Ojos'}, deity:{en:'Soma (the Moon)',es:'Soma (la Luna)'}, stars:3,
+                    works:{en:'Intimacy, making friends, ornaments, marriage',es:'Intimidad, hacer amistades, adornos, matrimonio'}, tithi:'5th', karana:'', muh:'Indu — 9th of night',
+                    natal:{en:'Fickle, clever, timid, eloquent, industrious, wealthy and given to pleasure.',es:'Voluble, hábil, tímido, elocuente, trabajador, rico y dado al placer.'} },
+  'Ardra':        { limb:{en:'Hair',es:'Cabello'}, deity:{en:'Rudra',es:'Rudra'}, stars:1,
+                    works:{en:'Attacks, incantations, killing, breaking friendships',es:'Ataques, encantamientos, matar, romper amistades'}, tithi:'11th', karana:'', muh:'Śiva — 1st of day and of night',
+                    natal:{en:'Perfidious, haughty, quick to anger, ungrateful, cruel and sinful.',es:'Pérfido, altivo, iracundo, ingrato, cruel y pecador.'} },
+  'Punarvasu':    { limb:{en:'Fingers',es:'Dedos'}, deity:{en:'Aditi',es:'Aditi'}, stars:5,
+                    works:{en:'Short-lived, temporary work',es:'Trabajo pasajero, temporal'}, tithi:'', karana:'', muh:'Aditi — 10th of night',
+                    natal:{en:'Self-controlled, happy, of good character, slow-witted, sickly, very thirsty and easily satisfied.',es:'Sereno, feliz, de buen carácter, de ingenio lento, enfermizo, muy sediento y fácil de contentar.'} },
+  'Pushya':       { limb:{en:'Mouth',es:'Boca'}, deity:{en:'Bṛhaspati (Jupiter)',es:'Bṛhaspati (Júpiter)'}, stars:3,
+                    works:{en:'Trade, intimacy, fine arts',es:'Comercio, intimidad, bellas artes'}, tithi:'', karana:'', muh:'Guru — 11th of night',
+                    natal:{en:'A tranquil mind, amiable features, learning, affluence, and attachment to meritorious deeds.',es:'Mente tranquila, rasgos amables, saber, riqueza y apego a las buenas obras.'} },
+  'Ashlesha':     { limb:{en:'Nails',es:'Uñas'}, deity:{en:'the Serpents (Sarpa)',es:'las Serpientes (Sarpa)'}, stars:6,
+                    works:{en:'Incantations, attacks',es:'Encantamientos, ataques'}, tithi:'9th & 11th', tithiAlt:'14th', karana:'Śakuni, Nāga', muh:'Sarpa — 2nd of day',
+                    natal:{en:'Insincere, willing to eat anything, sinful, ungrateful and deceitful.',es:'Insincero, dispuesto a comer cualquier cosa, pecador, ingrato y engañoso.'} },
+  'Magha':        { limb:{en:'Nose',es:'Nariz'}, deity:{en:'the Ancestors (Pitṛs)',es:'los Antepasados (Pitṛs)'}, stars:5,
+                    works:{en:'Destruction',es:'Destrucción'}, tithi:'New Moon', karana:'', muh:'Pitṛ — 4th of day',
+                    natal:{en:'Very rich, many servants, enjoys pleasures, honours the gods and the ancestors, and is very industrious.',es:'Muy rico, con muchos sirvientes, disfruta de los placeres, honra a los dioses y a los antepasados, y es muy trabajador.'} },
+  'P.Phalguni':   { limb:{en:'Genitals',es:'Genitales'}, deity:{en:'Bhaga',es:'Bhaga'}, stars:8,
+                    works:{en:'Destruction, deceit',es:'Destrucción, engaño'}, tithi:'13th', karana:'', muh:'Bhāgya — 15th of day',
+                    natal:{en:'Sweet-tongued, generous with gifts, bright in appearance, fond of wandering, and a servant of the king.',es:'De habla dulce, generoso con los regalos, de aspecto luminoso, aficionado a vagar, y servidor del rey.'} },
+  'U.Phalguni':   { limb:{en:'Genitals',es:'Genitales'}, deity:{en:'Aryaman',es:'Aryaman'}, stars:2,
+                    works:{en:'Coronation, sowing of seed, and anything meant to last',es:'Coronación, siembra, y todo lo destinado a durar'}, tithi:'10th', karana:'', muh:'Aryaman — 14th of day',
+                    natal:{en:'Very popular, earns money through learning, sensual and happy.',es:'Muy popular, gana dinero mediante el saber, sensual y feliz.'} },
+  'Hasta':        { limb:{en:'Hands',es:'Manos'}, deity:{en:'Savitṛ (the Sun)',es:'Savitṛ (el Sol)'}, stars:5,
+                    works:{en:'Trade, intimacy, fine arts',es:'Comercio, intimidad, bellas artes'}, tithi:'12th', karana:'', muh:'Ravi — 13th of night',
+                    natal:{en:'Industrious, impudent, fond of drink, merciless and thievish.',es:'Trabajador, descarado, aficionado a la bebida, despiadado y ladrón.'} },
+  'Chitra':       { limb:{en:'Forehead',es:'Frente'}, deity:{en:'Tvaṣṭṛ',es:'Tvaṣṭṛ'}, stars:1,
+                    works:{en:'Marriage, ornaments, intimacy',es:'Matrimonio, adornos, intimidad'}, tithi:'', karana:'', muh:'Tvaṣṭṛ — 14th of night',
+                    natal:{en:'Comes to have colourful garments and flower-garlands, and beautiful eyes and limbs.',es:'Llega a tener ropas coloridas y guirnaldas de flores, y bellos ojos y miembros.'} },
+  'Swati':        { limb:{en:'Teeth',es:'Dientes'}, deity:{en:'Vāyu (the wind)',es:'Vāyu (el viento)'}, stars:1,
+                    works:{en:'Short-lived, temporary work',es:'Trabajo pasajero, temporal'}, tithi:'', karana:'Kiṁstughna', muh:'Anila — 15th of night',
+                    natal:{en:'Self-controlled, clever in trade, kind-hearted, virtuous and of pleasant speech.',es:'Sereno, hábil en el comercio, de buen corazón, virtuoso y de habla agradable.'} },
+  'Visakha':      { limb:{en:'Arms',es:'Brazos'}, deity:{en:'Indra and Agni',es:'Indra y Agni'}, stars:5,
+                    works:{en:'Mixed work — cuts both ways',es:'Trabajo mixto — corta en ambos sentidos'}, tithi:'', karana:'', muh:'Indrāgni — 11th of day',
+                    natal:{en:'Jealous, greedy, bright in appearance, clever in speech and quarrelsome.',es:'Celoso, codicioso, de aspecto luminoso, hábil al hablar y pendenciero.'} },
+  'Anuradha':     { limb:{en:'Chest',es:'Pecho'}, deity:{en:'Mitra',es:'Mitra'}, stars:4,
+                    works:{en:'Intimacy, making friends, ornaments, marriage',es:'Intimidad, hacer amistades, adornos, matrimonio'}, tithi:'', karana:'Kaulava', muh:'Mitra — 3rd of day',
+                    natal:{en:'Very wealthy, lives in foreign lands, cannot endure hunger, and wanders from place to place.',es:'Muy rico, vive en tierras extranjeras, no soporta el hambre y vaga de un lugar a otro.'},
+                    alt:{en:'Parāśara gives this star only good effects.',es:'Parāśara da a esta estrella solo efectos buenos.'} },
+  'Jyeshta':      { limb:{en:'Neck',es:'Cuello'}, deity:{en:'Indra',es:'Indra'}, stars:3,
+                    works:{en:'Incantations, attacks',es:'Encantamientos, ataques'}, tithi:'7th', karana:'Bava, Gara', muh:'Indra — 10th of day',
+                    natal:{en:'Few friends, contented, drawn to meritorious deeds, and exceedingly irritable.',es:'Pocos amigos, contento, atraído por las buenas obras, y sumamente irritable.'} },
+  'Moola':        { limb:{en:'Feet',es:'Pies'}, deity:{en:'Nirṛti',es:'Nirṛti'}, stars:11,
+                    works:{en:'Incantations, attacks',es:'Encantamientos, ataques'}, tithi:'', karana:'', muh:'Nairṛta — 12th of day',
+                    natal:{en:'Proud, wealthy, happy, gentle by nature, firm-minded and luxurious in living.',es:'Orgulloso, rico, feliz, de naturaleza gentil, de mente firme y de vida lujosa.'} },
+  'P.Shada':      { limb:{en:'Thighs',es:'Muslos'}, deity:{en:'the Waters (Āpas)',es:'las Aguas (Āpas)'}, stars:2,
+                    works:{en:'Destruction, deceit',es:'Destrucción, engaño'}, tithi:'', karana:'', muh:'Āpas — 6th of day',
+                    natal:{en:'Will have an amiable and jolly spouse; proud, and firm in friendship.',es:'Tendrá un cónyuge amable y alegre; orgulloso y firme en la amistad.'} },
+  'U.Shada':      { limb:{en:'Thighs',es:'Muslos'}, deity:{en:'the Viśve-Devas',es:'los Viśve-Devas'}, stars:8,
+                    works:{en:'Coronation, sowing of seed, and anything meant to last',es:'Coronación, siembra, y todo lo destinado a durar'}, tithi:'15th', karana:'', muh:'Viśva — 7th of day',
+                    natal:{en:'Modest, virtuous, many friends, grateful and attractive.',es:'Modesto, virtuoso, con muchos amigos, agradecido y atractivo.'} },
+  'Abhijit':      { limb:{en:'—',es:'—'}, deity:{en:'Brahmā',es:'Brahmā'}, stars:null,
+                    works:{en:'Trade, fine arts',es:'Comercio, bellas artes'}, tithi:'2nd', karana:'', muh:'Viriñci — 9th of day', natal:null },
+  'Sravana':      { limb:{en:'Ears',es:'Orejas'}, deity:{en:'Viṣṇu',es:'Viṣṇu'}, stars:3,
+                    works:{en:'Short-lived, temporary work',es:'Trabajo pasajero, temporal'}, tithi:'3rd', karana:'Vaṇij', muh:'Hari — 12th of night',
+                    natal:{en:'Learned, a generous spouse, and possessed of wealth and fame.',es:'Culto, con un cónyuge generoso, y poseedor de riqueza y fama.'} },
+  'Dhanishta':    { limb:{en:'Back',es:'Espalda'}, deity:{en:'the Vasus',es:'los Vasus'}, stars:5,
+                    works:{en:'Short-lived, temporary work',es:'Trabajo pasajero, temporal'}, tithi:'8th', karana:'', muh:'Vasu — 5th of day',
+                    natal:{en:'Charitable, heroic, wealthy, greedy for money, and fond of music.',es:'Caritativo, heroico, rico, codicioso de dinero y aficionado a la música.'} },
+  'Satabisha':    { limb:{en:'Laughter',es:'La risa'}, deity:{en:'Varuṇa',es:'Varuṇa'}, stars:100,
+                    works:{en:'Short-lived, temporary work',es:'Trabajo pasajero, temporal'}, tithi:'', karana:'', muh:'Varuṇa — 13th of day',
+                    natal:{en:'Speaks plainly, is unlucky (or carries some vice), conquers enemies, daring and hard to win over.',es:'Habla con franqueza, es desafortunado (o carga algún vicio), vence a los enemigos, audaz y difícil de conquistar.'} },
+  'P.Bhadrapada': { limb:{en:'Sides (flanks)',es:'Costados'}, deity:{en:'Ajaikapāt',es:'Ajaikapāt'}, stars:2,
+                    works:{en:'Destruction, deceit',es:'Destrucción, engaño'}, tithi:'9th', karana:'', muh:'Ajaikapāda — 2nd of night',
+                    natal:{en:'Unhappy, ruled by their spouse, wealthy and clever, but a miser.',es:'Infeliz, dominado por su cónyuge, rico y hábil, pero avaro.'} },
+  'U.Bhadrapada': { limb:{en:'Sides (flanks)',es:'Costados'}, deity:{en:'Ahirbudhnya',es:'Ahirbudhnya'}, stars:8,
+                    works:{en:'Coronation, sowing of seed, and anything meant to last',es:'Coronación, siembra, y todo lo destinado a durar'}, tithi:'11th', karana:'', muh:'Ahirbudhnya — 3rd of night',
+                    natal:{en:'A good speaker, happy, blessed with children, vanquishes enemies, and virtuous.',es:'Buen orador, feliz, bendecido con hijos, vence a los enemigos y virtuoso.'} },
+  'Revati':       { limb:{en:'Stomach',es:'Estómago'}, deity:{en:'Pūṣan',es:'Pūṣan'}, stars:32,
+                    works:{en:'Intimacy, making friends, ornaments, marriage',es:'Intimidad, hacer amistades, adornos, matrimonio'}, tithi:'', karana:'', muh:'Pūṣan — 4th of night',
+                    natal:{en:'A symmetrical, well-made body; attractive, heroic, pure and wealthy.',es:'Cuerpo simétrico y bien formado; atractivo, heroico, puro y rico.'} }
+};
+
+/* The star-lists Varāhamihira names for particular undertakings, kept as
+   TAGS rather than folded into the class table — a star can carry several,
+   and each carries its own verse.  These are lists of PERMITTED stars, so a
+   star simply not appearing in a set is not thereby forbidden for it. */
+const BS_NAK_TAGS = [
+  { key:'shave', cite:'XCVIII.12', label:{en:'Shaving & grooming',es:'Afeitado y aseo'},
+    naks:['Hasta','Chitra','Swati','Mrigasira','Sravana','Dhanishta','Satabisha','Revati','Aswini','Jyeshta','Punarvasu','Pushya'] },
+  { key:'marriage', cite:'C.8', label:{en:'Marriage',es:'Matrimonio'},
+    naks:['Rohini','U.Phalguni','U.Shada','U.Bhadrapada','Revati','Mrigasira','Moola','Anuradha','Magha','Hasta','Swati'] },
+  { key:'sacrament', cite:'XCVIII.16', label:{en:'Sacraments & initiations',es:'Sacramentos e iniciaciones'},
+    naks:['Hasta','Revati','Swati','Anuradha','Pushya','Chitra','Mrigasira'] },
+  { key:'masculine', cite:'XCVIII.15', label:{en:'Rites for men',es:'Ritos para hombres'},
+    naks:['Hasta','Moola','Sravana','Punarvasu','Mrigasira','Pushya'] },
+  { key:'earbore', cite:'C.6', label:{en:'Ear-piercing',es:'Perforación de orejas'},
+    naks:['Pushya','Mrigasira','Chitra','Sravana','Revati'] }
+];
+function bsNakTags(nakName){ return BS_NAK_TAGS.filter(t=>t.naks.includes(nakName)); }
+
+// ch. XCIX. Presiding deity of each tithi and the work it is fit for, plus
+// the five-fold class. Index 0 = 1st tithi of the fortnight … index 14 = 15th.
+const BS_TITHI = [
+  { cls:'Nanda', deity:{en:'Brahmā',es:'Brahmā'},                  work:{en:'Brahminic ceremonies, marriage among them',es:'Ceremonias brahmánicas, entre ellas el matrimonio'} },
+  { cls:'Bhadra',deity:{en:'Vidhātṛ',es:'Vidhātṛ'},                work:{en:'Laying the foundations of houses',es:'Poner los cimientos de casas'} },
+  { cls:'Jaya',  deity:{en:'Viṣṇu',es:'Viṣṇu'},                    work:{en:'Tonsure — the first haircut',es:'Tonsura — el primer corte de pelo'} },
+  { cls:'Rikta', deity:{en:'Yama',es:'Yama'},                      work:{en:'Acts meant to harm enemies',es:'Actos destinados a dañar a los enemigos'} },
+  { cls:'Purna', deity:{en:'the Moon',es:'la Luna'},               work:{en:'Emetics and tonics',es:'Eméticos y tónicos'} },
+  { cls:'Nanda', deity:{en:'Kārttikeya',es:'Kārttikeya'},          work:{en:'Making new friends; coronation',es:'Hacer nuevas amistades; coronación'} },
+  { cls:'Bhadra',deity:{en:'Indra',es:'Indra'},                    work:{en:'Building vehicles; journeys',es:'Construir vehículos; viajes'} },
+  { cls:'Jaya',  deity:{en:'the Vasus',es:'los Vasus'},            work:{en:'Taking up arms; fortification',es:'Tomar las armas; fortificación'} },
+  { cls:'Rikta', deity:{en:'the Serpents',es:'las Serpientes'},    work:{en:'Ruining and killing enemies',es:'Arruinar y matar enemigos'} },
+  { cls:'Purna', deity:{en:'Dharma',es:'Dharma'},                  work:{en:'Meritorious deeds; honouring the learned',es:'Buenas obras; honrar a los sabios'} },
+  { cls:'Nanda', deity:{en:'Rudra',es:'Rudra'},                    work:{en:'Things permanent, passing and tender alike',es:'Cosas permanentes, pasajeras y tiernas por igual'} },
+  { cls:'Bhadra',deity:{en:'Āditya (the Sun)',es:'Āditya (el Sol)'},work:{en:'Installing the sacred fire',es:'Instalar el fuego sagrado'} },
+  { cls:'Jaya',  deity:{en:'Manmatha (love)',es:'Manmatha (el amor)'},work:{en:'Forming friendships; sensual enjoyment',es:'Formar amistades; disfrute sensual'} },
+  { cls:'Rikta', deity:{en:'Kali',es:'Kali'},                      work:{en:'Handling poison and mercury',es:'Manejar veneno y mercurio'} },
+  { cls:'Purna', deity:{en:'the Viśve-Devas',es:'los Viśve-Devas'},work:{en:'Propitiating the ancestors',es:'Propiciar a los antepasados'} }
+];
+const BS_TITHI_CLASS = {
+  Nanda: {en:'Nandā — Joyful',es:'Nandā — Gozosa'}, Bhadra:{en:'Bhadrā — Auspicious',es:'Bhadrā — Auspiciosa'},
+  Jaya:  {en:'Jayā — Victorious',es:'Jayā — Victoriosa'}, Rikta:{en:'Riktā — Empty',es:'Riktā — Vacía'},
+  Purna: {en:'Pūrṇā — Full',es:'Pūrṇā — Llena'}
+};
+// tithiNum is 1..30; Amāvāsyā (30) is presided over by the ancestors and is
+// not one of the fifteen, so it is returned as its own case.
+function bsTithiInfo(tithiNum){
+  if (tithiNum === 30) return { amavasya:true, cls:null, deity:{en:'the Ancestors (Pitṛs)',es:'los Antepasados (Pitṛs)'}, work:{en:'Rites for the ancestors',es:'Ritos para los antepasados'} };
+  const idx = (tithiNum<=15 ? tithiNum : tithiNum-15) - 1;
+  return Object.assign({ amavasya:false }, BS_TITHI[idx]);
+}
+
+/* ---- Kṣaura Karma — shaving and grooming (ch. XCVIII v.12-14) ----
+   Verse 12 names the permitted stars; verse 13 is a list of prohibitions
+   (times of day, weekdays, tithi, karaṇa); verse 14 names six circumstances
+   under which shaving is permitted regardless of the star.  The "9th day
+   from the previous shave" prohibition in v.13 needs a date the app does
+   not hold, so it is surfaced to the reader as a note rather than scored —
+   see the render site.  Returns the same {label, ok, info} check shape the
+   other activity guidelines use. */
+const BS_SHAVE_BAD_WEEKDAYS = ['Sunday','Tuesday','Saturday'];
+const BS_SHAVE_OVERRIDES = {
+  en:'a royal command, the advice of learned elders, the occasion of a marriage, pollution caused by a death, release from prison, or consecration for a sacrifice',
+  es:'una orden real, el consejo de ancianos sabios, la ocasión de una boda, la impureza causada por una muerte, la salida de prisión, o la consagración para un sacrificio'
+};
+function bsShavingGuideline(panch, weekdayName, localHr, sunriseHr, sunsetHr){
+  const checks = [];
+  const nak = panch.nak28.name;
+  const permitted = BS_NAK_TAGS.find(t=>t.key==='shave').naks;
+  checks.push({ label:T('Moon is in one of the twelve stars named for shaving','La Luna está en una de las doce estrellas nombradas para el afeitado'),
+    ok: permitted.includes(nak), info:T(`Now: ${nak}`,`Ahora: ${nak}`) });
+  checks.push({ label:T('Not a Sunday, Tuesday or Saturday','No es domingo, martes ni sábado'), ok: !BS_SHAVE_BAD_WEEKDAYS.includes(weekdayName) });
+  checks.push({ label:T('Not a Riktā tithi (4th, 9th or 14th)','No es un tithi Riktā (4.º, 9.º o 14.º)'), ok: !isRiktaTithi(panch.tithiNum) });
+  checks.push({ label:T('Not Viṣṭi (Bhadrā) karaṇa','No es el karaṇa Viṣṭi (Bhadrā)'), ok: panch.karana !== 'Vishti' });
+  // v.13 bars night outright and both twilights; a one-hour band around
+  // sunrise and sunset stands in for "sandhyā," which the source leaves
+  // undefined in clock terms.
+  const isNight = localHr < sunriseHr || localHr > sunsetHr;
+  const isTwilight = Math.abs(localHr - sunriseHr) < 1 || Math.abs(localHr - sunsetHr) < 1;
+  checks.push({ label:T('Daylight, and clear of both twilights','De día, y lejos de ambos crepúsculos'), ok: !isNight && !isTwilight,
+    info: isNight ? T('Night is barred outright, whatever else stands.','La noche está prohibida por completo, sea cual sea lo demás.')
+        : isTwilight ? T('Within an hour of sunrise or sunset — read as sandhyā.','A menos de una hora del amanecer o del atardecer — leído como sandhyā.') : '' });
+  return checks;
+}
+
+/* =========================================================================
    TWO-PERSON COMPATIBILITY — AṢṬAKOOTA (Guṇa Milan) + VIMŚOPAKA BALA
    ch. 6 "Marriage Sanskaras," p.157-174 (Aṣṭakoota) and p.216 (Vimśopaka).
    User-approved standalone feature (2026-08-16), separate from the
@@ -6445,6 +6665,78 @@ function renderDashaPage(){
 // Nakṣatra Categories page — a fixed property of the reference person's own
 // horoscope (Janma Nakṣatra, same refP used for Tārā Bala/Nāḍī on the main
 // page), not a live/transiting indicator — it doesn't change day to day.
+/* Bṛhat Saṁhitā star card — ch. XCVIII's table plus ch. CI's birth reading
+   for one nakṣatra. The class line deliberately reads from the existing
+   Chintāmaṇi temperament table rather than a second copy; see the landmine
+   note above BS_NAK for why. */
+function renderBsNakCard(nakName){
+  const e = BS_NAK[nakName];
+  if (!e) return `<div class="hint">${T('No reading on file for this star.','No hay lectura registrada para esta estrella.')}</div>`;
+  const cls = chintamaniNakTemperament(nakName);
+  const tags = bsNakTags(nakName);
+  const tagHtml = tags.length
+    ? tags.map(t=>`<span class="tag good" style="margin:0 4px 4px 0; display:inline-block;">${T(t.label.en,t.label.es)}</span>`).join('')
+    : `<span class="hint" style="display:inline;">${T('not named in any of the five lists','no nombrada en ninguna de las cinco listas')}</span>`;
+  return `<div class="kv">
+    <div class="k">${T('Limb of the stellar body','Miembro del cuerpo estelar')}</div><div class="v"><b style="color:var(--gold)">${T(e.limb.en,e.limb.es)}</b></div>
+    <div class="k">${T('Presiding deity','Deidad regente')}</div><div class="v">${T(e.deity.en,e.deity.es)}</div>
+    ${e.stars!==null?`<div class="k">${T('Stars in it','Estrellas que la componen')}</div><div class="v">${e.stars}</div>`:''}
+    ${cls?`<div class="k">${T('Class','Clase')}</div><div class="v">${T(cls.nameEn,cls.nameEs)}</div>`:''}
+    <div class="k">${T('Fit for','Apta para')}</div><div class="v">${T(e.works.en,e.works.es)}</div>
+    ${e.tithi?`<div class="k">${T('Paired lunar day','Día lunar emparejado')}</div><div class="v">${e.tithi}${e.tithiAlt?` <span class="hint" style="display:inline;">(${T('the surviving readings disagree here — also given as the','las lecturas conservadas discrepan aquí — también se da como el')} ${e.tithiAlt})</span>`:''}</div>`:''}
+    ${e.karana?`<div class="k">${T('Paired karaṇa','Karaṇa emparejado')}</div><div class="v">${e.karana}</div>`:''}
+    <div class="k">${T('Paired muhūrta','Muhūrta emparejado')}</div><div class="v">${e.muh}</div>
+    <div class="k">${T('Named for','Nombrada para')}</div><div class="v">${tagHtml}</div>
+  </div>
+  ${e.natal?`<div class="effect-box" style="margin-top:10px;"><div class="effect-label">${T('Born under this star','Nacido bajo esta estrella')}</div><div class="effect-text">${T(e.natal.en,e.natal.es)}${e.alt?` <span style="color:var(--slate)">${T(e.alt.en,e.alt.es)}</span>`:''}</div></div>`:''}`;
+}
+
+function renderBsTithiCard(panch){
+  const ti = bsTithiInfo(panch.tithiNum);
+  const clsLabel = ti.amavasya ? T('Amāvāsyā — outside the fifteen','Amāvāsyā — fuera de las quince')
+                               : T(BS_TITHI_CLASS[ti.cls].en, BS_TITHI_CLASS[ti.cls].es);
+  return `<div class="kv">
+    <div class="k">${T('Lunar day','Día lunar')}</div><div class="v"><b style="color:var(--gold)">${panch.tithiName}</b> <span style="color:var(--slate)">(${panch.paksha})</span></div>
+    <div class="k">${T('Class','Clase')}</div><div class="v">${clsLabel}</div>
+    <div class="k">${T('Presiding deity','Deidad regente')}</div><div class="v">${T(ti.deity.en,ti.deity.es)}</div>
+    <div class="k">${T('Fit for','Apto para')}</div><div class="v">${T(ti.work.en,ti.work.es)}</div>
+  </div>`;
+}
+
+function renderBsNakTable(highlightNak){
+  const rows = NAK28_ORDER.map(n=>{
+    const e = BS_NAK[n]; if (!e) return '';
+    const cls = chintamaniNakTemperament(n);
+    const tags = bsNakTags(n).map(t=>T(t.label.en,t.label.es)).join(', ');
+    const hi = n===highlightNak ? ' style="background:var(--house1);font-weight:600;"' : '';
+    return `<tr${hi}><td class="wide">${n===highlightNak?'→ ':''}${n}</td><td>${T(e.limb.en,e.limb.es)}</td>
+      <td>${T(e.deity.en,e.deity.es)}</td><td>${e.stars===null?'—':e.stars}</td>
+      <td>${cls?T(cls.nameEn,cls.nameEs):'—'}</td><td style="font-size:11.5px;">${tags||'—'}</td></tr>`;
+  }).join('');
+  return `<div class="tblwrap"><table><thead><tr><th>${T('Nakṣatra','Nakṣatra')}</th><th>${T('Limb','Miembro')}</th>
+    <th>${T('Deity','Deidad')}</th><th>${T('Stars','Estrellas')}</th><th>${T('Class','Clase')}</th>
+    <th>${T('Named for','Nombrada para')}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+/* Head-to-foot ordering of the stellar body. Several limbs take more than one
+   star, and "Laughter" is not an anatomical part at all — it is placed last
+   rather than forced into the sequence. Abhijit has no limb assigned and drops
+   out. This body-map is NOT the sign-based Kālapuruṣa used by
+   renderBodySilhouette(); see the landmine note above BS_NAK. */
+const BS_LIMB_ORDER = ['Head','Hair','Forehead','Eyes','Nose','Mouth','Teeth','Ears','Neck','Arms','Hands',
+  'Fingers','Nails','Chest','Sides (flanks)','Back','Stomach','Genitals','Hips','Thighs',
+  'Shins (lower legs)','Knees','Feet','Laughter'];
+function renderBsLimbTable(highlight){
+  const byLimb = {};
+  NAK28_ORDER.forEach(n=>{ const e = BS_NAK[n]; if (!e || e.limb.en === '—') return; (byLimb[e.limb.en] = byLimb[e.limb.en] || []).push(n); });
+  const rows = BS_LIMB_ORDER.filter(l=>byLimb[l]).map(l=>{
+    const stars = byLimb[l], hit = stars.includes(highlight);
+    return `<tr${hit?' style="background:var(--house1);font-weight:600;"':''}><td class="wide">${hit?'→ ':''}${T(l, BS_NAK[stars[0]].limb.es)}</td>
+      <td>${stars.map(s=>s===highlight?`<b style="color:var(--gold)">${s}</b>`:s).join(', ')}</td></tr>`;
+  }).join('');
+  return `<div class="tblwrap"><table><thead><tr><th>${T('Limb','Miembro')}</th><th>${T('Star(s)','Estrella(s)')}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
 function renderNakshatraPage(){
   const container = document.getElementById('nakshatraPageContent');
   if (!container) return;
@@ -6530,9 +6822,38 @@ function renderNakshatraPage(){
       </div>
     </div>`;
 
-  container.innerHTML = personalHtml + worldCyclesHtml + `
-    <div class="hint" style="margin-top:6px;">${T('More Nakṣatra categories can be added here in future.','Más categorías de Nakṣatra se pueden añadir aquí en el futuro.')}</div>
-  `;
+  // Live star-and-lunar-day reading. lat/lon are 0 here, which is fine —
+  // nakṣatra and tithi both come from ecliptic longitude alone, and nothing
+  // below touches the ascendant.
+  const livePanch = computePanchanga(pos);
+  const liveNak = livePanch.nak28.name;
+
+  const natalStarHtml = refP.star ? `
+    <h3 style="margin:0 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Your birth star','Tu estrella de nacimiento')} — ${refP.star}</h3>
+    ${renderBsNakCard(refP.star)}
+    <div style="height:18px"></div>` : `
+    <div class="hint" style="margin-bottom:14px;">${T('Set a reference person\'s Janma Nakṣatra on the Muhūrta Gauge page (field 1) to see their birth-star reading here.','Define el Janma Nakṣatra de una persona de referencia en la página Muhūrta Gauge (campo 1) para ver aquí la lectura de su estrella de nacimiento.')}</div>`;
+
+  const starReadingHtml = `
+    <div class="panel"><div class="hd"><h2>${T('Star &amp; Lunar Day Reading','Lectura de Estrella y Día Lunar')}</h2><span class="note">${T('live','en vivo')}</span></div>
+      <div class="bd">
+        ${natalStarHtml}
+        <h3 style="margin:0 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('The Moon right now','La Luna ahora mismo')} — ${liveNak}</h3>
+        ${renderBsNakCard(liveNak)}
+        <h3 style="margin:18px 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Today\'s lunar day','El día lunar de hoy')}</h3>
+        ${renderBsTithiCard(livePanch)}
+        <div class="hint" style="margin-top:12px; line-height:1.6;">${T('Two independent layers are being read here. A star carries a fixed nature and a fixed limb of the stellar body, which is why the same star suits some undertakings and ruins others. The lunar day carries its own presiding power and its own fitness. When a star and a lunar day are governed by the same power they reinforce each other, and work suited to one is suited to the other — that pairing is what the "paired lunar day" line above records.','Aquí se leen dos capas independientes. Una estrella lleva una naturaleza fija y un miembro fijo del cuerpo estelar, y por eso la misma estrella conviene a unas empresas y arruina otras. El día lunar lleva su propio poder regente y su propia aptitud. Cuando una estrella y un día lunar están gobernados por el mismo poder se refuerzan mutuamente, y el trabajo apto para uno lo es para el otro — ese emparejamiento es lo que registra la línea "día lunar emparejado" de arriba.')}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('All Twenty-Eight Stars','Las Veintiocho Estrellas')}</h2><span class="note">${T('reference','referencia')}</span></div>
+      <div class="bd">
+        ${renderBsNakTable(liveNak)}
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The star count is also a timing unit: an undertaking begun under a star ripens in as many years as the star has stars in it, and an illness that begins under one lifts in as many days. "Named for" lists only the undertakings a star is explicitly singled out for — a star missing from a list is not thereby forbidden for it, merely unremarkable.','El número de estrellas es también una unidad de tiempo: una empresa comenzada bajo una estrella madura en tantos años como estrellas la componen, y una enfermedad que comienza bajo ella remite en tantos días. "Nombrada para" enumera solo las empresas para las que una estrella se destaca explícitamente — que una estrella falte en una lista no la prohíbe para ella, solo la deja sin mención.')}</div>
+      </div>
+    </div>`;
+
+  container.innerHTML = personalHtml + worldCyclesHtml + starReadingHtml;
 }
 
 // ---- Anatomy ----
@@ -6596,6 +6917,30 @@ function renderAnatomyPage(){
           Śukla pakṣa (creciente, mitad clara) intensifica la lectura de néctar; Kṛṣṇa pakṣa (menguante, mitad oscura) intensifica
           la lectura de veneno. El Tārā de hoy (calculado desde tu Nakṣatra de referencia) agudiza o suaviza ambas — este es el
           "biorritmo" de la Luna natal que impulsa el medidor. No es consejo médico.`)}
+        </div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Stellar Body — Limb by Star','Cuerpo Estelar — Miembro por Estrella')}</h2><span class="note">${T('live','en vivo')}</span></div>
+      <div class="bd">
+        <div class="kv" style="margin-bottom:14px;">
+          <div class="k">${T('Moon right now','La Luna ahora mismo')}</div><div class="v">${panch.nak28.name} → <b style="color:var(--gold)">${BS_NAK[panch.nak28.name]?T(BS_NAK[panch.nak28.name].limb.en, BS_NAK[panch.nak28.name].limb.es):'—'}</b></div>
+          ${refP.star && BS_NAK[refP.star] ? `<div class="k">${T('Your birth star','Tu estrella de nacimiento')}</div><div class="v">${refP.star} → <b style="color:var(--gold)">${T(BS_NAK[refP.star].limb.en, BS_NAK[refP.star].limb.es)}</b></div>` : ''}
+        </div>
+        ${renderBsLimbTable(panch.nak28.name)}
+        <div class="hint" style="margin-top:12px; line-height:1.6;">
+          ${T(`<b style="color:var(--muted)">Read this as a second, independent body — not a refinement of the gauge above.</b> The Kālapuruṣa gauge maps the
+          body onto the twelve signs, running head to feet in zodiacal order. This one maps it onto the twenty-seven stars instead, and the two
+          disagree by construction: here the head belongs to Bharaṇī and the feet to Mūla, which fall nowhere near Aries and Pisces. So the same
+          moment can light up a high limb on one map and a low limb on the other, and neither reading corrects the other. Where they do agree,
+          the indication is worth more weight. One entry is not anatomical at all — Śatabhiṣaj is given "laughter" rather than a body part, and is
+          listed last for that reason. Not medical advice.`,
+          `<b style="color:var(--muted)">Léelo como un segundo cuerpo independiente — no como un refinamiento del medidor de arriba.</b> El medidor Kālapuruṣa
+          asigna el cuerpo a los doce signos, de la cabeza a los pies en orden zodiacal. Este lo asigna a las veintisiete estrellas, y ambos discrepan
+          por construcción: aquí la cabeza pertenece a Bharaṇī y los pies a Mūla, que no caen cerca de Aries ni de Piscis. Así, un mismo momento puede
+          encender un miembro alto en un mapa y uno bajo en el otro, y ninguna lectura corrige a la otra. Donde sí coinciden, la indicación merece más
+          peso. Una entrada no es anatómica en absoluto — a Śatabhiṣaj se le da "la risa" en vez de una parte del cuerpo, y por eso va al final.
+          No es consejo médico.`)}
         </div>
       </div>
     </div>
@@ -8284,7 +8629,8 @@ function renderChintamaniPage(){
     ['travel', T('Travel / Journey','Viaje')],
     ['relocation', T('Relocation (city compatibility)','Reubicación (compatibilidad de ciudad)')],
     ['housewarming', T('Housewarming (entering a new house)','Entrada a casa nueva')],
-    ['yajna', T('Religious ceremony / Yajña','Ceremonia religiosa / Yajña')]
+    ['yajna', T('Religious ceremony / Yajña','Ceremonia religiosa / Yajña')],
+    ['shaving', T('Shaving / haircut (Kṣaura Karma)','Afeitado / corte de pelo (Kṣaura Karma)')]
   ];
   const optionsHtml = activityOptions.map(([v,l])=>`<option value="${v}" ${chintamaniActivity===v?'selected':''}>${l}</option>`).join('');
 
@@ -8334,6 +8680,16 @@ function renderChintamaniPage(){
     const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=2 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
     activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
       <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
+  } else if (chintamaniActivity === 'shaving'){
+    const localHr = mdt.hh + (mdt.mm||0)/60;
+    const checks = bsShavingGuideline(panch, weekdayName, localHr, sunriseHr, sunsetHr);
+    const failCount = checks.filter(c=>!c.ok).length;
+    const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=1 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
+    activityBodyHtml = `
+      <div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+      <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>
+      <div class="hint" style="margin-top:10px; line-height:1.6;">${T(`The rest of the rule is about <b>state, not sky</b>, so it cannot be scored from a chart and is left to you: shaving is barred straight after a bath or a meal, once you are already dressed and ornamented, just before setting out on a journey, while seated on nothing, and on the ninth day after your last shave. Cutting the other way, every restriction above lifts — any star will do — when the occasion itself compels it: ${BS_SHAVE_OVERRIDES.en}.`,
+        `El resto de la regla trata del <b>estado, no del cielo</b>, así que no puede calcularse desde una carta y queda a tu criterio: se prohíbe afeitarse justo después del baño o de comer, ya vestido y adornado, justo antes de emprender un viaje, sentado sobre nada, y al noveno día del afeitado anterior. En sentido contrario, toda restricción de arriba se levanta — sirve cualquier estrella — cuando la ocasión misma lo exige: ${BS_SHAVE_OVERRIDES.es}.`)}</div>`;
   }
 
   container.innerHTML = `
