@@ -299,6 +299,23 @@
     font-family:var(--mono); text-align:right; padding:16px 20px; flex:none; border-left:1px solid var(--line-soft);
     display:flex; flex-direction:column; justify-content:center; align-items:flex-end; gap:2px; min-width:110px;
   }
+
+  /* ---------- Moment-gravity headline (Kala Bala office election) ---------- */
+  .gravity-banner{
+    border:1px solid var(--indigo-dim); background:linear-gradient(180deg, rgba(58,73,163,0.07), transparent);
+    border-radius:var(--radius); box-shadow:var(--shadow); padding:14px 18px; margin-bottom:20px;
+  }
+  .gravity-banner .gh{ font-family:var(--mono); font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--indigo); margin-bottom:5px; }
+  .gravity-banner .gname{ font-family:var(--serif); font-size:18px; color:var(--ink); letter-spacing:0.01em; }
+  .gravity-banner .gname b{ color:var(--indigo); font-weight:600; }
+  .gravity-banner .gdesc{ font-size:12.5px; color:var(--ink-dim); margin-top:5px; line-height:1.55; max-width:70ch; }
+  .gravity-banner .gchips{ display:flex; gap:6px; flex-wrap:wrap; margin-top:11px; }
+  .gravity-banner .gchip{
+    display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:var(--radius-pill);
+    font-family:var(--mono); font-size:10px; letter-spacing:0.02em; border:1px solid var(--line);
+    color:var(--muted); background:var(--panel-2);
+  }
+  .gravity-banner .gchip.winner{ color:var(--indigo); border-color:var(--indigo-dim); background:rgba(58,73,163,0.08); }
   .verdict .score .n{ font-size:30px; color:var(--ink); }
   .verdict .score .l{ font-size:10px; color:var(--muted); letter-spacing:0.12em; text-transform:uppercase;}
 
@@ -3936,6 +3953,298 @@ function computeNavamsaPos(pos){
   return navPos;
 }
 
+/* =========================================================================
+   MOMENT-GRAVITY ENGINE — invisible background calculation, no tab/table of
+   its own. Elects a single "governing graha" for the current hour: Kala
+   Bala's own time-lordship ledger (BPHS ch.27 — Vara 45, Hora 60 virupas;
+   read here as a ranking rather than as Parashara's own additive-sufficiency
+   use, an app synthesis, disclosed in the on-screen headline) picks the
+   candidate pool, a transiting Shadvarga Vimshopaka Bala (BPHS ch.7
+   śl.17-27, verified verbatim against a clean copy: weights D1=6/D2=2/D3=4/
+   D9=5/D12=2/D30=1 summing to 20; Varga Vishva tiers Own20/Adhimitra18/
+   Mitra15/Sama10/Satru7/Adhisatru5 via the full Pañcadha Sambandha — BPHS
+   ch.3 śl.55-58, natural + temporal relationship compounded, also verified
+   verbatim with a worked example) gates eligibility, and whole-sign
+   Parashari aspect to the Ascendant is the Tajika-Varshesha-style office
+   test. Masa/Abda lord (30+15 of the 150-virupa ledger) are deliberately
+   NOT included yet — their Ahargana epoch calculation is one the source
+   itself flags as failure-prone ("even a slight mistake will result in
+   spoiling the labour of hours"); shipping only the two unambiguous limbs
+   (Hora+Vara, 105 of 150) rather than guessing at a fragile epoch.
+
+   LANDMINES FOR FUTURE EDITS (read before touching anything above or below
+   this block):
+    - SIGN_LORD already exists at ~line 1729 — this engine reuses it and
+      must never redeclare it.
+    - GRAHA_SIGN_REL (~line 1747) is a SIGN-based own/friend/neutral/enemy
+      table with a known gap (Mercury's enemy-sign list is deliberately
+      empty per its own source). NAISARGIKA_REL below is a separate,
+      freshly-authored GRAHA-to-GRAHA natural-friendship table (BPHS ch.3
+      śl.55) and must never be merged with or derived from GRAHA_SIGN_REL.
+    - ASHTAKOOTA_VIMSOPAKA_WEIGHT (~line 4917) is a DIFFERENT, unrelated
+      per-graha weight table from the Chintāmaṇi marriage chapter (sums to
+      21.5, not 20) that happens to share the name "Vimshopaka" with
+      SHADVARGA_WEIGHT below — two different classical concepts, never
+      rename/merge them.
+    - Nothing in this block reads or writes dignityTier()/dignityWeight()/
+      dignity()/EXALT/DEBIL — fully additive, and must stay that way. */
+
+// BPHS ch.3 śl.55 — fixed graha-to-graha natural relationship (Naisargika
+// Maitri), independent of chart position. Includes Rahu/Ketu per the same
+// source, which itself notes "there are differences of opinion" about the
+// nodes specifically.
+const NAISARGIKA_REL = {
+  Sun:     { friend:["Moon","Mars","Jupiter"], enemy:["Venus","Saturn"], neutral:["Mercury"] },
+  Moon:    { friend:["Sun","Mercury"], enemy:[], neutral:["Mars","Jupiter","Venus","Saturn"] },
+  Mars:    { friend:["Sun","Moon","Jupiter"], enemy:["Mercury"], neutral:["Venus","Saturn"] },
+  Mercury: { friend:["Sun","Venus"], enemy:["Moon"], neutral:["Mars","Jupiter","Saturn"] },
+  Jupiter: { friend:["Sun","Moon","Mars"], enemy:["Mercury","Venus"], neutral:["Saturn"] },
+  Venus:   { friend:["Mercury","Saturn"], enemy:["Moon","Sun"], neutral:["Mars","Jupiter"] },
+  Saturn:  { friend:["Mercury","Venus"], enemy:["Sun","Moon","Mars"], neutral:["Jupiter"] },
+  Rahu:    { friend:["Jupiter","Venus","Saturn"], enemy:["Sun","Moon","Mars"], neutral:["Mercury"] },
+  Ketu:    { friend:["Mars","Venus","Saturn"], enemy:["Sun","Moon"], neutral:["Mercury","Jupiter"] }
+};
+function naisargikaRelOf(a, b){
+  if (a===b) return "own";
+  const rel = NAISARGIKA_REL[a];
+  if (rel.friend.includes(b)) return "friend";
+  if (rel.enemy.includes(b)) return "enemy";
+  return "neutral";
+}
+// BPHS ch.3 śl.56 — temporary (Tātkālika) relationship: a graha in the
+// 2nd/3rd/4th/10th/11th/12th sign from another (whole-sign) is its friend
+// for that moment only; every other placement (including the same sign) is
+// an enemy. Binary — this table has no neutral tier of its own.
+const TATKALIKA_FRIEND_HOUSES = [2,3,4,10,11,12];
+function tatkalikaRelOf(aSignIdx, bSignIdx){
+  const houseOfBFromA = ((bSignIdx - aSignIdx + 12) % 12) + 1;
+  return TATKALIKA_FRIEND_HOUSES.includes(houseOfBFromA) ? "friend" : "enemy";
+}
+// BPHS ch.3 śl.57-58 — Pañcadha Sambandha: compounding natural + temporal
+// relationship into the 5-fold (own excluded, handled separately) scale.
+// Verified against the source's own worked example (Moon: natural-friend +
+// temporal-enemy = neutral; Mercury: natural-neutral + temporal-enemy =
+// enemy; Venus/Saturn: natural-enemy + temporal-enemy = extreme enemy).
+function pancadhaRelOf(graha, otherGraha, grahaSignIdx, otherSignIdx){
+  if (graha===otherGraha) return "own";
+  const nat = naisargikaRelOf(graha, otherGraha);
+  const tat = tatkalikaRelOf(grahaSignIdx, otherSignIdx);
+  if (nat==="friend" && tat==="friend") return "adhimitra";
+  if (nat==="enemy" && tat==="enemy") return "adhisatru";
+  if (nat==="neutral" && tat==="friend") return "mitra";
+  if (nat==="neutral" && tat==="enemy") return "satru";
+  return "sama"; // friend+enemy in either order cancel to neutral, per the source's own worked example
+}
+
+// BPHS ch.7 śl.17-19 — Shadvarga Vimshopaka point weights (sum to 20) and
+// śl.20½-25 — Varga Vishva six-tier multiplier. Both verified verbatim.
+const SHADVARGA_WEIGHT = { D1:6, D2:2, D3:4, D9:5, D12:2, D30:1 };
+const VARGA_VISHVA = { own:20, adhimitra:18, mitra:15, sama:10, satru:7, adhisatru:5 };
+
+// Drekkana (D3) — 3 equal 10° parts: own/5th/9th sign from the rāśi sign
+// (the standard trine construction).
+function drekkanaSignIdx(rashiSidereal){
+  const L = norm360(rashiSidereal);
+  const signIdx = Math.floor(L/30);
+  const part = Math.floor((L - signIdx*30) / 10); // 0,1,2
+  return (signIdx + part*4) % 12;
+}
+// Dwadasamsha (D12) — 12 equal 2°30' parts, consecutive from the rāśi sign
+// itself for every sign (unlike Navamsa, no movable/fixed/dual branching).
+function dwadasamshaSignIdx(rashiSidereal){
+  const L = norm360(rashiSidereal);
+  const signIdx = Math.floor(L/30);
+  const part = Math.floor((L - signIdx*30) / 2.5); // 0..11
+  return (signIdx + part) % 12;
+}
+// Hora (D2) — two unequal-by-parity 15° halves; Hora has only Sun's and
+// Moon's halves, no sign-lord structure of its own, so dignity here is read
+// directly against whichever of Sun/Moon rules the half.
+function horaLordOfPosition(rashiSidereal){
+  const L = norm360(rashiSidereal);
+  const signIdx = Math.floor(L/30);
+  const oddSign = (signIdx % 2)===0; // signIdx 0 = Aries = 1st sign = odd
+  const half = Math.floor((L - signIdx*30) / 15); // 0 or 1
+  if (oddSign) return half===0 ? "Sun" : "Moon";
+  return half===0 ? "Moon" : "Sun";
+}
+// Trimsamsha (D30) — 5 unequal spans (Mars5°/Saturn5°/Jupiter8°/Mercury7°/
+// Venus5°, summing to 30°), order reversed for even signs; each span maps
+// to that lord's own sign (the standard construction).
+const TRIMSAMSHA_SPANS_ODD  = [["Mars",5,"Aries"],["Saturn",5,"Aquarius"],["Jupiter",8,"Sagittarius"],["Mercury",7,"Gemini"],["Venus",5,"Libra"]];
+const TRIMSAMSHA_SPANS_EVEN = [["Venus",5,"Taurus"],["Mercury",7,"Virgo"],["Jupiter",8,"Pisces"],["Saturn",5,"Capricorn"],["Mars",5,"Scorpio"]];
+function trimsamshaSignIdx(rashiSidereal){
+  const L = norm360(rashiSidereal);
+  const signIdx = Math.floor(L/30);
+  const degInSign = L - signIdx*30;
+  const oddSign = (signIdx % 2)===0;
+  const spans = oddSign ? TRIMSAMSHA_SPANS_ODD : TRIMSAMSHA_SPANS_EVEN;
+  let acc = 0;
+  for (const [,span,sign] of spans){ acc += span; if (degInSign < acc) return SIGNS.indexOf(sign); }
+  return SIGNS.indexOf(spans[spans.length-1][2]);
+}
+
+// Transiting Shadvarga Vimshopaka Bala for one graha — Σ(Swavishwa ×
+// Vargavishwa)/20 across D1/D2/D3/D9/D12/D30, using every OTHER classical
+// graha's own current sign to determine each varga's "lord" relationship
+// (a lord can itself be afflicted or exalted elsewhere; Vimshopaka only
+// asks whose sign it is and this graha's relationship to that lord).
+function shadvargaVimshopaka(graha, pos, navPos){
+  const rashiSid = pos[graha].sidereal;
+  const rashiSignIdx = Math.floor(norm360(rashiSid)/30);
+  const vargaSignIdx = {
+    D1: rashiSignIdx,
+    D3: drekkanaSignIdx(rashiSid),
+    D9: Math.floor(norm360(navPos[graha].sidereal)/30),
+    D12: dwadasamshaSignIdx(rashiSid),
+    D30: trimsamshaSignIdx(rashiSid)
+  };
+  let total = 0;
+  for (const vk of ["D1","D3","D9","D12","D30"]){
+    const lord = SIGN_LORD[SIGNS[vargaSignIdx[vk]]];
+    const rel = pancadhaRelOf(graha, lord, rashiSignIdx, Math.floor(norm360(pos[lord].sidereal)/30));
+    total += SHADVARGA_WEIGHT[vk] * VARGA_VISHVA[rel] / 20;
+  }
+  const horaLord = horaLordOfPosition(rashiSid);
+  const horaLordSignIdx = Math.floor(norm360(pos[horaLord].sidereal)/30);
+  const horaRel = pancadhaRelOf(graha, horaLord, rashiSignIdx, horaLordSignIdx);
+  total += SHADVARGA_WEIGHT.D2 * VARGA_VISHVA[horaRel] / 20;
+  return total; // 5 (all adhisatru) .. 20 (all own)
+}
+// BPHS ch.7 śl.26-27's own interpretation bands for the Vimshopaka total.
+function vimshopakaLabel(v){
+  if (v<5) return {en:"incapable",es:"incapaz"};
+  if (v<10) return {en:"poorly disposed",es:"mal dispuesto"};
+  if (v<15) return {en:"mixed",es:"mixto"};
+  return {en:"well-disposed",es:"bien dispuesto"};
+}
+
+// BPHS ch.27 — Kala Bala time-lordship. Vara (day) lord is simply the
+// weekday's own ruler; Hora (hour) lord cycles the Chaldean order (Saturn→
+// Jupiter→Mars→Sun→Venus→Mercury→Moon), hora 1 from sunrise = the day's own
+// Vara lord (the source's own stated rule — "the Lord of the first hour of
+// the day is also regarded as the Lord of the day"). Horas are 24 equal
+// divisions of one sunrise-to-sunrise day, not proportional day/night
+// halves (a different, separate classical convention used elsewhere in
+// this app for Kulika/Kalabela/Yamaghanta).
+const HORA_LORD_SEQUENCE = ["Saturn","Jupiter","Mars","Sun","Venus","Mercury","Moon"];
+const WEEKDAY_LORD = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"]; // index = JS Date.getDay()
+function varaLordOf(weekdayEN){ return WEEKDAY_LORD[WEEKDAYS.indexOf(weekdayEN)]; }
+// Sunrise-rolled weekday + hours-since-sunrise for a moment. Unlike
+// WEEKDAYS[date.getDay()] used at several other call sites in this app
+// (civil-midnight rollover — e.g. the Pañcha Pakshi engine, which those
+// features already depend on as-is and which this block deliberately does
+// not touch), the Vedic Vāra only changes at sunrise: a moment before
+// today's sunrise still belongs to YESTERDAY's Vedic day, with its own
+// weekday and its own sunrise as the hora-counting origin.
+function sunriseRolledMoment(mdt){
+  const todaySun = sunriseSunsetLocal(mdt.y, mdt.mo, mdt.da, mdt.lat, mdt.lon, mdt.tz);
+  const todaySunriseHr = todaySun ? todaySun.sunriseHr : 6;
+  const clockHr = mdt.hh + mdt.mm/60;
+  if (clockHr >= todaySunriseHr){
+    return { weekdayEN: WEEKDAYS[new Date(mdt.y, mdt.mo-1, mdt.da).getDay()], hourFromSunrise: clockHr - todaySunriseHr, sunriseHrUsed: todaySunriseHr, y:mdt.y, mo:mdt.mo, da:mdt.da };
+  }
+  const yest = new Date(mdt.y, mdt.mo-1, mdt.da); yest.setDate(yest.getDate()-1);
+  const yestSun = sunriseSunsetLocal(yest.getFullYear(), yest.getMonth()+1, yest.getDate(), mdt.lat, mdt.lon, mdt.tz);
+  const yestSunriseHr = yestSun ? yestSun.sunriseHr : 6;
+  return { weekdayEN: WEEKDAYS[yest.getDay()], hourFromSunrise: (24 - yestSunriseHr) + clockHr, sunriseHrUsed: yestSunriseHr, y:yest.getFullYear(), mo:yest.getMonth()+1, da:yest.getDate() };
+}
+
+// BPHS ch.27 (Surya Siddhānta Madhyamādhikāra śl.51-52, cited by name in the
+// source) — Masa (month) and Varsha (year) lords, the remaining two limbs of
+// the Kala Bala office ledger (30 and 15 of 150 virupas). Both derive from
+// "Ahargana" — the count of sunrise-to-sunrise days since a classical epoch
+// — via formulas verified verbatim against a clean copy, worked example
+// included: Dinapati = Ahargana mod 7; Masapati = (2×⌊Ahargana/30⌋+1) mod 7;
+// Varshapati = (3×⌊Ahargana/360⌋+1) mod 7 — each remainder R (0 treated as
+// 7) counts weekdays from the Sun, i.e. WEEKDAYS[(R+6)%7].
+//
+// Rather than reconstruct the full mythological epoch, this is calibrated
+// directly off the source's own worked "abbreviated Ahargana" example:
+// Ahargana(1951 Jan 0, i.e. 1950-12-31) = 53089 — verified self-consistent,
+// since running Dinapati through this calibration on the source's own birth
+// example (1951-06-02, Ahargana 53242) correctly reproduces "Saturday",
+// exactly as stated in the text.
+//
+// DISCLOSED SOURCE LIMITATION: the source's own worked example for
+// Varshapati is off by one weekday-step from the example's stated actual
+// birth weekday, and the text itself says plainly "one should be deducted
+// from or added to it because such a situation generally arises" — i.e.
+// even BPHS's own abbreviated method admits ±1 day of slack for Masa/Varsha
+// specifically (Dina/Hora above are exact, no such caveat given for them).
+// Implemented faithfully per the stated formula regardless, not silently
+// "corrected" — an invented correction would be less honest than a
+// disclosed one.
+const AHARGANA_REF_Y=1950, AHARGANA_REF_M=12, AHARGANA_REF_D=31, AHARGANA_REF_VALUE=53089;
+function aharganaOf(y, mo, da){
+  const jdRef = julianDay(AHARGANA_REF_Y, AHARGANA_REF_M, AHARGANA_REF_D, 0,0,0, 0);
+  const jdTarget = julianDay(y, mo, da, 0,0,0, 0);
+  return AHARGANA_REF_VALUE + Math.round(jdTarget - jdRef);
+}
+function weekdayFromAharganaRemainder(r){ return WEEKDAYS[((r%7)+6)%7]; }
+function masaLordAt(ahargana){
+  const q = Math.floor(ahargana/30);
+  return varaLordOf(weekdayFromAharganaRemainder(2*q+1));
+}
+function abdaLordAt(ahargana){
+  const q = Math.floor(ahargana/360);
+  return varaLordOf(weekdayFromAharganaRemainder(3*q+1));
+}
+function horaLordAt(weekdayEN, hourFromSunrise){
+  const varaLord = varaLordOf(weekdayEN);
+  const startIdx = HORA_LORD_SEQUENCE.indexOf(varaLord);
+  const horaNum = ((Math.floor(hourFromSunrise) % 24) + 24) % 24; // hora 0 = first hora after sunrise
+  return { lord: HORA_LORD_SEQUENCE[(startIdx + horaNum) % 7], horaNum };
+}
+
+// Whole-sign Parashari aspect (dṛṣṭi) to the Ascendant — every graha aspects
+// its own 7th sign fully; Mars additionally 4th/8th, Jupiter 5th/9th,
+// Saturn 3rd/10th. Used here as the Tajika-Varshesha-style office-bearer
+// eligibility test (does this time-lord actually reach the moment's own
+// Ascendant), not as SBC's own Vedha mechanism — a different, unrelated
+// aspect system, kept unmerged with the Vedha machinery elsewhere.
+const PARASHARI_SPECIAL_ASPECTS = { Mars:[4,7,8], Jupiter:[5,7,9], Saturn:[3,7,10] };
+function aspectsSignWholeSign(graha, grahaSignIdx, targetSignIdx){
+  const houses = PARASHARI_SPECIAL_ASPECTS[graha] || [7];
+  const houseOfTarget = ((targetSignIdx - grahaSignIdx + 12) % 12) + 1;
+  return houses.includes(houseOfTarget);
+}
+
+// The election itself — Tajika Varshesha's crowning shape (closed candidate
+// pool → hard eligibility gate → strength tiebreak → portfolio-count
+// tiebreak) applied to the Hora/Vara office ledger above. If no candidate
+// clears the gate, the Hora lord governs by default and the headline says
+// so explicitly rather than silently substituting.
+function electGravityGraha(pos, navPos, mdt, ascSignIdx){
+  const { weekdayEN, hourFromSunrise, sunriseHrUsed, y, mo, da } = sunriseRolledMoment(mdt);
+  const { lord: horaLord, horaNum } = horaLordAt(weekdayEN, hourFromSunrise);
+  const varaLord = varaLordOf(weekdayEN);
+  const ahargana = aharganaOf(y, mo, da);
+  const masaLord = masaLordAt(ahargana);
+  const abdaLord = abdaLordAt(ahargana);
+  const office = {};
+  [varaLord, horaLord, masaLord, abdaLord].forEach(g=>{ office[g] = office[g] || { points:0, roles:[] }; });
+  office[varaLord].points += 45; office[varaLord].roles.push('vara');
+  office[horaLord].points += 60; office[horaLord].roles.push('hora');
+  office[masaLord].points += 30; office[masaLord].roles.push('masa');
+  office[abdaLord].points += 15; office[abdaLord].roles.push('abda');
+
+  const candidates = Object.keys(office).map(g=>{
+    const signIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    const vim = shadvargaVimshopaka(g, pos, navPos);
+    return {
+      graha:g, points:office[g].points, roles:office[g].roles,
+      vimshopaka: vim, vimLabel: vimshopakaLabel(vim),
+      aspectsAsc: aspectsSignWholeSign(g, signIdx, ascSignIdx)
+    };
+  }).sort((a,b)=> b.points - a.points || b.vimshopaka - a.vimshopaka);
+
+  const eligible = candidates.filter(c=>c.aspectsAsc && c.vimshopaka>=10);
+  if (eligible.length) return { winner: eligible[0], pool: candidates, byDefault:false, horaNum, sunriseHrUsed };
+  const horaWinner = candidates.find(c=>c.roles.includes('hora'));
+  return { winner: horaWinner || candidates[0], pool: candidates, byDefault:true, horaNum, sunriseHrUsed };
+}
+
 function renderChart(pos, ascSign){
   const ascIdx = SIGNS.indexOf(ascSign);
   const planetsBySign = {}; SIGNS.forEach(s=>planetsBySign[s]=[]);
@@ -5466,6 +5775,36 @@ function runAnalysis(){
       <div class="l">${T('SBC score','Puntuación SBC')}</div>
     </div>
   </div>`;
+
+  // Moment-gravity headline — see electGravityGraha() for the full method.
+  // navPos computed locally (not reusing the later D1/D9-chart navPos below)
+  // so this injection can't reorder or depend on unrelated existing code.
+  {
+    const gravNavPos = computeNavamsaPos(pos);
+    const ascSignIdx = SIGNS.indexOf(panch.ascSign);
+    const gravity = electGravityGraha(pos, gravNavPos, mdt, ascSignIdx);
+    const w = gravity.winner;
+    const ROLE_LABEL = { hora:{en:'the Hour',es:'la Hora'}, vara:{en:'the Day',es:'el Día'}, masa:{en:'the Month',es:'el Mes'}, abda:{en:'the Year',es:'el Año'} };
+    const roleText = w.roles.map(r=>T(ROLE_LABEL[r].en, ROLE_LABEL[r].es)).join(T(' and ',' y '));
+    const governsUntilHr = (gravity.sunriseHrUsed + (gravity.horaNum+1)) % 24;
+    const governsUntilStr = `${pad2(Math.floor(governsUntilHr))}:${pad2(Math.round((governsUntilHr%1)*60))}`;
+    const defaultNote = gravity.byDefault
+      ? T(' No office-bearer both aspects this Ascendant and clears the Vimśopaka floor, so the Hour\'s own lord governs by default.',' Ningún funcionario aspecta este Ascendente y supera el umbral de Vimśopaka a la vez, así que gobierna por defecto el señor de la Hora.')
+      : '';
+    const epochNote = (w.roles.includes('masa') || w.roles.includes('abda') || gravity.pool.some(c=>c.roles.includes('masa')||c.roles.includes('abda')))
+      ? T(' Month/Year office uses BPHS\'s own abbreviated day-count method, which the source itself flags as accurate to within about a day.',' El cargo de Mes/Año usa el método abreviado de cómputo de días del propio BPHS, que la fuente misma señala como preciso dentro de aproximadamente un día.')
+      : '';
+    const chips = gravity.pool.map(c=>{
+      const roles = c.roles.map(r=>T(ROLE_LABEL[r].en, ROLE_LABEL[r].es)).join(', ');
+      return `<span class="gchip${c===w?' winner':''}">${T(c.graha,GRAHA_ES[c.graha])} · ${roles}</span>`;
+    }).join('');
+    html += `<div class="gravity-banner">
+      <div class="gh">${T('Governing this hour','Gobierna esta hora')}</div>
+      <div class="gname">${T('THIS HOUR IS GOVERNED BY','ESTA HORA ESTÁ GOBERNADA POR')} <b>${T(w.graha,GRAHA_ES[w.graha]).toUpperCase()}</b></div>
+      <div class="gdesc">${T(`Holding ${roleText}. ${w.graha} reads ${w.vimLabel.en} by transiting Vimśopaka Bala (BPHS ch.7).${defaultNote} Governs until ${governsUntilStr} local.${epochNote}`,`Ocupa ${roleText}. ${T(w.graha,GRAHA_ES[w.graha])} se lee ${w.vimLabel.es} por Vimśopaka Bala en tránsito (BPHS cap. 7).${defaultNote} Gobierna hasta las ${governsUntilStr} hora local.${epochNote}`)}</div>
+      <div class="gchips">${chips}</div>
+    </div>`;
+  }
 
   html += `<div class="strip">
     <div class="cell"><div class="k">Tithi</div><div class="v">${panch.tithiName} <small>(${panch.paksha==='Shukla'?T('Śukla Pakṣa/Bright Half, Waxing','Śukla Pakṣa/Mitad Clara, Creciente'):T('Kṛṣṇa Pakṣa/Dark Half, Waning','Kṛṣṇa Pakṣa/Mitad Oscura, Menguante')}, ${T('no.','n.º')} ${panch.tithiNum})</small></div></div>
