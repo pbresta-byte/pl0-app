@@ -5047,6 +5047,78 @@ function chintamaniRelocationCheck(personName, cityName){
   return { personRashi, cityRashi, houseFromPerson, auspicious, effect, avoidDir };
 }
 
+// ---- Housewarming / entering a newly built house (ch. 13) ----
+const CHINTAMANI_HOUSEWARMING_NAKS = ['U.Phalguni','U.Shada','U.Bhadrapada','Rohini','Mrigasira','Revati','Chitra','Anuradha']; // Dhruva + Mridu groups
+const CHINTAMANI_HOUSEWARMING_MONTHS = ['Jyeshtha','Magha','Phalguna','Vaishakha'];
+// Kumbha Chakra (ch.13 §6) — a 27-nakṣatra wheel counted from the Sun's own
+// current nakṣatra: offset 1=Mouth, 2-5=East, 6-9=South, 10-13=West,
+// 14-17=North, 18-21=Womb, 22-24=Bottom, 25-27=Throat (1+4+4+4+4+4+3+3=27,
+// exact) — transcribed directly from the source's own worked description,
+// not a claim of a wider general-purpose system.
+const CHINTAMANI_KUMBHA_ZONES = [
+  {upto:1,  en:'Mouth',  es:'Boca',     tone:'bad',  effect:{en:'house catches fire',es:'la casa se incendia'}},
+  {upto:5,  en:'East',   es:'Este',     tone:'bad',  effect:{en:"owner unable to live in the house",es:'el dueño no puede vivir en la casa'}},
+  {upto:9,  en:'South',  es:'Sur',      tone:'good', effect:{en:'house stays filled with wealth',es:'la casa se mantiene llena de riqueza'}},
+  {upto:13, en:'West',   es:'Oeste',    tone:'good', effect:{en:'owner keeps gaining wealth',es:'el dueño sigue ganando riqueza'}},
+  {upto:17, en:'North',  es:'Norte',    tone:'bad',  effect:{en:'quarrel and dispute',es:'riña y disputa'}},
+  {upto:21, en:'Womb',   es:'Vientre',  tone:'bad',  effect:{en:"destruction of the owner",es:'destrucción del dueño'}},
+  {upto:24, en:'Bottom', es:'Fondo',    tone:'good', effect:{en:'owner lives in the house a long time',es:'el dueño vive en la casa mucho tiempo'}},
+  {upto:27, en:'Throat', es:'Garganta', tone:'good', effect:{en:"owner's residence lasts a lifetime",es:'la residencia del dueño dura toda la vida'}}
+];
+function chintamaniKumbhaChakra(sunNakName, targetNakName){
+  const sunIdx = starPosition27(sunNakName), targetIdx = starPosition27(targetNakName);
+  if (!sunIdx || !targetIdx) return null;
+  const offset = ((targetIdx - sunIdx + 27) % 27) + 1; // 1..27
+  return CHINTAMANI_KUMBHA_ZONES.find(z=>offset<=z.upto);
+}
+function chintamaniHousewarmingGuideline(pos, panch, mdt, direction){
+  const checks = [];
+  const sunSign = SIGNS[Math.floor(norm360(pos.Sun.sidereal)/30)];
+  const ascSign = panch.ascSign;
+  checks.push({ label:T('Sun in Uttarāyaṇa (Capricorn–Gemini)','Sol en Uttarāyaṇa (Capricornio–Géminis)'), ok: ['Capricorn','Aquarius','Pisces','Aries','Taurus','Gemini'].includes(sunSign), cite:'ch.13 §1' });
+  checks.push({ label:T('Moon nakṣatra is Dhruva or Mridu','La Nakṣatra lunar es Dhruva o Mridu'), ok: CHINTAMANI_HOUSEWARMING_NAKS.includes(panch.nak28.name), cite:'ch.13 §1' });
+  checks.push({ label:T('Ascendant is a Fixed sign','El Ascendente es un signo Fijo'), ok: SIGN_QUALITY[ascSign]==='Fixed', cite:'ch.13 §1, §4' });
+  const weekdayEN = WEEKDAYS[new Date(mdt.y,mdt.mo-1,mdt.da).getDay()];
+  checks.push({ label:T('Not Sunday or Tuesday','No es domingo ni martes'), ok: !['Sunday','Tuesday'].includes(weekdayEN), cite:'ch.13 §4' });
+  checks.push({ label:T('Not a Rikta tithi (4th/9th/14th)','No es Tithi Rikta (4.ª/9.ª/14.ª)'), ok: !isRiktaTithi(panch.tithiNum), cite:'ch.13 §4' });
+  checks.push({ label:T('Not Amāvasyā','No es Amāvasyā'), ok: panch.tithiName !== 'Amavasya', cite:'ch.13 §4' });
+  if (direction){
+    const t = panch.tithiNum>15 ? panch.tithiNum-15 : panch.tithiNum;
+    const DIR_TITHI = { East:[5,10,15], South:[1,6,11], West:[2,7,12], North:[3,8,13] };
+    checks.push({ label:T(`Today's tithi suits a ${direction}-facing door`,`El tithi de hoy conviene a una puerta orientada al ${direction}`),
+      ok: (DIR_TITHI[direction]||[]).includes(t), info: T('Only checkable for the 4 cardinal directions — Diś-Śūla and this tithi rule are both given for N/S/E/W only.','Solo se puede comprobar para las 4 direcciones cardinales — tanto Diś-Śūla como esta regla de tithi se dan solo para N/S/E/O.'),
+      cite:'ch.13 §5' });
+  }
+  const sunNak27 = nakshatraFromSidereal(norm360(pos.Sun.sidereal), false).name;
+  const kumbha = chintamaniKumbhaChakra(sunNak27, panch.nak.name);
+  return { checks, kumbha };
+}
+
+// ---- Religious ceremony / Yajña (Agnyādhāna) (ch. 9) ----
+const CHINTAMANI_YAJNA_NAKS = ['Vishakha','Krittika','U.Phalguni','U.Shada','U.Bhadrapada','Rohini','Revati','Mrigasira','Jyeshta','Pushya'];
+const CHINTAMANI_LAGNA_SHUDDHI_AVOID = ['Cancer','Capricorn','Pisces','Aquarius'];
+function chintamaniYajnaGuideline(pos, panch){
+  const checks = [];
+  const sunSign = SIGNS[Math.floor(norm360(pos.Sun.sidereal)/30)];
+  checks.push({ label:T('Sun in Uttarāyaṇa (Capricorn–Gemini)','Sol en Uttarāyaṇa (Capricornio–Géminis)'), ok: ['Capricorn','Aquarius','Pisces','Aries','Taurus','Gemini'].includes(sunSign), cite:'ch.9' });
+  checks.push({ label:T('Not a Rikta tithi (4th/9th/14th)','No es Tithi Rikta (4.ª/9.ª/14.ª)'), ok: !isRiktaTithi(panch.tithiNum), cite:'ch.9' });
+  checks.push({ label:T('Moon nakṣatra is in the favoured list (10 named)','La Nakṣatra lunar está en la lista favorecida (10 nombradas)'), ok: CHINTAMANI_YAJNA_NAKS.includes(panch.nak28.name), cite:'ch.9' });
+  ['Moon','Mars','Jupiter','Venus'].forEach(g=>{
+    const sid = pos[g].sidereal;
+    const sign = SIGNS[Math.floor(norm360(sid)/30)];
+    const debil = DEBIL[g]===sign;
+    const diff = norm360(sid-pos.Sun.sidereal);
+    const orb = (g==='Venus' && pos.Venus.speed<0) ? 8 : COMBUSTION_ORB_DEG[g];
+    const combust = diff<=orb || (360-diff)<=orb;
+    const enemy = dignityTier(g, sid)==='Enemy';
+    checks.push({ label:T(`${g} is well-disposed (not debilitated, combust or in an enemy sign)`,`${T(g,GRAHA_ES[g])} está bien dispuesto (no debilitado, combusto ni en signo enemigo)`),
+      ok: !(debil||combust||enemy), cite:'ch.9' });
+  });
+  checks.push({ label:T('Moon not in Cancer/Capricorn/Pisces/Aquarius (Lagna Śuddhi)','La Luna no está en Cáncer/Capricornio/Piscis/Acuario (Lagna Śuddhi)'), ok: !CHINTAMANI_LAGNA_SHUDDHI_AVOID.includes(SIGNS[Math.floor(norm360(pos.Moon.sidereal)/30)]), cite:'ch.9' });
+  checks.push({ label:T('Ascendant not in Cancer/Capricorn/Pisces/Aquarius (Lagna Śuddhi)','El Ascendente no está en Cáncer/Capricornio/Piscis/Acuario (Lagna Śuddhi)'), ok: !CHINTAMANI_LAGNA_SHUDDHI_AVOID.includes(panch.ascSign), cite:'ch.9' });
+  return checks;
+}
+
 /* =========================================================================
    TWO-PERSON COMPATIBILITY — AṢṬAKOOTA (Guṇa Milan) + VIMŚOPAKA BALA
    ch. 6 "Marriage Sanskaras," p.157-174 (Aṣṭakoota) and p.216 (Vimśopaka).
@@ -8210,7 +8282,9 @@ function renderChintamaniPage(){
     ['', T('— choose an activity —','— elige una actividad —')],
     ['marriage', T('Marriage','Matrimonio')],
     ['travel', T('Travel / Journey','Viaje')],
-    ['relocation', T('Relocation (city compatibility)','Reubicación (compatibilidad de ciudad)')]
+    ['relocation', T('Relocation (city compatibility)','Reubicación (compatibilidad de ciudad)')],
+    ['housewarming', T('Housewarming (entering a new house)','Entrada a casa nueva')],
+    ['yajna', T('Religious ceremony / Yajña','Ceremonia religiosa / Yajña')]
   ];
   const optionsHtml = activityOptions.map(([v,l])=>`<option value="${v}" ${chintamaniActivity===v?'selected':''}>${l}</option>`).join('');
 
@@ -8241,6 +8315,25 @@ function renderChintamaniPage(){
         <div><label>${T('Candidate city','Ciudad candidata')}</label><input type="text" id="chintamaniCityName" value="${escHtml(cityName)}" placeholder="${T('e.g. Austin','p. ej. Austin')}"></div>
       </div>
       <div id="chintamaniRelocationResult" style="margin-top:12px;"></div>`;
+  } else if (chintamaniActivity === 'housewarming'){
+    const dirSel = document.getElementById('chintamaniDirection');
+    const direction = dirSel ? dirSel.value : '';
+    const { checks, kumbha } = chintamaniHousewarmingGuideline(pos, panch, mdt, direction || null);
+    const failCount = checks.filter(c=>!c.ok).length;
+    const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=2 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
+    const kumbhaHtml = kumbha ? `<div class="hint" style="margin-top:10px; line-height:1.6;">${T(`Kumbha Chakra (ch.13 §6): today's Moon nakṣatra falls in the <b>${kumbha.en}</b> zone counted from the Sun's own nakṣatra — the source's own stated effect: "${kumbha.effect.en}."`,`Kumbha Chakra (cap.13 §6): la Nakṣatra lunar de hoy cae en la zona <b>${kumbha.es}</b> contada desde la propia Nakṣatra del Sol — el efecto que indica la fuente: "${kumbha.effect.es}."`)}</div>` : '';
+    activityBodyHtml = `
+      <label>${T('Direction the door faces (optional)','Dirección a la que mira la puerta (opcional)')}</label>
+      <select id="chintamaniDirection">${['','North','South','East','West'].map(d=>`<option value="${d}" ${direction===d?'selected':''}>${d||T('— not set —','— sin definir —')}</option>`).join('')}</select>
+      <div class="okbox" style="margin:12px 0;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+      <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>
+      ${kumbhaHtml}`;
+  } else if (chintamaniActivity === 'yajna'){
+    const checks = chintamaniYajnaGuideline(pos, panch);
+    const failCount = checks.filter(c=>!c.ok).length;
+    const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=2 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
+    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+      <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
   }
 
   container.innerHTML = `
