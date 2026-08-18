@@ -4580,6 +4580,7 @@ function renderBodyGauge(deha){
   return renderBodySilhouette(sign=>{
     if (sign===deha.nectar.sign) return {fill:"var(--hit-good-bg)", stroke:"var(--hit-good-line)", sw:2.5};
     if (sign===deha.poison.sign) return {fill:"var(--hit-bad-bg)", stroke:"var(--hit-bad-line)", sw:2.5};
+    if (sign===deha.vitality.sign) return {fill:"rgba(58,73,163,0.16)", stroke:"var(--indigo)", sw:2.5};
     if (deha.natal && sign===deha.natal.sign) return {fill:"var(--body-fill)", stroke:"var(--gold)", sw:2};
     return {fill:"var(--body-fill)", stroke:"var(--body-stroke)", sw:1};
   });
@@ -6362,6 +6363,14 @@ function computeDehaChakra(pos, panch, refP, tara){
   const transitSign = SIGNS[transitIdx];
   const poisonIdx = (transitIdx+6)%12;
   const poisonSign = SIGNS[poisonIdx];
+  // Vitality zone (2026-08-18, Jyotish board of advisors request) — same
+  // Kālapuruṣa mechanism as Nectar/Poison, applied to the MOMENT'S ASCENDANT
+  // rather than the Moon: BPHS distinguishes Lagna (deha/body-frame) from
+  // Chandra (manas/mind) as two separate axes that happen to share one
+  // zone-mapping table. Kept visually distinct (own color, not a 3rd copy
+  // of the nectar/poison style) per the board's own caution against
+  // blurring two different grahas' readings together on one small figure.
+  const vitalitySign = panch.ascSign;
   let natalSign = null;
   if (refP.star){
     const si = NAK27.findIndex(s=>s.n===refP.star);
@@ -6385,11 +6394,18 @@ function computeDehaChakra(pos, panch, refP, tara){
   const zoneEs = sign => BODY_ZONE_ES[sign];
   const zoneOf = sign => ({ title:T(zoneEn(sign).title, zoneEs(sign).title), goodFor:T(zoneEn(sign).goodFor, zoneEs(sign).goodFor), avoid:T(zoneEn(sign).avoid, zoneEs(sign).avoid) });
 
+  // Remedial line under the Poison zone (2026-08-18 board request) — reuses
+  // the existing per-graha GRAHA_REMEDY table (Remedies page) rather than
+  // inventing a new one; keyed off the Poison zone SIGN's own lord.
+  const poisonLord = SIGN_LORD[poisonSign];
+  const poisonRemedy = GRAHA_REMEDY[poisonLord];
+
   return {
-    transitSign, poisonSign, natalSign,
+    transitSign, poisonSign, vitalitySign, natalSign,
     bright, tara,
     nectar: {sign:transitSign, ...zoneOf(transitSign), note:nectarNote},
-    poison: {sign:poisonSign, ...zoneOf(poisonSign), note:poisonNote},
+    poison: {sign:poisonSign, ...zoneOf(poisonSign), note:poisonNote, lord:poisonLord, remedy:poisonRemedy},
+    vitality: {sign:vitalitySign, ...zoneOf(vitalitySign)},
     natal: natalSign ? {sign:natalSign, ...zoneOf(natalSign)} : null
   };
 }
@@ -7406,6 +7422,7 @@ function renderAnatomyPage(){
           <div class="chakra-legend" style="flex:1; min-width:280px;">
             <div class="li"><span class="sw" style="background:rgba(23,117,80,0.3);border:1px solid var(--jade)"></span> ${T("Nectar point (Amṛta Sthāna) — today's transiting Moon zone","Punto de néctar (Amṛta Sthāna) — la zona de tránsito de la Luna de hoy")}</div>
             <div class="li"><span class="sw" style="background:rgba(176,50,32,0.3);border:1px solid var(--vermilion)"></span> ${T('Poison point (Viṣa Sthāna) — the opposite (Vedha) zone','Punto de veneno (Viṣa Sthāna) — la zona opuesta (Vedha)')}</div>
+            <div class="li"><span class="sw" style="background:rgba(58,73,163,0.16);border:1px solid var(--indigo)"></span> ${T("Vitality zone — the moment's own Ascendant (Lagna) zone","Zona de vitalidad — la zona del Ascendente (Lagna) del momento")}</div>
             ${deha.natal ? `<div class="li"><span class="sw" style="background:var(--body-fill);border:1.5px solid var(--gold)"></span> ${T(`Natal marker — your reference Nakṣatra's own zone (${deha.natal.sign})`, `Marcador natal — la zona propia de tu Nakṣatra de referencia (${deha.natal.sign})`)}</div>` : ''}
             <div class="kv" style="margin-top:14px;">
               <div class="k">${T('Nectar zone','Zona de néctar')}</div><div class="v"><b style="color:var(--jade)">${deha.nectar.title}</b> <span style="color:var(--slate)">(${deha.nectar.sign})</span></div>
@@ -7416,6 +7433,12 @@ function renderAnatomyPage(){
               <div class="k">${T('Poison zone','Zona de veneno')}</div><div class="v"><b style="color:var(--vermilion)">${deha.poison.title}</b> <span style="color:var(--slate)">(${deha.poison.sign})</span></div>
               <div class="k">${T('Reading','Lectura')}</div><div class="v">${deha.poison.note}.</div>
               <div class="k">${T('Avoid','Evitar')}</div><div class="v">${deha.poison.avoid}</div>
+              ${deha.poison.remedy ? `<div class="k">${T('Traditionally','Tradicionalmente')}</div><div class="v">${T(`${deha.poison.lord}'s upāya: ${deha.poison.remedy.mantra} · ${deha.poison.remedy.color} · ${deha.poison.remedy.donation}`,`Upāya de ${GRAHA_ES[deha.poison.lord]||deha.poison.lord}: ${deha.poison.remedy.mantra} · ${GRAHA_REMEDY_ES[deha.poison.lord].color} · ${GRAHA_REMEDY_ES[deha.poison.lord].donation}`)} <span style="color:var(--slate); font-size:11px;">${T('(the Poison zone\'s own ruling graha — see Remedies page for the full table)','(el graha regente propio de la zona de veneno — ver la página de Remedios para la tabla completa)')}</span></div>` : ''}
+            </div>
+            <div class="kv" style="margin-top:14px;">
+              <div class="k">${T('Vitality zone','Zona de vitalidad')}</div><div class="v"><b style="color:var(--indigo)">${deha.vitality.title}</b> <span style="color:var(--slate)">(${deha.vitality.sign})</span></div>
+              <div class="k">${T('Favours','Favorece')}</div><div class="v">${deha.vitality.goodFor}</div>
+              <div class="k"></div><div class="v"><span class="hint" style="display:inline;">${T('From the moment\'s Ascendant, not the Moon — Lagna governs the body/constitution axis, a separate reading from the Nectar/Poison pair above, not a refinement of it.','Del Ascendente del momento, no de la Luna — el Lagna gobierna el eje del cuerpo/constitución, una lectura separada del par Néctar/Veneno de arriba, no un refinamiento de este.')}</span></div>
             </div>
           </div>
         </div>
@@ -7441,7 +7464,9 @@ function renderAnatomyPage(){
           <div class="k">${T('Moon right now','La Luna ahora mismo')}</div><div class="v">${panch.nak28.name} → <b style="color:var(--gold)">${BS_NAK[panch.nak28.name]?T(BS_NAK[panch.nak28.name].limb.en, BS_NAK[panch.nak28.name].limb.es):'—'}</b></div>
           ${refP.star && BS_NAK[refP.star] ? `<div class="k">${T('Your birth star','Tu estrella de nacimiento')}</div><div class="v">${refP.star} → <b style="color:var(--gold)">${T(BS_NAK[refP.star].limb.en, BS_NAK[refP.star].limb.es)}</b></div>` : ''}
         </div>
-        ${renderBsLimbTable(panch.nak28.name)}
+        <details class="ref-drop"><summary>${T('All limbs by star (reference)','Todos los miembros por estrella (referencia)')}</summary>
+          <div class="bd">${renderBsLimbTable(panch.nak28.name)}</div>
+        </details>
         <div class="hint" style="margin-top:12px; line-height:1.6;">
           ${T(`<b style="color:var(--muted)">Read this as a second, independent body — not a refinement of the gauge above.</b> The Kālapuruṣa gauge maps the
           body onto the twelve signs, running head to feet in zodiacal order. This one maps it onto the twenty-seven stars instead, and the two
@@ -8534,6 +8559,37 @@ function backtestSignificance(bt){
   return (p-0.5)/se;
 }
 
+/* ---- Risk note: classic technical pivot points (2026-08-18 request) ----
+   A dated snapshot, NOT a live in-app fetch — this app stays fully offline/
+   computed by standing convention (see the reverted COT integration
+   earlier this session); Claude fetched this once in conversation via a
+   market-data connector (FMP, GCUSD daily bar, 2026-08-18) rather than
+   wiring a browser-side network call into the page itself. Standard
+   floor-trader pivot formula (P=(H+L+C)/3, R/S1..3) from the most recent
+   daily bar — the same kind of level tools like the Williams Pivots
+   indicator plot, shown here so the gap this app has is named explicitly
+   rather than left implicit: none of the classical/backtest reading above
+   knows anything about price structure, volume, or where spot currently
+   sits relative to support/resistance. Oil's equivalent wasn't pulled —
+   the connector's crude-oil endpoint needed a higher data-plan tier than
+   this session had; flagged rather than silently skipped. Refresh by hand
+   (re-fetch the latest daily bar, recompute the formula above) if this
+   section is revisited later. */
+const GOLD_PIVOT_SNAPSHOT = {
+  asOf: '2026-08-18', symbol: 'GCUSD (Gold Futures)', high: 4493.1, low: 4406.8, close: 4410.1,
+  pivot: 4436.67, r1: 4466.53, r2: 4522.97, r3: 4552.83, s1: 4380.23, s2: 4350.37, s3: 4293.93
+};
+function riskNoteHtml(){
+  const p = GOLD_PIVOT_SNAPSHOT;
+  return `
+        <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('7 · Risk note — technical support/resistance is not in this reading','7 · Nota de riesgo — el soporte/resistencia técnico no está en esta lectura')}</h3>
+        <div class="warnbox">${T('Everything above — the live sign verdict, the backtest, the seasonality check — is a reading of the sky. It has no awareness of price structure: where spot currently sits relative to support/resistance, trend, volume, or the pivot/Bollinger/Ichimoku-style tools a technical trader actually watches (e.g. a pivot-point overlay like Williams Pivots Pro). Treat this app as one input among several, never a substitute for that analysis.','Todo lo de arriba — el veredicto de signo en vivo, el backtest, la comprobación de estacionalidad — es una lectura del cielo. No tiene conocimiento de la estructura de precio: dónde está el spot ahora respecto al soporte/resistencia, la tendencia, el volumen, o las herramientas de tipo pivote/Bollinger/Ichimoku que un operador técnico realmente vigila (p. ej. un overlay de puntos pivote como Williams Pivots Pro). Trata esta app como una entrada más entre varias, nunca como sustituto de ese análisis.')}</div>
+        <div class="hint" style="margin-bottom:6px;">${T(`For concreteness — not a recommendation — here is the standard floor-trader pivot grid computed from ${p.symbol}'s most recent daily bar (H ${p.high} / L ${p.low} / C ${p.close}, ${p.asOf}). This is a dated snapshot fetched once for this note, not a live figure — real spot has moved since.`,`Para dar concreción — no una recomendación — aquí está la cuadrícula de puntos pivote estándar calculada a partir de la barra diaria más reciente de ${p.symbol} (H ${p.high} / L ${p.low} / C ${p.close}, ${p.asOf}). Esto es una instantánea fechada obtenida una vez para esta nota, no una cifra en vivo — el spot real se ha movido desde entonces.`)}</div>
+        <div class="tblwrap"><table><thead><tr><th>R3</th><th>R2</th><th>R1</th><th>P</th><th>S1</th><th>S2</th><th>S3</th></tr></thead>
+          <tbody><tr><td>${p.r3}</td><td>${p.r2}</td><td>${p.r1}</td><td><b style="color:var(--gold)">${p.pivot}</b></td><td>${p.s1}</td><td>${p.s2}</td><td>${p.s3}</td></tr></tbody></table></div>
+        <div class="hint" style="margin-top:8px; line-height:1.6;">${T('Standard formula: P = (H+L+C)/3; R1/S1 = 2P−L / 2P−H; R2/S2 = P±(H−L); R3 = H+2(P−L); S3 = L−2(H−P). This grid says nothing about whether now is astrologically favourable — it says where a technical trader\'s levels currently sit. Reading the two together, not one instead of the other, is the point of naming this gap explicitly.','Fórmula estándar: P = (H+L+C)/3; R1/S1 = 2P−L / 2P−H; R2/S2 = P±(H−L); R3 = H+2(P−L); S3 = L−2(H−P). Esta cuadrícula no dice nada sobre si el momento es astrológicamente favorable — dice dónde están ahora los niveles de un operador técnico. Leer ambas cosas juntas, no una en vez de la otra, es el objetivo de nombrar esta brecha explícitamente.')}</div>`;
+}
+
 function renderCommoditiesPage(){
   const container = document.getElementById('commoditiesPageContent');
   if (!container) return;
@@ -8722,6 +8778,7 @@ function renderCommoditiesPage(){
         <div class="hint" style="margin-top:6px;">${T('These need a real-world botanical observation (which of two specific trees is currently blossoming) that this app has no way to make — shown for completeness, not as a signal.','Estos necesitan una observación botánica real (cuál de dos árboles específicos está floreciendo actualmente) que esta app no puede hacer — se muestran por completitud, no como señal.')}</div>
 
         ${backtestSectionHtml(goldBT, 'XAU/gold', 'oro (XAU)', 'gold', 'el oro')}
+        ${riskNoteHtml()}
       </div>
     </div>
 
