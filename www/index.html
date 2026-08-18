@@ -5364,6 +5364,140 @@ function bsShavingGuideline(panch, weekdayName, localHr, sunriseHr, sunsetHr){
   return checks;
 }
 
+/* ---- Whole-sign house of a graha counted from the elected ascendant. ----
+   The app has no cusp system, so this is whole-sign like everything else
+   here (same convention as aspectsSignWholeSign in the gravity engine). */
+function bsHouseFromAsc(sid, ascSignIdx){
+  return ((Math.floor(norm360(sid)/30) - ascSignIdx + 12) % 12) + 1;
+}
+function bsGrahasInHouses(pos, ascSignIdx, list, houses){
+  return list.filter(g=>pos[g] && houses.includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx)));
+}
+// English house ordinals: 1st/2nd/3rd/4th… (Spanish uses the invariant "N.ª").
+function bsOrd(n){
+  const s = ['th','st','nd','rd'], v = n % 100;
+  return n + (s[(v-20)%10] || s[v] || s[0]);
+}
+
+/* ---- Marriage, read from the rising sign and the house grid (ch. C v.8) ----
+   A SECOND rule set for the same question the app already answers from stars
+   and lunar days (chintamaniMarriageGuideline).  The two texts genuinely
+   differ in what they look at, so per the app's convention the reader picks
+   which reckoning to run rather than having them blended — see the rule-set
+   selector on the Activity Guideline.  chintamaniMarriageGuideline is NOT
+   touched and stays the default, so nobody's existing reading moves.
+
+   Transcribed as printed, including one reading that departs from the
+   ordinary rule: malefics are given as welcome in the 3rd, 6th, 8th AND 11th
+   here, where the usual Vedic upachaya rule is 3/6/11 only.  Kept as printed
+   rather than "corrected," and the 8th is called out on screen.
+
+   Two clauses of the verse are not scored: the bride/groom Janma-rāśi
+   spacing needs both birth charts (the two-person panel further down this
+   page is where that belongs), and the Sun-for-groom / Moon-for-bride
+   transit clause needs to know which person is which.  Both are surfaced as
+   notes at the render site instead of being silently dropped. */
+const BS_MARRIAGE_ASC_SIGNS = ['Gemini','Virgo','Libra'];        // also the "biped" navāṁśa set
+const BS_MARRIAGE_BAD_YOGAS = ['Vyatipata','Vaidhriti'];
+const BS_MARRIAGE_BAD_MONTHS = ['Chaitra','Pausha'];
+const BS_MOON_BAD_COMPANY = ['Sun','Mars','Saturn','Venus'];      // Jupiter/Mercury expressly allowed
+function bsMarriageHouseGuideline(pos, panch, weekdayName){
+  const checks = [];
+  const ascSignIdx = SIGNS.indexOf(panch.ascSign);
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const H = g => bsHouseFromAsc(pos[g].sidereal, ascSignIdx);
+
+  checks.push({ label:T('Moon is in one of the eleven stars named for marriage','La Luna está en una de las once estrellas nombradas para el matrimonio'),
+    ok: BS_NAK_TAGS.find(t=>t.key==='marriage').naks.includes(panch.nak28.name), info:T(`Now: ${panch.nak28.name}`,`Ahora: ${panch.nak28.name}`) });
+  checks.push({ label:T('Gemini, Virgo or Libra is rising','Asciende Géminis, Virgo o Libra'),
+    ok: BS_MARRIAGE_ASC_SIGNS.includes(panch.ascSign), info:T(`Rising: ${panch.ascSign}`,`Asciende: ${panch.ascSign}`) });
+
+  const benInBad = bsGrahasInHouses(pos, ascSignIdx, BENEFIC_GRAHAS, [7,8,12]);
+  checks.push({ label:T('No benefic sits in the 7th, 8th or 12th','Ningún benéfico ocupa la 7.ª, 8.ª ni 12.ª'),
+    ok: benInBad.length===0, info: benInBad.length?T(`In those houses: ${benInBad.join(', ')}`,`En esas casas: ${benInBad.join(', ')}`):'' });
+
+  const moonHouse = ((moonSignIdx - ascSignIdx + 12) % 12) + 1;
+  checks.push({ label:T('Moon stands in the 2nd, 3rd or 11th from the rising sign','La Luna está en la 2.ª, 3.ª u 11.ª desde el signo ascendente'),
+    ok: [2,3,11].includes(moonHouse), info:T(`Moon is in the ${bsOrd(moonHouse)}`,`La Luna está en la ${moonHouse}.ª`) });
+
+  const malOutside = MALEFIC_GRAHAS.filter(g=>pos[g] && ![3,6,8,11].includes(H(g)));
+  checks.push({ label:T('Malefics keep to the 3rd, 6th, 8th or 11th','Los maléficos se limitan a la 3.ª, 6.ª, 8.ª u 11.ª'),
+    ok: malOutside.length===0, info: malOutside.length?T(`Outside those houses: ${malOutside.map(g=>`${g} (${bsOrd(H(g))})`).join(', ')}`,`Fuera de esas casas: ${malOutside.map(g=>`${g} (${H(g)}.ª)`).join(', ')}`):'' });
+
+  checks.push({ label:T('Venus is not in the 6th','Venus no está en la 6.ª'), ok: H('Venus')!==6 });
+  checks.push({ label:T('Mars is not in the 8th','Marte no está en la 8.ª'), ok: H('Mars')!==8 });
+
+  const withMoon = BS_MOON_BAD_COMPANY.filter(g=>pos[g] && Math.floor(norm360(pos[g].sidereal)/30)===moonSignIdx);
+  checks.push({ label:T('Moon shares no sign with the Sun, Mars, Saturn or Venus','La Luna no comparte signo con el Sol, Marte, Saturno ni Venus'),
+    ok: withMoon.length===0, info: withMoon.length?T(`With the Moon: ${withMoon.join(', ')}. Jupiter and Mercury would be no objection.`,`Con la Luna: ${withMoon.join(', ')}. Júpiter y Mercurio no serían objeción.`):'' });
+
+  // Hemmed in (papakartari): a malefic in the sign each side of the Moon.
+  const ahead = (moonSignIdx+1)%12, behind = (moonSignIdx+11)%12;
+  const mAhead = MALEFIC_GRAHAS.filter(g=>pos[g] && Math.floor(norm360(pos[g].sidereal)/30)===ahead);
+  const mBehind = MALEFIC_GRAHAS.filter(g=>pos[g] && Math.floor(norm360(pos[g].sidereal)/30)===behind);
+  const hemmed = mAhead.length>0 && mBehind.length>0;
+  checks.push({ label:T('Moon is not hemmed in between malefics','La Luna no está encerrada entre maléficos'), ok: !hemmed,
+    info: hemmed?T(`${mBehind.join(', ')} behind and ${mAhead.join(', ')} ahead.`,`${mBehind.join(', ')} detrás y ${mAhead.join(', ')} delante.`):'' });
+
+  checks.push({ label:T('Day is free of the Vyatīpāta and Vaidhṛti yogas','El día está libre de los yogas Vyatīpāta y Vaidhṛti'), ok: !BS_MARRIAGE_BAD_YOGAS.includes(panch.yogaName) });
+  checks.push({ label:T('Not Viṣṭi (Bhadrā) karaṇa','No es el karaṇa Viṣṭi (Bhadrā)'), ok: panch.karana !== 'Vishti' });
+  const riktaHit = isRiktaTithi(panch.tithiNum);
+  checks.push({ label:T('Not a Riktā tithi (4th, 9th or 14th)','No es un tithi Riktā (4.º, 9.º o 14.º)'), ok: !riktaHit,
+    info: riktaHit && bsRiktaIsMild(panch.tithiNum) ? T(BS_RIKTA_GRADED.note.en, BS_RIKTA_GRADED.note.es) : '' });
+
+  const dayLord = varaLordOf(weekdayName);
+  checks.push({ label:T('The day is ruled by a benefic','El día está regido por un benéfico'), ok: BENEFIC_GRAHAS.includes(dayLord),
+    info:T(`${weekdayName} is ruled by ${dayLord}.`,`${weekdayName} está regido por ${T(dayLord,GRAHA_ES[dayLord])}.`) });
+
+  const sunSign = SIGNS[Math.floor(norm360(pos.Sun.sidereal)/30)];
+  checks.push({ label:T('Sun is in the northern half of the year','El Sol está en la mitad norte del año'),
+    ok: ['Capricorn','Aquarius','Pisces','Aries','Taurus','Gemini'].includes(sunSign) });
+
+  const monthName = CHINTAMANI_MONTHS_FROM_PAUSHA[chintamaniApproxLunarMonth(sunSign)-1];
+  checks.push({ label:T('Lunar month is neither Chaitra nor Pauṣa','El mes lunar no es Chaitra ni Pauṣa'),
+    ok: !BS_MARRIAGE_BAD_MONTHS.includes(monthName),
+    info:T(`Roughly ${monthName} — taken from the Sun's sign, so a day or two either side of a month boundary is uncertain.`,`Aproximadamente ${monthName} — tomado del signo del Sol, así que un día o dos alrededor del cambio de mes es incierto.`) });
+
+  const navAscSign = SIGNS[Math.floor(navamsaSidereal(norm360(pos._ascSidereal))/30)];
+  checks.push({ label:T('The rising ninth-part falls in a two-footed sign','La novena parte ascendente cae en un signo bípedo'),
+    ok: BS_MARRIAGE_ASC_SIGNS.includes(navAscSign), info:T(`Rising ninth-part: ${navAscSign}`,`Novena parte ascendente: ${navAscSign}`) });
+
+  return checks;
+}
+
+/* ---- The general rule for any undertaking (ch. XCVIII v.17) ----
+   Not activity-specific: the verse claims any undertaking succeeds when the
+   house grid is clean this way, so it is offered as its own dropdown entry
+   rather than folded into one of the named activities. */
+function bsGeneralUndertakingGuideline(pos, panch){
+  const checks = [];
+  const ascSignIdx = SIGNS.indexOf(panch.ascSign);
+  const inH = houses => bsGrahasInHouses(pos, ascSignIdx, MALEFIC_GRAHAS, houses);
+
+  [[1,T('rising sign','signo ascendente')],[4,T('4th','4.ª')],[7,T('7th','7.ª')],[10,T('10th','10.ª')],
+   [8,T('8th','8.ª')],[12,T('12th','12.ª')]].forEach(([h,lbl])=>{
+    const found = inH([h]);
+    checks.push({ label:T(`No malefic in the ${lbl}`,`Ningún maléfico en la ${lbl}`), ok: found.length===0,
+      info: found.length?T(`There: ${found.join(', ')}`,`Ahí: ${found.join(', ')}`):'' });
+  });
+
+  const stray = MALEFIC_GRAHAS.filter(g=>pos[g] && ![3,6,11].includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx)));
+  checks.push({ label:T('Malefics gathered in the 3rd, 6th or 11th','Los maléficos reunidos en la 3.ª, 6.ª u 11.ª'), ok: stray.length===0,
+    info: stray.length?T(`Elsewhere: ${stray.map(g=>`${g} (${bsOrd(bsHouseFromAsc(pos[g].sidereal,ascSignIdx))})`).join(', ')}`,`En otro sitio: ${stray.map(g=>`${g} (${bsHouseFromAsc(pos[g].sidereal,ascSignIdx)}.ª)`).join(', ')}`):'' });
+
+  const guards = ['Jupiter','Venus'].filter(g=>pos[g] && [1,4,7,10].includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx)));
+  checks.push({ label:T('Jupiter or Venus holds the rising sign or an angle','Júpiter o Venus ocupa el signo ascendente o un ángulo'), ok: guards.length>0,
+    info: guards.length?T(`There: ${guards.map(g=>`${g} (${bsOrd(bsHouseFromAsc(pos[g].sidereal,ascSignIdx))})`).join(', ')}`,`Ahí: ${guards.map(g=>`${g} (${bsHouseFromAsc(pos[g].sidereal,ascSignIdx)}.ª)`).join(', ')}`):'' });
+
+  return checks;
+}
+// The same verse adds a rider for building or entering a house: the rising
+// sign should be both "rural" and fixed. Of the seven rural signs only Taurus
+// and Aquarius are fixed, and the commentary rules Aquarius out as an
+// ascendant -- which leaves Taurus alone. Kept separate from the checks above
+// because it applies only to houses, not to undertakings generally.
+const BS_HOUSE_ENTRY_ASC = 'Taurus';
+
 /* =========================================================================
    TWO-PERSON COMPATIBILITY — AṢṬAKOOTA (Guṇa Milan) + VIMŚOPAKA BALA
    ch. 6 "Marriage Sanskaras," p.157-174 (Aṣṭakoota) and p.216 (Vimśopaka).
@@ -8588,6 +8722,10 @@ function renderSignificatorsPage(){
 }
 
 let chintamaniActivity = ''; // persists the dropdown selection across re-renders
+// Which of the two marriage rule sets to run. Defaults to 'stars' — the
+// reading the app already shipped — so adding the choice never moves an
+// existing verdict underfoot.
+let chintamaniMarriageRuleSet = 'stars';
 function renderChintamaniPage(){
   const container = document.getElementById('chintamaniPageContent');
   if (!container) return;
@@ -8656,17 +8794,35 @@ function renderChintamaniPage(){
     ['relocation', T('Relocation (city compatibility)','Reubicación (compatibilidad de ciudad)')],
     ['housewarming', T('Housewarming (entering a new house)','Entrada a casa nueva')],
     ['yajna', T('Religious ceremony / Yajña','Ceremonia religiosa / Yajña')],
-    ['shaving', T('Shaving / haircut (Kṣaura Karma)','Afeitado / corte de pelo (Kṣaura Karma)')]
+    ['shaving', T('Shaving / haircut (Kṣaura Karma)','Afeitado / corte de pelo (Kṣaura Karma)')],
+    ['general', T('Any undertaking (house-grid rule)','Cualquier empresa (regla de la retícula de casas)')]
   ];
   const optionsHtml = activityOptions.map(([v,l])=>`<option value="${v}" ${chintamaniActivity===v?'selected':''}>${l}</option>`).join('');
 
   let activityBodyHtml = '';
   if (chintamaniActivity === 'marriage'){
-    const checks = chintamaniMarriageGuideline(pos, panch, mdt);
-    const failCount = checks.filter(c=>!c.ok).length;
-    const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=2 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
-    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
-      <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
+    const rs = chintamaniMarriageRuleSet;
+    const ruleOptions = [
+      ['stars',  T('Star & lunar-day rules','Reglas de estrella y día lunar')],
+      ['houses', T('Rising-sign & house rules','Reglas de signo ascendente y casas')],
+      ['both',   T('Both together','Ambas juntas')]
+    ];
+    const starChecks  = (rs==='stars'  || rs==='both') ? chintamaniMarriageGuideline(pos, panch, mdt) : null;
+    const houseChecks = (rs==='houses' || rs==='both') ? bsMarriageHouseGuideline(pos, panch, weekdayName) : null;
+    const allChecks = [...(starChecks||[]), ...(houseChecks||[])];
+    const failCount = allChecks.filter(c=>!c.ok).length;
+    const limit = rs==='both' ? 4 : 2;
+    const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=limit ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
+    const tbl = checks => `<div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
+    const sub = t => `<h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:.03em; color:var(--gold); text-transform:uppercase;">${t}</h3>`;
+    activityBodyHtml = `
+      <label>${T('Which reckoning to apply','Qué cómputo aplicar')}</label>
+      <select id="chintamaniMarriageRules">${ruleOptions.map(([v,l])=>`<option value="${v}" ${rs===v?'selected':''}>${l}</option>`).join('')}</select>
+      <div class="okbox" style="margin:12px 0;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+      ${starChecks ? (rs==='both'?sub(T('Star & lunar-day rules','Reglas de estrella y día lunar')):'') + tbl(starChecks) : ''}
+      ${houseChecks ? (rs==='both'?sub(T('Rising-sign & house rules','Reglas de signo ascendente y casas')):'') + tbl(houseChecks) : ''}
+      ${houseChecks ? `<div class="hint" style="margin-top:10px; line-height:1.6;">${T('Two clauses of this reckoning are not scored above, because they need both people rather than a moment: the bride\'s and groom\'s birth signs should not fall 2nd/12th, 5th/9th or 6th/8th from the elected Moon\'s sign, and the groom\'s Sun and the bride\'s Moon should both be well placed in transit. The two-person panel further down this page is where that comparison belongs. One placement below also departs from the usual rule — malefics are welcomed in the 8th here alongside the ordinary 3rd, 6th and 11th, and it is left as given rather than quietly corrected.','Dos cláusulas de este cómputo no se puntúan arriba, porque necesitan a ambas personas y no solo un momento: los signos natales de la novia y el novio no deben caer 2.º/12.º, 5.º/9.º ni 6.º/8.º desde el signo de la Luna elegida, y el Sol del novio y la Luna de la novia deben estar bien situados en tránsito. El panel de dos personas más abajo es donde corresponde esa comparación. Una colocación de abajo también se aparta de la regla habitual — aquí se admiten maléficos en la 8.ª junto a las ordinarias 3.ª, 6.ª y 11.ª, y se deja tal cual en vez de corregirlo en silencio.')}</div>` : ''}
+      ${rs==='both' ? `<div class="hint" style="margin-top:10px; line-height:1.6;">${T('Run together, these are two separate traditions answering the same question from different evidence — one from the star and lunar day, the other from the rising sign and the house grid. They are not a single checklist, and a flag in one is not cancelled by a pass in the other. Where both agree, the reading is worth more than either alone.','Juntas, son dos tradiciones distintas respondiendo a la misma pregunta desde evidencias distintas — una desde la estrella y el día lunar, la otra desde el signo ascendente y la retícula de casas. No son una sola lista, y un señalamiento en una no queda anulado por un aprobado en la otra. Donde ambas coinciden, la lectura vale más que cualquiera por separado.')}</div>` : ''}`;
   } else if (chintamaniActivity === 'travel'){
     const dirSel = document.getElementById('chintamaniDirection');
     const direction = dirSel ? dirSel.value : '';
@@ -8716,6 +8872,17 @@ function renderChintamaniPage(){
       <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>
       <div class="hint" style="margin-top:10px; line-height:1.6;">${T(`The rest of the rule is about <b>state, not sky</b>, so it cannot be scored from a chart and is left to you: shaving is barred straight after a bath or a meal, once you are already dressed and ornamented, just before setting out on a journey, while seated on nothing, and on the ninth day after your last shave. Cutting the other way, every restriction above lifts — any star will do — when the occasion itself compels it: ${BS_SHAVE_OVERRIDES.en}.`,
         `El resto de la regla trata del <b>estado, no del cielo</b>, así que no puede calcularse desde una carta y queda a tu criterio: se prohíbe afeitarse justo después del baño o de comer, ya vestido y adornado, justo antes de emprender un viaje, sentado sobre nada, y al noveno día del afeitado anterior. En sentido contrario, toda restricción de arriba se levanta — sirve cualquier estrella — cuando la ocasión misma lo exige: ${BS_SHAVE_OVERRIDES.es}.`)}</div>`;
+  } else if (chintamaniActivity === 'general'){
+    const checks = bsGeneralUndertakingGuideline(pos, panch);
+    const failCount = checks.filter(c=>!c.ok).length;
+    const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=2 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
+    const entryOk = panch.ascSign === BS_HOUSE_ENTRY_ASC;
+    activityBodyHtml = `
+      <div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+      <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>
+      <div class="hint" style="margin-top:10px; line-height:1.6;">${T('This one is not tied to a particular undertaking. The claim is that <i>any</i> venture succeeds when the grid is clean this way — the angles and the two houses of loss held free of harm, the harmful planets pushed into the three houses where their pressure is said to work for you rather than against you, and a benefic standing guard on the rising sign or an angle. Read it as a floor under whatever else you are judging, not as a replacement for the activity-specific readings above.','Esta no está atada a una empresa concreta. La afirmación es que <i>cualquier</i> empresa prospera cuando la retícula está limpia así — los ángulos y las dos casas de pérdida libres de daño, los planetas dañinos empujados a las tres casas donde se dice que su presión obra a tu favor y no en tu contra, y un benéfico montando guardia en el signo ascendente o en un ángulo. Léelo como un suelo bajo lo que sea que estés juzgando, no como sustituto de las lecturas por actividad de arriba.')}</div>
+      <div class="hint" style="margin-top:10px; line-height:1.6;">${T(`<b style="color:var(--muted)">Building or entering a house?</b> The same rule adds a rider there: the rising sign should be both settled and fixed, and once the exclusions are applied only <b>Taurus</b> survives as a permitted ascendant. Right now ${panch.ascSign} is rising, so that rider is ${entryOk?'<b style="color:var(--jade)">met</b>':'<b style="color:var(--vermilion)">not met</b>'}. It bears only on houses, so it is left out of the count above. The rider also asks that neither the rising sign nor the Moon\'s sign be 8th or 12th from the owner\'s own birth ascendant and Moon — which needs the owner\'s chart, not this moment.`,
+        `<b style="color:var(--muted)">¿Construir o entrar en una casa?</b> La misma regla añade ahí una condición: el signo ascendente debe ser a la vez asentado y fijo, y aplicadas las exclusiones solo <b>Tauro</b> sobrevive como ascendente permitido. Ahora mismo asciende ${panch.ascSign}, así que esa condición <b>${entryOk?'se cumple':'no se cumple'}</b>. Solo atañe a las casas, así que queda fuera del recuento de arriba. La condición pide además que ni el signo ascendente ni el signo lunar sean 8.º o 12.º desde el ascendente y la Luna natales del propietario — lo que necesita su carta, no este momento.`)}</div>`;
   }
 
   container.innerHTML = `
@@ -8784,6 +8951,8 @@ function renderChintamaniPage(){
   document.getElementById('chintamaniActivitySelect').addEventListener('change', (e)=>{ chintamaniActivity = e.target.value; renderChintamaniPage(); });
   const dirSel2 = document.getElementById('chintamaniDirection');
   if (dirSel2) dirSel2.addEventListener('change', renderChintamaniPage);
+  const mrSel = document.getElementById('chintamaniMarriageRules');
+  if (mrSel) mrSel.addEventListener('change', (e)=>{ chintamaniMarriageRuleSet = e.target.value; renderChintamaniPage(); });
   const pn = document.getElementById('chintamaniPersonName'), cn = document.getElementById('chintamaniCityName');
   if (pn) pn.addEventListener('input', updateChintamaniRelocation);
   if (cn) cn.addEventListener('input', updateChintamaniRelocation);
