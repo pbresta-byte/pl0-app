@@ -5274,8 +5274,31 @@ const BS_NAK_TAGS = [
 ];
 function bsNakTags(nakName){ return BS_NAK_TAGS.filter(t=>t.naks.includes(nakName)); }
 
-// ch. XCIX. Presiding deity of each tithi and the work it is fit for, plus
-// the five-fold class. Index 0 = 1st tithi of the fortnight … index 14 = 15th.
+/* ch. XCIX. Presiding deity of each tithi and the work it is fit for, plus
+   the five-fold class. Index 0 = 1st tithi of the fortnight … index 14 = 15th.
+
+   SEVERITY WITHIN RIKTĀ — two readings, both preserved.  ch. XCVIII v.13's
+   commentary records a school that read the separate re-statement of the 9th
+   in the shaving verse as meaning the 9th is rejected outright "while the 4th
+   and 14th are not so bad" — i.e. a graded Riktā.  Bhaṭṭotpala rejects that
+   and takes all three as equally Riktā, which is also the ordinary Vedic
+   position, and is what BOTH classifiers here implement: Caturdaśī (14th) is
+   Riktā, full stop.  The minority reading is NOT scored — it is surfaced to
+   the reader as a note (BS_RIKTA_GRADED below) so the softer vision is
+   visible without quietly weakening any existing check.  If a future engineer
+   wants to act on it, do it as a new opt-in flag; do not re-grade
+   isRiktaTithi(), which the marriage/travel/yajña/housewarming guidelines all
+   depend on. */
+const BS_RIKTA_GRADED = {
+  // tithis the minority reading treats as the milder two of the three
+  mild: [4, 14],
+  note: {en:'The readings disagree on how heavily this one weighs. All three empty days are barred alike on the reckoning used here, but a second line holds that only the ninth is rejected outright, with the fourth and fourteenth counting as the milder two. Nothing above is softened on that account — treat it as a reason to look at the rest of the moment rather than to dismiss the day.',
+         es:'Las lecturas discrepan sobre cuánto pesa este día. En el cómputo usado aquí los tres días vacíos se prohíben por igual, pero otra línea sostiene que solo el noveno se rechaza del todo, y que el cuarto y el decimocuarto son los dos más leves. Nada de lo anterior se suaviza por ello — tómalo como razón para mirar el resto del momento, no para descartar el día.'}
+};
+function bsRiktaIsMild(tithiNum){
+  const t = tithiNum<=15 ? tithiNum : tithiNum-15;
+  return BS_RIKTA_GRADED.mild.includes(t);
+}
 const BS_TITHI = [
   { cls:'Nanda', deity:{en:'Brahmā',es:'Brahmā'},                  work:{en:'Brahminic ceremonies, marriage among them',es:'Ceremonias brahmánicas, entre ellas el matrimonio'} },
   { cls:'Bhadra',deity:{en:'Vidhātṛ',es:'Vidhātṛ'},                work:{en:'Laying the foundations of houses',es:'Poner los cimientos de casas'} },
@@ -5326,7 +5349,9 @@ function bsShavingGuideline(panch, weekdayName, localHr, sunriseHr, sunsetHr){
   checks.push({ label:T('Moon is in one of the twelve stars named for shaving','La Luna está en una de las doce estrellas nombradas para el afeitado'),
     ok: permitted.includes(nak), info:T(`Now: ${nak}`,`Ahora: ${nak}`) });
   checks.push({ label:T('Not a Sunday, Tuesday or Saturday','No es domingo, martes ni sábado'), ok: !BS_SHAVE_BAD_WEEKDAYS.includes(weekdayName) });
-  checks.push({ label:T('Not a Riktā tithi (4th, 9th or 14th)','No es un tithi Riktā (4.º, 9.º o 14.º)'), ok: !isRiktaTithi(panch.tithiNum) });
+  const riktaHit = isRiktaTithi(panch.tithiNum);
+  checks.push({ label:T('Not a Riktā tithi (4th, 9th or 14th)','No es un tithi Riktā (4.º, 9.º o 14.º)'), ok: !riktaHit,
+    info: riktaHit && bsRiktaIsMild(panch.tithiNum) ? T(BS_RIKTA_GRADED.note.en, BS_RIKTA_GRADED.note.es) : '' });
   checks.push({ label:T('Not Viṣṭi (Bhadrā) karaṇa','No es el karaṇa Viṣṭi (Bhadrā)'), ok: panch.karana !== 'Vishti' });
   // v.13 bars night outright and both twilights; a one-hour band around
   // sunrise and sunset stands in for "sandhyā," which the source leaves
@@ -6700,7 +6725,8 @@ function renderBsTithiCard(panch){
     <div class="k">${T('Class','Clase')}</div><div class="v">${clsLabel}</div>
     <div class="k">${T('Presiding deity','Deidad regente')}</div><div class="v">${T(ti.deity.en,ti.deity.es)}</div>
     <div class="k">${T('Fit for','Apto para')}</div><div class="v">${T(ti.work.en,ti.work.es)}</div>
-  </div>`;
+  </div>
+  ${ti.cls==='Rikta' && bsRiktaIsMild(panch.tithiNum) ? `<div class="hint" style="margin-top:10px; line-height:1.6;">${T(BS_RIKTA_GRADED.note.en, BS_RIKTA_GRADED.note.es)}</div>` : ''}`;
 }
 
 function renderBsNakTable(highlightNak){
