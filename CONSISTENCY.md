@@ -50,3 +50,16 @@ New Parasara-hora / classic layers folded into the daily graded score:
 - **Nakshatra Panchaka** avoidance (last pada Dhanishta..Revati): south journeys, house repair, fuel/fodder, beds (−0.6).
 
 Regression after integration: determinism ✓ · 186-sample sweep zero errors ✓ · activity reasons fire ✓ · synthetic Chandrashtama trigger verified ✓ · Ashtakoota sample (Aswini–Rohini = 13.5/36) ✓.
+
+
+## Classical electional rules layer (NEWMUHURTA.md R1-R24 implemented)
+
+Mined from the corpus (Kalaprakasika, Raman's Muhurtha, Brihat Samhita — Bhat & Chidambaram translations) and implemented in `classical-rules.js`:
+- Tithi classes (Nanda/Bhadra/Jaya/Rikta/Poorna) + general tithi quality incl. avoid-list
+- Karana-activity fit (Bava/Taitila/Gara/Sakuni etc.) with Vishti blanket-caution
+- Yoga grading beyond Vyatipata/Vaidhriti: 11 adverse yogas, 5 benefic yogas
+- Siddha Yoga tables (Kalaprakasika vara+tithi+star; class-based; Amrita siddha vara+star)
+- Unfavourable weekday-star pairs; hora lord sequence + hora semantics
+- Weekday-time interactions (Tuesday after midday relief; Sun/Tue/Sat daytime blemish)
+
+Regression: determinism ✓ · 140-sample sweep zero errors ✓ · reasons fire (tithi/karana/yoga/hora) ✓.
