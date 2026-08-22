@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PL0</string>
+    <string name="title_activity_main">PL0</string>
+    <string name="package_name">com.pbresta.muhurtagauge</string>
+    <string name="custom_url_scheme">com.pbresta.muhurtagauge</string>
+</resources>
