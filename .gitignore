@@ -14,3 +14,4 @@ android/local.properties
 # OS cruft
 .DS_Store
 Thumbs.db
+opencode_build.log
