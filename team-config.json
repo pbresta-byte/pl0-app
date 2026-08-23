@@ -1,0 +1,52 @@
+{
+  "owner": "Cristian (C.D.R.P)",
+  "birth": {
+    "date": "1990-09-30",
+    "time": "17:54",
+    "tz_offset_hours": -4,
+    "place": "Miami, Florida",
+    "lat": 25.7617,
+    "lon": -80.1918
+  },
+  "computed_reference": {
+    "moon_sidereal": 297.54,
+    "moon_sign": "Capricorn",
+    "birth_star": "Dhanishta",
+    "birth_pada": 2,
+    "lagna_sign": "Aquarius",
+    "asc_sidereal": 319.4
+  },
+  "engine": {
+    "app": "C:/Users/drrag/OneDrive/Desktop/pl0-app/www/index.html",
+    "mcp_server": "C:/Users/drrag/OneDrive/Desktop/pl0-unpacked/mcp-server.js",
+    "usage": "Load www/index.html scripts in vm; call julianDay/computePositions/computePanchanga/evaluateVedha/ppStateForInstant with refP={star:'Dhanishta', pada:2, sign:'Capricorn'}"
+  },
+  "daily_briefing": {
+    "schedule": "09:00 America/New_York",
+    "deliver_to": "slack",
+    "components": [
+      "panchanga (tithi/vara/nakshatra/yoga/karana)",
+      "SBC vedha on birth star Dhanishta (malefic/benefic hits)",
+      "tara from birth star",
+      "chandrashtama check (Moon vs Capricorn 8th = Leo)",
+      "classical windows (Rahu Kala, Abhijit, Brahma Muhurta)",
+      "pancha pakshi state for the day",
+      "tier verdict + top reasons"
+    ]
+  },
+  "slack_channels": {
+    "team": "T0BRZJHTDV0",
+    "bot_token_env": "SLACK_BOT_TOKEN",
+    "owner_user_id": "U0BS1HJFEFK",
+    "channels": {
+      "jyotish-muhurta": "C0BSW2BNDG8",
+      "jyotish-prashna": "C0BRLA1U6BZ",
+      "jyotish-nadi": "C0BRLA2NDT9",
+      "jyotish-varga-dasha": "C0BRLA35RPZ",
+      "jyotish-siddhanta": "C0BSW2CKBBJ",
+      "jyotish-jataka-yoga": "C0BS3K8PC9F",
+      "jyotish-mundane-swara": "C0BRXQUTUJH"
+    },
+    "daily_briefing_channel": "jyotish-muhurta"
+  }
+}
