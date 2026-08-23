@@ -690,7 +690,74 @@
 </div>
 
 <div id="pageAnatomy" class="page">
-  <div class="result-col" id="anatomyPageContent" style="max-width:900px; margin:0 auto;"></div>
+  <div class="result-col" id="anatomyPageContent" style="max-width:900px; margin:0 auto;">
+    <div class="anatomy-template">
+      <img src="https://innerbody.imgix.net/muscular_system.png" alt="Human muscular system" style="width:100%; height:auto; display:block;">
+      <svg class="body-overlay" viewBox="0 0 800 1131" width="100%" style="position:absolute; top:0; left:0; pointer-events:none;">
+        <!-- Body parts mapped to nakshatras -->
+        <!-- Aries head -->
+        <g class="nakshatra-group Aries" data-nak="0">
+          <path d="M400,50 L400,80 L440,80 L440,50 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="420" y="65" font-size="10" fill="var(--gold)">Head (Aries)</text>
+        </g>
+        <!-- Taurus face/throat -->
+        <g class="nakshatra-group Taurus" data-nak="1">
+          <path d="M380,90 L420,90 L420,110 L380,110 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="400" y="100" font-size="10" fill="var(--gold)">Face/Throat (Taurus)</text>
+        </g>
+        <!-- Gemini shoulders -->
+        <g class="nakshatra-group Gemini" data-nak="2">
+          <path d="M340,120 L460,120 L460,140 L340,140 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="400" y="130" font-size="10" fill="var(--gold)">Shoulders (Gemini)</text>
+        </g>
+        <!-- Cancer chest -->
+        <g class="nakshatra-group Cancer" data-nak="3">
+          <path d="M360,150 L440,150 L440,180 L360,180 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="400" y="165" font-size="10" fill="var(--gold)">Chest (Cancer)</text>
+        </g>
+        <!-- Leo heart -->
+        <g class="nakshatra-group Leo" data-nak="4">
+          <path d="M360,180 L440,180 L440,210 L360,210 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="400" y="195" font-size="10" fill="var(--gold)">Heart (Leo)</text>
+        </g>
+        <!-- Virgo abdomen -->
+        <g class="nakshatra-group Virgo" data-nak="5">
+          <path d="M370,210 L430,210 L430,240 L370,240 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="400" y="225" font-size="10" fill="var(--gold)">Abdomen (Virgo)</text>
+        </g>
+        <!-- Libra kidneys -->
+        <g class="nakshatra-group Libra" data-nak="6">
+          <path d="M375,240 L425,240 L425,270 L375,270 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="400" y="255" font-size="10" fill="var(--gold)">Kidneys (Libra)</text>
+        </g>
+        <!-- Scorpio pelvis -->
+        <g class="nakshatra-group Scorpio" data-nak="7">
+          <path d="M370,270 L430,270 L430,300 L370,300 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="400" y="285" font-size="10" fill="var(--gold)">Pelvis (Scorpio)</text>
+        </g>
+        <!-- Sagittarius thighs -->
+        <g class="nakshatra-group Sagittarius" data-nak="8">
+          <path d="M380,300 L420,300 L420,340 L380,340 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="400" y="320" font-size="10" fill="var(--gold)">Thighs (Sagittarius)</text>
+        </g>
+        <!-- Capricorn knees -->
+        <g class="nakshatra-group Capricorn" data-nak="9">
+          <path d="M385,340 L415,340 L415,360 L385,360 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="400" y="350" font-size="10" fill="var(--gold)">Knees (Capricorn)</text>
+        </g>
+        <!-- Aquarius calves -->
+        <g class="nakshatra-group Aquarius" data-nak="10">
+          <path d="M390,360 L410,360 L410,390 L390,390 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="400" y="375" font-size="10" fill="var(--gold)">Calves (Aquarius)</text>
+        </g>
+        <!-- Pisces feet -->
+        <g class="nakshatra-group Pisces" data-nak="11">
+          <path d="M395,390 L405,390 L405,410 L395,410 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="400" y="400" font-size="10" fill="var(--gold)">Feet (Pisces)</text>
+        </g>
+      </svg>
+    </div>
+  </div>
 </div>
 
 <div id="pageCalendar" class="page">
@@ -7407,7 +7474,21 @@ function renderAnatomyPage(){
   const tara = refP.star ? computeTara(pos, refP) : null;
   const deha = computeDehaChakra(pos, panch, refP, tara);
 
+  // Compute activation zones for each body part
+  const activationZones = computeBodyActivationZones(pos, panch, refP, tara);
+
   container.innerHTML = `
+    <div class="anatomy-template">
+      <img src="https://innerbody.imgix.net/muscular_system.png" alt="Human muscular system" style="width:100%; height:auto; display:block;">
+      <svg class="body-overlay" viewBox="0 0 800 1131" width="100%" style="position:absolute; top:0; left:0; pointer-events:none;">
+        ${renderBodyPartsOverlay(activationZones)}
+      </svg>
+    </div>
+  `;
+
+  // Add interactivity for body parts
+  setupBodyPartInteractivity(activationZones);
+}
     <div class="panel">
       <div class="hd"><h2>${T('Anatomy','Anatomía')}</h2><span class="note">${T('body-reading panels','paneles de lectura corporal')}</span></div>
       <div class="bd">
@@ -7484,6 +7565,107 @@ function renderAnatomyPage(){
       </div>
     </div>
   `;
+}
+
+// Body activation zones computation
+
+function computeBodyActivationZones(pos, panch, refP, tara){
+  const zones = {};
+  const moonSign = SIGNS[Math.floor(pos.Moon.sidereal/30)];
+  const nak28 = nakshatraFromSidereal(pos.Moon.sidereal, true);
+  const nak27 = nakshatraFromSidereal(pos.Moon.sidereal, false);
+
+  // Map each body part to its activation status
+  const bodyParts = [
+    {name:'Aries', nakIdx:0},
+    {name:'Taurus', nakIdx:1},
+    {name:'Gemini', nakIdx:2},
+    {name:'Cancer', nakIdx:3},
+    {name:'Leo', nakIdx:4},
+    {name:'Virgo', nakIdx:5},
+    {name:'Libra', nakIdx:6},
+    {name:'Scorpio', nakIdx:7},
+    {name:'Sagittarius', nakIdx:8},
+    {name:'Capricorn', nakIdx:9},
+    {name:'Aquarius', nakIdx:10},
+    {name:'Pisces', nakIdx:11}
+  ];
+
+  // Determine activation based on Moon position
+  bodyParts.forEach(part=>{
+    const isActive = moonSign === part.name;
+    zones[part.name] = {
+      active: isActive,
+      tier: isActive ? 'good' : 'neutral',
+      fill: isActive ? 'var(--hit-good-bg)' : 'var(--body-fill)',
+      stroke: isActive ? 'var(--hit-good-line)' : 'var(--body-stroke)',
+      sw: isActive ? 2.5 : 1,
+      nak: nak27.name
+    };
+  });
+
+  // Add panch pakshi bird state
+  if (refP && refP.bird) {
+    zones[refP.bird].special = 'panch-pakshi-bird';
+    zones[refP.bird].fill = 'var(--jade)';
+    zones[refP.bird].stroke = 'var(--gold)';
+    zones[refP.bird].sw = 3;
+  }
+
+  return zones;
+}
+
+function renderBodyPartsOverlay(activationZones){
+  let svg = '';
+  const bodyParts = [
+    {name:'Aries', path:'M400,50 L400,80 L440,80 L440,50 Z', coords:'400,50'},
+    {name:'Taurus', path:'M380,90 L420,90 L420,110 L380,110 Z', coords:'380,90'},
+    {name:'Gemini', path:'M340,120 L460,120 L460,140 L340,140 Z', coords:'340,120'},
+    {name:'Cancer', path:'M360,150 L440,150 L440,180 L360,180 Z', coords:'360,150'},
+    {name:'Leo', path:'M360,180 L440,180 L440,210 L360,210 Z', coords:'360,180'},
+    {name:'Virgo', path:'M370,210 L430,210 L430,240 L370,240 Z', coords:'370,210'},
+    {name:'Libra', path:'M375,240 L425,240 L425,270 L375,270 Z', coords:'375,240'},
+    {name:'Scorpio', path:'M370,270 L430,270 L430,300 L370,300 Z', coords:'370,270'},
+    {name:'Sagittarius', path:'M380,300 L420,300 L420,340 L380,340 Z', coords:'380,300'},
+    {name:'Capricorn', path:'M385,340 L415,340 L415,360 L385,360 Z', coords:'385,340'},
+    {name:'Aquarius', path:'M390,360 L410,360 L410,390 L390,390 Z', coords:'390,360'},
+    {name:'Pisces', path:'M395,390 L405,390 L405,410 L395,410 Z', coords:'395,390'}
+  ];
+
+  bodyParts.forEach(part=>{
+    const zone = activationZones[part.name];
+    const isSpecial = zone.special === 'panch-pakshi-bird';
+    const fill = isSpecial ? zone.fill : (zone.active ? zone.fill : 'var(--body-fill)');
+    const stroke = isSpecial ? zone.stroke : zone.stroke;
+    const sw = isSpecial ? zone.sw : zone.sw;
+
+    svg += `<g class="body-part ${part.name}" data-nak="${zone?.nak || ''}" style="cursor:help;">
+              <path d="${part.path}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>
+              <title>${part.name}: ${zone?.active ? 'Active' : 'Inactive'} — ${zone?.tier || 'neutral'} tier — ${zone?.nak || ''} Nakshatra</title>
+            </g>`;
+  });
+
+  return svg;
+}
+
+function setupBodyPartInteractivity(activationZones){
+  document.querySelectorAll('.body-part').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const nakName = el.getAttribute('data-nak');
+      showBodyPartDetails(nakName, activationZones);
+    });
+  });
+}
+
+function showBodyPartDetails(nakName, zones){
+  const zone = zones[nakName] || {};
+  alert(`${nakName} Nakshatra activation details:\\n\\n` +
+    `Active: ${zone.active}\\n` +
+    `Tier: ${zone.tier}\\n` +
+    `Nakshatra: ${zone.nak}\\n` +
+    `Fill: ${zone.fill}\\n` +
+    `Stroke: ${zone.stroke}\\n` +
+    `Stroke-width: ${zone.sw}`);
 }
 
 // ---- Calendar ----
