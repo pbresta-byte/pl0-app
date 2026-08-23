@@ -3839,7 +3839,8 @@ const ACTIVITY_CLASSES = {
   ceremony:        {good:["soft","fixed"],    bad:["sharp","dreadful"], note:"auspicious ceremonies: soft stars"},
   vehicle:         {good:["movable"],         bad:[],                   note:"acquiring vehicles: movable stars"},
   art_music:       {good:["soft"],            bad:[],                   note:"dance/music/fine arts: soft stars"},
-  daily_routine:   {good:["mixed","light"],   bad:[],                   note:"ordinary works: mixed stars"}
+  daily_routine:   {good:["mixed","light"],   bad:[],                   note:"ordinary works: mixed stars"},
+  nail_cutting:    {good:["soft","light"],    bad:["sharp","dreadful"], note:"nakha chedana: soft/light stars, Shukla Paksha preferred (Raman AM 4/1943)"}
 };
 
 /**
@@ -7359,7 +7360,27 @@ function runAnalysis(){
     <div class="ribbon" style="background:${tier.color}"></div>
     <div class="body">
       <div class="tier"><small>${T('Verdict for','Veredicto para')} ${mdt.mo}/${mdt.da}/${mdt.y} · ${weekdayName}, ${mdt.hh}:${pad2(mdt.mm)} ${T('local','hora local')}</small>${tierLabel} <span style="color:${tier.color}">— ${tier.name}</span></div>
-      <div class="desc">${reasons.map(r=>`• ${r.text}`).join('<br>')}</div>
+      <div class="desc">
+      <details style="margin-top:8px;"><summary style="cursor:pointer;color:var(--gold);font-size:12px;">Pañcha Pakshi activity-strength ladder (Pulippani)</summary>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;margin-top:6px;">
+        <tr style="color:var(--muted);text-align:left;"><th style="padding:3px 6px;">Rank</th><th>Activity</th><th>Strength colour</th><th>Birds currently here</th></tr>
+        ${[
+          {rank:1,name:'Ruling (Yukta)',col:'#B8860B',desc:'peak strength — best for initiating anything important'},
+          {rank:2,name:'Eating (Aahara)',col:'#1E8449',desc:'strong — good for most activities'},
+          {rank:3,name:'Walking (Chara)',col:'#21618C',desc:'moderate — acceptable for routine work'},
+          {rank:4,name:'Sleeping (Nidra)',col:'#7D6608',desc:'weak — avoid new ventures'},
+          {rank:5,name:'Dying (Mrityu)',col:'#922B21',desc:'weakest — avoid all auspicious acts'}
+        ].map(row=>{
+          const birdsHere = ppVowelRows.filter(v=>v.mainState===row.name.split(' ')[0]||v.abstractState===row.name.split(' ')[0]);
+          return `<tr>
+            <td style="padding:3px 6px;">${row.rank}</td>
+            <td><b>${row.name}</b><br><small style="color:var(--muted)">${row.desc}</small></td>
+            <td><span style="display:inline-block;width:14px;height:14px;background:${row.col};border-radius:3px;vertical-align:-2px;margin-right:4px;"></span>${row.col}</td>
+            <td>${birdsHere.length?birdsHere.map(b=>ppBirdBadge(b.bird)).join(' '):'<i style=color:var(--muted)>none</i>'}</td>
+          </tr>`;
+        }).join('')}
+      </table></details>
+    </div>
     </div>
     <div class="score">
       <div class="n" style="color:${tier.color}">${score>0?'+':''}${score.toFixed(1)}</div>
@@ -8245,14 +8266,13 @@ function renderAnatomyPage(){
               <tr><td style="padding:6px;color:var(--muted);">Tithi:</td><td>${panch.paksha} ${panch.tithiName}</td></tr>
             </table>
             <label style="margin-top:10px;font-size:11px;color:var(--muted);">Focus area:</label>
-            <select id="ppBodyAreaSel" onchange="updatePPBodyHighlight(this.value)" style="width:100%;max-width:260px;margin-top:4px;">
-              <option value="">— auto —</option>
-              <option value="head">Head & Face</option><option value="neck">Neck & Throat</option>
-              <option value="shoulders">Shoulders</option><option value="chest">Chest & Ribs</option>
-              <option value="arms">Arms</option><option value="hands">Hands & Fingers</option>
-              <option value="stomach">Stomach & Navel</option><option value="hips">Hips</option>
-              <option value="thighs">Thighs</option><option value="knees">Knees</option>
-              <option value="legs">Legs</option><option value="feet">Feet & Ankles</option>
+            <label style="margin-top:10px;font-size:11px;color:var(--muted);">Bird view (default: your birth bird):</label>
+            <select id="ppBirdSel" onchange="updatePPBodyHighlight(this.value)" style="width:100%;max-width:260px;margin-top:4px;">
+              ${['Vulture','Owl','Crow','Cock','Peacock'].map(b=>{
+                const cur = getPPBodyPart(b, panch.tithiNum, panch.paksha);
+                const sel = b===ppBird ? ' selected' : '';
+                return `<option value="${b}"${sel}>${b} — ${cur.birdPoint}</option>`;
+              }).join('')}
             </select>
           </div>
         </div></div>`;
@@ -8340,19 +8360,17 @@ function renderAnatomyPage(){
   `;
 }
 
-function updatePPBodyHighlight(zone) {
-  // Re-render the body SVG with manual zone selection
+function updatePPBodyHighlight(birdName) {
+  // Re-render the body SVG highlighting the SELECTED BIRD's current body part.
   const svgEl = document.querySelector('.pp-body-svg');
-  if (!svgEl) return;
+  if (!svgEl || !birdName) return;
   const refInfo = getReferencePanchaka();
   const refP = refInfo.panch;
   const n = new Date();
   const pos = computePositions(julianDay(n.getFullYear(), n.getMonth()+1, n.getDate(), n.getHours(), n.getMinutes(), n.getSeconds(), -n.getTimezoneOffset()/60), 0, 0);
   const panch = computePanchanga(pos);
-  const bird = birdOfStar(refP.star, panch.paksha === "Shukla" ? "bright" : "dark");
-  if (!bird) return;
-  const ppData = getPPBodyPart(bird, panch.tithiNum, panch.paksha);
-  const hlZone = zone || bodyPartToZone(ppData.birdPoint);
+  const ppData = getPPBodyPart(birdName, panch.tithiNum, panch.paksha);
+  const hlZone = bodyPartToZone(ppData.birdPoint);
   const ncZone = bodyPartToZone(ppData.nectarPoint);
   svgEl.innerHTML = renderPPBodySVG({highlightZone:hlZone, nectarZone:ncZone});
 }
