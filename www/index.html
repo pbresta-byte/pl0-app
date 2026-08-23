@@ -3525,7 +3525,7 @@ const BAD_VARA_NAK = {
 };
 
 // ---- R21/R22: hora lord sequence + semantics ----
-const WEEKDAY_LORD = {Sunday:"Sun",Monday:"Moon",Tuesday:"Mars",Wednesday:"Mercury",Thursday:"Jupiter",Friday:"Venus",Saturday:"Saturn"};
+const WEEKDAY_LORD_OBJ = {Sunday:"Sun",Monday:"Moon",Tuesday:"Mars",Wednesday:"Mercury",Thursday:"Jupiter",Friday:"Venus",Saturday:"Saturn"};
 const PLANET_ORDER = ["Sun","Venus","Mercury","Moon","Saturn","Jupiter","Mars"]; // Chaldean discard order
 const HORA_SEMANTICS = {
   Sun:{tone:"bad", text:"danger to life"}, Venus:{tone:"good", text:"favours marriage"},
@@ -3545,7 +3545,7 @@ function horaLord(weekdayName, hourFromSunrise, dayLenHrs){
     const nightStart = hr < 0 ? hr : hr - dayLenHrs;
     idx = 12 + Math.floor((((nightStart % 12) + 12) % 12));
   }
-  const startIdx = PLANET_ORDER.indexOf(CR_WEEKDAY_LORD[weekdayName]);
+  const startIdx = PLANET_ORDER.indexOf(WEEKDAY_LORD[weekdayName]);
   return PLANET_ORDER[(startIdx + idx) % 7];
 }
 
@@ -4781,7 +4781,7 @@ function vimshopakaLabel(v){
 // halves (a different, separate classical convention used elsewhere in
 // this app for Kulika/Kalabela/Yamaghanta).
 const HORA_LORD_SEQUENCE = ["Saturn","Jupiter","Mars","Sun","Venus","Mercury","Moon"];
-const CR_WEEKDAY_LORD = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"]; // index = JS Date.getDay()
+const WEEKDAY_LORD = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"]; // index = JS Date.getDay()
 function varaLordOf(weekdayEN){ return WEEKDAY_LORD[WEEKDAYS.indexOf(weekdayEN)]; }
 // Sunrise-rolled weekday + hours-since-sunrise for a moment. Unlike
 // WEEKDAYS[date.getDay()] used at several other call sites in this app
@@ -6958,14 +6958,23 @@ function runAnalysis(){
 
   // Classical time windows + Parasara-hora activity layers
   { // derive civil y/m/d from the moment's JD via the local date input
-    const [yy,mm2,dd] = document.getElementById('mDate').value.split('-').map(Number);
-    var _wy=yy, _wm=mm2, _wd=dd;
+    const dateStr = document.getElementById('mDate')?.value || '';
+    const parts = dateStr.split('-').map(Number);
+    var _wy = parts[0] || new Date().getFullYear();
+    var _wm = parts[1] || (new Date().getMonth()+1);
+    var _wd = parts[2] || new Date().getDate();
+    if (!_wy || !_wm || !_wd || isNaN(_wy) || isNaN(_wm) || isNaN(_wd)) {
+      const n = new Date(); _wy=n.getFullYear(); _wm=n.getMonth()+1; _wd=n.getDate();
+    }
   }
   const windows = muhurtaWindows(_wy, _wm, _wd, mdt.hh, mdt.mm, mdt.lat, mdt.lon, mdt.tz);
-  let chandrashtama = refP.sign ? chandrashtamaCheck(pos, refP.sign, panch) : null;
+  let chandrashtama = null;
+  try { if (refP.sign && pos && pos.Moon) chandrashtama = chandrashtamaCheck(pos, refP.sign, panch); } catch(e){}
   const actSel=document.getElementById('activitySel');
-  const activity = actSel && actSel.value ? gradeActivity(actSel.value, panch.nak28.name) : null;
-  const panchakaFlag = panch.nak28.name ? panchakaCheck(panch.nak28.name) : false;
+  const activity = (actSel && actSel.value && panch.nak28 && panch.nak28.name) ? gradeActivity(actSel.value, panch.nak28.name) : null;
+  const panchakaFlag = (panch.nak28 && panch.nak28.name) ? panchakaCheck(panch.nak28.name) : false;
+  let classical = [];
+  try { classical = classicalRules(_wy, _wm, _wd, mdt.hh||12, mdt.mm||0, panch, WEEKDAYS[new Date(_wy, _wm-1, _wd).getDay()], null, null, {lat:mdt.lat||25.76, lon:mdt.lon||-80.19, tz:mdt.tz||-4}); } catch(e){}
   const {score, reasons} = scoreMuhurta({maleficHits:vedha.maleficHits, beneficHits:vedha.beneficHits, tara, latta, upagraha, pp, weighDignity, doshas, windows, chandrashtama, activity, panchaka:panchakaFlag, classical});
   const tier = tierFor(score);
 
