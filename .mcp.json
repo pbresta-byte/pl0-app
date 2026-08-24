@@ -1,11 +1,9 @@
 {
   "mcpServers": {
     "hermes": {
-      "type": "http",
-      "url": "${HERMES_MCP_URL}",
-      "headers": {
-        "Authorization": "Bearer ${HERMES_MCP_TOKEN}"
-      }
+      "type": "stdio",
+      "command": "node",
+      "args": ["C:\\Users\\drrag\\OneDrive\\Desktop\\pl0-unpacked\\hermes-agent-mcp.js"]
     }
   }
 }

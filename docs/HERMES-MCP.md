@@ -5,67 +5,70 @@ This repo registers **Hermes** as a project-scoped [Model Context Protocol
 Hermes as a tool. When you open this repo in Claude Code, it reads
 `.mcp.json` at the repo root and offers to connect the `hermes` server.
 
-> **Direction of the connection.** MCP is client→server. Here, **Claude Code is
+> **Direction of the connection.** MCP is client->server. Here, **Claude Code is
 > the client** and **Hermes is the server**. This is the wiring for "let Claude
 > Code use Hermes as a tool." It is *not* the wiring for "let Hermes use Claude
-> as its model backend" — that lives inside Hermes/OpenCode and calls the
+> as its model backend" -- that lives inside Hermes/OpenCode and calls the
 > Anthropic API instead.
 
-## No secrets are committed
+## Current configuration: local stdio
 
-`.mcp.json` uses `${VAR}` placeholders that Claude Code expands from your
-environment at connect time. Nothing sensitive is stored in git. Set these
-before launching Claude Code:
-
-```bash
-export HERMES_MCP_URL="https://your-hermes-host.example/mcp"
-export HERMES_MCP_TOKEN="your-hermes-token"
-```
-
-If Hermes needs no auth, delete the `headers` block from `.mcp.json`.
-
-## Transport options
-
-### 1. HTTP / SSE (the committed default)
-
-Use this when Hermes exposes a network endpoint. This is what `.mcp.json`
-already configures — just fill in `HERMES_MCP_URL` (and `HERMES_MCP_TOKEN` if
-required).
-
-### 2. Local stdio (Hermes launched as a subprocess)
-
-Use this when Hermes runs as a local command that speaks MCP over stdio. Replace
-the `hermes` entry in `.mcp.json` with:
+Hermes runs as a local Node process that speaks MCP over stdio. Claude Code
+launches it as a subprocess. This is what `.mcp.json` configures:
 
 ```json
 {
   "mcpServers": {
     "hermes": {
       "type": "stdio",
-      "command": "hermes",
-      "args": ["mcp", "serve"],
-      "env": {
-        "HERMES_TOKEN": "${HERMES_MCP_TOKEN}"
-      }
+      "command": "node",
+      "args": ["C:\\Users\\drrag\\OneDrive\\Desktop\\pl0-unpacked\\hermes-agent-mcp.js"]
     }
   }
 }
 ```
 
-Adjust `command`/`args` to however Hermes/OpenCode starts its MCP server.
+> **The script path is machine-specific.** The absolute Windows path above
+> points at one particular machine's copy of `hermes-agent-mcp.js`. On any other
+> machine, edit the path in `.mcp.json` to wherever the Hermes MCP script lives.
+> No secrets are stored here; if the script needs credentials, provide them via
+> the script's own environment (add an `"env": { ... }` block referencing
+> `${VAR}` placeholders rather than hardcoding values).
+
+## Alternative: HTTP / SSE transport
+
+If you instead run Hermes as a network service, replace the `hermes` entry with
+an HTTP endpoint and (optionally) an auth header sourced from an env var so no
+secret is committed:
+
+```json
+{
+  "mcpServers": {
+    "hermes": {
+      "type": "http",
+      "url": "${HERMES_MCP_URL}",
+      "headers": { "Authorization": "Bearer ${HERMES_MCP_TOKEN}" }
+    }
+  }
+}
+```
+
+Then set `HERMES_MCP_URL` (and `HERMES_MCP_TOKEN` if required) in your
+environment before launching Claude Code. Drop the `headers` block if Hermes
+needs no auth.
 
 ## Adding it via the CLI instead
 
-If you prefer not to hand-edit `.mcp.json`, you can register the same server
-from a persistent (local) Claude Code install:
+If you prefer not to hand-edit `.mcp.json`, register the same server from a
+persistent (local) Claude Code install:
 
 ```bash
-# HTTP transport
+# stdio transport (current setup)
+claude mcp add hermes -- node "C:\\Users\\drrag\\OneDrive\\Desktop\\pl0-unpacked\\hermes-agent-mcp.js"
+
+# or HTTP transport
 claude mcp add --transport http hermes "$HERMES_MCP_URL" \
   --header "Authorization: Bearer $HERMES_MCP_TOKEN"
-
-# or stdio transport
-claude mcp add hermes -- hermes mcp serve
 ```
 
 ## Verifying the connection
@@ -74,6 +77,13 @@ claude mcp add hermes -- hermes mcp serve
 2. Run `/mcp` (or `claude mcp list`) to confirm `hermes` shows as connected.
 3. Ask Claude to list Hermes's tools; they should appear as `mcp__hermes__*`.
 
-If it fails to connect, check that `HERMES_MCP_URL` is reachable and that the
-token is valid — the most common failures are an unset env var or an
-unreachable endpoint.
+If it fails to connect: confirm Node is installed and on PATH, that the script
+path in `.mcp.json` exists on this machine, and that running
+`node <path-to-hermes-agent-mcp.js>` by hand starts without error.
+
+## Note on ephemeral sessions
+
+Claude Code running in an ephemeral web/cloud container cannot use this config:
+it has no access to your local machine's filesystem, so the stdio script path
+will not resolve there. This server is for a persistent, local Claude Code
+install.
