@@ -15,3 +15,4 @@ android/local.properties
 .DS_Store
 Thumbs.db
 opencode_build.log
+opencode_build*.log
