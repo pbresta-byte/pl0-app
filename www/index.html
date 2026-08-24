@@ -469,6 +469,40 @@
   .pp-controls{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
   .pp-controls label{ margin:0; }
   .pp-controls select{ width:auto; min-width:140px; }
+
+  /* Pañcha Pakshi Body Map — "manuscript plate" layout: the figure is the
+     centerpiece framed by an inset double rule, its data folded into two
+     narrow marginalia columns flanking it, plus a body-zone key below. */
+  .pp-plate{ position:relative; padding:22px; }
+  .pp-plate::before{
+    content:""; position:absolute; inset:8px; border:1px solid var(--line-soft);
+    border-radius:6px; pointer-events:none;
+  }
+  .pp-plate-cols{ display:flex; gap:20px; align-items:center; position:relative; z-index:1; flex-wrap:wrap; }
+  .pp-plate .m-label{ font-family:var(--mono); font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--slate); margin-bottom:2px; }
+  .pp-plate-marginalia{ flex:0 0 170px; font-size:11.5px; }
+  .pp-plate-marginalia .m-row{ margin-bottom:12px; }
+  .pp-plate-marginalia .m-row:last-child{ margin-bottom:0; }
+  .pp-plate-marginalia .m-value{ font-family:var(--serif); color:var(--ink); line-height:1.45; }
+  .pp-plate-figure{ flex:1; min-width:260px; display:flex; justify-content:center; }
+  .pp-plate-figure-box{
+    position:relative; width:100%; max-width:440px; padding:10px;
+    border:1px solid var(--line); border-radius:var(--radius-sm); background:rgba(0,0,0,0.05);
+  }
+  .pp-plate-figure-box::before{
+    content:""; position:absolute; inset:4px; border:1px solid var(--line-soft);
+    border-radius:2px; pointer-events:none;
+  }
+  .pp-plate-controls{ flex:0 0 200px; }
+  .pp-plate-controls select{ width:100%; margin-top:4px; }
+  .pp-plate-keywrap{ margin-top:16px; position:relative; z-index:1; }
+  .pp-plate-caption{ text-align:center; font-family:var(--mono); font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-dim); margin-bottom:6px; }
+  .pp-plate-legend{
+    display:flex; justify-content:center; gap:18px; flex-wrap:wrap;
+    font-family:var(--mono); font-size:9.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--slate);
+  }
+  .pp-plate-legend .dot{ width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px; vertical-align:middle; }
+
   @media (prefers-reduced-motion: no-preference){
     .pp-pulse{ animation: pp-pulse 1.8s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
   }
@@ -9370,23 +9404,32 @@ function renderAnatomyPage(){
       const ncZone = bodyPartToZone(ppData.nectarPoint);
       ppBodyHTML = `<div class="panel"><div class="hd"><h2>${T('Pañcha Pakshi Body Map','Mapa Corporal Pañcha Pakshi')}</h2>
         <span class="note">${ppBirdBadge(ppBird)} · ${panch.paksha==='Shukla'?'Bright Half':'Dark Half'}</span></div>
-        <div class="bd" style="display:flex;gap:20px;flex-wrap:wrap;">
-          <div style="flex:0;min-width:340px;"><div class="pp-body-svg" style="border:3px solid ${(PP_BIRD_COLORS[ppBird]||{}).hex||'var(--gold)'};border-radius:8px;padding:4px;background:rgba(0,0,0,0.05);">${renderAnatomyFigure({nectarZones:[ncZone], poisonZones:[bodyPartToZone(ppData.poisonPoint||'Lower Back')], activeBird:ppBird, activeBirdZone:hlZone, birdColor:(PP_BIRD_COLORS[ppBird]||{}).hex})}</div></div>
-          <div style="flex:1;min-width:200px;">
-            <table style="width:100%;font-size:13px;border-collapse:collapse;">
-              <tr><td style="padding:6px;color:var(--jade);font-weight:bold;">Nectar:</td><td>${ppData.nectarPoint}</td></tr>
-              <tr><td style="padding:6px;color:var(--vermilion);font-weight:bold;">${ppBird} active:</td><td>${ppData.birdPoint}</td></tr>
-              <tr><td style="padding:6px;color:var(--muted);">Tithi:</td><td>${panch.paksha} ${panch.tithiName}</td></tr>
-            </table>
-            <label style="margin-top:10px;font-size:11px;color:var(--muted);">Focus area:</label>
-            <label style="margin-top:10px;font-size:11px;color:var(--muted);">Bird view (default: your birth bird):</label>
-            <select id="ppBirdSel" onchange="updatePPBodyHighlight(this.value)" style="width:100%;max-width:260px;margin-top:4px;">
-              ${['Vulture','Owl','Crow','Cock','Peacock'].map(b=>{
-                const cur = getPPBodyPart(b, panch.tithiNum, panch.paksha);
-                const sel = b===ppBird ? ' selected' : '';
-                return `<option value="${b}"${sel}>${b} — ${cur.birdPoint}</option>`;
-              }).join('')}
-            </select>
+        <div class="bd pp-plate">
+          <div class="pp-plate-cols">
+            <div class="pp-plate-marginalia">
+              <div class="m-row"><div class="m-label">${T('Nectar','Néctar')}</div><div class="m-value">${ppData.nectarPoint}</div></div>
+              <div class="m-row"><div class="m-label">${ppBird} ${T('active','activo')}</div><div class="m-value">${ppData.birdPoint}</div></div>
+              <div class="m-row"><div class="m-label">${T('Tithi','Tithi')}</div><div class="m-value">${panch.paksha} ${panch.tithiName}</div></div>
+            </div>
+            <div class="pp-plate-figure"><div class="pp-body-svg pp-plate-figure-box">${renderAnatomyFigure({nectarZones:[ncZone], poisonZones:[bodyPartToZone(ppData.poisonPoint||'Lower Back')], activeBird:ppBird, activeBirdZone:hlZone, birdColor:(PP_BIRD_COLORS[ppBird]||{}).hex})}</div></div>
+            <div class="pp-plate-controls">
+              <label class="m-label" for="ppBirdSel">${T('Bird view','Vista de ave')}</label>
+              <select id="ppBirdSel" onchange="updatePPBodyHighlight(this.value)">
+                ${['Vulture','Owl','Crow','Cock','Peacock'].map(b=>{
+                  const cur = getPPBodyPart(b, panch.tithiNum, panch.paksha);
+                  const sel = b===ppBird ? ' selected' : '';
+                  return `<option value="${b}"${sel}>${b} — ${cur.birdPoint}</option>`;
+                }).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="pp-plate-keywrap">
+            <div class="pp-plate-caption">${T('Body zone key','Clave de zonas corporales')}</div>
+            <div class="pp-plate-legend">
+              <span><span class="dot" style="background:#48C98C;"></span>${T('Nectar point','Punto de néctar')}</span>
+              <span><span class="dot" style="background:#5C3A21;"></span>${T('Poison point','Punto de veneno')}</span>
+              <span><span class="dot" style="background:#D4AF37;"></span>${T('Active zone','Zona activa')}</span>
+            </div>
           </div>
         </div></div>`;
     }
