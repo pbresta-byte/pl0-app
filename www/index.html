@@ -2825,7 +2825,49 @@ function computePanchanga(pos){
 
   return { tithiNum, paksha, tithiName, nak, nak28, yogaName:YOGA_NAMES[yogaIdx],
            karana: karanaOfTithiRaw(tithiRaw),
+           // Raw fractional positions for end-time (day-to-day timing) math —
+           // see panchangaEndTimes() below. Additive only; nothing above changed.
+           tithiRawFrac: tithiRaw,          // 0..30
+           nakRawFrac: moonSid/(360/27),    // 0..27
+           yogaRawFrac: yogaRaw,            // 0..27
            ascSign: SIGNS[Math.floor(pos._ascSidereal/30)] };
+}
+
+/* End-times of the running Tithi / Nakshatra / Yoga / Karana ("day-to-day
+   timings" as printed in a pañcāṅga). Linear-motion approximation: each limb
+   advances at its own rate, so remaining fraction × span ÷ speed gives the
+   hours left. Tithi & Yoga & Karana move at the Moon-Sun relative speed;
+   the Nakshatra at the Moon's own speed. Returns local "HH:MM" wall-clock
+   strings plus "(in Xh Ym)" remaining, per limb, derived from the jd/pos
+   passed in (same moment computePanchanga() was called on). */
+function panchangaEndTimes(jd, pos){
+  if (!pos || !pos.Moon || !pos.Sun || !isFinite(jd)) return null;
+  const p = computePanchanga(pos);
+  if (!p || !isFinite(p.tithiRawFrac)) return null;
+  const relativeSpeed = pos.Moon.speed - pos.Sun.speed; // deg/day, typically ~12-15
+  if (!isFinite(relativeSpeed) || relativeSpeed <= 0) return null;
+
+  const tithiEndOffsetDays  = ((Math.ceil(p.tithiRawFrac) - p.tithiRawFrac) * 12) / relativeSpeed;
+  const nakEndOffsetDays    = ((Math.ceil(p.nakRawFrac)   - p.nakRawFrac) * (360/27)) / pos.Moon.speed;
+  const yogaEndOffsetDays   = ((Math.ceil(p.yogaRawFrac)  - p.yogaRawFrac) * (40/3)) / relativeSpeed;
+  // Karana = half a tithi → boundary every 6° of relative motion
+  const karanaEndOffsetDays = ((Math.ceil(p.tithiRawFrac*2) - p.tithiRawFrac*2) * 6) / relativeSpeed;
+
+  const baseMs = (jd - 2440587.5) * 86400000; // JD (UT) -> Unix ms
+  function fmt(offsetDays){
+    const end = new Date(baseMs + offsetDays*24*3600*1000);
+    const hhmm = `${pad2(end.getHours())}:${pad2(end.getMinutes())}`;
+    const remMin = Math.max(0, Math.round(offsetDays*24*60));
+    const h = Math.floor(remMin/60), m = remMin%60;
+    return { isoLocal: `${end.getFullYear()}-${pad2(end.getMonth()+1)}-${pad2(end.getDate())}T${hhmm}`,
+             hhmm,
+             remaining: `(${T('in','en')} ${h}h ${m}m)` };
+  }
+  return { relativeSpeed,
+           tithi:     fmt(tithiEndOffsetDays),
+           nakshatra: fmt(nakEndOffsetDays),
+           yoga:      fmt(yogaEndOffsetDays),
+           karana:    fmt(karanaEndOffsetDays) };
 }
 
 /* General muhūrta-avoidance checklist. Three items from Prasna Marga (B.V.
@@ -4095,83 +4137,168 @@ function getPPBodyPart(lifeBird, tithiNum, paksha) {
 }
 
 /**
- * Render an improved body silhouette SVG with PP bird-body highlight.
- * The silhouette is a stylised standing figure divided into zones.
- * @param {object} cfg - {highlightZone, nectarZone, birdName, birdPart}
+ * Render the anatomy figure: BOTH a FRONT view (left) and a BACK view
+ * (right) side by side in one SVG (viewBox 0 0 480 500; front x-center=120,
+ * back x-center=360). Zone keys (each drawn on both views unless noted):
+ *   head, neck, chest, torso, upperarms, lowerarms, fingers,
+ *   thighs, shins, feet (top on front / sole on back),
+ *   upperback, spine, shoulderblades, lumbar, glutes, calves (back-only extras).
+ * cfg = {
+ *   nectarZones:    [zone,...] → fill rgba(72,201,140,0.4) + teal dot marker
+ *   poisonZones:    [zone,...] → fill rgba(146,43,33,0.35) + dark-brown dot
+ *   activeBird:     bird name (label only)
+ *   activeBirdZone: zone key of the active bird's body part → golden fill
+ *                   + red "<ZONE> — ACTIVE" circle label below the figure
+ *   birdColor:      css color for the active label/ring accent
+ * }
  */
-function renderPPBodySVG(cfg) {
-  // Zones mapped to y-coordinates on the 220×480 canvas
-  // head=0-60 | neck/throat=60-90 | shoulders/chest=90-150 | arms=90-230
-  // stomach/navel=150-200 | hips/pelvis=200-250 | thighs=250-320 |
-  // knees=320-360 | legs/calves=360-420 | feet=420-480
+function renderAnatomyFigure(cfg) {
+  const nectarZones = Array.isArray(cfg.nectarZones) ? cfg.nectarZones.filter(Boolean) : [];
+  const poisonZones = Array.isArray(cfg.poisonZones) ? cfg.poisonZones.filter(Boolean) : [];
+  const az = cfg.activeBirdZone || "";
+  const activeBird = cfg.activeBird || null;
+  const accent = cfg.birdColor || "var(--vermilion)";
 
-  const hl = cfg.highlightZone || "";
-  const nc = cfg.nectarZone || "";
-
-  function zoneStyle(zone) {
-    if (zone === hl) return 'fill="rgba(255,100,50,0.35)" stroke="#e05a2b" stroke-width="3"';
-    if (zone === nc) return 'fill="rgba(80,220,120,0.25)" stroke="#28a745" stroke-width="2"';
+  function zoneAttrs(zone) {
+    if (!zone) return 'fill="var(--panel-2)" stroke="var(--chart-line)" stroke-width="1.5"';
+    if (zone === az) return `fill="rgba(212,175,55,0.45)" stroke="${accent}" stroke-width="2.5"`;
+    if (nectarZones.includes(zone)) return 'fill="rgba(72,201,140,0.4)" stroke="#48C98C" stroke-width="1.8"';
+    if (poisonZones.includes(zone)) return 'fill="rgba(146,43,33,0.35)" stroke="#5C3A21" stroke-width="1.8"';
     return 'fill="var(--panel-2)" stroke="var(--chart-line)" stroke-width="1.5"';
   }
 
-  let svg = `<svg viewBox="0 0 220 500" width="100%" style="max-width:280px;display:block;margin:0 auto;">`;
-  svg += `<defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  // One representative anchor point per zone per view, for the teal/brown
+  // dot markers. [frontX, frontY] and [backX, backY]; F=120 B=360.
+  const F = 120, B = 360;
+  const ZONE_ANCHORS = {
+    head:           [[F,35],[B,35]],
+    neck:           [[F,67],[B,67]],
+    chest:          [[F,122],[B,122]],
+    torso:          [[F,194],[B,166]],
+    upperarms:      [[F-61,120],[F+61,120],[B-61,120],[B+61,120]],
+    lowerarms:      [[F-61,168],[F+61,168],[B-61,168],[B+61,168]],
+    fingers:        [[F-61,199],[F+61,199],[B-61,199],[B+61,199]],
+    thighs:         [[F-30,288],[F+30,288],[B-30,288],[B+30,288]],
+    shins:          [[F-30,392],[F+30,392],[B-30,392],[B+30,392]],
+    feet:           [[F-22,450],[F+22,450],[B-22,450],[B+22,450]],
+    upperback:      [[B,90]],
+    spine:          [[B,160]],
+    shoulderblades: [[B-25,118],[B+25,118]],
+    lumbar:         [[B,203]],
+    glutes:         [[B-19,234],[B+19,234]],
+    calves:         [[B-30,380],[B+30,380]]
+  };
 
-  // Head
-  svg += `<circle cx="110" cy="35" r="26" ${zoneStyle(cfg.highlightZone==="head"||cfg.nectarZone==="head")} />`;
-  svg += `<text x="110" y="40" text-anchor="middle" font-size="9" fill="var(--muted)">HEAD</text>`;
+  let svg = `<svg viewBox="0 0 480 500" width="100%" style="max-width:480px;display:block;margin:0 auto;">`;
+  svg += `<text x="${F}" y="14" text-anchor="middle" font-size="9" letter-spacing="2" fill="var(--muted)">FRONT</text>`;
+  svg += `<text x="${B}" y="14" text-anchor="middle" font-size="9" letter-spacing="2" fill="var(--muted)">BACK</text>`;
 
-  // Neck/Throat
-  svg += `<rect x="98" y="58" width="24" height="18" rx="3" ${zoneStyle(cfg.highlightZone==="neck")}/>`;
+  // Tiny rotated finger-segment labels ("Thumb…Little" front hands,
+  // "Back-Thumb…" back hands). Drawn per hand under the finger segments.
+  function fingerLabels(cx, back){
+    const names = back ? ["Back-Thumb","Back-Index","Back-Middle","Back-Ring","Back-Little"]
+                       : ["Thumb","Index","Middle","Ring","Little"];
+    let out = "";
+    for (let i=0;i<5;i++){
+      const x = cx - 72 + i*4.6 + 2;
+      out += `<text x="${x}" y="${211}" transform="rotate(-90 ${x} ${211})" text-anchor="start" font-size="${back?3.4:3.9}" fill="var(--muted)">${names[i]}</text>`;
+    }
+    return out;
+  }
 
-  // Torso outline
-  svg += `<path d="M70,80 L150,80 L155,160 L145,240 L75,240 L65,160 Z" ${zoneStyle("")} fill-opacity="0.3"/>`;
+  function figure(cx, back){
+    const s = [];
+    const z = zn => zoneAttrs(zn);
+    const rect = (x,y,w,h,attrs,rx=3) => s.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" ${attrs}/>`);
 
-  // Shoulders
-  svg += `<rect x="62" y="78" width="96" height="20" rx="5" ${zoneStyle(cfg.highlightZone==="shoulders")}/>`;
+    // Head + neck (both views)
+    s.push(`<circle cx="${cx}" cy="35" r="26" ${z("head")}/>`);
+    s.push(`<text x="${cx}" y="39" text-anchor="middle" font-size="8" fill="var(--muted)">HEAD</text>`);
+    rect(cx-12,58,24,18,z("neck"));
 
-  // Chest
-  svg += `<rect x="72" y="100" width="76" height="45" rx="4" ${zoneStyle(cfg.highlightZone==="chest")}/>`;
-  svg += `<text x="110" y="126" text-anchor="middle" font-size="8.5" fill="var(--muted)">CHEST</text>`;
+    // Torso outline
+    s.push(`<path d="M${cx-40},80 L${cx+40},80 L${cx+45},160 L${cx+35},250 L${cx-35},250 L${cx-45},160 Z" fill="var(--panel-2)" fill-opacity="0.25" stroke="var(--chart-line)" stroke-width="1.5"/>`);
 
-  // Arms (left & right)
-  svg += `<rect x="38" y="95" width="22" height="90" rx="8" ${zoneStyle(cfg.highlightZone==="arms")}/>
-          <rect x="160" y="95" width="22" height="90" rx="8" ${zoneStyle(cfg.highlightZone==="arms")}/>`;
-  // Hands
-  svg += `<circle cx="49" cy="195" r="12" ${zoneStyle(cfg.highlightZone==="hands")}/>
-          <circle cx="171" cy="195" r="12" ${zoneStyle(cfg.highlightZone==="hands")}/>`;
+    // Arms split into upper/lower segments (both views)
+    rect(cx-72,95,22,50, z("upperarms"), 7);  rect(cx+50,95,22,50, z("upperarms"), 7);
+    rect(cx-72,147,22,42, z("lowerarms"), 7); rect(cx+50,147,22,42, z("lowerarms"), 7);
 
-  // Stomach/Navel
-  svg += `<rect x="75" y="148" width="70" height="42" rx="4" ${zoneStyle(cfg.highlightZone==="stomach")}/>
-          <circle cx="110" cy="180" r="5" ${zoneStyle(cfg.highlightZone==="navel")}/>`;
+    // Hands as 5 finger segments each (both views)
+    for (let i=0;i<5;i++){
+      const fx = cx - 72 + i*4.6;
+      rect(fx,191,3.9,16, z("fingers"), 1.5);
+      rect(cx + 50 + i*4.6,191,3.9,16, z("fingers"), 1.5);
+    }
 
-  // Hips/Pelvis
-  svg += `<path d="M75,190 L145,190 L150,245 L70,245 Z" ${zoneStyle(cfg.highlightZone==="hips")}/>`;
+    if (!back){
+      // ---- FRONT-specific: Chest / Torso / Thighs / Shins / Feet(top) ----
+      rect(cx-38,100,76,45,z("chest"),4);
+      s.push(`<text x="${cx}" y="126" text-anchor="middle" font-size="7.5" fill="var(--muted)">CHEST</text>`);
+      rect(cx-35,148,70,92,z("torso"),4);
+      s.push(`<text x="${cx}" y="196" text-anchor="middle" font-size="7.5" fill="var(--muted)">TORSO</text>`);
+      rect(cx-46,248,32,80,z("thighs"),8); rect(cx+14,248,32,80,z("thighs"),8);
+      s.push(`<text x="${cx-30}" y="290" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>
+              <text x="${cx+30}" y="290" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>`);
+      rect(cx-42,350,24,85,z("shins"),6); rect(cx+18,350,24,85,z("shins"),6);
+      s.push(`<text x="${cx}" y="344" text-anchor="middle" font-size="6" fill="var(--muted)">SHINS</text>`);
+      s.push(`<ellipse cx="${cx-22}" cy="450" rx="16" ry="8" ${z("feet")}/>
+              <ellipse cx="${cx+22}" cy="450" rx="16" ry="8" ${z("feet")}/>`);
+      s.push(`<text x="${cx-22}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">FEET</text>
+              <text x="${cx+22}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">FEET</text>`);
+    } else {
+      // ---- BACK additions: Upper Back / Spine / Shoulder Blades / Lumbar /
+      //      Glutes / Calves (+ shared zones redrawn for this view) ----
+      rect(cx-38,80,76,20,z("upperback"),4);
+      s.push(`<text x="${cx}" y="93" text-anchor="middle" font-size="6.5" fill="var(--muted)">UPPER BACK</text>`);
+      rect(cx-38,100,76,45,z("chest"),4);
+      rect(cx-36,104,20,32,z("shoulderblades"),3); rect(cx+16,104,20,32,z("shoulderblades"),3);
+      rect(cx-2,84,4,158,z("spine"),2);
+      s.push(`<text x="${cx+10}" y="168" transform="rotate(-90 ${cx+10} 168)" text-anchor="middle" font-size="6" fill="var(--muted)">SPINE</text>`);
+      rect(cx-35,148,70,36,z("torso"),4);
+      rect(cx-35,186,70,32,z("lumbar"),4);
+      s.push(`<text x="${cx}" y="205" text-anchor="middle" font-size="6.5" fill="var(--muted)">LUMBAR</text>`);
+      rect(cx-35,220,31,28,z("glutes"),7); rect(cx+4,220,31,28,z("glutes"),7);
+      s.push(`<text x="${cx}" y="238" text-anchor="middle" font-size="6" fill="var(--ink-dim)">GLUTES</text>`);
+      rect(cx-46,248,32,80,z("thighs"),8); rect(cx+14,248,32,80,z("thighs"),8);
+      s.push(`<text x="${cx-30}" y="290" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>
+              <text x="${cx+30}" y="290" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>`);
+      rect(cx-42,350,24,85,z("shins"),6); rect(cx+18,350,24,85,z("shins"),6);
+      rect(cx-40,352,17,70,z("calves"),7); rect(cx+23,352,17,70,z("calves"),7);
+      s.push(`<text x="${cx}" y="344" text-anchor="middle" font-size="6" fill="var(--muted)">SHINS/CALVES</text>`);
+      s.push(`<ellipse cx="${cx-22}" cy="450" rx="16" ry="8" ${z("feet")}/>
+              <ellipse cx="${cx+22}" cy="450" rx="16" ry="8" ${z("feet")}/>`);
+      s.push(`<text x="${cx-22}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">SOLE</text>
+              <text x="${cx+22}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">SOLE</text>`);
+    }
 
-  // Thighs
-  svg += `<rect x="74" y="248" width="32" height="80" rx="8" ${zoneStyle(cfg.highlightZone==="thighs")}/>
-          <rect x="114" y="248" width="32" height="80" rx="8" ${zoneStyle(cfg.highlightZone==="thighs")}/>`;
-  svg += `<text x="90" y="290" text-anchor="middle" font-size="7.5" fill="var(--muted)">THIGH</text>
-          <text x="130" y="290" text-anchor="middle" font-size="7.5" fill="var(--muted)">THIGH</text>`;
+    // Finger name captions (front hands + back hands)
+    s.push(fingerLabels(cx - 61, back));
+    s.push(fingerLabels(cx + 61, back));
+    return s.join("");
+  }
 
-  // Knees
-  svg += `<circle cx="90" cy="338" r="10" ${zoneStyle(cfg.highlightZone==="knees")}/>
-          <circle cx="130" cy="338" r="10" ${zoneStyle(cfg.highlightZone==="knees")}/>`;
+  svg += figure(F, false);
+  svg += figure(B, true);
 
-  // Legs/Calves
-  svg += `<rect x="78" y="350" width="24" height="85" rx="6" ${zoneStyle(cfg.highlightZone==="legs")}/>
-          <rect x="118" y="350" width="24" height="85" rx="6" ${zoneStyle(cfg.highlightZone==="legs")}/>`;
+  // Dot markers for nectar (teal) and poison (dark-brown) zones
+  nectarZones.forEach(zn=>{
+    (ZONE_ANCHORS[zn]||[]).forEach(([x,y])=>{
+      svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="#48C98C" stroke="#1E8449" stroke-width="1"/>`;
+    });
+  });
+  poisonZones.forEach(zn=>{
+    (ZONE_ANCHORS[zn]||[]).forEach(([x,y])=>{
+      svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="#5C3A21" stroke="#3E2716" stroke-width="1"/>`;
+    });
+  });
 
-  // Feet
-  svg += `<ellipse cx="88" cy="450" rx="16" ry="8" ${zoneStyle(cfg.highlightZone==="feet")}/>
-          <ellipse cx="132" cy="450" rx="16" ry="8" ${zoneStyle(cfg.highlightZone==="feet")}/>`;
-  svg += `<text x="88" y="472" text-anchor="middle" font-size="7" fill="var(--muted)">FEET</text>
-          <text x="132" y="472" text-anchor="middle" font-size="7" fill="var(--muted)">FEET</text>`;
-
-  // Highlight ring if bird part is active
-  if (hl) {
-    svg += `<circle cx="110" cy="250" r="140" fill="none" stroke="var(--gold)" stroke-width="1" stroke-dasharray="4,6" opacity="0.3"/>
-            <text x="110" y="495" text-anchor="middle" font-size="9" fill="var(--vermilion)" font-weight="bold">◉ ${hl.toUpperCase()} — ACTIVE</text>`;
+  // Active-bird label below: red circle marker + "<ZONE> — ACTIVE"
+  if (az && activeBird){
+    svg += `<circle cx="150" cy="486" r="4" fill="none" stroke="${accent}" stroke-width="2"/>
+            <text x="160" y="489" text-anchor="start" font-size="9" fill="var(--vermilion)" font-weight="bold">${az.toUpperCase()} — ACTIVE${cfg.activeBird?` (${activeBird})`:''}</text>`;
+  } else if (az){
+    svg += `<circle cx="150" cy="486" r="4" fill="none" stroke="${accent}" stroke-width="2"/>
+            <text x="160" y="489" text-anchor="start" font-size="9" fill="var(--vermilion)" font-weight="bold">${az.toUpperCase()} — ACTIVE</text>`;
   }
 
   svg += `</svg>`;
@@ -4179,24 +4306,31 @@ function renderPPBodySVG(cfg) {
 }
 
 /**
- * Map a textual body-part description to a zone key for highlighting.
+ * Map a textual body-part description to a zone key for renderAnatomyFigure.
+ * Vocabulary comes from NECTAR_POINTS / PP_BIRD_BODY ("Sole", "Hip, Lower
+ * back", "Hand fingers", "Hind muscle", …). Specific patterns are tested
+ * before general ones — e.g. feet before the generic "back" rule, since
+ * "Upper back foot" is a foot, not an upper-back.
  */
 function bodyPartToZone(partText) {
   if (!partText) return "";
   const p = partText.toLowerCase();
-  if (/head|forehead|hair|face|eye|nose|ear/.test(p)) return "head";
-  if (/neck|throat|mouth/.test(p)) return "neck";
-  if (/shoulder/.test(p)) return "shoulders";
-  if (/chest|breast|rib/.test(p)) return "chest";
-  if (/arm|forearm|elbow|upper arm/.test(p)) return "arms";
-  if (/hand|palm|finger|thumb/.test(p)) return "hands";
-  if (/stomach|navel|abdomen/.test(p)) return "stomach";
-  if (/hip|pelvis|private|seat/.test(p)) return "hips";
-  if (/thigh|hind muscle/.test(p)) return "thighs";
-  if (/knee/.test(p)) return "knees";
-  if (/leg|calf|shin|hind/.test(p)) return "legs";
-  if (/foot|feet|sole|ankle/.test(p)) return "feet";
-  if (/back/.test(p)) return "chest"; // upper back maps to chest area visually
+  if (/thumb|index|middle|ring|little|finger|palm|hand/.test(p)) return "fingers";
+  if (/forearm|elbow|lower arm/.test(p)) return "lowerarms"; // before head rule — "forearm" contains "ear"
+  if (/forehead|hair|face|eye|nose|ear|mouth|head/.test(p)) return "head";
+  if (/neck|throat/.test(p)) return "neck";
+  if (/shoulder blade|shoulderblade/.test(p)) return "shoulderblades";
+  if (/shoulder/.test(p)) return "chest";
+  if (/upper arm|arm/.test(p)) return "upperarms";
+  if (/chest|breast|rib|body front/.test(p)) return "chest";
+  if (/sole|foot|feet|ankle|toe/.test(p)) return "feet";
+  if (/hind|calf/.test(p)) return "calves";
+  if (/shin|knee|leg/.test(p)) return "shins";
+  if (/navel|stomach|abdomen/.test(p)) return "torso";
+  if (/lower back|lumbar|spine/.test(p)) return p.includes("spine") ? "spine" : "lumbar";
+  if (/hip|pelvis|buttock|glut|private|seat/.test(p)) return "glutes";
+  if (/thigh/.test(p)) return "thighs";
+  if (/back|body back/.test(p)) return "upperback";
   return "";
 }
 
@@ -7254,6 +7388,9 @@ function runAnalysis(){
   const ay = document.getElementById('ayanamsaMode').value;
   const pos = computePositions(mdt.jd, mdt.lat, mdt.lon, ay);
   const panch = computePanchanga(pos);
+  // Pañcāṅga limb end-times (linear-motion estimate) for the strip below.
+  // Purely additive display — feeds nothing into the score.
+  const panchEnds = panchangaEndTimes(mdt.jd, pos);
 
   const vedha = evaluateVedha(pos, panch.nak28, refP);
   const tara = document.getElementById('weighTara').checked ? computeTara(pos, refP) : null;
@@ -7460,7 +7597,17 @@ function runAnalysis(){
     <div class="cell"><div class="k">Yoga</div><div class="v">${panch.yogaName}</div></div>
     <div class="cell"><div class="k">Karaṇa</div><div class="v">${panch.karana.name}${panch.karana.bad?` <span class="tag bad">${T('bad','malo')}</span>`:''}</div>${karanaGloss?`<div class="g">${T(karanaGloss.en,karanaGloss.es)}</div>`:''}</div>
     <div class="cell"><div class="k">Lagna</div><div class="v">${panch.ascSign}</div></div>
-  </div><div style="height:20px"></div>`;
+  </div>
+
+  ${panchEnds ? `
+  <div class="kv" style="grid-template-columns:130px 90px 1fr; max-width:560px; margin-top:-4px; margin-bottom:18px;">
+    <div class="k">${T('Tithi ends','Termina Tithi')}</div><div class="v">${panchEnds.tithi.hhmm}</div><div class="v">${panchEnds.tithi.remaining}</div>
+    <div class="k">${T('Nakshatra ends','Termina Nakshatra')}</div><div class="v">${panchEnds.nakshatra.hhmm}</div><div class="v">${panchEnds.nakshatra.remaining}</div>
+    <div class="k">${T('Yoga ends','Termina Yoga')}</div><div class="v">${panchEnds.yoga.hhmm}</div><div class="v">${panchEnds.yoga.remaining}</div>
+    <div class="k">${T('Karana ends','Termina Karaṇa')}</div><div class="v">${panchEnds.karana.hhmm}</div><div class="v">${panchEnds.karana.remaining}</div>
+    <div class="k"></div><div class="v" style="grid-column:span 2;"><span class="hint" style="display:inline;">${T('Linear-motion estimate from the moment judged — each limb ends when its span fills at its own speed (Moon-Sun relative for Tithi/Yoga/Karaṇa, Moon alone for Nakshatra).','Estimación de movimiento lineal desde el momento juzgado — cada miembro termina cuando su arco se llena a su propia velocidad (relativa Luna-Sol para Tithi/Yoga/Karaṇa, solo Luna para Nakshatra).')}</span></div>
+  </div>` : ''}
+  <div style="height:0px"></div>`;
 
   // Today's Lunar Day — moved here from the World Era page's Star & Lunar
   // Day Reading panel (2026-08-18 request) so the day's own reading sits
@@ -7988,7 +8135,7 @@ const VARGA_DEFS = [
    calc:sid=>vargaStepped(sid,7,si=>vIsOddSign(si)?si:(si+6)%12,1)},
   {key:"D9", name:"Navāṁśa", span:"3°20'",
    purpose:{en:"spouse / dharma",es:"cónyuge / dharma"}, parts:9,
-   calc:sid=>vargaStepped(sid,9,si=>[0,6,5,3][vElement(si)],1)}, // fire→Ar earth→Cp air→Li water→Cn
+   calc:sid=>vargaStepped(sid,9,si=>[0,9,6,3][vElement(si)],1)}, // fire→Ar earth→Cp air→Li water→Cn
   {key:"D10", name:"Daśāṁśa", span:"3°",
    purpose:{en:"career / power",es:"carrera / poder"}, parts:10,
    calc:sid=>vargaStepped(sid,10,si=>vIsOddSign(si)?si:(si+8)%12,1)},
@@ -8006,7 +8153,7 @@ const VARGA_DEFS = [
    calc:sid=>vargaStepped(sid,24,si=>vIsOddSign(si)?4:3,1)}, // odd→Le even→Cn
   {key:"D27", name:"Bhāṁśa (Nakṣatrāṁśa)", span:"1°06'40\"",
    purpose:{en:"strengths / weaknesses",es:"fortalezas / debilidades"}, parts:27,
-   calc:sid=>vargaStepped(sid,27,si=>[0,3,5,9][vElement(si)],1)}, // fiery→Ar earthy→Cn airy→Li watery→Cp
+   calc:sid=>vargaStepped(sid,27,si=>[0,3,6,9][vElement(si)],1)}, // fiery→Ar earthy→Cn airy→Li watery→Cp
   {key:"D30", name:"Triṁśāṁśa", span:"5°/5°/8°/7°/5°",
    purpose:{en:"misfortunes / evils",es:"desgracias / maleficios"},
    calc:sid=>{
@@ -8024,7 +8171,7 @@ const VARGA_DEFS = [
    }},
   {key:"D40", name:"Khavedāṁśa", span:"0°45'",
    purpose:{en:"maternal legacy",es:"legado materno"}, parts:40,
-   calc:sid=>vargaStepped(sid,40,si=>vIsOddSign(si)?0:5,1)}, // odd→Ar even→Li
+   calc:sid=>vargaStepped(sid,40,si=>vIsOddSign(si)?0:6,1)}, // odd→Ar even→Li
   {key:"D45", name:"Akshavedāṁśa", span:"0°40'",
    purpose:{en:"paternal legacy",es:"legado paterno"}, parts:45,
    calc:sid=>vargaStepped(sid,45,si=>[0,4,8][vModality(si)],1)}, // movable→Ar fixed→Le dual→Sg
@@ -8037,6 +8184,84 @@ function vargaSignForKey(key, sid){
   return def ? def.calc(sid) : null;
 }
 // ==== END VARGA CORE ====
+
+/* =========================================================================
+   VARGA READING TEMPLATES (Parashara's-Light-style divisional readings)
+   Purely template-generated synthesis for the selected varga — one line per
+   planet per house placement in the division, theme sentence varying by the
+   varga's stated purpose (BPHS Ṣoḍaśavarga chapter purposes). Clearly marked
+   as "template reading" at render time; this app is a synthesis tool, not
+   scripture. Reuses the existing dignityTier() and SIGN_SANSKRIT.
+   ========================================================================= */
+const VARGA_READING_THEME = {
+  D1:{en:"body and life as a whole",es:"el cuerpo y la vida en conjunto"},
+  D2:{en:"wealth",es:"la riqueza"},
+  D3:{en:"siblings",es:"los hermanos"},
+  D4:{en:"property and fortune",es:"la propiedad y la fortuna"},
+  D7:{en:"progeny",es:"la progenie"},
+  D9:{en:"spouse and dharma",es:"el cónyuge y el dharma"},
+  D10:{en:"career and public power",es:"la carrera y el poder público"},
+  D12:{en:"parents",es:"los padres"},
+  D16:{en:"vehicles and comforts",es:"los vehículos y las comodidades"},
+  D20:{en:"spiritual pursuits",es:"las búsquedas espirituales"},
+  D24:{en:"education and learning",es:"la educación y el aprendizaje"},
+  D27:{en:"innate strengths and weaknesses",es:"las fortalezas y debilidades innatas"},
+  D30:{en:"misfortunes and evils",es:"las desgracias y los maleficios"},
+  D40:{en:"maternal legacy",es:"el legado materno"},
+  D45:{en:"paternal legacy",es:"el legado paterno"},
+  D60:{en:"karma of past deeds",es:"el karma de actos pasados"}
+};
+const DIGNITY_TAIL = {
+  "Exalted":   {en:"unusually strong here (exalted)",es:"inusualmente fuerte aquí (exaltado)"},
+  "Own":       {en:"strong in its own sign",es:"fuerte en su propio signo"},
+  "Own (per source note)": {en:"strong in its own sign (per source note)",es:"fuerte en su propio signo (según nota de la fuente)"},
+  "Friend":    {en:"well supported (friend's sign)",es:"bien apoyado (signo de amigo)"},
+  "Neutral":   {en:"neutral in this division",es:"neutral en esta división"},
+  "Enemy":     {en:"strained here (enemy sign)",es:"tenso aquí (signo enemigo)"},
+  "Debilitated":{en:"weakened here (debilitated) — effort over grace",es:"debilitado aquí (debilitado) — esfuerzo más que gracia"},
+  "—":         {en:"",es:""}
+};
+function dignityTagClass(tier){
+  if (["Exalted","Own","Own (per source note)"].includes(tier)) return "good";
+  if (["Debilitated","Enemy"].includes(tier)) return "bad";
+  return "neutral";
+}
+// One template paragraph: graha G sits in divisional sign vSignIdx, counted
+// as house H from that varga's Lagna (lagnaVIdx). Theme varies by varga.
+function vargaPlanetReadingLine(def, g, vSignIdx, lagnaVIdx){
+  if (!Number.isInteger(vSignIdx)) return "";
+  const signName = SIGNS[vSignIdx];
+  const sans = SIGN_SANSKRIT[signName] || "";
+  const house = ((vSignIdx - lagnaVIdx + 12) % 12) + 1;
+  const tier = dignityTier(g, vSignIdx*30); // reuse the engine's own dignity ladder on a synthetic whole-sign longitude
+  const tail = DIGNITY_TAIL[tier] || {en:"",es:""};
+  const theme = VARGA_READING_THEME[def.key] || {en:def.purpose.en, es:def.purpose.es};
+  const en = `${g} in ${sans} (${signName}), the ${ordinalSuffix(house)} of ${def.name}, suggests its ${theme.en} significations act through ${HOUSE_SIGNIF[house].en}${tail.en?` — ${tail.en}`:''}.`;
+  const es = `${T(g,GRAHA_ES[g])} en ${sans} (${signName}), la ${house}ª de ${def.name}, sugiere que sus significaciones de ${theme.es} actúan a través de ${HOUSE_SIGNIF[house].es}${tail.es?` — ${tail.es}`:''}.`;
+  return `<div style="margin-bottom:10px;">
+    <b style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'};">${gNameNatal(g)}</b>
+    <span style="color:var(--ink-dim);">→ ${signName} · ${sans}</span>
+    <span class="tag ${dignityTagClass(tier)}" title="${T('Dignity in this division','Dignidad en esta división')}">${tier===''?'—':tier}</span>
+    <div class="hint" style="margin-top:2px;"><small style="color:var(--gold);">${T('template reading','lectura plantilla')}:</small> ${T(en,es)}</div>
+  </div>`;
+}
+// D1-only lordship readings: for each house H, where its lord sits and one
+// combined sentence from the existing LORD_CARRIES / PLACE_DELIVERS tables.
+function d1LordshipReadingsHtml(vargaTable, ascIdx){
+  let out = `<h3 style="margin:14px 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('D1 lordship readings','Lecturas de señorío D1')}</h3>`;
+  for (let H=1; H<=12; H++){
+    const hSign = SIGNS[(ascIdx + H - 1) % 12];
+    const lord = SIGN_LORD[hSign];
+    const lordHouseIdx = vargaTable[lord] ? vargaTable[lord].D1 : null;
+    if (!Number.isInteger(lordHouseIdx)) continue;
+    const Y = ((lordHouseIdx - ascIdx + 12) % 12) + 1;
+    const carries = LORD_CARRIES[H], delivers = PLACE_DELIVERS[Y];
+    out += `<div class="hint" style="margin-top:2px;"><small style="color:var(--gold);">${T('template reading','lectura plantilla')}:</small> ${T(
+      `Lord of ${H}${ordinalSuffix(H)} (${lord}) sits in house ${Y} — ${carries[0]} flow toward ${delivers[0]}.`,
+      `El señor de la casa ${H} (${T(lord,GRAHA_ES[lord])}) está en la casa ${Y} — ${carries[1]} fluyen hacia ${delivers[1]}.`)}</div>`;
+  }
+  return out;
+}
 
 let vargaSelected = "D9";
 function setVargaSelection(k){ vargaSelected = k; renderVargaPage(); }
@@ -8060,6 +8285,27 @@ function renderVargaPage(){
   });
 
   const def = VARGA_DEFS.find(d=>d.key===vargaSelected) || VARGA_DEFS.find(d=>d.key==="D9");
+
+  // Feature C — per-planet template readings for the SELECTED varga
+  const lagnaVIdx = vargaTable.Lagna[def.key];
+  const planetReadingBlocks = GRAHA_LIST.map(g=>
+    vargaPlanetReadingLine(def, g, vargaTable[g][def.key], lagnaVIdx)).join('');
+  const lordshipHtml = def.key==='D1' ? d1LordshipReadingsHtml(vargaTable, vargaTable.Lagna.D1) : '';
+
+  // Feature D — D9 sanity hook: compare the table's computed Navāṁśa sign of
+  // the Moon against the standard element-based formula, evaluated directly:
+  // start = [fire→Ar, earth→Cp, air→Li, water→Cn][signIdx % 4], then advance
+  // floor(degInSign / (30/9)) steps. Display-only check, never a fix.
+  let d9SelfCheckHtml = "";
+  if (def.key === "D9"){
+    const mb = vargaBase(sidOf.Moon);
+    const d9Expected = ((Math.floor([0,9,6,3][vElement(mb.signIdx)] + Math.floor(mb.degIn/(30/9)))) % 12 + 12) % 12;
+    const d9Got = vargaTable.Moon.D9;
+    d9SelfCheckHtml = d9Expected === d9Got
+      ? `<div style="margin-top:8px;"><span class="tag good">${T('D9 self-check','Autocomprobación D9')}</span> <small style="color:var(--ink-dim);">${T(`Moon → ${SIGNS[d9Got]} · matches the element-based formula (start ${SIGNS[[0,9,6,3][vElement(mb.signIdx)]]} + ${Math.floor(mb.degIn/(30/9))} steps)`,`Luna → ${SIGNS[d9Got]} · coincide con la fórmula por elementos (inicio ${SIGNS[[0,9,6,3][vElement(mb.signIdx)]]} + ${Math.floor(mb.degIn/(30/9))} pasos)`)}</small></div>`
+      : `<div class="warnbox" style="margin-top:8px; margin-bottom:0;">⚠ <b>D9 self-check MISMATCH</b> — computed Moon D9 = ${SIGNS[d9Got] ?? '??'}, formula expects ${SIGNS[d9Expected]} (start ${SIGNS[[0,9,6,3][vElement(mb.signIdx)]]} + ${Math.floor(mb.degIn/(30/9))} steps from ${mb.degIn.toFixed(2)}° in-sign).</div>`;
+  }
+
   // Synthetic positions encoding each divisional sign as its whole-sign degree,
   // so the existing North Indian chart renderer works unchanged — exactly the
   // trick computeNavamsaPos() already uses elsewhere in this app.
@@ -8103,6 +8349,7 @@ function renderVargaPage(){
         ${renderChart(chartPos, chartAscSign)}
         <div class="hint" style="margin-top:10px;">${T(`Chart shows the ${def.key} (${def.name}) — read for ${def.purpose.en}. House 1 carries the ${def.key} Lagna; planets sit in their ${def.key} signs.`, `La carta muestra el ${def.key} (${def.name}) — se lee para ${def.purpose.es}. La casa 1 lleva el Lagna del ${def.key}; los planetas están en sus signos del ${def.key}.`)}</div>
         <div class="hint">${T("Note: this D9 follows the element-based Navāṁśa count (fire→Aries, earth→Capricorn, air→Libra, water→Cancer). The Natal General Reading page's D9 uses the SBC book's movable/fixed/dual count instead — two classical conventions that genuinely disagree; both are shown as-is rather than silently merged.","Nota: este D9 sigue el cómputo Navāṁśa por elementos (fuego→Aries, tierra→Capricornio, aire→Libra, agua→Cáncer). El D9 de la página Lectura Natal General usa el cómputo movable/fijo/dual del libro SBC — dos convenciones clásicas que genuinamente discrepan; ambas se muestran tal cual en vez de fusionarse en silencio.")}</div>
+        ${d9SelfCheckHtml}
       </div>
     </div>
 
@@ -8110,6 +8357,14 @@ function renderVargaPage(){
       <div class="bd">
         <div class="tblwrap"><table><thead><tr><th>${T('Body','Cuerpo')}</th><th>${T('D1 position','Posición D1')}</th>${vargaHeaderCells}</tr></thead><tbody>${planetRows}</tbody></table></div>
         <div class="hint" style="margin-top:10px;">${T('Purposes per column: D1 body · D2 wealth · D3 siblings · D4 fortune/property · D7 children · D9 spouse/dharma · D10 career/power · D12 parents · D16 vehicles/comforts · D20 spiritual pursuits · D24 education/learning · D27 strengths/weaknesses · D30 misfortunes · D40 maternal legacy · D45 paternal legacy · D60 all matters/karma.','Propósitos por columna: D1 cuerpo · D2 riqueza · D3 hermanos · D4 fortuna/propiedad · D7 hijos · D9 cónyuge/dharma · D10 carrera/poder · D12 padres · D16 vehículos/comodidades · D20 búsquedas espirituales · D24 educación/aprendizaje · D27 fortalezas/debilidades · D30 desgracias · D40 legado materno · D45 legado paterno · D60 todos los asuntos/karma.')}</div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Varga readings','Lecturas del varga')}</h2><span class="note">${def.key} ${def.name} · ${T('template-generated','generado por plantilla')}</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:12px;">${T('Template readings — mechanically generated from each graha\'s divisional sign, its dignity there, and the house it occupies counted from the division\'s own Lagna, with the theme sentence varying by this varga\'s stated purpose. A synthesis aid for learning the divisions, not scripture; judge the whole chart before quoting any single line.','Lecturas plantilla — generadas mecánicamente a partir del signo divisional de cada graha, su dignidad allí y la casa que ocupa contada desde el Lagna propio de la división, con la frase temática variando según el propósito declarado de este varga. Una ayuda de síntesis para aprender las divisiones, no escritura; juzga la carta completa antes de citar una sola línea.')}</div>
+        ${planetReadingBlocks}
+        ${lordshipHtml}
       </div>
     </div>
 
@@ -8744,7 +8999,7 @@ function renderAnatomyPage(){
       ppBodyHTML = `<div class="panel"><div class="hd"><h2>${T('Pañcha Pakshi Body Map','Mapa Corporal Pañcha Pakshi')}</h2>
         <span class="note">${ppBirdBadge(ppBird)} · ${panch.paksha==='Shukla'?'Bright Half':'Dark Half'}</span></div>
         <div class="bd" style="display:flex;gap:20px;flex-wrap:wrap;">
-          <div style="flex:0;min-width:220px;"><div class="pp-body-svg" style="border:3px solid ${(PP_BIRD_COLORS[ppBird]||{}).hex||'var(--gold)'};border-radius:8px;padding:4px;background:rgba(0,0,0,0.05);">${renderPPBodySVG({highlightZone:hlZone,nectarZone:ncZone})}</div></div>
+          <div style="flex:0;min-width:340px;"><div class="pp-body-svg" style="border:3px solid ${(PP_BIRD_COLORS[ppBird]||{}).hex||'var(--gold)'};border-radius:8px;padding:4px;background:rgba(0,0,0,0.05);">${renderAnatomyFigure({nectarZones:[ncZone], poisonZones:[bodyPartToZone(ppData.poisonPoint||'Lower Back')], activeBird:ppBird, activeBirdZone:hlZone, birdColor:(PP_BIRD_COLORS[ppBird]||{}).hex})}</div></div>
           <div style="flex:1;min-width:200px;">
             <table style="width:100%;font-size:13px;border-collapse:collapse;">
               <tr><td style="padding:6px;color:var(--jade);font-weight:bold;">Nectar:</td><td>${ppData.nectarPoint}</td></tr>
@@ -8858,7 +9113,7 @@ function updatePPBodyHighlight(birdName) {
   const ppData = getPPBodyPart(birdName, panch.tithiNum, panch.paksha);
   const hlZone = bodyPartToZone(ppData.birdPoint);
   const ncZone = bodyPartToZone(ppData.nectarPoint);
-  svgEl.innerHTML = renderPPBodySVG({highlightZone:hlZone, nectarZone:ncZone});
+  svgEl.innerHTML = renderAnatomyFigure({nectarZones:[ncZone], poisonZones:[bodyPartToZone(ppData.poisonPoint||'Lower Back')], activeBird:birdName, activeBirdZone:hlZone, birdColor:(PP_BIRD_COLORS[birdName]||{}).hex});
 }
 
 
