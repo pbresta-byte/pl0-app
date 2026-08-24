@@ -9171,6 +9171,65 @@ function renderNakshatraPage(){
 // Deha Chakra Nectar/Poison gauge, moved here unchanged from the main page
 // (previously inline there) — same computeDehaChakra()/renderBodyGauge()
 // this app already had, just re-housed.
+
+/* =========================================================================
+   TRI-NĀḌĪ CHAKRA — Bṛhat Nakṣatra (Sanjay Rath), ch. on Nakṣatra Maṇḍala.
+   Three channels: Iḍā (Gaṅgā, Moon, dissolution/storage, left),
+   Piṅgalā (Yamunā, Sun/Surya, supply/production, right),
+   Suṣumnā (Sarasvatī, Agni, sustenance/balance, center).
+   NAKSHATRA → NĀḌÍ: the 27 stars run in groups of three by nāḍí class —
+   Ādya (Vata/Idā), Madhya (Pitta/Suṣumnā), Antya (Kapha/Piṅgalā) repeating
+   (this is also the classical Nāḍī-kūta matching order used in the app's
+   Kuta engine). Star index 0=Aśvinī → nadi = idx % 3 (0=Ādya,1=Madhya,2=Antya).
+   ASTRAL CHAKRA OF A STAR (Table 8): chakra = [Mulādhāra, Svādhiṣṭhāna,
+   Maṇipura, Anāhata, Viśuddhi, Ājñā, Sahasrāra][idx % 7], with the 8th/9th
+   nodes Soma & Suddhāmṛta taking idx%9===7 and idx%9===8 of each nine-group.
+   SWARA / BREATH LOGIC (live): the running tithi's star gives today's nāḍī;
+   Piṅgalā-right flow = supply short (act, produce); Iḍā-left flow = surplus
+   stored (mental work); Suṣumnā = thought continuity (sattvic acts).
+   For the USER'S chart: Moon-star nāḍí = innate breath temperament; Lagna-star
+   nāḍí = active/body-side temperament; same-nāḍī couples → Nāga Nāḍī doṣa.
+   ========================================================================= */
+const TRINADI_NADI_BY_INDEX = ['Adya','Madhya','Antya'];
+const TRINADI_NADI_META = {
+  Adya:   { nadi:{en:'Iḍā / Gaṅgā',es:'Iḍā / Gaṅgā'}, humour:'Vāta', trimurti:'Brahmā (creation)', devata:{en:'Moon',es:'la Luna'},
+            flow:{en:'left nostril — storage/elimination',es:'fosa nasal izquierda — almacenaje/eliminación'} },
+  Madhya: { nadi:{en:'Suṣumnā / Sarasvatī',es:'Suṣumnā / Sarasvatī'}, humour:'Pitta', trimurti:'Viṣṇu (sustenance)', devata:{en:'Agni',es:'Agni'},
+            flow:{en:'central — thought continuity',es:'central — continuidad del pensamiento'} },
+  Antya:  { nadi:{en:'Piṅgalā / Yamunā',es:'Piṅgalā / Yamunā'}, humour:'Kapha', trimurti:'Rudra (dissolution)', devata:{en:'Sun',es:'el Sol'},
+            flow:{en:'right nostril — supply/production',es:'fosa nasal derecha — suministro/producción'} }
+};
+function trinadiNadiOfStar(starName){
+  const names = NAK27.map(x=>x.n);
+  const idx = names.indexOf(starName);
+  if (idx < 0) return null;
+  const key = TRINADI_NADI_BY_INDEX[idx % 3];
+  return { key, idx, meta: TRINADI_NADI_META[key] };
+}
+function trinadiChakraOfStar(starName){
+  const names = NAK27.map(x=>x.n);
+  const idx = names.indexOf(starName);
+  if (idx < 0) return null;
+  const g = Math.floor(idx / 9), p = idx % 9;
+  if (p === 7) return 'Soma (8th node)';
+  if (p === 8) return 'Suddhāmṛta (9th node)';
+  return ['Mulādhāra','Svādhiṣṭhāna','Maṇipura','Anāhata','Viśuddhi','Ājñā','Sahasrāra'][p % 7];
+}
+function trinadiSwaraReading(panch){
+  // Live breath indication from the moment's Moon star; savya/apasavya style
+  // direction from the paksha half as a SYNTH proxy when no direct breath
+  // observation is available. The honest primary reading needs the user to
+  // observe their own nostril dominance and confirm against this.
+  const cur = trinadiNadiOfStar(panch.nak.name);
+  if (!cur) return null;
+  let advice;
+  if (cur.key === 'Antya') advice = { en:'Right-nostril (Piṅgalā) period: favour physical action, new supply, outward work; avoid storage decisions and heavy meals.', es:'Periodo de fosa derecha (Piṅgalā): favorece acción física, nuevo suministro, trabajo hacia afuera; evita decisiones de almacenaje y comidas pesadas.' };
+  else if (cur.key === 'Adya') advice = { en:'Left-nostril (Iḍā) period: favour mental work, study, rest and consolidation; delay forceful launches.', es:'Periodo de fosa izquierda (Iḍā): favorece trabajo mental, estudio, descanso y consolidación; retrasa lanzamientos forzados.' };
+  else advice = { en:'Central (Suṣumnā) period: best for meditation, decisions needing clear continuity of thought, and sattvic acts.', es:'Periodo central (Suṣumnā): lo mejor para meditación, decisiones que requieran continuidad de pensamiento y actos sáttvicos.' };
+  return { star: panch.nak.name, key: cur.key, advice };
+}
+
+
 function renderAnatomyPage(){
   const container = document.getElementById('anatomyPageContent');
   if (!container) return;
@@ -9184,7 +9243,20 @@ function renderAnatomyPage(){
   const panch = computePanchanga(pos);
   const tara = refP.star ? computeTara(pos, refP) : null;
   const deha = computeDehaChakra(pos, panch, refP, tara);
-  
+
+  // Tri-Nāḍī readings (live moment + natal Moon/Lagna stars)
+  const swara = trinadiSwaraReading(panch);
+  let natalMoonNadi = null, natalLagnaNadi = null;
+  try {
+    const bp = refInfo.birthPos;
+    if (bp) {
+      const bpanch = computePanchanga(bp);
+      natalMoonNadi = bpanch.nak ? trinadiNadiOfStar(bpanch.nak.name) : null;
+      const ascSid = bp._ascSidereal;
+      if (ascSid != null) { const ln = nakshatraFromSidereal(ascSid, false); natalLagnaNadi = ln ? trinadiNadiOfStar(ln.name) : null; }
+    }
+  } catch(e){}
+
   // PP Body Map
   let ppBodyHTML = "";
   let ppBird = null;
@@ -9292,6 +9364,27 @@ function renderAnatomyPage(){
           peso. Una entrada no es anatómica en absoluto — a Śatabhiṣaj se le da "la risa" en vez de una parte del cuerpo, y por eso va al final.
           No es consejo médico.`)}
         </div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Tri-Nāḍī Chakra — Breath &amp; Channel Reading','Tri-Nāḍī Chakra — lectura de aliento y canales')}</h2><span class="note">${T('Bṛhat Nakṣatra, Nakṣatra Maṇḍala ch.','Bṛhat Nakṣatra, cap. Nakṣatra Maṇḍala')}</span></div>
+      <div class="bd">
+        <div class="hint">${T('The three channels — Iḍā/Gaṅgā (left nostril, Moon, storage), Piṅgalā/Yamunā (right nostril, Sun, supply) and Suṣumnā/Sarasvatī (central, Agni, sustenance) — are read from stars: the 27 nakṣatras cycle Ādya → Madhya → Antya by nāḍī class, and each star sits on one of the nine astral nodes (Mulādhāra…Sahasrāra plus Soma and Suddhāmṛta).','Los tres canales — Iḍā/Gaṅgā (fosa izquierda, Luna, almacenaje), Piṅgalā/Yamunā (fosa derecha, Sol, suministro) y Suṣumnā/Sarasvatī (central, Agni, sostenimiento) — se leen desde las estrellas: los 27 nakṣatras ciclan Ādya → Madhya → Antya por clase de nāḍī, y cada estrella se asienta en uno de los nueve nodos astrales (Mulādhāra…Sahasrāra más Soma y Suddhāmṛta).')}</div>
+        <div class="tblwrap" style="margin-top:10px;"><table><tbody>
+          <tr><td class="wide">${T('Moment star (transit Moon)','Estrella del momento (Luna en tránsito)')}</td><td><b>${swara ? swara.star : '—'}</b> → <span class="tag neutral">${swara ? swara.key : ''}</span></td></tr>
+          <tr><td class="wide">${T('Nāḍī / humour / deity','Nāḍī / humor / deidad')}</td><td>${swara ? T(swara.meta.nadi.en, swara.meta.nadi.es) + ' · ' + swara.meta.humour + ' · ' + swara.meta.trimurti + ' · ' + swara.meta.devata.en : ''}</td></tr>
+          <tr><td class="wide">${T('Astral node of the star','Nodo astral de la estrella')}</td><td>${swara ? trinadiChakraOfStar(swara.star) : ''}</td></tr>
+          <tr><td class="wide">${T('Your Moon-star temperament (natal)','Tu temperamento por estrella lunar (natal)')}</td><td>${natalMoonNadi ? T(natalMoonNadi.meta.nadi.en, natalMoonNadi.meta.nadi.es) + ` (${natalMoonNadi.key})` : T('set a birth chart','define una carta natal')}</td></tr>
+          <tr><td class="wide">${T('Your Lagna-star temperament (active side)','Tu temperamento por estrella del Lagna (lado activo)')}</td><td>${natalLagnaNadi ? T(natalLagnaNadi.meta.nadi.en, natalLagnaNadi.meta.nadi.es) + ` (${natalLagnaNadi.key})` : T('set a birth chart','define una carta natal')}</td></tr>
+        </tbody></table></div>
+        <div class="okbox" style="margin-top:10px;">${swara ? T(swara.advice.en, swara.advice.es) : ''}</div>
+        <div class="hint" style="margin-top:8px;"><small style="color:var(--gold);">${T('How to use the breath logic','Cómo usar la lógica del aliento')}:</small>
+          ${T(`Check your own nostril dominance (press a finger below the nose; note which side flows). If it agrees with the moment-star nāḍī above, the indication is strong. If it disagrees, your natal temperament is overriding the sky — act by your own side. Suṣumnā flow at any time outranks both and favours stillness. This is a traditional breath-reading aid, not medical advice.`,
+          `Comprueba tu dominancia nasal (pasa un dedo bajo la nariz; observa qué lado fluye). Si coincide con la nāḍī de la estrella del momento, la indicación es fuerte. Si no, tu temperamento natal está dominando al cielo — obra según tu propio lado. El flujo Suṣumnā en cualquier momento supera a ambos y favorece la quietud. Es una ayuda tradicional de lectura del aliento, no consejo médico.`)}
+        </div>
+        ${natalMoonNadi && natalLagnaNadi && natalMoonNadi.key === natalLagnaNadi.key
+          ? `<div class="hint" style="color:var(--vermilion);">${T('Moon-star and Lagna-star fall in the same nāḍī class — check partners for Nāga Nāḍī doṣa (same-nāḍī couple stars), especially with sarpa/kāla-sarpa yogas on the 1st–7th axis.','La estrella lunar y la del Lagna caen en la misma clase de nāḍī — revisa parejas para el doṣa Nāga Nāḍī (estrellas de la misma nāḍī), sobre todo con yogas sarpa/kāla-sarpa en el eje 1.ª–7.ª.')}</div>`
+          : ''}
       </div>
     </div>
     ${ppBodyHTML}
