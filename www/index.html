@@ -4197,6 +4197,12 @@ function getPPBodyPart(lifeBird, tithiNum, paksha) {
  *                   + red "<ZONE> — ACTIVE" circle label below the figure
  *   birdColor:      css color for the active label/ring accent
  * }
+ * Drawing approach: each limb is a tapered "capsule" path (variable-width
+ * ribbon with rounded caps at both ends, via taperedLimb()) rather than a
+ * plain rect, and the torso/hips are a single smoothed bezier outline —
+ * together these read as an actual body silhouette instead of blocky boxes.
+ * Fingers are five short capsules fanned out from the wrist at slightly
+ * different angles/lengths so the hand reads as a hand, not a comb.
  */
 function renderAnatomyFigure(cfg) {
   const nectarZones = Array.isArray(cfg.nectarZones) ? cfg.nectarZones.filter(Boolean) : [];
@@ -4217,37 +4223,73 @@ function renderAnatomyFigure(cfg) {
   // dot markers. [frontX, frontY] and [backX, backY]; F=120 B=360.
   const F = 120, B = 360;
   const ZONE_ANCHORS = {
-    head:           [[F,35],[B,35]],
-    neck:           [[F,67],[B,67]],
-    chest:          [[F,122],[B,122]],
-    torso:          [[F,194],[B,166]],
-    upperarms:      [[F-61,120],[F+61,120],[B-61,120],[B+61,120]],
-    lowerarms:      [[F-61,168],[F+61,168],[B-61,168],[B+61,168]],
-    fingers:        [[F-61,199],[F+61,199],[B-61,199],[B+61,199]],
-    thighs:         [[F-30,288],[F+30,288],[B-30,288],[B+30,288]],
-    shins:          [[F-30,392],[F+30,392],[B-30,392],[B+30,392]],
-    feet:           [[F-22,450],[F+22,450],[B-22,450],[B+22,450]],
-    upperback:      [[B,90]],
-    spine:          [[B,160]],
-    shoulderblades: [[B-25,118],[B+25,118]],
-    lumbar:         [[B,203]],
-    glutes:         [[B-19,234],[B+19,234]],
-    calves:         [[B-30,380],[B+30,380]]
+    head:           [[F,34],[B,34]],
+    neck:           [[F,64],[B,64]],
+    chest:          [[F,110],[B,110]],
+    torso:          [[F,188],[B,160]],
+    upperarms:      [[F-58,118],[F+58,118],[B-58,118],[B+58,118]],
+    lowerarms:      [[F-66,172],[F+66,172],[B-66,172],[B+66,172]],
+    fingers:        [[F-70,204],[F+70,204],[B-70,204],[B+70,204]],
+    thighs:         [[F-24,290],[F+24,290],[B-24,290],[B+24,290]],
+    shins:          [[F-22,392],[F+22,392],[B-22,392],[B+22,392]],
+    feet:           [[F-20,455],[F+20,455],[B-20,455],[B+20,455]],
+    upperback:      [[B,88]],
+    spine:          [[B,158]],
+    shoulderblades: [[B-24,112],[B+24,112]],
+    lumbar:         [[B,205]],
+    glutes:         [[B-18,235],[B+18,235]],
+    calves:         [[B-24,385],[B+24,385]]
   };
+
+  // Tapered capsule: a variable-width ribbon from (x1,y1,w1) to (x2,y2,w2)
+  // with rounded end caps — the workhorse for every limb segment, reads as
+  // an actual body part instead of a rigid rectangle.
+  function taperedLimb(x1,y1,w1,x2,y2,w2,attrs){
+    const dx = x2-x1, dy = y2-y1;
+    const len = Math.sqrt(dx*dx+dy*dy) || 1;
+    const nx = -dy/len, ny = dx/len;
+    const r1 = w1/2, r2 = w2/2;
+    const a1x = x1+nx*r1, a1y = y1+ny*r1, b1x = x1-nx*r1, b1y = y1-ny*r1;
+    const a2x = x2+nx*r2, a2y = y2+ny*r2, b2x = x2-nx*r2, b2y = y2-ny*r2;
+    return `<path d="M${a1x.toFixed(1)},${a1y.toFixed(1)} L${a2x.toFixed(1)},${a2y.toFixed(1)} A${r2},${r2} 0 0 1 ${b2x.toFixed(1)},${b2y.toFixed(1)} L${b1x.toFixed(1)},${b1y.toFixed(1)} A${r1},${r1} 0 0 1 ${a1x.toFixed(1)},${a1y.toFixed(1)} Z" ${attrs}/>`;
+  }
 
   let svg = `<svg viewBox="0 0 480 500" width="100%" style="max-width:480px;display:block;margin:0 auto;">`;
   svg += `<text x="${F}" y="14" text-anchor="middle" font-size="9" letter-spacing="2" fill="var(--muted)">FRONT</text>`;
   svg += `<text x="${B}" y="14" text-anchor="middle" font-size="9" letter-spacing="2" fill="var(--muted)">BACK</text>`;
 
-  // Tiny rotated finger-segment labels ("Thumb…Little" front hands,
-  // "Back-Thumb…" back hands). Drawn per hand under the finger segments.
+  // A fanned hand: wrist point (cx,cy), five tapered-capsule fingers at
+  // slightly different angles/lengths (thumb shortest + angled aside,
+  // middle longest, mirrored for left/right hand via `flip`).
+  function hand(cx, cy, flip, attrs){
+    const s = [];
+    s.push(`<ellipse cx="${cx}" cy="${cy}" rx="8" ry="9" ${attrs}/>`); // palm
+    const fingers = [
+      {ang:-34, len:13, w:3.0}, // thumb
+      {ang:-11, len:19, w:3.2},
+      {ang: 2,  len:21, w:3.2}, // middle (longest)
+      {ang: 15, len:19, w:3.0},
+      {ang: 30, len:15, w:2.6}  // little
+    ];
+    fingers.forEach(f=>{
+      const ang = f.ang * Math.PI/180;
+      const dir = flip ? -1 : 1;
+      const x2 = cx + Math.sin(ang)*f.len*dir;
+      const y2 = cy + Math.cos(ang)*f.len;
+      s.push(taperedLimb(cx, cy+2, f.w+1.5, x2, y2, f.w, attrs));
+    });
+    return s.join("");
+  }
+
+  // Tiny finger-name labels, positioned near the fanned fingertips rather
+  // than under a straight row (kept for reference/legend purposes).
   function fingerLabels(cx, back){
     const names = back ? ["Back-Thumb","Back-Index","Back-Middle","Back-Ring","Back-Little"]
                        : ["Thumb","Index","Middle","Ring","Little"];
     let out = "";
     for (let i=0;i<5;i++){
-      const x = cx - 72 + i*4.6 + 2;
-      out += `<text x="${x}" y="${211}" transform="rotate(-90 ${x} ${211})" text-anchor="start" font-size="${back?3.4:3.9}" fill="var(--muted)">${names[i]}</text>`;
+      const x = cx - 20 + i*10;
+      out += `<text x="${x}" y="228" text-anchor="middle" font-size="${back?3.2:3.6}" fill="var(--muted)">${names[i]}</text>`;
     }
     return out;
   }
@@ -4255,71 +4297,86 @@ function renderAnatomyFigure(cfg) {
   function figure(cx, back){
     const s = [];
     const z = zn => zoneAttrs(zn);
-    const rect = (x,y,w,h,attrs,rx=3) => s.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" ${attrs}/>`);
 
-    // Head + neck (both views)
-    s.push(`<circle cx="${cx}" cy="35" r="26" ${z("head")}/>`);
-    s.push(`<text x="${cx}" y="39" text-anchor="middle" font-size="8" fill="var(--muted)">HEAD</text>`);
-    rect(cx-12,58,24,18,z("neck"));
+    // Head (slightly oval, reads better than a plain circle) + neck taper
+    s.push(`<ellipse cx="${cx}" cy="34" rx="22" ry="25" ${z("head")}/>`);
+    s.push(`<text x="${cx}" y="38" text-anchor="middle" font-size="8" fill="var(--muted)">HEAD</text>`);
+    s.push(taperedLimb(cx,57,20, cx,72,26, z("neck")));
 
-    // Torso outline
-    s.push(`<path d="M${cx-40},80 L${cx+40},80 L${cx+45},160 L${cx+35},250 L${cx-35},250 L${cx-45},160 Z" fill="var(--panel-2)" fill-opacity="0.25" stroke="var(--chart-line)" stroke-width="1.5"/>`);
+    // Smooth torso/hip outline: shoulders wide, waist narrower, hips flare —
+    // a single bezier path rather than a straight-edged polygon.
+    s.push(`<path d="M${cx-44},82
+      C${cx-46},100 ${cx-42},112 ${cx-38},118
+      L${cx-33},210
+      C${cx-40},222 ${cx-42},236 ${cx-38},252
+      L${cx+38},252
+      C${cx+42},236 ${cx+40},222 ${cx+33},210
+      L${cx+38},118
+      C${cx+42},112 ${cx+46},100 ${cx+44},82
+      C${cx+30},74 ${cx+14},70 ${cx},70
+      C${cx-14},70 ${cx-30},74 ${cx-44},82 Z"
+      fill="var(--panel-2)" fill-opacity="0.25" stroke="var(--chart-line)" stroke-width="1.5"/>`);
 
-    // Arms split into upper/lower segments (both views)
-    rect(cx-72,95,22,50, z("upperarms"), 7);  rect(cx+50,95,22,50, z("upperarms"), 7);
-    rect(cx-72,147,22,42, z("lowerarms"), 7); rect(cx+50,147,22,42, z("lowerarms"), 7);
-
-    // Hands as 5 finger segments each (both views)
-    for (let i=0;i<5;i++){
-      const fx = cx - 72 + i*4.6;
-      rect(fx,191,3.9,16, z("fingers"), 1.5);
-      rect(cx + 50 + i*4.6,191,3.9,16, z("fingers"), 1.5);
-    }
+    // Arms: shoulder → elbow → wrist, each segment tapering narrower
+    [-1,1].forEach(side=>{
+      const sx = cx + side*38, sy = 92;
+      const ex = cx + side*66, ey = 140;
+      const wx = cx + side*70, wy = 190;
+      s.push(taperedLimb(sx,sy,26, ex,ey,17, z("upperarms")));
+      s.push(taperedLimb(ex,ey,17, wx,wy,12, z("lowerarms")));
+      s.push(hand(wx, wy+4, side<0, z("fingers")));
+    });
 
     if (!back){
       // ---- FRONT-specific: Chest / Torso / Thighs / Shins / Feet(top) ----
-      rect(cx-38,100,76,45,z("chest"),4);
-      s.push(`<text x="${cx}" y="126" text-anchor="middle" font-size="7.5" fill="var(--muted)">CHEST</text>`);
-      rect(cx-35,148,70,92,z("torso"),4);
-      s.push(`<text x="${cx}" y="196" text-anchor="middle" font-size="7.5" fill="var(--muted)">TORSO</text>`);
-      rect(cx-46,248,32,80,z("thighs"),8); rect(cx+14,248,32,80,z("thighs"),8);
-      s.push(`<text x="${cx-30}" y="290" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>
-              <text x="${cx+30}" y="290" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>`);
-      rect(cx-42,350,24,85,z("shins"),6); rect(cx+18,350,24,85,z("shins"),6);
-      s.push(`<text x="${cx}" y="344" text-anchor="middle" font-size="6" fill="var(--muted)">SHINS</text>`);
-      s.push(`<ellipse cx="${cx-22}" cy="450" rx="16" ry="8" ${z("feet")}/>
-              <ellipse cx="${cx+22}" cy="450" rx="16" ry="8" ${z("feet")}/>`);
-      s.push(`<text x="${cx-22}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">FEET</text>
-              <text x="${cx+22}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">FEET</text>`);
+      s.push(`<path d="M${cx-36},90 C${cx-38},108 ${cx-36},124 ${cx-30},132 L${cx+30},132 C${cx+36},124 ${cx+38},108 ${cx+36},90 C${cx+22},82 ${cx-22},82 ${cx-36},90 Z" ${z("chest")}/>`);
+      s.push(`<text x="${cx}" y="112" text-anchor="middle" font-size="7.5" fill="var(--muted)">CHEST</text>`);
+      s.push(`<path d="M${cx-32},134 C${cx-36},160 ${cx-34},188 ${cx-30},208 L${cx+30},208 C${cx+34},188 ${cx+36},160 ${cx+32},134 Z" ${z("torso")}/>`);
+      s.push(`<text x="${cx}" y="176" text-anchor="middle" font-size="7.5" fill="var(--muted)">TORSO</text>`);
+      s.push(taperedLimb(cx-24,252,34, cx-20,330,22, z("thighs")));
+      s.push(taperedLimb(cx+24,252,34, cx+20,330,22, z("thighs")));
+      s.push(`<text x="${cx-24}" y="292" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>
+              <text x="${cx+24}" y="292" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>`);
+      s.push(taperedLimb(cx-20,332,20, cx-18,428,13, z("shins")));
+      s.push(taperedLimb(cx+20,332,20, cx+18,428,13, z("shins")));
+      s.push(`<text x="${cx}" y="380" text-anchor="middle" font-size="6" fill="var(--muted)">SHINS</text>`);
+      s.push(`<path d="M${cx-27},450 Q${cx-18},440 ${cx-6},448 Q${cx-2},456 ${cx-10},460 L${cx-25},460 Q${cx-30},456 ${cx-27},450 Z" ${z("feet")}/>`);
+      s.push(`<path d="M${cx+27},450 Q${cx+18},440 ${cx+6},448 Q${cx+2},456 ${cx+10},460 L${cx+25},460 Q${cx+30},456 ${cx+27},450 Z" ${z("feet")}/>`);
+      s.push(`<text x="${cx-17}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">FEET</text>
+              <text x="${cx+17}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">FEET</text>`);
     } else {
       // ---- BACK additions: Upper Back / Spine / Shoulder Blades / Lumbar /
       //      Glutes / Calves (+ shared zones redrawn for this view) ----
-      rect(cx-38,80,76,20,z("upperback"),4);
+      s.push(`<path d="M${cx-36},80 C${cx-38},92 ${cx-37},100 ${cx-34},106 L${cx+34},106 C${cx+37},100 ${cx+38},92 ${cx+36},80 C${cx+20},74 ${cx-20},74 ${cx-36},80 Z" ${z("upperback")}/>`);
       s.push(`<text x="${cx}" y="93" text-anchor="middle" font-size="6.5" fill="var(--muted)">UPPER BACK</text>`);
-      rect(cx-38,100,76,45,z("chest"),4);
-      rect(cx-36,104,20,32,z("shoulderblades"),3); rect(cx+16,104,20,32,z("shoulderblades"),3);
-      rect(cx-2,84,4,158,z("spine"),2);
-      s.push(`<text x="${cx+10}" y="168" transform="rotate(-90 ${cx+10} 168)" text-anchor="middle" font-size="6" fill="var(--muted)">SPINE</text>`);
-      rect(cx-35,148,70,36,z("torso"),4);
-      rect(cx-35,186,70,32,z("lumbar"),4);
+      s.push(`<ellipse cx="${cx-20}" cy="112" rx="11" ry="17" transform="rotate(-18 ${cx-20} 112)" ${z("shoulderblades")}/>`);
+      s.push(`<ellipse cx="${cx+20}" cy="112" rx="11" ry="17" transform="rotate(18 ${cx+20} 112)" ${z("shoulderblades")}/>`);
+      s.push(taperedLimb(cx,84, 5, cx,206, 3.5, z("spine")));
+      s.push(`<text x="${cx+11}" y="168" transform="rotate(-90 ${cx+11} 168)" text-anchor="middle" font-size="6" fill="var(--muted)">SPINE</text>`);
+      s.push(`<path d="M${cx-34},134 C${cx-37},152 ${cx-35},170 ${cx-31},186 L${cx+31},186 C${cx+35},170 ${cx+37},152 ${cx+34},134 Z" ${z("torso")}/>`);
+      s.push(`<path d="M${cx-31},188 C${cx-34},198 ${cx-33},210 ${cx-29},222 L${cx+29},222 C${cx+33},210 ${cx+34},198 ${cx+31},188 Z" ${z("lumbar")}/>`);
       s.push(`<text x="${cx}" y="205" text-anchor="middle" font-size="6.5" fill="var(--muted)">LUMBAR</text>`);
-      rect(cx-35,220,31,28,z("glutes"),7); rect(cx+4,220,31,28,z("glutes"),7);
-      s.push(`<text x="${cx}" y="238" text-anchor="middle" font-size="6" fill="var(--ink-dim)">GLUTES</text>`);
-      rect(cx-46,248,32,80,z("thighs"),8); rect(cx+14,248,32,80,z("thighs"),8);
-      s.push(`<text x="${cx-30}" y="290" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>
-              <text x="${cx+30}" y="290" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>`);
-      rect(cx-42,350,24,85,z("shins"),6); rect(cx+18,350,24,85,z("shins"),6);
-      rect(cx-40,352,17,70,z("calves"),7); rect(cx+23,352,17,70,z("calves"),7);
-      s.push(`<text x="${cx}" y="344" text-anchor="middle" font-size="6" fill="var(--muted)">SHINS/CALVES</text>`);
-      s.push(`<ellipse cx="${cx-22}" cy="450" rx="16" ry="8" ${z("feet")}/>
-              <ellipse cx="${cx+22}" cy="450" rx="16" ry="8" ${z("feet")}/>`);
-      s.push(`<text x="${cx-22}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">SOLE</text>
-              <text x="${cx+22}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">SOLE</text>`);
+      s.push(`<ellipse cx="${cx-17}" cy="238" rx="17" ry="18" ${z("glutes")}/>`);
+      s.push(`<ellipse cx="${cx+17}" cy="238" rx="17" ry="18" ${z("glutes")}/>`);
+      s.push(`<text x="${cx}" y="242" text-anchor="middle" font-size="6" fill="var(--ink-dim)">GLUTES</text>`);
+      s.push(taperedLimb(cx-24,254,34, cx-20,330,22, z("thighs")));
+      s.push(taperedLimb(cx+24,254,34, cx+20,330,22, z("thighs")));
+      s.push(`<text x="${cx-24}" y="292" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>
+              <text x="${cx+24}" y="292" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>`);
+      s.push(taperedLimb(cx-20,332,20, cx-18,406,15, z("shins")));
+      s.push(taperedLimb(cx+20,332,20, cx+18,406,15, z("shins")));
+      s.push(taperedLimb(cx-19,344,19, cx-17,412,12, z("calves")));
+      s.push(taperedLimb(cx+19,344,19, cx+17,412,12, z("calves")));
+      s.push(`<text x="${cx}" y="380" text-anchor="middle" font-size="6" fill="var(--muted)">SHINS/CALVES</text>`);
+      s.push(`<ellipse cx="${cx-17}" cy="452" rx="14" ry="8" ${z("feet")}/>`);
+      s.push(`<ellipse cx="${cx+17}" cy="452" rx="14" ry="8" ${z("feet")}/>`);
+      s.push(`<text x="${cx-17}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">SOLE</text>
+              <text x="${cx+17}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">SOLE</text>`);
     }
 
     // Finger name captions (front hands + back hands)
-    s.push(fingerLabels(cx - 61, back));
-    s.push(fingerLabels(cx + 61, back));
+    s.push(fingerLabels(cx - 70, back));
+    s.push(fingerLabels(cx + 70, back));
     return s.join("");
   }
 
