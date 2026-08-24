@@ -270,6 +270,11 @@
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
   .hint{ font-size:10.5px; color:var(--slate); margin-top:4px; }
+  /* Emphasized variant for reasoning/methodology paragraphs (Anatomy page's
+     birth-data-driven explanations) — ink-dim matches .kv .v so it reads as
+     content rather than caption fine-print. Modifier only: add alongside
+     .hint, never touch the shared base rule. */
+  .hint-emphasis{ font-size:12.5px; color:var(--ink-dim); }
 
   .btn{
     width:100%; margin-top:6px; padding:10px 12px; border-radius:var(--radius-sm); border:1px solid var(--gold-dim);
@@ -507,6 +512,26 @@
     .pp-pulse{ animation: pp-pulse 1.8s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
   }
   @keyframes pp-pulse{ 0%,100%{ transform:scale(1); opacity:0.24; } 50%{ transform:scale(2); opacity:0.03; } }
+
+  /* Deha Chakra figure frame — mirrors .pp-plate-figure-box's inset double
+     rule ("manuscript plate") exactly, kept under a parallel dc-* namespace
+     rather than reusing the pp-* classes so the two panels' styling can
+     never bleed into each other. */
+  .dc-plate-figure-box{
+    position:relative; width:100%; max-width:440px; padding:10px;
+    border:1px solid var(--line); border-radius:var(--radius-sm); background:rgba(0,0,0,0.05);
+  }
+  .dc-plate-figure-box::before{
+    content:""; position:absolute; inset:4px; border:1px solid var(--line-soft);
+    border-radius:2px; pointer-events:none;
+  }
+  /* Deha Chakra legend — same design language as .pp-plate-legend (8px
+     circular dots + mono-uppercase micro-labels). Applied as a scoped
+     modifier instead of editing the shared .chakra-legend rules, which the
+     Sarvato Bhadra Chakra panel's legend also uses. */
+  .chakra-legend.dc-legend{ font-family:var(--mono); font-size:9.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--slate); }
+  .chakra-legend.dc-legend .li{ font-size:9.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--slate); }
+  .chakra-legend.dc-legend .sw{ width:8px; height:8px; border-radius:50%; }
 
   /* ---------- Calendar ---------- */
   .cal-nav{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
@@ -5623,45 +5648,85 @@ function sbcZoneLegendHtml(){
   </div>`;
 }
 
-/* Simple front-facing silhouette, one shape per Kālapuruṣa zone, ordered
-   head-to-feet (matches SIGNS order Aries..Pisces exactly). Shared by both
-   body-reading panels on the Anatomy page — zoneFill(sign) decides each
-   region's fill/stroke, so callers just supply their own colouring logic. */
+/* Front-facing Kālapuruṣa silhouette for the Deha Chakra gauge, one region
+   per zodiac sign ordered head-to-feet (matches SIGNS order Aries..Pisces
+   exactly): Aries head … Pisces feet. Drawn with the same tapered-capsule /
+   smooth-bezier technique as renderAnatomyFigure()'s Pañcha Pakshi figure
+   (taperedLimb variable-width ribbons + curved torso bands) so both panels
+   share one visual language. zoneFill(sign) decides each region's
+   fill/stroke, so callers just supply their own colouring logic. Sole caller:
+   renderBodyGauge() in the Deha Chakra panel. */
 function renderBodySilhouette(zoneFill){
-  const S = sign=>{ const z=zoneFill(sign); return `style="fill:${z.fill};stroke:${z.stroke};stroke-width:${z.sw}"`; };
+  // Resolve all twelve colourings up front — zoneFill() runs exactly once
+  // per sign (Aries..Pisces), same contract as before.
+  const A = {};
+  SIGNS.forEach(sign=>{ const z=zoneFill(sign); A[sign]=`style="fill:${z.fill};stroke:${z.stroke};stroke-width:${z.sw}"`; });
+
+  const cx = 110;
+
+  // Tapered capsule: a variable-width ribbon from (x1,y1,w1) to (x2,y2,w2)
+  // with rounded end caps — same workhorse renderAnatomyFigure() uses.
+  function taperedLimb(x1,y1,w1,x2,y2,w2,attrs){
+    const dx = x2-x1, dy = y2-y1;
+    const len = Math.sqrt(dx*dx+dy*dy) || 1;
+    const nx = -dy/len, ny = dx/len;
+    const r1 = w1/2, r2 = w2/2;
+    const a1x = x1+nx*r1, a1y = y1+ny*r1, b1x = x1-nx*r1, b1y = y1-ny*r1;
+    const a2x = x2+nx*r2, a2y = y2+ny*r2, b2x = x2-nx*r2, b2y = y2-ny*r2;
+    return `<path d="M${a1x.toFixed(1)},${a1y.toFixed(1)} L${a2x.toFixed(1)},${a2y.toFixed(1)} A${r2},${r2} 0 0 1 ${b2x.toFixed(1)},${b2y.toFixed(1)} L${b1x.toFixed(1)},${b1y.toFixed(1)} A${r1},${r1} 0 0 1 ${a1x.toFixed(1)},${a1y.toFixed(1)} Z" ${attrs}/>`;
+  }
+
+  // One smooth horizontal torso band between two seam lines. Neighbouring
+  // bands share seam y + half-width, and the side curves leave both seams
+  // tangent-vertical, so Cancer..Scorpio tile into one continuous torso.
+  function torsoBand(y1,hw1,y2,hw2,attrs){
+    const dy = y2-y1;
+    return `<path d="M${cx-hw1},${y1} Q${cx},${y1+5} ${cx+hw1},${y1} C${cx+hw1},${y1+dy*0.4} ${cx+hw2},${y2-dy*0.4} ${cx+hw2},${y2} Q${cx},${y2+5} ${cx-hw2},${y2} C${cx-hw2},${y2-dy*0.4} ${cx-hw1},${y1+dy*0.4} ${cx-hw1},${y1} Z" ${attrs}/>`;
+  }
 
   let svg = `<svg viewBox="0 0 220 480" width="100%" style="max-width:260px;display:block;margin:0 auto;">`;
 
-  // Aries — head
-  svg += `<circle cx="110" cy="34" r="24" ${S('Aries')}/>`;
-  // Taurus — face/throat/neck
-  svg += `<rect x="98" y="56" width="24" height="20" rx="4" ${S('Taurus')}/>`;
-  // Gemini — shoulders/arms/hands (bar + two arms)
-  svg += `<rect x="62" y="76" width="96" height="16" rx="6" ${S('Gemini')}/>`;
-  svg += `<path d="M68,88 C50,110 46,160 52,230 L70,226 C66,165 70,120 84,92 Z" ${S('Gemini')}/>`;
-  svg += `<path d="M152,88 C170,110 174,160 168,230 L150,226 C154,165 150,120 136,92 Z" ${S('Gemini')}/>`;
-  // Cancer — chest / upper stomach
-  svg += `<rect x="70" y="92" width="80" height="34" rx="6" ${S('Cancer')}/>`;
-  // Leo — heart / upper back
-  svg += `<rect x="70" y="126" width="80" height="32" rx="4" ${S('Leo')}/>`;
-  // Virgo — abdomen / intestines
-  svg += `<rect x="72" y="158" width="76" height="30" rx="4" ${S('Virgo')}/>`;
-  // Libra — lower back / kidneys / navel
-  svg += `<rect x="74" y="188" width="72" height="26" rx="4" ${S('Libra')}/>`;
-  // Scorpio — pelvis / reproductive
-  svg += `<rect x="70" y="214" width="80" height="30" rx="8" ${S('Scorpio')}/>`;
-  // Sagittarius — hips/thighs/liver (two thighs)
-  svg += `<rect x="72" y="244" width="30" height="80" rx="10" ${S('Sagittarius')}/>`;
-  svg += `<rect x="118" y="244" width="30" height="80" rx="10" ${S('Sagittarius')}/>`;
+  // Gemini — shoulders/arms/hands (drawn first so the torso bands overlap
+  // its inner edges cleanly): shoulder yoke ribbon + upper arm → forearm →
+  // hand capsule per side.
+  svg += taperedLimb(cx-30,97,32, cx+30,97,32, A.Gemini);
+  svg += taperedLimb(cx-40,106,22, cx-56,160,14, A.Gemini);
+  svg += taperedLimb(cx-57,166,13, cx-63,214,10, A.Gemini);
+  svg += taperedLimb(cx-64,220,10, cx-67,236,7, A.Gemini);
+  svg += taperedLimb(cx+40,106,22, cx+56,160,14, A.Gemini);
+  svg += taperedLimb(cx+57,166,13, cx+63,214,10, A.Gemini);
+  svg += taperedLimb(cx+64,220,10, cx+67,236,7, A.Gemini);
+
+  // Sagittarius — hips/thighs (tops tuck under the Scorpio pelvis band,
+  // leaving a natural hip bulge either side)
+  svg += taperedLimb(cx-15,256,26, cx-21,330,21, A.Sagittarius);
+  svg += taperedLimb(cx+15,256,26, cx+21,330,21, A.Sagittarius);
+
+  // Taurus — neck taper (head drawn over its top cap)
+  svg += taperedLimb(cx,54,15, cx,80,28, A.Taurus);
+
+  // Aries — head (slightly oval, reads better than a plain circle)
+  svg += `<ellipse cx="${cx}" cy="34" rx="23" ry="25" ${A.Aries}/>`;
+
+  // Cancer..Scorpio — five torso bands sharing seams: chest / heart /
+  // abdomen / lower back / pelvis
+  svg += torsoBand(88,37,134,33, A.Cancer);
+  svg += torsoBand(134,33,164,30, A.Leo);
+  svg += torsoBand(164,30,194,28, A.Virgo);
+  svg += torsoBand(194,28,220,29, A.Libra);
+  svg += torsoBand(220,29,250,24, A.Scorpio);
+
   // Capricorn — knees
-  svg += `<rect x="74" y="324" width="26" height="20" rx="6" ${S('Capricorn')}/>`;
-  svg += `<rect x="120" y="324" width="26" height="20" rx="6" ${S('Capricorn')}/>`;
-  // Aquarius — calves/ankles/circulation
-  svg += `<rect x="76" y="344" width="22" height="76" rx="9" ${S('Aquarius')}/>`;
-  svg += `<rect x="122" y="344" width="22" height="76" rx="9" ${S('Aquarius')}/>`;
-  // Pisces — feet
-  svg += `<ellipse cx="87" cy="432" rx="20" ry="11" ${S('Pisces')}/>`;
-  svg += `<ellipse cx="133" cy="432" rx="20" ry="11" ${S('Pisces')}/>`;
+  svg += taperedLimb(cx-21,332,19, cx-21,352,17, A.Capricorn);
+  svg += taperedLimb(cx+21,332,19, cx+21,352,17, A.Capricorn);
+
+  // Aquarius — calves/ankles
+  svg += taperedLimb(cx-21,354,16, cx-19,430,11, A.Aquarius);
+  svg += taperedLimb(cx+21,354,16, cx+19,430,11, A.Aquarius);
+
+  // Pisces — feet (toes angled slightly outward)
+  svg += `<ellipse cx="${cx-27}" cy="441" rx="15" ry="8" transform="rotate(-12 ${cx-27} 441)" ${A.Pisces}/>`;
+  svg += `<ellipse cx="${cx+27}" cy="441" rx="15" ry="8" transform="rotate(12 ${cx+27} 441)" ${A.Pisces}/>`;
 
   svg += `</svg>`;
   return svg;
@@ -7547,16 +7612,16 @@ function computeDehaChakra(pos, panch, refP, tara){
   const bright = panch.paksha === "Shukla";
   const taraTone = tara ? tara.tone : null;
 
-  let nectarNote, poisonNote;
-  if (bright && taraTone==="good") nectarNote = T("strongly active — Śukla Pakṣa/Bright Half (Waxing) and a favourable Tārā both feed this zone","fuertemente activo — Śukla Pakṣa/Mitad Clara (Creciente) y un Tārā favorable alimentan ambos esta zona");
-  else if (bright) nectarNote = T("active — Śukla Pakṣa/Bright Half (Waxing) favours this zone, Tārā is quiet on it today","activo — Śukla Pakṣa/Mitad Clara (Creciente) favorece esta zona; el Tārā está en silencio hoy");
-  else if (taraTone==="good") nectarNote = T("gently active — a favourable Tārā offsets Kṛṣṇa Pakṣa/Dark Half (Waning)","suavemente activo — un Tārā favorable compensa Kṛṣṇa Pakṣa/Mitad Oscura (Menguante)");
-  else nectarNote = T("muted — Kṛṣṇa Pakṣa/Dark Half (Waning) asks this zone be handled gently rather than pushed","atenuado — Kṛṣṇa Pakṣa/Mitad Oscura (Menguante) pide tratar esta zona con delicadeza en vez de forzarla");
+  let nectarNote, poisonNote, nectarTier, poisonTier;
+  if (bright && taraTone==="good"){ nectarNote = T("strongly active — Śukla Pakṣa/Bright Half (Waxing) and a favourable Tārā both feed this zone","fuertemente activo — Śukla Pakṣa/Mitad Clara (Creciente) y un Tārā favorable alimentan ambos esta zona"); nectarTier='strong'; }
+  else if (bright){ nectarNote = T("active — Śukla Pakṣa/Bright Half (Waxing) favours this zone, Tārā is quiet on it today","activo — Śukla Pakṣa/Mitad Clara (Creciente) favorece esta zona; el Tārā está en silencio hoy"); nectarTier='active'; }
+  else if (taraTone==="good"){ nectarNote = T("gently active — a favourable Tārā offsets Kṛṣṇa Pakṣa/Dark Half (Waning)","suavemente activo — un Tārā favorable compensa Kṛṣṇa Pakṣa/Mitad Oscura (Menguante)"); nectarTier='gentle'; }
+  else { nectarNote = T("muted — Kṛṣṇa Pakṣa/Dark Half (Waning) asks this zone be handled gently rather than pushed","atenuado — Kṛṣṇa Pakṣa/Mitad Oscura (Menguante) pide tratar esta zona con delicadeza en vez de forzarla"); nectarTier='quiet'; }
 
-  if (!bright && taraTone==="bad") poisonNote = T("sharply heightened — Kṛṣṇa Pakṣa/Dark Half (Waning) and an unfavourable Tārā agree: avoid intervention here","marcadamente elevado — Kṛṣṇa Pakṣa/Mitad Oscura (Menguante) y un Tārā desfavorable coinciden: evita intervenir aquí");
-  else if (!bright) poisonNote = T("heightened — Kṛṣṇa Pakṣa/Dark Half (Waning) raises risk at this zone","elevado — Kṛṣṇa Pakṣa/Mitad Oscura (Menguante) aumenta el riesgo en esta zona");
-  else if (taraTone==="bad") poisonNote = T("present but contained — an unfavourable Tārā keeps this zone worth watching despite Śukla Pakṣa/Bright Half (Waxing)","presente pero contenido — un Tārā desfavorable mantiene esta zona vigilable pese a Śukla Pakṣa/Mitad Clara (Creciente)");
-  else poisonNote = T("quiet — low risk at this zone today","tranquilo — bajo riesgo en esta zona hoy");
+  if (!bright && taraTone==="bad"){ poisonNote = T("sharply heightened — Kṛṣṇa Pakṣa/Dark Half (Waning) and an unfavourable Tārā agree: avoid intervention here","marcadamente elevado — Kṛṣṇa Pakṣa/Mitad Oscura (Menguante) y un Tārā desfavorable coinciden: evita intervenir aquí"); poisonTier='severe'; }
+  else if (!bright){ poisonNote = T("heightened — Kṛṣṇa Pakṣa/Dark Half (Waning) raises risk at this zone","elevado — Kṛṣṇa Pakṣa/Mitad Oscura (Menguante) aumenta el riesgo en esta zona"); poisonTier='heightened'; }
+  else if (taraTone==="bad"){ poisonNote = T("present but contained — an unfavourable Tārā keeps this zone worth watching despite Śukla Pakṣa/Bright Half (Waxing)","presente pero contenido — un Tārā desfavorable mantiene esta zona vigilable pese a Śukla Pakṣa/Mitad Clara (Creciente)"); poisonTier='watch'; }
+  else { poisonNote = T("quiet — low risk at this zone today","tranquilo — bajo riesgo en esta zona hoy"); poisonTier='quiet'; }
 
   const zoneEn = sign => BODY_ZONES[sign];
   const zoneEs = sign => BODY_ZONE_ES[sign];
@@ -7571,8 +7636,8 @@ function computeDehaChakra(pos, panch, refP, tara){
   return {
     transitSign, poisonSign, vitalitySign, natalSign,
     bright, tara,
-    nectar: {sign:transitSign, ...zoneOf(transitSign), note:nectarNote},
-    poison: {sign:poisonSign, ...zoneOf(poisonSign), note:poisonNote, lord:poisonLord, remedy:poisonRemedy},
+    nectar: {sign:transitSign, ...zoneOf(transitSign), note:nectarNote, tier:nectarTier},
+    poison: {sign:poisonSign, ...zoneOf(poisonSign), note:poisonNote, tier:poisonTier, lord:poisonLord, remedy:poisonRemedy},
     vitality: {sign:vitalitySign, ...zoneOf(vitalitySign)},
     natal: natalSign ? {sign:natalSign, ...zoneOf(natalSign)} : null
   };
@@ -9317,7 +9382,7 @@ function trinadiSwaraReading(panch){
   if (cur.key === 'Antya') advice = { en:'Right-nostril (Piṅgalā) period: favour physical action, new supply, outward work; avoid storage decisions and heavy meals.', es:'Periodo de fosa derecha (Piṅgalā): favorece acción física, nuevo suministro, trabajo hacia afuera; evita decisiones de almacenaje y comidas pesadas.' };
   else if (cur.key === 'Adya') advice = { en:'Left-nostril (Iḍā) period: favour mental work, study, rest and consolidation; delay forceful launches.', es:'Periodo de fosa izquierda (Iḍā): favorece trabajo mental, estudio, descanso y consolidación; retrasa lanzamientos forzados.' };
   else advice = { en:'Central (Suṣumnā) period: best for meditation, decisions needing clear continuity of thought, and sattvic acts.', es:'Periodo central (Suṣumnā): lo mejor para meditación, decisiones que requieran continuidad de pensamiento y actos sáttvicos.' };
-  return { star: panch.nak.name, key: cur.key, advice };
+  return { star: panch.nak.name, key: cur.key, meta: cur.meta, advice };
 }
 
 /* Tri-Nāḍī DAY CLOCK: sample the Moon's star every 15 min across the local
@@ -9439,26 +9504,26 @@ function renderAnatomyPage(){
     <div class="panel">
       <div class="hd"><h2>${T('Anatomy','Anatomía')}</h2><span class="note">${T('body-reading panels','paneles de lectura corporal')}</span></div>
       <div class="bd">
-        <div class="hint">${T('How this app reads the body from the sky: the Kālapuruṣa (cosmic-body) gauge below is live — it always reflects the real current moment.','Cómo lee esta app el cuerpo desde el cielo: el medidor Kālapuruṣa (cuerpo cósmico) de abajo está en vivo — siempre refleja el momento real actual.')}</div>
+        <div class="hint hint-emphasis">${T('How this app reads the body from the sky: the Kālapuruṣa (cosmic-body) gauge below is live — it always reflects the real current moment.','Cómo lee esta app el cuerpo desde el cielo: el medidor Kālapuruṣa (cuerpo cósmico) de abajo está en vivo — siempre refleja el momento real actual.')}</div>
       </div>
     </div>
 
     <div class="panel"><div class="hd"><h2>${T('Deha Chakra — Nectar &amp; Poison Point Gauge','Deha Chakra — Medidor del punto de néctar y veneno')}</h2><span class="note">${deha.bright?T('Śukla Pakṣa/Bright Half (Waxing)','Śukla Pakṣa/Mitad Clara (Creciente)'):T('Kṛṣṇa Pakṣa/Dark Half (Waning)','Kṛṣṇa Pakṣa/Mitad Oscura (Menguante)')}</span></div>
       <div class="bd">
         <div class="chakra-wrap">
-          <div style="flex:none; min-width:200px;">${renderBodyGauge(deha)}</div>
-          <div class="chakra-legend" style="flex:1; min-width:280px;">
+          <div class="dc-plate-figure-box" style="flex:none; min-width:200px;">${renderBodyGauge(deha)}</div>
+          <div class="chakra-legend dc-legend" style="flex:1; min-width:280px;">
             <div class="li"><span class="sw" style="background:rgba(23,117,80,0.3);border:1px solid var(--jade)"></span> ${T("Nectar point (Amṛta Sthāna) — today's transiting Moon zone","Punto de néctar (Amṛta Sthāna) — la zona de tránsito de la Luna de hoy")}</div>
             <div class="li"><span class="sw" style="background:rgba(176,50,32,0.3);border:1px solid var(--vermilion)"></span> ${T('Poison point (Viṣa Sthāna) — the opposite (Vedha) zone','Punto de veneno (Viṣa Sthāna) — la zona opuesta (Vedha)')}</div>
             <div class="li"><span class="sw" style="background:rgba(58,73,163,0.16);border:1px solid var(--indigo)"></span> ${T("Vitality zone — the moment's own Ascendant (Lagna) zone","Zona de vitalidad — la zona del Ascendente (Lagna) del momento")}</div>
             ${deha.natal ? `<div class="li"><span class="sw" style="background:var(--body-fill);border:1.5px solid var(--gold)"></span> ${T(`Natal marker — your reference Nakṣatra's own zone (${deha.natal.sign})`, `Marcador natal — la zona propia de tu Nakṣatra de referencia (${deha.natal.sign})`)}</div>` : ''}
             <div class="kv" style="margin-top:14px;">
-              <div class="k">${T('Nectar zone','Zona de néctar')}</div><div class="v"><b style="color:var(--jade)">${deha.nectar.title}</b> <span style="color:var(--slate)">(${deha.nectar.sign})</span></div>
+              <div class="k">${T('Nectar zone','Zona de néctar')}</div><div class="v"><b style="color:var(--jade)">${deha.nectar.title}</b> ${deha.nectar.tier==='strong'?`<span class="tag good">${T('strong','fuerte')}</span>`:deha.nectar.tier==='active'?`<span class="tag good">${T('active','activo')}</span>`:deha.nectar.tier==='gentle'?`<span class="tag neutral">${T('gentle','suave')}</span>`:`<span class="tag neutral">${T('quiet','tranquilo')}</span>`} <span style="color:var(--slate)">(${deha.nectar.sign})</span></div>
               <div class="k">${T('Reading','Lectura')}</div><div class="v">${deha.nectar.note}.</div>
               <div class="k">${T('Favours','Favorece')}</div><div class="v">${deha.nectar.goodFor}</div>
             </div>
             <div class="kv" style="margin-top:14px;">
-              <div class="k">${T('Poison zone','Zona de veneno')}</div><div class="v"><b style="color:var(--vermilion)">${deha.poison.title}</b> <span style="color:var(--slate)">(${deha.poison.sign})</span></div>
+              <div class="k">${T('Poison zone','Zona de veneno')}</div><div class="v"><b style="color:var(--vermilion)">${deha.poison.title}</b> ${deha.poison.tier==='severe'?`<span class="tag bad">${T('severe','severo')}</span>`:deha.poison.tier==='heightened'?`<span class="tag bad">${T('heightened','elevado')}</span>`:deha.poison.tier==='watch'?`<span class="tag neutral">${T('watch','vigilar')}</span>`:`<span class="tag neutral">${T('quiet','tranquilo')}</span>`} <span style="color:var(--slate)">(${deha.poison.sign})</span></div>
               <div class="k">${T('Reading','Lectura')}</div><div class="v">${deha.poison.note}.</div>
               <div class="k">${T('Avoid','Evitar')}</div><div class="v">${deha.poison.avoid}</div>
               ${deha.poison.remedy ? `<div class="k">${T('Traditionally','Tradicionalmente')}</div><div class="v">${T(`${deha.poison.lord}'s upāya: ${deha.poison.remedy.mantra} · ${deha.poison.remedy.color} · ${deha.poison.remedy.donation}`,`Upāya de ${GRAHA_ES[deha.poison.lord]||deha.poison.lord}: ${deha.poison.remedy.mantra} · ${GRAHA_REMEDY_ES[deha.poison.lord].color} · ${GRAHA_REMEDY_ES[deha.poison.lord].donation}`)} <span style="color:var(--slate); font-size:11px;">${T('(the Poison zone\'s own ruling graha — see Remedies page for the full table)','(el graha regente propio de la zona de veneno — ver la página de Remedios para la tabla completa)')}</span></div>` : ''}
@@ -9470,7 +9535,7 @@ function renderAnatomyPage(){
             </div>
           </div>
         </div>
-        <div class="hint" style="margin-top:14px; line-height:1.6;">
+        <div class="hint hint-emphasis" style="margin-top:14px; line-height:1.6;">
           ${T(`<b style="color:var(--muted)">Method (this app's synthesis, not a verbatim classical table):</b> the Nectar point is the Kālapuruṣa
           (cosmic-body) zone of today's transiting Moon sign — wherever the Moon transits is read as the zone currently "alive." The Poison
           point is the zone 7th from it, using the same opposition (Vedha) logic as the SBC panels. Śukla pakṣa (waxing, bright half)
@@ -9495,7 +9560,7 @@ function renderAnatomyPage(){
         <details class="ref-drop"><summary>${T('All limbs by star (reference)','Todos los miembros por estrella (referencia)')}</summary>
           <div class="bd">${renderBsLimbTable(panch.nak28.name)}</div>
         </details>
-        <div class="hint" style="margin-top:12px; line-height:1.6;">
+        <div class="hint hint-emphasis" style="margin-top:12px; line-height:1.6;">
           ${T(`<b style="color:var(--muted)">Read this as a second, independent body — not a refinement of the gauge above.</b> The Kālapuruṣa gauge maps the
           body onto the twelve signs, running head to feet in zodiacal order. This one maps it onto the twenty-seven stars instead, and the two
           disagree by construction: here the head belongs to Bharaṇī and the feet to Mūla, which fall nowhere near Aries and Pisces. So the same
