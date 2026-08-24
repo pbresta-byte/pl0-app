@@ -1,0 +1,80 @@
+# Feature Scout
+#
+# Automated, source-grounded feature ideation for the PL0 muhūrta app.
+#
+# "When usage tokens are available" gating:
+#   This workflow calls the Anthropic API, which consumes paid usage tokens.
+#   To keep the repo free/dormant by default it only runs when BOTH:
+#     1. the repo variable  FEATURE_SCOUT_ENABLED == 'true', AND
+#     2. the repo secret     ANTHROPIC_API_KEY      is present.
+#   When either is missing the `guard` job logs a friendly skip message and the
+#   `scout` job is skipped via needs/if. The run still exits SUCCESSFULLY — a
+#   dormant Feature Scout is not a failed build. Set the variable and add the
+#   secret only when you have token budget to spend.
+
+name: Feature Scout
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Mondays 09:00 UTC — weekly, low-frequency to conserve token budget.
+    - cron: '0 9 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  # Gate: only proceed when explicitly enabled AND an API key is configured.
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      proceed: ${{ steps.check.outputs.proceed }}
+    steps:
+      - name: Check enablement and token budget
+        id: check
+        env:
+          ENABLED: ${{ vars.FEATURE_SCOUT_ENABLED }}
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          if [ "$ENABLED" = "true" ] && [ "$HAS_KEY" = "true" ]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Feature Scout enabled and ANTHROPIC_API_KEY present — proceeding."
+          else
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping Feature Scout — no token budget / not enabled."
+            echo "To enable: set repo variable FEATURE_SCOUT_ENABLED=true and add the ANTHROPIC_API_KEY secret."
+          fi
+
+  scout:
+    needs: guard
+    if: needs.guard.outputs.proceed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # Official Anthropic Claude Code GitHub Action.
+      # NOTE: input names (prompt, anthropic_api_key, claude_args) are the
+      # well-known ones for anthropics/claude-code-action@v1. Maintainer should
+      # confirm against the action's README if a future version renames them.
+      - name: Run Feature Scout
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Invoke the jyotish-books-scout subagent (defined in
+            .claude/agents/jyotish-books-scout.md), or otherwise follow that
+            file's instructions directly.
+
+            Task:
+            1. Ground yourself in README.md, FEATURE-IDEAS.md, classical-rules.js
+               and skim www/index.html so your ideas are NOT duplicates of
+               existing features.
+            2. Propose 8–12 fresh, non-duplicative features, each grounded in a
+               named classical Jyotish source/technique (no fabricated
+               citations), scoped for a static client-side PWA.
+            3. Append them to FEATURE-IDEAS.md under a new dated heading:
+               "## Jyotish Books Scout — feature suggestions (<today's date>)".
+            4. Open a pull request with only that change to FEATURE-IDEAS.md.
