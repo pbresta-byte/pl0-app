@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "hermes": {
+      "type": "http",
+      "url": "${HERMES_MCP_URL}",
+      "headers": {
+        "Authorization": "Bearer ${HERMES_MCP_TOKEN}"
+      }
+    }
+  }
+}
