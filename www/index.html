@@ -9229,6 +9229,50 @@ function trinadiSwaraReading(panch){
   return { star: panch.nak.name, key: cur.key, advice };
 }
 
+/* Tri-Nāḍī DAY CLOCK: sample the Moon's star every 15 min across the local
+   day (00:00–24:00), map each sample to its nāḍī class (idx%3 per Bṛhat
+   Nakṣatra), and merge consecutive equal samples into spans. Moon speed from
+   computePositions is used for the linear sidereal advance — same math as
+   panchangaEndTimes(). SYNTH note: the sampling/merge display is app
+   synthesis; the underlying star→nāḍī mapping is Bṛhat Nakṣatra. */
+function trinadiDayTimeline(jdNow, ay){
+  const pos0 = computePositions(jdNow, 0, 0, ay);
+  if (!pos0 || !pos0.Moon || !isFinite(pos0.Moon.sidereal)) return null;
+  const moonSpeed = (isFinite(pos0.Moon.speed) && Math.abs(pos0.Moon.speed) > 0.05) ? pos0.Moon.speed : 13.2; // deg/day fallback
+  // jd at local midnight of "today"
+  const msNow = Date.now();
+  const tzMin = -new Date().getTimezoneOffset();
+  const localMidnightMs = msNow - ((msNow/60000 - new Date().getTimezoneOffset()) % 1440 + 1440) % 1440 * 60000;
+  function jdFromMs(ms){ return ms/86400000 + 2440587.5; }
+  const jdMidnight = jdFromMs(localMidnightMs);
+  const SPAN = 40/3;
+  const samples = [];
+  for (let m = 0; m <= 1440; m += 15){
+    const jd = jdMidnight + m/1440;
+    const long = norm360(pos0.Moon.sidereal + (jd - jdNow) * moonSpeed);
+    const idx = Math.floor(long / SPAN) % 27;
+    samples.push({ m, idx, key: TRINADI_NADI_BY_INDEX[idx % 3], star: NAK27[idx].n });
+  }
+  // merge runs
+  const spans = [];
+  for (let i = 0; i < samples.length - 1; i++){
+    const a = samples[i];
+    if (spans.length && spans[spans.length-1].key === a.key && spans[spans.length-1].star === a.star){
+      spans[spans.length-1].endM = a.m + 15;
+    } else {
+      spans.push({ startM: a.m, endM: a.m + 15, key: a.key, star: a.star });
+    }
+  }
+  return spans.map(sp => ({ ...sp,
+    startLabel: fmtClock(sp.startM), endLabel: fmtClock(Math.min(sp.endM,1440)),
+    meta: TRINADI_NADI_META[sp.key] }));
+}
+function fmtClock(mins){
+  const h = Math.floor(mins/60)%24, m = mins%60;
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
+
+
 
 function renderAnatomyPage(){
   const container = document.getElementById('anatomyPageContent');
@@ -9246,6 +9290,7 @@ function renderAnatomyPage(){
 
   // Tri-Nāḍī readings (live moment + natal Moon/Lagna stars)
   const swara = trinadiSwaraReading(panch);
+  const dayTimeline = trinadiDayTimeline(jd, ay);
   let natalMoonNadi = null, natalLagnaNadi = null;
   try {
     const bp = refInfo.birthPos;
@@ -9385,6 +9430,14 @@ function renderAnatomyPage(){
         ${natalMoonNadi && natalLagnaNadi && natalMoonNadi.key === natalLagnaNadi.key
           ? `<div class="hint" style="color:var(--vermilion);">${T('Moon-star and Lagna-star fall in the same nāḍī class — check partners for Nāga Nāḍī doṣa (same-nāḍī couple stars), especially with sarpa/kāla-sarpa yogas on the 1st–7th axis.','La estrella lunar y la del Lagna caen en la misma clase de nāḍī — revisa parejas para el doṣa Nāga Nāḍī (estrellas de la misma nāḍī), sobre todo con yogas sarpa/kāla-sarpa en el eje 1.ª–7.ª.')}</div>`
           : ''}
+        <div class="tblwrap" style="margin-top:10px;"><table><tbody>
+          <tr><td class="wide">${T('Nāḍī clock — today','Reloj de nāḍī — hoy')}</td><td>${dayTimeline ? dayTimeline.map(sp => {
+            const nowM = (function(){const d=new Date();return d.getHours()*60+d.getMinutes();})();
+            const active = nowM >= sp.startM && nowM < sp.endM;
+            return `<span class="tag ${active?'good':'neutral'}" style="${active?'font-weight:bold;':''}" title="${T(sp.meta.flow.en, sp.meta.flow.es)}">${sp.startLabel}–${sp.endLabel} · ${T(sp.meta.nadi.en, sp.meta.nadi.es).split(' /')[0]} (${sp.star})${active ? ' ◀' : ''}</span>`;
+          }).join(' ') : ''}</td></tr>
+        </tbody></table></div>
+        <div class="hint" style="margin-top:6px;"><small>${T('Moon-star nāḍī classes through the day (15-min resolution). ◀ marks the current span.','Clases de nāḍī por estrella lunar a lo largo del día (resolución 15 min). ◀ marca el tramo actual.')}</small></div>
       </div>
     </div>
     ${ppBodyHTML}
