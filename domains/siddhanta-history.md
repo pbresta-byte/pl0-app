@@ -76,9 +76,9 @@ The clearest siddhantic treatment in the corpus is Ramakrishna Bhat:
   appears at line 14755, i.e. roughly 24° of total precession since the zero-ayanamsa
   epoch — consistent with the ~285 CE Lahiri-style initial epoch assumed by mid-20th-
   century Indian ephemerides.
-- Other corpus mentions of ayanamsa: Pulippani/Rao (*Jyotish_1993_U.S. Pulippani _ K.N. Rao_Biorhythms Of Natal Moon.txt*),
+    - Other corpus mentions of ayanamsa: the Panchapakshi source (*Jyotish_1993__Biorhythms Of Natal Moon.txt*),
   V.P. Goel (*Jyotish_2012_V.P. Goel_Comprehensive Prediction By Divisional Charts.txt*),
-  Santhanam's *Essentials of Predictive Hindu Astrology*, and the retyped Brihat
+      *Essentials of Predictive Hindu Astrology*, and the retyped Brihat
   Samhita — all treat ayanamsa as the standing tropical→sidereal bridge, confirming
   that the entire corpus operates in the nirayana (sidereal) zodiac.
 
@@ -299,7 +299,7 @@ Cosmological content in the corpus is thinner than the astronomical:
 - Rath ties cosmology to the fixed pole: Dhruva as pivot of the Saptarishi wheel,
   with the digpalas mapped to the Royal Stars — Regulus/Kubera north, etc.
   (*Brhat Naksatra*, lines 9780–9793).
-- BPHS retyped copy contains no Bhuvana-kosha chapter hits in this scan — the
+    - The retyped copy contains no Bhuvana-kosha chapter hits in this scan — the
   corpus's Parasara material here is hora-only.
 
 ---

@@ -69,7 +69,7 @@ MODULUS   = 12                # Jaimini bhava/rasi reduction, remainder from Mes
 ### 1.4 Where else Katapayadi appears
 
 - **Narayana Dasa**: "Maharishi Jaimini uses the Katapayadi Vargas for Bhava numbers" — `Jyotish_Narayana Dasa_S.Rath ban.txt`, line 2052.
-- **Sambhu Hora Prakasa** discusses the system as the ancients' numeric notation — `Jyotish_Sambhu Hora Prakasa_R. Santhanam.txt`, line 5270.
+    - **Sambhu Hora Prakasa** discusses the system as the ancients' numeric notation — `Jyotish_Sambhu Hora Prakasa.txt`, line 5270.
 - **Varga Chakra**: "The word 'Sva' is equivalent to 4 (four) according to Katapayadi-Varga" — `Jyotish_Varga chakra_S. Rath.txt`, line 5799.
 - **Phala Dipika** references katapayadi-based memory of dasha computations — `Jyotish_Phala Dipika_G.S. Kapoor_retyped.txt`, line 6699.
 - **Jataka Parijata vol. 2** lists the seven Sankhya (numerical) yogas — `Jyotish_1450_Jataka parijata vol.2…txt`, lines 5818–5846, 6421–6436.
@@ -82,7 +82,7 @@ The corpus does not carry one flat "syllable→nakshatra" table in a single plac
 - *"If the birth chart is available, then the name letter as indicated by the Nakshatra-Pada of the Moon should be used instead of the name of the person. In case of doubt, the Moon position at Prasna time should be used."* — same file, lines 5454–5458.
 - **Akathaha Chakra** (name-letter ↔ mantra-letter compatibility grid, 4×4 = 16 blocks, filled in block order `1,3,11,9, 2,4,12,10, 6,8,16,14, 5,7,15,13`) yields row/column relationships **Siddha / Sadhya / Susiddha / Ari**, which act as **numerical multipliers on prescribed mantra repetitions**: Siddha ×1 (fructifies after prescribed count), Sadhya ×2 (double), Susiddha ×0.5 (half), Ari = destructive/rejected. — `Jyotish_Vedic remedies_S.Rath ban.txt`, lines 5285–5401.
 - Counting aksharas between name-first-letter and mantra-first-letter is itself a compatibility test — same file, lines 5730–5731.
-- BPHS gives a name-syllable → sign computation: multiply and divide by 12 for the first syllable of the personal name — `Jyotish_BPHS no Sanskrit_retyped.txt`, line 3893.
+    - A name-syllable → sign computation: multiply and divide by 12 for the first syllable of the personal name — `Jyotish no Sanskrit_retyped.txt`, line 3893.
 
 **Implementation note:** store per-nakshatra-pada syllables as a 27×4 array (108 padas); derive "name number" = Katapayadi value of first syllable; derive "name rashi" = (number mod 12), remainder 1..12 from Mesha.
 
@@ -94,9 +94,9 @@ Seven "Sankhya yogas" classify charts purely by counting how many distinct rashi
 
 ## 2. COLOUR SIGNIFICATIONS
 
-### 2.1 Graha colours, robes, metals & complexion (BPHS Ch. 3 via BPL)
+### 2.1 Graha colours, robes, metals & complexion (classical material via BPL)
 
-The BPL Amsha page on rashi colours quotes BPHS Chap. 3 Shloka 41–44 directly (`bpa__Amsha__color_rashi.htm.txt`, lines 17–42):
+The BPL Amsha page on rashi colours quotes the relevant classical shlokas directly (`bpa__Amsha__color_rashi.htm.txt`, lines 17–42):
 
 > "Rahu denotes multi-coloured clothes and Ketu rags. Lead and blue gem belong to Rahu and Ketu. Surya, Chandra, Mangala, Budha, Guru, Shukra and Shani in their order govern red silken, white silken, red, black silken, saffron, silken and multi-coloured robes."
 
@@ -173,7 +173,7 @@ Implementation: theme tithi N by the colour of its ruling graha from table §2.1
 
 ## 3. PANCHA PAKSHI NUMERICAL SIGNALS
 
-Source text: U.S. Pullippani / K.N. Rao, *Biorhythms of Natal Moon* ("The Mysterious Panchapakshi") — `Jyotish_1993_U.S. Pulippani _ K.N. Rao_Biorhythms Of Natal Moon.txt`. This Tamil Siddha system quantifies five elemental vibrations as five birds with five activities over fixed time slots.
+Source text: the Tamil Siddha Panchapakshi system — *Biorhythms of Natal Moon* ("The Mysterious Panchapakshi") — `Jyotish_1993__Biorhythms Of Natal Moon.txt`. This Tamil Siddha system quantifies five elemental vibrations as five birds with five activities over fixed time slots.
 
 ### 3.1 Core constants
 
@@ -324,7 +324,7 @@ Sources: pancharatna table (`Jyotish_Vedic remedies…txt` 11298–11309); deity
 
 ### 5.2 Bird ↔ element metadata (Pancha Pakshi)
 
-The Siddhas personify the five elements as the five birds — "the birds cover all the elements… on the earth, in the air and in ether (Akasha) and in water and fire" (`Jyotish_1993_U.S. Pulippani…txt`, lines 562–575). Each bird carries significations of **sound, light, form, place, things, number, metal, strength, colour, clothing, direction** (lines 554–561) — the tradition's own per-bird metadata schema, directly usable as a UI tag payload. The exact bird→element one-to-one assignment is distributed through the book's chapter V tables (not consolidated in the introduction); extract per-bird signification rows from ch. V when building this.
+The Siddhas personify the five elements as the five birds — "the birds cover all the elements… on the earth, in the air and in ether (Akasha) and in water and fire" (`Jyotish_1993…txt`, lines 562–575). Each bird carries significations of **sound, light, form, place, things, number, metal, strength, colour, clothing, direction** (lines 554–561) — the tradition's own per-bird metadata schema, directly usable as a UI tag payload. The exact bird→element one-to-one assignment is distributed through the book's chapter V tables (not consolidated in the introduction); extract per-bird signification rows from ch. V when building this.
 
 ### 5.3 Rashi element grouping (standard, corpus-consistent)
 
@@ -345,7 +345,7 @@ Fiery = Mesha, Simha, Dhanus; Earthy = Vrishabha, Kanya, Makara; Airy = Mithuna,
 
 1. **No tithi→colour table** in either corpus; derive via tithi lordship (§2.6).
 2. **Pancha Pakshi activity ratios**: only ordinal ranking given; numeric scores in §3.2 are implementation heuristics, not scriptural values.
-3. **Bird→element exact mapping** lives in Pulippani ch. V tables, not yet extracted.
+3. **Bird→element exact mapping** lives in the source's ch. V tables, not yet extracted.
 4. **Gem weight table (Table 6-6)** is OCR-corrupted; do not implement weights from it.
 5. **Katapayadi variants exist**: B.S. Rao notes "There are different variants of this system but I shall explain the most commonly accepted method" (`Jyotish_Jaiminisutras…txt` line 699) — pin one variant in config.
 6. **Colour translations vary by tradition** (Roebuck via BPL, §2.3 header note) — expose classical vs BPL-gloss palettes side by side rather than merging them.

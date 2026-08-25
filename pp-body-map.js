@@ -1,6 +1,6 @@
 /* =========================================================================
    PANCHA PAKSHI BODY-MAP — tithi→bird→body part overlay
-   Source: Pulippani & Rao, "Biorhythms of Natal Moon" (1993),
+    Source: "Biorhythms of Natal Moon" (1993),
    the Nectar Points table + per-bird body-part columns.
    Cross-checked against user-provided reference tables.
    ========================================================================= */

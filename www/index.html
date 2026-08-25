@@ -7801,7 +7801,7 @@ function runAnalysis(){
     <div class="body">
       <div class="tier"><small>${T('Verdict for','Veredicto para')} ${mdt.mo}/${mdt.da}/${mdt.y} · ${weekdayName}, ${mdt.hh}:${pad2(mdt.mm)} ${T('local','hora local')}</small>${tierLabel} <span style="color:${tier.color}">— ${tier.name}</span></div>
       <div class="desc">
-      <details style="margin-top:8px;"><summary style="cursor:pointer;color:var(--gold);font-size:12px;">Pañcha Pakshi activity-strength ladder (Pulippani)</summary>
+      <details style="margin-top:8px;"><summary style="cursor:pointer;color:var(--gold);font-size:12px;">Pañcha Pakshi activity-strength ladder</summary>
       <table style="width:100%;font-size:12px;border-collapse:collapse;margin-top:6px;">
         <tr style="color:var(--muted);text-align:left;"><th style="padding:3px 6px;">Rank</th><th>Activity</th><th>Strength colour</th><th>Birds currently here</th></tr>
         ${[
@@ -8723,7 +8723,7 @@ function renderVargaPage(){
     </div>
 
     <footer class="notes" style="line-height:1.8;">
-      <b>${T('Source.','Fuente.')}</b> ${T("BPHS Ṣoḍaśavarga chapter (divisional constructions), with this app's stated convention per division. Educational study only — divisional reading multiplies judgment error faster than any other technique when the birth time itself is uncertain; a few minutes of clock error scrambles D60 completely.","Capítulo Ṣoḍaśavarga de BPHS (construcciones divisionales), con la convención declarada de esta app por división. Solo estudio educativo — la lectura divisional multiplica el error de juicio más rápido que cualquier otra técnica cuando la hora natal es incierta; unos minutos de reloj descifran por completo el D60.")}
+       ${T("Educational study only — divisional reading multiplies judgment error faster than any other technique when the birth time itself is uncertain; a few minutes of clock error scrambles D60 completely.","Solo estudio educativo — la lectura divisional multiplica el error de juicio más rápido que cualquier otra técnica cuando la hora natal es incierta; unos minutos de reloj descifran por completo el D60.")}
     </footer>
   `;
 }
@@ -8839,7 +8839,7 @@ function renderHouseNaturePage(){
       <tr><td class="wide">${T('Element / Tattva','Elemento / Tattva')}</td><td>${T(ELEMENT_TATTVA[vElement(signIdx)][0], ELEMENT_TATTVA[vElement(signIdx)][1])}</td></tr>
       <tr><td class="wide">${T('Modality','Modalidad')}</td><td>${T(MODALITY_LABEL[vModality(signIdx)][0], MODALITY_LABEL[vModality(signIdx)][1])}</td></tr>
       <tr><td class="wide">${T('Gender','Género')}</td><td>${genderLabel}</td></tr>
-      <tr><td class="wide">${T('Caste (BPHS ch.4)','Casta (BPHS cap.4)')}</td><td>${T(caste[0],caste[1])}</td></tr>
+      <tr><td class="wide">${T('Caste','Casta')}</td><td>${T(caste[0],caste[1])}</td></tr>
     </tbody></table></div>
     <div class="hint" style="margin-top:8px;">${T(SIGN_DESC[signName][0], SIGN_DESC[signName][1])}</div>`;
 
@@ -8858,7 +8858,7 @@ function renderHouseNaturePage(){
       <tr><td class="wide">${T('Enemies','Enemigos')}</td><td>${rel.enemy.map(g=>gNameNatal(g)).join(', ')||'—'}</td></tr>
       <tr><td class="wide">${T('Neutral','Neutros')}</td><td>${rel.neutral.map(g=>gNameNatal(g)).join(', ')||'—'}</td></tr>
     </tbody></table></div>
-    <div class="hint" style="margin-top:8px;">${T("Friendship table: BPHS ch.3 natural (Naisargika) relationships. Deep debilitation sits at the same degree of the opposite sign as deep exaltation.","Tabla de amistad: relaciones naturales (Naisargika) del BPHS cap.3. La debilitación profunda está en el mismo grado del signo opuesto a la exaltación profunda.")}</div>`;
+    <div class="hint" style="margin-top:8px;">${T("Friendship table: natural (Naisargika) relationships. Deep debilitation sits at the same degree of the opposite sign as deep exaltation.","Tabla de amistad: relaciones naturales (Naisargika). La debilitación profunda está en el mismo grado del signo opuesto a la exaltación profunda.")}</div>`;
 
   // --- Placement of lord ---
   const carries = LORD_CARRIES[H], delivers = PLACE_DELIVERS[lordHouse];
@@ -8929,12 +8929,12 @@ function renderHouseNaturePage(){
     <details class="ref-drop"><summary>${T('Aspects received — whole-sign Graha Dṛṣṭi','Aspectos recibidos — Graha Dṛṣṭi de signo entero')}</summary>
       <div class="bd">
         ${aspectBlock}
-        <div class="hint" style="margin-top:8px;">${T("Whole-sign aspects: every graha aspects the 7th sign from itself; Mars additionally the 4th and 8th; Jupiter the 5th and 9th; Saturn the 3rd and 10th — BPHS ch.9 Parashari drishti.","Aspectos de signo entero: cada graha aspecta el signo 7.º desde sí; Marte además el 4.º y el 8.º; Júpiter el 5.º y el 9.º; Saturno el 3.º y el 10.º — dṛṣṭi parāśarī, BPHS cap.9.")}</div>
+         <div class="hint" style="margin-top:8px;">${T("Whole-sign aspects: every graha aspects the 7th sign from itself; Mars additionally the 4th and 8th; Jupiter the 5th and 9th; Saturn the 3rd and 10th.","Aspectos de signo entero: cada graha aspecta el signo 7.º desde sí; Marte además el 4.º y el 8.º; Júpiter el 5.º y el 9.º; Saturno el 3.º y el 10.º.")}</div>
       </div>
     </details>
 
     <footer class="notes" style="line-height:1.8;">
-      <b>${T('Source.','Fuente.')}</b> ${T("BPHS ch.4 (nature of signs: tattva, modality, gender, caste), ch.11 (bhava significations), ch.3 (planetary friendships) and ch.9 (whole-sign Graha Dṛṣṭi). Educational study only.","BPHS cap.4 (naturaleza de los signos: tattva, modalidad, género, casta), cap.11 (significaciones de bhava), cap.3 (amistades planetarias) y cap.9 (Graha Dṛṣṭi de signo entero). Solo estudio educativo.")}
+       ${T("Educational study only.","Solo estudio educativo.")}
     </footer>
   `;
 }
@@ -9016,8 +9016,7 @@ function renderAshtakavargaPage(){
     </div>
 
     <footer class="notes" style="line-height:1.8;">
-      <b>${T('Source.','Fuente.')}</b> ${T('M.S. Mehta (guide/editor K.N. Rao), <i>Ashtakvarga: Concept and Application</i> — ch. II–III (Bhinnāṣṭakavarga construction), ch. VI–VII (interpretation, transit scale), ch. XIV (Sarvāṣṭakavarga). The 56 contributor rules (7 grahas × 8 sources) are transcribed directly and cross-checked against the book\'s own printed per-planet totals (48/49/39/54/56/52/39) and its stated 337-bindu Sarvāṣṭakavarga constant — both match exactly.','M.S. Mehta (guía/editor K.N. Rao), <i>Ashtakvarga: Concept and Application</i> — cap. II–III (construcción del Bhinnāṣṭakavarga), cap. VI–VII (interpretación, escala de tránsito), cap. XIV (Sarvāṣṭakavarga). Las 56 reglas de contribución (7 graha × 8 fuentes) están transcritas directamente y verificadas contra los totales por planeta impresos en el libro (48/49/39/54/56/52/39) y su constante declarada de 337 bindus de Sarvāṣṭakavarga — ambos coinciden exactamente.')}<br>
-      ${T('Not implemented: the source\'s Shodhya Piṇḍa reduction (a further weighting of each Bhinnāṣṭakavarga used for longevity and, notably, for timing death via a Nakṣatra-derived calculation) — that crosses from a strength reading into individualized fatality prediction, which this app won\'t automate. The 0-bindu tier above is shown as a strong caution, not as the source\'s own literal reading for that tier.','No implementado: la reducción de Shodhya Piṇḍa de la fuente (una ponderación adicional de cada Bhinnāṣṭakavarga usada para la longevidad y, en particular, para cronometrar la muerte mediante un cálculo derivado de Nakṣatra) — eso cruza de una lectura de fuerza a una predicción individualizada de fatalidad, algo que esta app no automatizará. El nivel de 0 bindus de arriba se muestra como una precaución fuerte, no como la lectura literal de la fuente para ese nivel.')}
+       ${T('Not implemented: the classical method\'s Shodhya Piṇḍa reduction (a further weighting of each Bhinnāṣṭakavarga used for longevity and, notably, for timing death via a Nakṣatra-derived calculation) — that crosses from a strength reading into individualized fatality prediction, which this app won\'t automate. The 0-bindu tier above is shown as a strong caution, not as the classical method\'s own literal reading for that tier.','No implementado: la reducción de Shodhya Piṇḍa del método clásico (una ponderación adicional de cada Bhinnāṣṭakavarga usada para la longevidad y, en particular, para cronometrar la muerte mediante un cálculo derivado de Nakṣatra) — eso cruza de una lectura de fuerza a una predicción individualizada de fatalidad, algo que esta app no automatizará. El nivel de 0 bindus de arriba se muestra como una precaución fuerte, no como la lectura literal del método clásico para ese nivel.')}
     </footer>
   `;
 }

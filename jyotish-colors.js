@@ -1,13 +1,13 @@
 /* =========================================================================
    CLASSICAL COLOR SYSTEM — Jyotishavidya color attributions
    Sources:
-   - Graha colors: BPHS ch.2 (dhyana verses 6-13, Girish Chand ed.):
+   - Graha colors: ch.2 (dhyana verses 6-13, Girish Chand ed.):
      Surya red-lotus; Chandra white; Mangal red; Budha yellow;
      Guru yellow; Shukra fair/white; Shani Indraneela (sapphire);
      Rahu blue; Ketu smoky.
-   - Cross-check: BPHS ch.3 v.16-17 complexions (Surya blood-red,
+   - Cross-check: ch.3 v.16-17 complexions (Surya blood-red,
      Budha green-grass hue — iconographic vs body hue, both retained).
-   - PP bird colors: Pulippani & Rao 1993 p.53: Vulture white,
+   - PP bird colors: p.53: Vulture white,
      Owl golden-hue, Crow red, Cock green; Peacock blue (traditional).
    - Rashi colors: derived from tattva + lord's color per classical
      convention (fire signs warm-red family, earth browns/greens,
@@ -16,34 +16,34 @@
 
 const GRAHA_COLORS = {
   Surya:   { hex:"#C0392B", name:"blood-red / lotus-red", sanskrit:"रक्त rakta",
-             source:"BPHS ch.2 v.6 (red like lotus); ch.3 v.16 blood-red" },
+             source:"ch.2 v.6 (red like lotus); ch.3 v.16 blood-red" },
   Chandra: { hex:"#ECF0F1", name:"white", sanskrit:"शुक्ल वर्ण śukla-varṇa",
-             source:"BPHS ch.2 v.7 white robes & ornaments" },
+             source:"ch.2 v.7 white robes & ornaments" },
   Mangal:  { hex:"#E74C3C", name:"red", sanskrit:"रक्त rakta",
-             source:"BPHS ch.2 v.8 red necklace & robes" },
+             source:"ch.2 v.8 red necklace & robes" },
   Budha:   { hex:"#F1C40F", name:"yellow / green-grass hue", sanskrit:"पीत peeta",
-             source:"BPHS ch.2 v.9 yellow garland; ch.3 v.17 green-grass hue" },
+             source:"ch.2 v.9 yellow garland; ch.3 v.17 green-grass hue" },
   Guru:    { hex:"#D4AC0D", name:"tawny / yellow", sanskrit:"गौर gaura",
-             source:"BPHS ch.2 v.10 yellow complexion" },
+             source:"ch.2 v.10 yellow complexion" },
   Shukra:  { hex:"#F9E79F", name:"fair / variegated-white", sanskrit:"विचित्र vichitra",
-             source:"BPHS ch.2 v.10 fair complexion; ch.3 v.17 variegated" },
+             source:"ch.2 v.10 fair complexion; ch.3 v.17 variegated" },
   Shani:   { hex:"#154360", name:"Indraneela (sapphire-dark-blue)", sanskrit:"नील neela",
-             source:"BPHS ch.2 v.11 lustre like Indraneela sapphire" },
+             source:"ch.2 v.11 lustre like Indraneela sapphire" },
   Rahu:    { hex:"#21618C", name:"blue", sanskrit:"नील neela",
-             source:"BPHS ch.2 v.12 blue-coloured" },
+             source:"ch.2 v.12 blue-coloured" },
   Ketu:    { hex:"#7B7D7D", name:"smoky", sanskrit:"धूम्र dhūmra",
-             source:"BPHS ch.2 v.13 smoky colour" }
+             source:"ch.2 v.13 smoky colour" }
 };
 
 const PP_BIRD_COLORS = {
   Vulture: { hex:"#E8E6E3", name:"white", sanskrit:"श्वेत śveta",
-             source:"Pulippani & Rao 1993 p.53" },
+             source:"p.53" },
   Owl:     { hex:"#D4AC0D", name:"golden hue", sanskrit:"स्वर्ण varṇa",
-             source:"Pulippani & Rao 1993 p.53" },
+             source:"p.53" },
   Crow:    { hex:"#C0392B", name:"red", sanskrit:"रक्त rakta",
-             source:"Pulippani & Rao 1993 p.53" },
+             source:"p.53" },
   Cock:    { hex:"#1E8449", name:"green", sanskrit:"हरित harita",
-             source:"Pulippani & Rao 1993 p.53" },
+             source:"p.53" },
   Peacock: { hex:"#115E8A", name:"peacock-blue", sanskrit:"नील neela",
              source:"traditional (bird's plumage)" }
 };
