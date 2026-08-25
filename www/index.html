@@ -3032,17 +3032,12 @@ const MUHURTA_DOSHA_NAME_ES = {"Riktha Tithi":"Tithi Riktha", "Inauspicious Kara
 function muhurtaDoshas(panch){
   const doshas = [];
   const tithiInPaksha = panch.tithiNum<=15 ? panch.tithiNum : panch.tithiNum-15;
-  if ([4,9,14].includes(tithiInPaksha)) doshas.push({name:"Riktha Tithi", detail:`${panch.tithiName} is a "empty" lunar day`, tone:"bad",
-    source:`Prasna Marga's checklist, ch. II`, sourceEs:`lista de Prasna Marga, cap. II`});
-  if (panch.karana.bad) doshas.push({name:"Inauspicious Karaṇa", detail:`${panch.karana.name} karaṇa`, tone:"bad",
-    source:`Prasna Marga's checklist, ch. II`, sourceEs:`lista de Prasna Marga, cap. II`});
-  if (panch.yogaName === "Vyatipata" || panch.yogaName === "Vaidhriti") doshas.push({name:"Inauspicious Yoga", detail:`${panch.yogaName} yoga`, tone:"bad",
-    source:`Prasna Marga's checklist, ch. II`, sourceEs:`lista de Prasna Marga, cap. II`});
+  if ([4,9,14].includes(tithiInPaksha)) doshas.push({name:"Riktha Tithi", detail:`${panch.tithiName} is a "empty" lunar day`, tone:"bad"});
+  if (panch.karana.bad) doshas.push({name:"Inauspicious Karaṇa", detail:`${panch.karana.name} karaṇa`, tone:"bad"});
+  if (panch.yogaName === "Vyatipata" || panch.yogaName === "Vaidhriti") doshas.push({name:"Inauspicious Yoga", detail:`${panch.yogaName} yoga`, tone:"bad"});
   const fruitful = SIGN_FRUITFUL[panch.ascSign];
-  if (fruitful === "Fruitful") doshas.push({name:"Fruitful ascendant", detail:`${panch.ascSign} lagna — favours things meant to grow or bear result (the classical opposite pick for closure, removal or debt-clearing)`, tone:"good",
-    source:`Mystics of Sarvato Bhadra Chakra, ch. II/VI`, sourceEs:`Mystics of Sarvato Bhadra Chakra, cap. II/VI`});
-  if (fruitful === "Barren") doshas.push({name:"Barren ascendant", detail:`${panch.ascSign} lagna — favours closure, ending or removal (a poor pick for anything meant to grow or bear result)`, tone:"bad",
-    source:`Mystics of Sarvato Bhadra Chakra, ch. II/VI`, sourceEs:`Mystics of Sarvato Bhadra Chakra, cap. II/VI`});
+  if (fruitful === "Fruitful") doshas.push({name:"Fruitful ascendant", detail:`${panch.ascSign} lagna — favours things meant to grow or bear result (the classical opposite pick for closure, removal or debt-clearing)`, tone:"good"});
+  if (fruitful === "Barren") doshas.push({name:"Barren ascendant", detail:`${panch.ascSign} lagna — favours closure, ending or removal (a poor pick for anything meant to grow or bear result)`, tone:"bad"});
   return doshas;
 }
 
@@ -3535,8 +3530,8 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
   if (Math.abs(dignityAdj) > 0.01){
     score += dignityAdj;
     reasons.push({sign: dignityAdj>0?"good":"bad", text: T(
-      `Dignity adjustment (ch. IX "Grading of Aspect" — own/friend/neutral/enemy sign-strength and the source's retrograde/speed multipliers, rescaled by this app to sit as a secondary term): ${dignityAdj>=0?'+':''}${dignityAdj.toFixed(2)} — the grahas casting Vedha are, on balance, ${dignityAdj>0?'stronger':'weaker'} than neutral right now.`,
-      `Ajuste de dignidad (cap. IX "Grading of Aspect" — fuerza de signo propio/amigo/neutral/enemigo y los multiplicadores de retrogradación/velocidad de la fuente, reescalados por esta app como término secundario): ${dignityAdj>=0?'+':''}${dignityAdj.toFixed(2)} — los grahas que lanzan Vedha son, en conjunto, ${dignityAdj>0?'más fuertes':'más débiles'} que lo neutral ahora mismo.`
+      `Dignity adjustment (own/friend/neutral/enemy sign-strength and the source's retrograde/speed multipliers, rescaled by this app to sit as a secondary term): ${dignityAdj>=0?'+':''}${dignityAdj.toFixed(2)} — the grahas casting Vedha are, on balance, ${dignityAdj>0?'stronger':'weaker'} than neutral right now.`,
+      `Ajuste de dignidad (fuerza de signo propio/amigo/neutral/enemigo y los multiplicadores de retrogradación/velocidad de la fuente, reescalados por esta app como término secundario): ${dignityAdj>=0?'+':''}${dignityAdj.toFixed(2)} — los grahas que lanzan Vedha son, en conjunto, ${dignityAdj>0?'más fuertes':'más débiles'} que lo neutral ahora mismo.`
     )});
   }
 
@@ -3605,8 +3600,8 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
       const w = d.tone === "good" ? 0.5 : -0.5;
       score += w;
       reasons.push({sign: d.tone || "bad", text: T(
-        `${d.name}: ${d.detail} — ${d.tone==="good"?"a standard muhūrta plus":"a standard muhūrta caution"} (${d.source}).`,
-        `${T(d.name, MUHURTA_DOSHA_NAME_ES[d.name]||d.name)}: ${d.detail} — ${d.tone==="good"?"un factor positivo estándar de muhūrta":"una precaución estándar de muhūrta"} (${d.sourceEs}).`
+        `${d.name}: ${d.detail} — ${d.tone==="good"?"a standard muhūrta plus":"a standard muhūrta caution"}.`,
+        `${T(d.name, MUHURTA_DOSHA_NAME_ES[d.name]||d.name)}: ${d.detail} — ${d.tone==="good"?"un factor positivo estándar de muhūrta":"una precaución estándar de muhūrta"}.`
       )});
     });
   }
@@ -4083,7 +4078,7 @@ function chandrashtamaCheck(pos, refMoonSign, panch){
   // Neutralizations (Raman, Muhurtha ch.V): waxing Moon + benefic sign, or Tarabala
   const waxing = panch.paksha === "Shukla";
   return {active:true, waxing, note: waxing
-    ? "Chandrashtama — but the Moon is waxing, which blunts the sting (Raman ch.V)"
+    ? "Chandrashtama — but the Moon is waxing, which blunts the sting"
     : "Chandrashtama — Moon in the 8th from the reference Moon's sign; avoid major undertakings"};
 }
 
@@ -9129,7 +9124,7 @@ function renderAshtakavargaPage(){
       <div class="bd">
         <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th></th><th>${T('Bhinnāṣṭakavarga bindus here','Bindus de Bhinnāṣṭakavarga aquí')}</th><th>${T('Sarvāṣṭakavarga here','Sarvāṣṭakavarga aquí')}</th></tr></thead><tbody>${transitRows}</tbody></table></div>
         <div style="margin-top:10px;"><span class="tag ${overallVerdict.cls}">${overallVerdict.label}</span></div>
-        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('Ch. VI/VII\'s own scale: 0 bindus is the source\'s single most severe tier (see footer note); 1–3 weak; 4 average; 5–8 strong — "same results should be expected" for any of the 7 grahas, per the book\'s own generalization from its worked Sun example. Sarvāṣṭakavarga tier follows ch. XIV: average is 28/sign, above 28 is strong, above 30 "very good," below 25 explicitly weak. This is informational only — it does not feed into the SBC score above.','Escala propia de los cap. VI/VII: 0 bindus es el nivel más extremo de la fuente (ver nota al pie); 1–3 débil; 4 promedio; 5–8 fuerte — "deben esperarse los mismos resultados" para cualquiera de los 7 graha, según la propia generalización del libro a partir de su ejemplo resuelto del Sol. El nivel de Sarvāṣṭakavarga sigue el cap. XIV: el promedio es 28/signo, por encima de 28 es fuerte, por encima de 30 es "muy bueno," por debajo de 25 es explícitamente débil. Esto es solo informativo — no se incorpora a la puntuación SBC de arriba.')}</div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The source\'s own scale: 0 bindus is its single most severe tier (see footer note); 1–3 weak; 4 average; 5–8 strong — "same results should be expected" for any of the 7 grahas, per the book\'s own generalization from its worked Sun example. Sarvāṣṭakavarga tier follows the same source: average is 28/sign, above 28 is strong, above 30 "very good," below 25 explicitly weak. This is informational only — it does not feed into the SBC score above.','Escala propia de la fuente: 0 bindus es su nivel más extremo (ver nota al pie); 1–3 débil; 4 promedio; 5–8 fuerte — "deben esperarse los mismos resultados" para cualquiera de los 7 graha, según la propia generalización del libro a partir de su ejemplo resuelto del Sol. El nivel de Sarvāṣṭakavarga sigue la misma fuente: el promedio es 28/signo, por encima de 28 es fuerte, por encima de 30 es "muy bueno," por debajo de 25 es explícitamente débil. Esto es solo informativo — no se incorpora a la puntuación SBC de arriba.')}</div>
       </div>
     </div>
 
@@ -9700,7 +9695,7 @@ function renderAnatomyPage(){
       </div>
     </div>
 
-    <div class="panel"><div class="hd"><h2>${T('Tri-Nāḍī Chakra — Breath &amp; Channel Reading','Tri-Nāḍī Chakra — lectura de aliento y canales')}</h2><span class="note">${T('Bṛhat Nakṣatra, Nakṣatra Maṇḍala ch.','Bṛhat Nakṣatra, cap. Nakṣatra Maṇḍala')}</span></div>
+    <div class="panel"><div class="hd"><h2>${T('Tri-Nāḍī Chakra — Breath &amp; Channel Reading','Tri-Nāḍī Chakra — lectura de aliento y canales')}</h2></div>
       <div class="bd">
         <div class="hint">${T('The three channels — Iḍā/Gaṅgā (left nostril, Moon, storage), Piṅgalā/Yamunā (right nostril, Sun, supply) and Suṣumnā/Sarasvatī (central, Agni, sustenance) — are read from stars: the 27 nakṣatras cycle Ādya → Madhya → Antya by nāḍī class, and each star sits on one of the nine astral nodes (Mulādhāra…Sahasrāra plus Soma and Suddhāmṛta).','Los tres canales — Iḍā/Gaṅgā (fosa izquierda, Luna, almacenaje), Piṅgalā/Yamunā (fosa derecha, Sol, suministro) y Suṣumnā/Sarasvatī (central, Agni, sostenimiento) — se leen desde las estrellas: los 27 nakṣatras ciclan Ādya → Madhya → Antya por clase de nāḍī, y cada estrella se asienta en uno de los nueve nodos astrales (Mulādhāra…Sahasrāra más Soma y Suddhāmṛta).')}</div>
         <div class="tblwrap" style="margin-top:10px;"><table><tbody>
@@ -10934,7 +10929,7 @@ function renderCommoditiesPage(){
   const backtestSectionHtml = (bt, sourceLabel, sourceLabelEs, nameEn, nameEs) => {
     return `
         <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('6 · Historical accuracy check (this app\'s own empirical test, not a source citation)','6 · Comprobación de precisión histórica (prueba empírica propia de esta app, no una cita de fuente)')}</h3>
-        <div class="hint" style="margin-bottom:6px;">${T(`Backtest of the ch. XLI Venus/malefic sign rule above against ${bt.combined.total} consecutive monthly ${sourceLabel} closes — the full history this data source offers, fetched 2026-08-18 — same live scoring logic as section 1, just re-run against each historical month instead of right now. Also decomposed into its two halves, run as independent backtests, to see which one is actually carrying the signal.`,`Prueba retrospectiva de la regla de Venus/maléficos del cap. XLI de arriba contra ${bt.combined.total} cierres mensuales consecutivos de ${sourceLabelEs} — todo el historial que ofrece esta fuente de datos, obtenidos el 18-08-2026 — misma lógica de puntuación en vivo que la sección 1, solo que aplicada a cada mes histórico en vez de ahora mismo. También descompuesta en sus dos mitades, ejecutadas como pruebas independientes, para ver cuál de ellas realmente aporta la señal.`)}</div>
+        <div class="hint" style="margin-bottom:6px;">${T(`Backtest of the Venus/malefic sign rule above against ${bt.combined.total} consecutive monthly ${sourceLabel} closes — the full history this data source offers, fetched 2026-08-18 — same live scoring logic as section 1, just re-run against each historical month instead of right now. Also decomposed into its two halves, run as independent backtests, to see which one is actually carrying the signal.`,`Prueba retrospectiva de la regla de Venus/maléficos de arriba contra ${bt.combined.total} cierres mensuales consecutivos de ${sourceLabelEs} — todo el historial que ofrece esta fuente de datos, obtenidos el 18-08-2026 — misma lógica de puntuación en vivo que la sección 1, solo que aplicada a cada mes histórico en vez de ahora mismo. También descompuesta en sus dos mitades, ejecutadas como pruebas independientes, para ver cuál de ellas realmente aporta la señal.`)}</div>
         ${btRow('Combined rule','Regla combinada', bt.combined)}
         ${btRow('Venus clause only','Solo cláusula de Venus', bt.venus)}
         ${btRow('Malefics clause only','Solo cláusula de maléficos', bt.malefic)}
@@ -11120,7 +11115,7 @@ function renderCommoditiesPage(){
         <div class="hint">${T('None of the 32 Antara Chakra points name oil, on either their benefic or malefic side. Skipped for the same reason as above.','Ninguno de los 32 puntos del Antara Chakra nombra el aceite, ni en su lado benéfico ni en el maléfico. Omitido por la misma razón que arriba.')}</div>
 
         <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('5 · Botanical omens (reference only, not live)','5 · Presagios botánicos (solo referencia, no en vivo)')}</h3>
-        <div class="hint">${T('Ch. XXIX names the "castor oil-tree" (Hasti Karṇa) — but its blossoming is an omen for elephants thriving, not for oil abundance or price, unlike the Champaka/Arka clauses for gold in the same chapter. The plant is named; the commodity signal is not — so nothing is shown here as a signal.','El cap. XXIX nombra el "árbol de aceite de ricino" (Hasti Karṇa) — pero su floración es un presagio de prosperidad para los elefantes, no de abundancia o precio del aceite, a diferencia de las cláusulas de Champaka/Arka del oro en el mismo capítulo. Se nombra la planta; no la señal de la materia prima — así que no se muestra nada aquí como señal.')}</div>
+        <div class="hint">${T('The castor oil-tree (Hasti Karṇa) — its blossoming is an omen for elephants thriving, not for oil abundance or price, unlike the Champaka/Arka clauses for gold. The plant is named; the commodity signal is not — so nothing is shown here as a signal.','El árbol de aceite de ricino (Hasti Karṇa) — su floración es un presagio de prosperidad para los elefantes, no de abundancia o precio del aceite, a diferencia de las cláusulas de Champaka/Arka del oro. Se nombra la planta; no la señal de la materia prima — así que no se muestra nada aquí como señal.')}</div>
 
         ${backtestSectionHtml(oilBT, 'WTI crude', 'crudo WTI', 'oil', 'el aceite/petróleo')}
       </div>
@@ -11866,7 +11861,7 @@ function renderChintamaniPage(){
     const { checks, kumbha } = chintamaniHousewarmingGuideline(pos, panch, mdt, direction || null);
     const failCount = checks.filter(c=>!c.ok).length;
     const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=2 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
-    const kumbhaHtml = kumbha ? `<div class="hint" style="margin-top:10px; line-height:1.6;">${T(`Kumbha Chakra (ch.13 §6): today's Moon nakṣatra falls in the <b>${kumbha.en}</b> zone counted from the Sun's own nakṣatra — the source's own stated effect: "${kumbha.effect.en}."`,`Kumbha Chakra (cap.13 §6): la Nakṣatra lunar de hoy cae en la zona <b>${kumbha.es}</b> contada desde la propia Nakṣatra del Sol — el efecto que indica la fuente: "${kumbha.effect.es}."`)}</div>` : '';
+    const kumbhaHtml = kumbha ? `<div class="hint" style="margin-top:10px; line-height:1.6;">${T(`Kumbha Chakra: today's Moon nakṣatra falls in the <b>${kumbha.en}</b> zone counted from the Sun's own nakṣatra — the source's own stated effect: "${kumbha.effect.en}."`,`Kumbha Chakra: la Nakṣatra lunar de hoy cae en la zona <b>${kumbha.es}</b> contada desde la propia Nakṣatra del Sol — el efecto que indica la fuente: "${kumbha.effect.es}."`)}</div>` : '';
     activityBodyHtml = `
       <label>${T('Direction the door faces (optional)','Dirección a la que mira la puerta (opcional)')}</label>
       <select id="chintamaniDirection">${['','North','South','East','West'].map(d=>`<option value="${d}" ${direction===d?'selected':''}>${d||T('— not set —','— sin definir —')}</option>`).join('')}</select>
