@@ -79,6 +79,54 @@
     --radius:8px; --radius-sm:4px; --radius-pill:999px;
     --shadow:0 1px 2px rgba(31,27,40,0.04), 0 8px 20px -14px rgba(31,27,40,0.28);
   }
+  /* ---------- Soft palette: same warm family as Light, desaturated and
+     lower-contrast for gentler extended reading (not a dark theme). ---------- */
+  :root[data-theme="soft"]{
+    --bg:#f1ede4;
+    --bg-2:#f7f4ec;
+    --panel:#f7f4ec;
+    --panel-2:#eee9dd;
+    --line:#ddd5c2;
+    --line-soft:#e8e2d2;
+    --ink:#3a3542;
+    --ink-dim:#5a5468;
+    --muted:#8a839c;
+    --gold:#a8825a;
+    --gold-dim:#c9ae86;
+    --brass:#9c8560;
+    --vermilion:#c07a68;
+    --vermilion-dim:#e2bdb2;
+    --jade:#5a9c82;
+    --jade-dim:#b7d4c5;
+    --indigo:#7783b8;
+    --indigo-dim:#c7cce6;
+    --slate:#9a93ab;
+    --glow-a:rgba(200,170,130,0.14);
+    --glow-b:rgba(120,170,150,0.10);
+    --chart-bg:#f9f6ee;
+    --chart-line:#d9d0bd;
+    --chart-label:#a39dae;
+    --house1:rgba(168,130,90,0.08);
+    --cell-bg:#eee9dd;
+    --cell-ink:#6f6a80;
+    --hit-bad-bg:rgba(192,122,104,0.14);  --hit-bad-line:#c07a68;  --hit-bad-ink:#8f5348;
+    --hit-good-bg:rgba(90,156,130,0.14);  --hit-good-line:#5a9c82; --hit-good-ink:#3e6f5a;
+    --zone-east-bg:rgba(150,120,175,0.08);  --zone-east-line:#96789e;
+    --zone-south-bg:rgba(90,150,140,0.08);  --zone-south-line:#5a9686;
+    --zone-west-bg:rgba(120,130,175,0.08);  --zone-west-line:#7883ac;
+    --zone-north-bg:rgba(170,130,100,0.09); --zone-north-line:#aa8264;
+    --cal-uttama-bg:rgba(90,156,130,0.16);   --cal-uttama-line:#5a9c82;
+    --cal-madhyama-bg:rgba(90,156,130,0.08); --cal-madhyama-line:#5a9c82;
+    --cal-sama-bg:rgba(168,130,90,0.10);     --cal-sama-line:#a8825a;
+    --cal-ashubha-bg:rgba(192,122,104,0.08); --cal-ashubha-line:#c07a68;
+    --cal-varjya-bg:rgba(192,122,104,0.18);  --cal-varjya-line:#c07a68;
+    --body-fill:#e9e3d5;
+    --body-fill-2:#e0d9c8;
+    --body-stroke:#cdc4ac;
+    --body-seam:rgba(130,120,100,0.24);
+    --btn-a:#faf7ef; --btn-b:#e6dfc9; --btn-a-h:#fdfbf5; --btn-b-h:#ddd3b5;
+    --shadow:0 1px 2px rgba(58,53,66,0.03), 0 8px 20px -14px rgba(58,53,66,0.20);
+  }
   /* ---------- Original night palette, kept as an option ---------- */
   :root[data-theme="dark"]{
     --bg:#0f0e1a;
@@ -152,6 +200,7 @@
     background:linear-gradient(180deg, rgba(255,255,255,0.35), transparent);
   }
   :root[data-theme="dark"] .plaque{ background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); }
+  :root[data-theme="soft"] .plaque{ background:linear-gradient(180deg, rgba(255,255,255,0.22), transparent); }
   .theme-toggle{
     font-family:var(--mono); font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase;
     color:var(--muted); border:1px solid var(--line); background:var(--panel-2);
@@ -633,7 +682,8 @@
     <span data-i18n="citation">Chart layout after Standard format. Positions computed, not looked up — see methodology note.</span>
     <div style="margin-top:8px; text-align:right; display:flex; gap:6px; justify-content:flex-end;">
       <button class="theme-toggle" id="langToggle" type="button">ES</button>
-      <button class="theme-toggle" id="themeToggle" type="button">☀ Bright</button>
+      <button class="theme-toggle" id="themeToggle" type="button" title="${T('Soft eases the light for longer sittings — the same chart and same colors, just gentler on the eyes when you\'re staying with a reading a while.','Soft aligera la luz para sesiones más largas — la misma carta y los mismos colores, solo más suaves para la vista cuando te quedas un rato con una lectura.')}">☀ Light</button>
+      <button class="theme-toggle" id="chartStyleToggle" type="button">◇ North</button>
     </div>
   </div>
 </div>
@@ -833,6 +883,7 @@
    *_ES lookup tables), which are called fresh every time runAnalysis() runs.
    ========================================================================= */
 let LANG = 'en';
+let CHART_STYLE = 'north'; // 'north' | 'south' — see renderChartAuto()
 function T(en, es){ return LANG === 'es' ? es : en; }
 
 const I18N = {
@@ -5507,8 +5558,9 @@ function electGravityGraha(pos, navPos, mdt, ascSignIdx){
   return { winner: horaWinner || candidates[0], pool: candidates, byDefault:true, horaNum, sunriseHrUsed };
 }
 
-function renderChart(pos, ascSign){
-  const ascIdx = SIGNS.indexOf(ascSign);
+// Shared prep for both chart renderers: buckets the Ascendant + all grahas
+// by rāśi (sign name), independent of house geometry/layout.
+function planetsBySignFor(pos, ascSign){
   const planetsBySign = {}; SIGNS.forEach(s=>planetsBySign[s]=[]);
   planetsBySign[ascSign].push({t:"As", cls:"asc"});
   for (const g of GRAHA_LIST){
@@ -5517,6 +5569,23 @@ function renderChart(pos, ascSign){
     const retro = pos[g].speed<0;
     planetsBySign[sign].push({t:GRAHA_ABBR[g]+(retro?"℞":""), cls:g, deg});
   }
+  return planetsBySign;
+}
+// Planet-glyph text color: shared by both chart styles.
+function planetGlyphStyle(it){
+  let col, gc = null;
+  if (it.cls === "asc") col = "var(--gold)";
+  else {
+    gc = GRAHA_COLORS[it.cls];
+    col = gc ? gc.hex : (MALEFIC_GRAHAS.includes(it.cls) ? "var(--vermilion)" : (BENEFIC_GRAHAS.includes(it.cls)?"var(--jade)":"var(--ink-dim)"));
+  }
+  return { col, strokeOn: gc && ["Chandra","Shukra"].includes(it.cls) };
+}
+
+function renderChart(pos, ascSign, opts){
+  const plainHouses = !!(opts && opts.plainHouses);
+  const ascIdx = SIGNS.indexOf(ascSign);
+  const planetsBySign = planetsBySignFor(pos, ascSign);
   let svg = `<svg viewBox="0 0 400 400" width="100%" style="max-width:440px;display:block;margin:0 auto;">`;
   svg += `<rect x="1" y="1" width="398" height="398" style="fill:var(--chart-bg);stroke:var(--chart-line)" stroke-width="1.5"/>`;
   svg += `<polygon points="${CH.T.join(',')} ${CH.R.join(',')} ${CH.B.join(',')} ${CH.L.join(',')}" fill="none" style="stroke:var(--chart-line)" stroke-width="1.5"/>`;
@@ -5527,30 +5596,84 @@ function renderChart(pos, ascSign){
     const houseNum = i+1;
     const signIdx = (ascIdx + i) % 12;
     const sign = SIGNS[signIdx];
-    const rc = RASHI_COLORS[sign] || {};
+    const rc = plainHouses ? {} : (RASHI_COLORS[sign] || {});
     const poly = HOUSE_POLY[i];
     const cen = centroid(poly);
     const anchor = poly.length===4 ? pull(cen, poly[0], 0.34) : pull(cen, centroid([poly[0],poly[1]]), 0.05);
     const items = planetsBySign[sign];
     // Rashi color fill: tattva-family tint at low opacity; house-1 keeps its own highlight
     // layered over it. Classical basis: BPHS ch.4 tattva groups + lord colors in jyotish-colors.js.
+    // (plainHouses reverts to the uncolored default — used by the Varga page.)
     const rashiFill = rc.fill ? `${rc.fill}22` : "transparent";
     svg += `<polygon points="${poly.map(p=>p.join(',')).join(' ')}" style="fill:${houseNum===1?'var(--house1)':rashiFill}" stroke="${rc.accent||'none'}" stroke-width="${rc.accent?0.8:0}"/>`;
     // Sign label chip: colored by rashi with lord-accent underline
     svg += `<text x="${anchor[0]}" y="${anchor[1]-14}" text-anchor="middle" font-size="9" style="fill:${rc.fill||'var(--chart-label)'};font-weight:600" font-family="var(--mono)">${houseNum}·${SIGN_ABBR[sign]}</text>`;
     items.forEach((it,k)=>{
       // Planet text now colored by its classical BPHS dhyana color
-      let col, gc = null;
-      if (it.cls === "asc") col = "var(--gold)";
-      else {
-        gc = GRAHA_COLORS[it.cls];
-        col = gc ? gc.hex : (MALEFIC_GRAHAS.includes(it.cls) ? "var(--vermilion)" : (BENEFIC_GRAHAS.includes(it.cls)?"var(--jade)":"var(--ink-dim)"));
-      }
-      svg += `<text x="${anchor[0]}" y="${anchor[1]+k*13}" text-anchor="middle" font-size="12" style="fill:${col};paint-order:stroke;stroke:rgba(0,0,0,${(gc&&["Chandra","Shukra"].includes(it.cls))?0.55:0})" stroke-width="2" font-weight="600" font-family="var(--mono)">${it.t}</text>`;
+      const {col, strokeOn} = planetGlyphStyle(it);
+      svg += `<text x="${anchor[0]}" y="${anchor[1]+k*13}" text-anchor="middle" font-size="12" style="fill:${col};paint-order:stroke;stroke:rgba(0,0,0,${strokeOn?0.55:0})" stroke-width="2" font-weight="600" font-family="var(--mono)">${it.t}</text>`;
     });
   }
   svg += `</svg>`;
   return svg;
+}
+
+// ---- South Indian Rāśi chart geometry: signs occupy fixed cells in a 4x4
+// grid (center 2x2 unused by any sign — left as chart-info space); Aries
+// is always the 2nd cell of the top row, and signs proceed clockwise from
+// there (Taurus, Gemini along the top; Cancer, Leo down the right; Virgo,
+// Libra, Scorpio along the bottom, right to left; Sagittarius, Capricorn
+// up the left; Aquarius, Pisces closing the ring back to Aries). Unlike
+// the North Indian diamond, the grid never rotates — instead the "1·" house
+// label (and the "As" glyph) walks to whichever fixed sign cell holds the
+// Ascendant, which is how a South Indian chart communicates the Lagna.
+const SOUTH_GRID_SIGNS = [
+  ["Pisces","Aries","Taurus","Gemini"],
+  ["Aquarius",null,null,"Cancer"],
+  ["Capricorn",null,null,"Leo"],
+  ["Sagittarius","Scorpio","Libra","Virgo"]
+];
+function renderChartSouthIndian(pos, ascSign, opts){
+  const plainHouses = !!(opts && opts.plainHouses);
+  const ascIdx = SIGNS.indexOf(ascSign);
+  const planetsBySign = planetsBySignFor(pos, ascSign);
+  const cell = 100, size = cell*4;
+  let svg = `<svg viewBox="0 0 ${size} ${size}" width="100%" style="max-width:440px;display:block;margin:0 auto;">`;
+  svg += `<rect x="1" y="1" width="${size-2}" height="${size-2}" style="fill:var(--chart-bg);stroke:var(--chart-line)" stroke-width="1.5"/>`;
+  for (let r=0;r<4;r++){
+    for (let c=0;c<4;c++){
+      const sign = SOUTH_GRID_SIGNS[r][c];
+      if (!sign) continue; // center 2x2: chart-info space, not a house
+      const signIdx = SIGNS.indexOf(sign);
+      const houseNum = ((signIdx - ascIdx + 12) % 12) + 1;
+      const isAsc = houseNum === 1;
+      const rc = plainHouses ? {} : (RASHI_COLORS[sign] || {});
+      const rashiFill = rc.fill ? `${rc.fill}22` : "transparent";
+      const x = c*cell, y = r*cell;
+      svg += `<rect x="${x+1}" y="${y+1}" width="${cell-2}" height="${cell-2}" style="fill:${isAsc?'var(--house1)':rashiFill}" stroke="${rc.accent||'var(--chart-line)'}" stroke-width="${rc.accent?0.8:1}"/>`;
+      // Sign number·abbr label, top-left of cell; the Ascendant's cell also gets
+      // a gold ring so "where is house 1" reads at a glance, not just by number.
+      svg += `<text x="${x+8}" y="${y+16}" text-anchor="start" font-size="9" style="fill:${isAsc?'var(--gold)':(rc.fill||'var(--chart-label)')};font-weight:700" font-family="var(--mono)">${houseNum}·${SIGN_ABBR[sign]}</text>`;
+      if (isAsc){
+        svg += `<rect x="${x+3}" y="${y+3}" width="${cell-6}" height="${cell-6}" fill="none" style="stroke:var(--gold)" stroke-width="2"/>`;
+      }
+      const items = planetsBySign[sign];
+      items.forEach((it,k)=>{
+        const {col, strokeOn} = planetGlyphStyle(it);
+        svg += `<text x="${x+cell/2}" y="${y+cell/2+2+k*14}" text-anchor="middle" font-size="12" style="fill:${col};paint-order:stroke;stroke:rgba(0,0,0,${strokeOn?0.55:0})" stroke-width="2" font-weight="600" font-family="var(--mono)">${it.t}</text>`;
+      });
+    }
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
+// Dispatches to the user's chosen chart style (North/South Indian). All
+// three call sites (D1, Navamsa/Varga panels) should go through this
+// instead of calling either renderer directly, so the style toggle applies
+// everywhere at once.
+function renderChartAuto(pos, ascSign, opts){
+  return CHART_STYLE === "south" ? renderChartSouthIndian(pos, ascSign, opts) : renderChart(pos, ascSign, opts);
 }
 
 /* Zone color-coding added per the user's reference scan of the book's own
@@ -6482,8 +6605,8 @@ function chintamaniYajnaGuideline(pos, panch){
     checks.push({ label:T(`${g} is well-disposed (not debilitated, combust or in an enemy sign)`,`${T(g,GRAHA_ES[g])} está bien dispuesto (no debilitado, combusto ni en signo enemigo)`),
       ok: !(debil||combust||enemy), cite:'ch.9',
       info: nb ? (nb.cancelled
-        ? T(`Debilitated, but by widely-taught (not verse-verified) Nīcha-Bhaṅga criteria this cancels: ${nb.cond1?`${nb.dispositor} (sign lord) is in a kendra`:''}${nb.cond1&&nb.cond2?' and ':''}${nb.cond2?`${nb.exaltedHere} (exalted here) is in a kendra`:''}.`,
-            `Debilitado, pero según criterios de Nīcha-Bhaṅga muy difundidos (no verificados por verso) esto se cancela: ${nb.cond1?`${T(nb.dispositor,GRAHA_ES[nb.dispositor])} (señor del signo) está en un kendra`:''}${nb.cond1&&nb.cond2?' y ':''}${nb.cond2?`${T(nb.exaltedHere,GRAHA_ES[nb.exaltedHere])} (exaltado aquí) está en un kendra`:''}.`)
+        ? T(`Debilitated, but by widely-taught (not independently verified) Nīcha-Bhaṅga criteria this cancels: ${nb.cond1?`${nb.dispositor} (sign lord) is in a kendra`:''}${nb.cond1&&nb.cond2?' and ':''}${nb.cond2?`${nb.exaltedHere} (exalted here) is in a kendra`:''}.`,
+            `Debilitado, pero según criterios de Nīcha-Bhaṅga muy difundidos (no verificados independientemente) esto se cancela: ${nb.cond1?`${T(nb.dispositor,GRAHA_ES[nb.dispositor])} (señor del signo) está en un kendra`:''}${nb.cond1&&nb.cond2?' y ':''}${nb.cond2?`${T(nb.exaltedHere,GRAHA_ES[nb.exaltedHere])} (exaltado aquí) está en un kendra`:''}.`)
         : T('Debilitated, and the widely-taught Nīcha-Bhaṅga cancellation criteria are not met.','Debilitado, y no se cumplen los criterios de Nīcha-Bhaṅga (muy difundidos) para su cancelación.'))
         : '' });
   });
@@ -7103,7 +7226,7 @@ function ashtakootaNadi(brideStar, groomStar){
 
    TWO GENUINE, SOURCED VARIANTS -- exposed as a choice, not picked for
    the reader:
-   1. HOUSE SET: the verse's five houses, or a six-house reading some
+   1. HOUSE SET: the five houses, or a six-house reading some
       scholars extend with the 2nd (family/wealth) house.
    2. REFERENCE POINTS: Lagna only, or the fuller Lagna+Moon+Venus
       reading (severity by the source's own ordering: Venus strongest,
@@ -7924,10 +8047,10 @@ function runAnalysis(){
   }).join('');
 
   html += `<div class="grid2">
-    <div class="panel"><div class="hd"><h2>${T('Current D1 (Janma)','D1 (Janma) Actual')}</h2><span class="note">${T('North Indian format','formato norteño indio')}</span></div>
-      <div class="bd">${renderChart(pos, panch.ascSign)}</div></div>
+    <div class="panel"><div class="hd"><h2>${T('Current D1 (Janma)','D1 (Janma) Actual')}</h2><span class="note">${CHART_STYLE==='south'?T('South Indian format','formato sureño indio'):T('North Indian format','formato norteño indio')}</span></div>
+      <div class="bd">${CHART_STYLE==='south'?`<div class="hint" style="margin-bottom:8px;">${T('South Indian format is a map that never turns: the twelve signs sit fixed in their cells, Aries always in the same place, however your chart falls. Find the gold ring — it marks whichever cell holds your Lagna (लग्न = the rising point), and that cell is your first house; read the rest of the houses onward from there.','El formato sureño indio es un mapa que nunca gira: los doce signos están fijos en sus celdas, Aries siempre en el mismo lugar, sin importar cómo cae tu carta. Busca el anillo de oro — marca la celda que contiene tu Lagna (लग्न = el punto ascendente), y esa celda es tu primera casa; lee el resto de las casas de allí en adelante.')}</div>`:''}${renderChartAuto(pos, panch.ascSign)}</div></div>
     <div class="panel"><div class="hd"><h2>${T('D9 (Navamsa) Current','D9 (Navamsa) Actual')}</h2><span class="note">${T('planet strength, not scored','fuerza planetaria, no puntuado')}</span></div>
-      <div class="bd">${renderChart(navPos, navAscSign)}</div></div>
+      <div class="bd">${renderChartAuto(navPos, navAscSign)}</div></div>
   </div><div style="height:20px"></div>
 
   <div class="grid2">
@@ -8700,8 +8823,9 @@ function renderVargaPage(){
           <span class="tag neutral">${T(def.purpose.en,def.purpose.es)}</span>
           <span class="tag neutral">${T('division size','tamaño de división')}: ${def.span}</span>
         </div>
-        ${renderChart(chartPos, chartAscSign)}
+        ${renderChartAuto(chartPos, chartAscSign, {plainHouses:true})}
         <div class="hint" style="margin-top:10px;">${T(`Chart shows the ${def.key} (${def.name}) — read for ${def.purpose.en}. House 1 carries the ${def.key} Lagna; planets sit in their ${def.key} signs.`, `La carta muestra el ${def.key} (${def.name}) — se lee para ${def.purpose.es}. La casa 1 lleva el Lagna del ${def.key}; los planetas están en sus signos del ${def.key}.`)}</div>
+        <div class="hint">${T('I tried tinting these houses by rashi (राशि = zodiac sign) and found the color competed with the divisional reading itself — so I\'ve returned to plain houses here, keeping sign-color for the main chart alone.', 'Probé teñir estas casas por rashi (राशि = signo zodiacal) y encontré que el color competía con la lectura divisional misma — así que he vuelto a casas planas aquí, guardando el color de signo solo para la carta principal.')}</div>
         <div class="hint">${T("Note: this D9 follows the element-based Navāṁśa count (fire→Aries, earth→Capricorn, air→Libra, water→Cancer). The Natal General Reading page's D9 uses the SBC book's movable/fixed/dual count instead — two classical conventions that genuinely disagree; both are shown as-is rather than silently merged.","Nota: este D9 sigue el cómputo Navāṁśa por elementos (fuego→Aries, tierra→Capricornio, aire→Libra, agua→Cáncer). El D9 de la página Lectura Natal General usa el cómputo movable/fijo/dual del libro SBC — dos convenciones clásicas que genuinamente discrepan; ambas se muestran tal cual en vez de fusionarse en silencio.")}</div>
         ${d9SelfCheckHtml}
       </div>
@@ -9942,8 +10066,8 @@ function antaraAnimalReading(info, zoneDir, now, side){
   if (zoneDir && ANTARA_DIR_ANIMALS[zoneDir] && info.directions.length){
     const own = info.directions.includes(zoneDir);
     notes.push(own
-      ? `<span class="tag good">In its own place</span> ${info.name} is natively strong in the ${info.directions.join('/')} — matches this zone, so śl.19 calls it a strong, reliable omen here.`
-      : `<span class="tag neutral">Away from home</span> ${info.name} is natively strong in the ${info.directions.join('/')}, not the ${zoneDir} — śl.19 calls an omen weaker outside its own place.`);
+      ? `<span class="tag good">In its own place</span> ${info.name} is natively strong in the ${info.directions.join('/')} — matches this zone, so the source calls it a strong, reliable omen here.`
+      : `<span class="tag neutral">Away from home</span> ${info.name} is natively strong in the ${info.directions.join('/')}'s territory, not the ${zoneDir} — the source calls an omen weaker outside its own place.`);
   }
   if (info.dayNight === 'both'){
     notes.push(`<span class="tag neutral">Day or night</span> ${info.name} moves by both, so time of day carries no extra weight for it.`);
@@ -9952,14 +10076,14 @@ function antaraAnimalReading(info, zoneDir, now, side){
     const isDayNow = hourFromSix < 12;
     const mismatch = (info.dayNight==='day') !== isDayNow;
     notes.push(mismatch
-      ? `<span class="tag bad">Out of season</span> ${info.name} is normally a ${info.dayNight} creature; hearing it ${isDayNow?'by day':'at night'} is itself an ill omen (śl.2) — the country will suffer, or the king will meet with ruin.`
+      ? `<span class="tag bad">Out of season</span> ${info.name} is normally a ${info.dayNight} creature; hearing it ${isDayNow?'by day':'at night'} is itself an ill omen — the country will suffer, or the king will meet with ruin.`
       : `<span class="tag good">In season</span> ${info.name} is a ${info.dayNight} creature, and it's currently ${isDayNow?'day':'night'} — consistent.`);
   }
   if (side){
     if (info.sides.length){
       const matches = info.sides.includes(side);
       notes.push(matches
-        ? `<span class="tag good">Favourable side</span> ${info.name} on the ${side} is auspicious (śl.37-38).`
+        ? `<span class="tag good">Favourable side</span> ${info.name} on the ${side} is auspicious.`
         : `<span class="tag bad">Unfavourable side</span> ${info.name} is recorded as favourable on the ${info.sides.join('/')}, not the ${side}.`);
     } else {
       notes.push(`No specific left/right rule is recorded for ${info.name}.`);
@@ -10323,11 +10447,57 @@ function renderRemediesPage(){
       </div>`;
   }
 
+  let yogaCombosHtml = `
+    <h3 style="margin:18px 0 6px; font-size:13px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">Yoga Combinations — Case Studies</h3>
+    <div class="hint" style="line-height:1.6; margin-bottom:14px;">${T('These are real historical charts reached for often in the tradition — study them as patterns to notice rather than verdicts to chase. None of the placement claims here were independently re-verified against a live calculation engine; birth times are inherently approximate, and what any of this describes is a capacity, not a fixed judgment of the people named.','Estos son casos reales de cartas históricas a los que se suele recurrir en la tradición — étudialos como patrones para notar, no como veredictos para perseguir. Ninguna de las afirmaciones de ubicación aquí fue verificada independientemente contra un motor de cálculo en vivo; las horas de nacimiento son inherentemente aproximadas, y lo que cualquiera de esto describe es una capacidad, no un juicio fijo de las personas nombradas.')}</div>
+
+    <div class="hint" style="line-height:1.6; margin-bottom:12px;">
+      <b>Sasa Yoga (शश — "the hare"), one of the five Panchamahapurusha Yogas (पञ्च-महापुरुष = "five great-persons")</b>
+      <br><br>
+      Sasa belongs to this set of five, formed when Shani — Saturn, our teacher of patience and structure — sits in a kendra (केन्द्र, a pivot-point: houses 1, 4, 7, or 10) from the Lagna (लग्न — the ascendant, or rising point), while occupying its own sign, or Swakshetra (स्वक्षेत्र — "own field"): Capricorn or Aquarius, or its exaltation sign, or Uccha (उच्च — "high place"): Libra. Classically this is read as discipline that becomes authority: staying power long enough that institutions begin to answer to you. Barack Obama's chart is among the better-documented celebrity examples I've come across — his birth data comes from an official record, and multiple Jyotish writers place his Saturn in Capricorn, in the first house, a kendra, which they read as satisfying the yoga. Even a well-attested placement like this one describes temperament and timing, not a promise; what a person does with Saturnine staying-power remains theirs to choose.
+    </div>
+
+    <div class="hint" style="line-height:1.6; margin-bottom:12px;">
+      <b>Neechabhanga Raja Yoga (नीच-भङ्ग — "cancellation of debility")</b>
+      <br><br>
+      Neecha means low or debilitated; bhanga means breaking. Classical texts describe several distinct ways a debilitated planet's weakness can be undone — case by case, rather than by one fixed formula. The most commonly cited route: the planet that rules the debilitated planet's own sign sits strong in a kendra, usually counted from the Lagna (लग्न, the ascendant) though some readings count from the Moon instead. When the cancellation holds, the very placement that looked like a weakness converts into a raja yoga (राज-योग — "king-combination"), a combination read for standing and reach. It is one of my favorite teaching cases for how this system refuses to let any one placement be a final verdict. In Barack Obama's chart, retrograde — Vakri (वक्री) — Jupiter sits debilitated in the first house, but Saturn, the planet classical writers use to cancel that particular debility, sits right there with it in the same kendra; some who work with his chart connect the pattern to the Jupiter Mahadasha (महादशा — "great period," one of the long planetary cycles the tradition uses to time a life) that began for him in the mid-1990s, though I'd treat any such life-event tie as illustrative rather than demonstrated. I offer this one with real humility about method, since astrologers reason through "cancellation" case by case rather than by fixed formula — but as a teaching case for how difficulty transforms with the right supporting strength, it earns its place in any curriculum. As with every yoga here, this describes a pattern of potential, not a determined outcome for the person, and not a verdict on your own chart.
+    </div>
+
+    <div class="hint" style="line-height:1.6; margin-bottom:12px;">
+      <b>Hamsa Yoga (हंस — "the swan"), one of the five Panchamahapurusha Yogas (पञ्च-महापुरुष = "five great-persons")</b>
+      <br><br>
+      Hamsa is Jupiter's turn among these five great-person combinations: Guru in a kendra from the Lagna (लग्न, the ascendant, or rising point), seated in its own sign (Swakshetra) — Sagittarius or Pisces — or its exaltation sign (Uccha): Cancer. The swan in our tradition is said to separate milk from water, so this yoga reads as discernment: a teacher's moral clarity rather than mere cleverness — a description of temperament, not a verdict on any person's character. Dr. A. P. J. Abdul Kalam, aerospace scientist and later President of India, is the example most often reached for: several charts drawn up for him place Jupiter in Sagittarius, its own sign, sitting in a kendra from the ascendant. His birth date is well recorded, though published birth times vary enough across sources that I'd treat the exact ascendant and house as the commonly reported version rather than a settled one; study the pattern, and hold the specific chart lightly.
+    </div>
+
+    <div class="hint" style="line-height:1.6; margin-bottom:12px;">
+      <b>Budhaditya Yoga (बुध-आदित्य — "Mercury-Sun")</b>
+      <br><br>
+      Budha is Mercury, our planet of language and analysis; Aditya is the Sun, the seat of authority and visibility. When the two conjoin in the same house, tradition reads it as a mind built for articulate, public-facing work — administration, commentary, performance — so long as Mercury isn't burned too close to the Sun's glare, a state classical writers call Asta (अस्त — "set"): combustion, when a planet sits so close to the Sun that its own light is said to be overwhelmed, which can complicate the reading. Amitabh Bachchan is commonly cited alongside Dr. Manmohan Singh and Dr. Kalam, with Sun and Mercury reported together in a stellium — a cluster of several planets in one house — in the eighth house alongside Venus and Mars; I want to flag plainly that Bachchan himself has said he was born in the small hours of the morning, while most astrology sites in circulation use an unconfirmed afternoon time — a discrepancy noted openly even by the databank sites that track it. Take this one as illustrative of the yoga's meaning rather than a verified chart — a good reminder that the map is never quite the territory until the birth record is certain, and that what any of this describes is a capacity, not a fixed judgment of the people named here.
+    </div>
+
+    <div class="hint" style="line-height:1.6; margin-bottom:12px;">
+      <b>Chandra-Mangal Yoga (चन्द्र-मंगल — "Moon-Mars")</b>
+      <br><br>
+      This is a wealth-combination of a different temperament than the standard house-lord Dhana Yogas (धन-योग — dhana = "wealth"): Chandra, the Moon, and Mangal, Mars, conjoined in the same house are read as generating resources through boldness and appetite for risk rather than quiet accumulation; some texts extend the yoga to a mutual-kendra relationship between the two as well, though that reading is looser and not every source accepts it. Bill Gates is the example most often named alongside it. Sources I've compared don't agree with one another on the exact geometry — some describe Mars and Moon opposite each other across the seventh house, others place Mars in the fourth — so while his birth date is public, I would treat any specific house claim here as instructive rather than settled. What the yoga teaches stands regardless of the exact degree: a chart can build wealth through calculated daring, and recognizing that temperament in your own placements is worth more than pinning down any one celebrity's exact hour of birth.
+    </div>
+
+    <div class="hint" style="line-height:1.6; margin-bottom:12px;">
+      <b>Gajakesari Yoga (गज-केसरी — "elephant-lion")</b>
+      <br><br>
+      When Bṛhaspati, our teacher-planet Jupiter, lands in a kendra — kendra (केन्द्र) simply means a pivot-point, houses 1, 4, 7, or 10 counted from the Moon — the tradition names this Gajakesari Yoga, one of the great markers of a dignified, far-seeing mind. I think of it as the elephant's steady strength married to the lion's visibility: breadth of judgment that others notice. Vedic astrology writers reach for this yoga often when a chart shows unusual public credibility paired with sound judgment — it is one of the most frequently cited combinations in the whole tradition, precisely because Jupiter near a kendra from the Moon is common enough to recognize in many well-regarded charts, your own included. Study it as a pattern to notice rather than a name to chase — the yoga describes a capacity for large-scale thinking; what you build with it stays entirely your own work.
+    </div>
+
+    <div class="hint" style="line-height:1.6;">
+      *Wishing you every happiness in this study, patience with the placements that resist easy certainty, and success in all of life's endeavors.*
+    </div>
+  `;
+
   container.innerHTML = `
     <div class="panel">
       <div class="hd"><h2>${T('Yoga &amp; Gemstone Guidance','Guía de Yoga y Gemas')}</h2><span class="note">${T('Mahapurusha yogas and gemstone eligibility for this chart','Yogas Mahapurusha y elegibilidad de gemas para esta carta')}</span></div>
       <div class="bd">
         ${mahaHtml}
+        ${yogaCombosHtml}
         ${pathakHtml}
       </div>
     </div>
@@ -10929,7 +11099,7 @@ function renderCommoditiesPage(){
         <h3 style="margin:0 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('1 · Which sign governs it, right now','1 · Qué signo lo gobierna, ahora mismo')}</h3>
         <div class="kv" style="margin-bottom:4px;"><div class="k">Aries</div><div class="v">${signTag(ariesRow)}</div></div>
         <div class="kv" style="margin-bottom:10px;"><div class="k">Pisces</div><div class="v">${signTag(pscRow)}</div></div>
-        <div class="hint" style="margin-bottom:10px; font-style:italic;">${T('Aries\' clause names "leathern oil jars" specifically (ch. XLI śl.2, the same verse that names gold for this sign) — the container as much as the oil itself. Pisces names "various oils" plainly (ch. XLI śl.8).','La cláusula de Aries nombra específicamente "tinajas de aceite de cuero" (cap. XLI śl.2, el mismo verso que nombra el oro para este signo) — el recipiente tanto como el aceite mismo. Piscis nombra "aceites diversos" claramente (cap. XLI śl.8).')}</div>
+        <div class="hint" style="margin-bottom:10px; font-style:italic;">${T('Aries\' clause names "leathern oil jars" specifically — the container as much as the oil itself. Pisces names "various oils" plainly.','La cláusula de Aries nombra específicamente "tinajas de aceite de cuero" — el recipiente tanto como el aceite mismo. Piscis nombra "aceites diversos" claramente.')}</div>
         <div class="hint" style="margin-bottom:10px; padding:8px 10px; border-left:2px solid var(--gold-dim); background:var(--panel-2);">${T(`<b>Alt reading (Venus-only)</b> — dropping the malefics' flourish-house clause and reading Venus's own perish/flourish line alone: Aries ${ariesRow.venusVerdict==='flourish'?'flourish':'perish-risk'}, Pisces ${pscRow.venusVerdict==='flourish'?'flourish':'perish-risk'}. Not asserted as the primary reading — offered because the §6 backtest below found this narrower reading has actually outperformed the combined rule specifically for oil (56.5% vs. 48.3% over 487 months, the Venus-only gap statistically significant) — the malefic clause measurably worked against the signal here. This does NOT hold for gold, where the combined rule was the strongest of the three in its own backtest; treat this as oil-specific, not a general preference for Venus-only readings.`,`<b>Lectura alternativa (solo Venus)</b> — omitiendo la cláusula de casa-de-abundancia de los maléficos y leyendo solo la línea propia de escasez/abundancia de Venus: Aries ${ariesRow.venusVerdict==='flourish'?'abundancia':'riesgo de escasez'}, Piscis ${pscRow.venusVerdict==='flourish'?'abundancia':'riesgo de escasez'}. No se afirma como la lectura principal — se ofrece porque la prueba retrospectiva de la sección 6 de abajo encontró que esta lectura más estrecha en realidad superó a la regla combinada específicamente para el aceite (56.5% frente a 48.3% en 487 meses, la diferencia de Venus solo siendo estadísticamente significativa) — la cláusula de maléficos trabajó mensurablemente en contra de la señal aquí. Esto NO se cumple para el oro, donde la regla combinada fue la más fuerte de las tres en su propia prueba retrospectiva; trata esto como específico del aceite, no como una preferencia general por lecturas de solo Venus.`)}</div>
 
         <h3 style="margin:14px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('2 · This month\'s storage rule','2 · La regla de almacenamiento de este mes')}</h3>
@@ -10944,13 +11114,13 @@ function renderCommoditiesPage(){
         })()}
 
         <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('3 · Today\'s weekday','3 · El día de la semana de hoy')}</h3>
-        <div class="hint">${T('Ch. LVII\'s weekday-work list (śl. 61-63) — the same chapter that names gold on Sunday, Tuesday and Thursday — does not name oil on any day. Not shown as a live check for that reason, rather than guessed.','La lista de trabajo por día de la semana del cap. LVII (śl. 61-63) — el mismo capítulo que nombra el oro en domingo, martes y jueves — no nombra el aceite en ningún día. No se muestra como comprobación en vivo por esa razón, en vez de adivinarlo.')}</div>
+        <div class="hint">${T('The weekday-work list — the chapter that also names gold on Sunday, Tuesday and Thursday — does not name oil on any day. Not shown as a live check for that reason, rather than guessed.','La lista de trabajo por día de la semana de este capítulo — que también nombra el oro en domingo, martes y jueves — no nombra el aceite en ningún día. No se muestra como comprobación en vivo por esa razón, en vez de adivinarlo.')}</div>
 
         <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('4 · Antara Chakra cross-reference','4 · Referencia cruzada del Antara Chakra')}</h3>
-        <div class="hint">${T('None of the 32 Antara Chakra points (ch.40) name oil, on either their benefic or malefic side. Skipped for the same reason as above.','Ninguno de los 32 puntos del Antara Chakra (cap.40) nombra el aceite, ni en su lado benéfico ni en el maléfico. Omitido por la misma razón que arriba.')}</div>
+        <div class="hint">${T('None of the 32 Antara Chakra points name oil, on either their benefic or malefic side. Skipped for the same reason as above.','Ninguno de los 32 puntos del Antara Chakra nombra el aceite, ni en su lado benéfico ni en el maléfico. Omitido por la misma razón que arriba.')}</div>
 
         <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('5 · Botanical omens (reference only, not live)','5 · Presagios botánicos (solo referencia, no en vivo)')}</h3>
-        <div class="hint">${T('Ch. XXIX śl.7 names the "castor oil-tree" (Hasti Karṇa) — but its blossoming is an omen for elephants thriving, not for oil abundance or price, unlike gold\'s Champaka/Arka clauses (śl.8, 10) elsewhere in the same chapter. The plant is named; the commodity signal is not — so nothing is shown here as a signal.','El cap. XXIX śl.7 nombra el "árbol de aceite de ricino" (Hasti Karṇa) — pero su floración es un presagio de prosperidad para los elefantes, no de abundancia o precio del aceite, a diferencia de las cláusulas de Champaka/Arka del oro (śl.8, 10) en el mismo capítulo. Se nombra la planta; no la señal de la materia prima — así que no se muestra nada aquí como señal.')}</div>
+        <div class="hint">${T('Ch. XXIX names the "castor oil-tree" (Hasti Karṇa) — but its blossoming is an omen for elephants thriving, not for oil abundance or price, unlike the Champaka/Arka clauses for gold in the same chapter. The plant is named; the commodity signal is not — so nothing is shown here as a signal.','El cap. XXIX nombra el "árbol de aceite de ricino" (Hasti Karṇa) — pero su floración es un presagio de prosperidad para los elefantes, no de abundancia o precio del aceite, a diferencia de las cláusulas de Champaka/Arka del oro en el mismo capítulo. Se nombra la planta; no la señal de la materia prima — así que no se muestra nada aquí como señal.')}</div>
 
         ${backtestSectionHtml(oilBT, 'WTI crude', 'crudo WTI', 'oil', 'el aceite/petróleo')}
       </div>
@@ -11826,7 +11996,7 @@ function renderChintamaniPage(){
         <div class="row2" style="margin-top:10px;">
           <div><label>${T('Kuja Doṣa house set','Conjunto de casas de Kuja Doṣa')}</label>
             <select id="kujaHouseSetSelect">
-              <option value="5" ${kujaHouseSet==='5'?'selected':''}>${T('The verse\'s five houses (1/4/7/8/12)','Las cinco casas del verso (1/4/7/8/12)')}</option>
+              <option value="5" ${kujaHouseSet==='5'?'selected':''}>${T('The five houses (1/4/7/8/12)','Las cinco casas (1/4/7/8/12)')}</option>
               <option value="6" ${kujaHouseSet==='6'?'selected':''}>${T('Six houses, 2nd included','Seis casas, 2.ª incluida')}</option>
             </select></div>
           <div><label>${T('Judged from','Juzgado desde')}</label>
@@ -11924,7 +12094,7 @@ function updateAshtakootaResult(){
       ${kujaRow(T('Person A','Persona A'), kujaA)}
       ${kujaRow(T('Person B','Persona B'), kujaB)}
     </tbody></table></div>
-    <div class="hint" style="margin-top:8px; line-height:1.6;">${T(`This app can't verify a standalone classical basis for "Maṅgala Doṣa" as its own named doctrine — the underlying verse is about Mars\'s house placement, and the doṣa framing is a later, widely-taught reading of it. Jupiter's aspect or conjunction on Mars is traditionally said to lift this affliction; that claim is genuinely disputed even within the tradition, so it's shown below without a verdict.`,
+    <div class="hint" style="margin-top:8px; line-height:1.6;">${T(`This app can't verify a standalone classical basis for "Maṅgala Doṣa" as its own named doctrine — the underlying text is about Mars\'s house placement, and the doṣa framing is a later, widely-taught reading of it. Jupiter's aspect or conjunction on Mars is traditionally said to lift this affliction; that claim is genuinely disputed even within the tradition, so it's shown below without a verdict.`,
       `Esta app no puede verificar una base clásica independiente para "Maṅgala Doṣa" como doctrina propia con nombre — el verso subyacente trata de la ubicación de Marte por casa, y el encuadre como doṣa es una lectura posterior y muy difundida de él. Se dice tradicionalmente que el aspecto o conjunción de Júpiter sobre Marte levanta esta aflicción; esa afirmación está genuinamente disputada incluso dentro de la tradición, así que se muestra abajo sin veredicto.`)}
       ${T('Jupiter on Mars right now','Júpiter sobre Marte ahora mismo')}: <span class="tag neutral">${kujaA.jupiterOnMars?T('yes (Person A\'s chart)','sí (carta de la Persona A)'):T('no (Person A\'s chart)','no (carta de la Persona A)')}</span></div>
 
@@ -12100,23 +12270,54 @@ function renderPPPanel(){
   document.getElementById('ppBirdSelect').addEventListener('change', renderPPPanel);
 }
 
+const THEME_CYCLE = ["bright","soft","dark"];
+const THEME_LABEL = {
+  bright: { en:"☀ Light", es:"☀ Claro" },
+  soft:   { en:"☁ Soft",  es:"☁ Suave" },
+  dark:   { en:"☾ Night", es:"☾ Noche" }
+};
 function applyTheme(mode){
+  if (!THEME_CYCLE.includes(mode)) mode = "bright";
   const root = document.documentElement;
-  if (mode === "dark"){ root.setAttribute('data-theme','dark'); }
-  else { root.removeAttribute('data-theme'); }
+  if (mode === "bright"){ root.removeAttribute('data-theme'); }
+  else { root.setAttribute('data-theme', mode); }
   const btn = document.getElementById('themeToggle');
-  if (btn) btn.textContent = mode === "dark" ? T("☾ Night","☾ Noche") : T("☀ Bright","☀ Claro");
+  if (btn) btn.textContent = T(THEME_LABEL[mode].en, THEME_LABEL[mode].es);
   try{ localStorage.setItem('muhurtaTheme', mode); }catch(e){}
 }
 function initTheme(){
   let saved = null;
   try{ saved = localStorage.getItem('muhurtaTheme'); }catch(e){}
-  applyTheme(saved === "dark" ? "dark" : "bright");
+  applyTheme(THEME_CYCLE.includes(saved) ? saved : "bright");
+}
+
+const CHART_STYLE_LABEL = {
+  north: { en:"◇ North", es:"◇ Norte" },
+  south: { en:"▦ South", es:"▦ Sur" }
+};
+function applyChartStyle(style){
+  CHART_STYLE = (style === "south") ? "south" : "north";
+  const btn = document.getElementById('chartStyleToggle');
+  if (btn) btn.textContent = T(CHART_STYLE_LABEL[CHART_STYLE].en, CHART_STYLE_LABEL[CHART_STYLE].es);
+  try{ localStorage.setItem('muhurtaChartStyle', CHART_STYLE); }catch(e){}
+}
+function initChartStyle(){
+  let saved = null;
+  try{ saved = localStorage.getItem('muhurtaChartStyle'); }catch(e){}
+  applyChartStyle(saved === "south" ? "south" : "north");
+}
+// Re-render every page whose panel contains a chart, after a style/theme
+// change that redraws SVGs (chart-style toggle; language toggle already
+// calls its own equivalent block).
+function rerenderChartPages(){
+  runAnalysis();
+  if (document.getElementById('pageVarga').classList.contains('active')) renderVargaPage();
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
   initLanguage();
   initTheme();
+  initChartStyle();
   setDefaults();
   document.getElementById('computeBtn').addEventListener('click', runAnalysis);
   document.getElementById('resetBtn').addEventListener('click', ()=>{
@@ -12174,8 +12375,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
     document.getElementById('mTime').disabled = e.target.checked;
   });
   document.getElementById('themeToggle').addEventListener('click', ()=>{
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    applyTheme(isDark ? "bright" : "dark");
+    const current = document.documentElement.getAttribute('data-theme') || "bright";
+    const idx = THEME_CYCLE.indexOf(current);
+    applyTheme(THEME_CYCLE[(idx + 1) % THEME_CYCLE.length]);
+  });
+  document.getElementById('chartStyleToggle').addEventListener('click', ()=>{
+    applyChartStyle(CHART_STYLE === "north" ? "south" : "north");
+    if (document.getElementById('bDate').value) rerenderChartPages();
   });
   document.getElementById('langToggle').addEventListener('click', ()=>{
     LANG = LANG === 'es' ? 'en' : 'es';
