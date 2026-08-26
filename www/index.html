@@ -2596,6 +2596,26 @@ const BODY_ZONES = {
   Pisces:     {title:"Feet & lymphatic system",  goodFor:"rest, foot care, meditation, closing a chapter",             avoid:"foot injury, escapism, immune vulnerability"}
 };
 
+/* Sign → renderAnatomyFigure() zone key, so the Deha Chakra gauge can be
+   drawn on the same manuscript-plate figure as the Pañcha Pakshi Body Map
+   instead of its own Kālapuruṣa silhouette. Picked by hand (not run through
+   bodyPartToZone's regex, which mis-fires on multi-part BODY_ZONES titles
+   like "Hips, thighs & liver") to stay faithful to the classical
+   Aries=head..Pisces=feet, top-to-bottom correspondence.
+   The figure is front-only (no back view), which leaves just 8 drawable
+   zones for 12 signs — so adjacent signs sharing a body region (Cancer/Leo
+   at chest, Virgo/Libra at torso, Scorpio/Sagittarius at thighs,
+   Capricorn/Aquarius at shins) double up on the nearest front zone rather
+   than going undrawn. A shared zone still gets every marker that lands on
+   it (dots don't collide), only the region's fill color follows
+   zoneAttrs's nectar > poison > vitality > natal priority. */
+const SIGN_TO_ANATOMY_ZONE = {
+  Aries: ["head"], Taurus: ["neck"], Gemini: ["upperarms","lowerarms","fingers"],
+  Cancer: ["chest"], Leo: ["chest"], Virgo: ["torso"], Libra: ["torso"],
+  Scorpio: ["thighs"], Sagittarius: ["thighs"], Capricorn: ["shins"],
+  Aquarius: ["shins"], Pisces: ["feet"]
+};
+
 const MUHURTA_TIERS = [
   {min: 5,  name:"Uttama",  label:"Excellent",     color:"var(--jade)"},
   {min: 2,  name:"Madhyama",label:"Good",          color:"var(--jade)"},
@@ -4312,6 +4332,11 @@ function getPPBodyPart(lifeBird, tithiNum, paksha) {
 function renderAnatomyFigure(cfg) {
   const nectarZones = Array.isArray(cfg.nectarZones) ? cfg.nectarZones.filter(Boolean) : [];
   const poisonZones = Array.isArray(cfg.poisonZones) ? cfg.poisonZones.filter(Boolean) : [];
+  // Deha Chakra-only extras (Pañcha Pakshi callers never pass these): the
+  // Ascendant/vitality zone and the natal-Nakṣatra marker, drawn under
+  // nectar/poison priority so they never mask the two primary readings.
+  const vitalityZones = Array.isArray(cfg.vitalityZones) ? cfg.vitalityZones.filter(Boolean) : [];
+  const natalZones = Array.isArray(cfg.natalZones) ? cfg.natalZones.filter(Boolean) : [];
   const az = cfg.activeBirdZone || "";
   const activeBird = cfg.activeBird || null;
   const accent = cfg.birdColor || "var(--vermilion)";
@@ -4321,29 +4346,28 @@ function renderAnatomyFigure(cfg) {
     if (zone === az) return `fill="rgba(212,175,55,0.45)" stroke="${accent}" stroke-width="2.5"`;
     if (nectarZones.includes(zone)) return 'fill="rgba(72,201,140,0.4)" stroke="#48C98C" stroke-width="1.8"';
     if (poisonZones.includes(zone)) return 'fill="rgba(146,43,33,0.35)" stroke="#5C3A21" stroke-width="1.8"';
+    if (vitalityZones.includes(zone)) return 'fill="rgba(58,73,163,0.22)" stroke="var(--indigo)" stroke-width="1.8"';
+    if (natalZones.includes(zone)) return 'fill="var(--panel-2)" stroke="var(--gold)" stroke-width="2"';
     return 'fill="var(--panel-2)" stroke="var(--chart-line)" stroke-width="1.5"';
   }
 
-  // One representative anchor point per zone per view, for the teal/brown
-  // dot markers. [frontX, frontY] and [backX, backY]; F=120 B=360.
-  const F = 120, B = 360;
+  // One representative anchor point per zone, for the teal/brown dot
+  // markers. Front view only (the back view was dropped) — F=120 is the
+  // figure's horizontal center. Back-only zones (upperback/spine/
+  // shoulderblades/lumbar/glutes/calves) have no anchor here since nothing
+  // ever draws them without the back figure.
+  const F = 120;
   const ZONE_ANCHORS = {
-    head:           [[F,34],[B,34]],
-    neck:           [[F,64],[B,64]],
-    chest:          [[F,110],[B,110]],
-    torso:          [[F,188],[B,160]],
-    upperarms:      [[F-58,118],[F+58,118],[B-58,118],[B+58,118]],
-    lowerarms:      [[F-66,172],[F+66,172],[B-66,172],[B+66,172]],
-    fingers:        [[F-70,204],[F+70,204],[B-70,204],[B+70,204]],
-    thighs:         [[F-24,290],[F+24,290],[B-24,290],[B+24,290]],
-    shins:          [[F-22,392],[F+22,392],[B-22,392],[B+22,392]],
-    feet:           [[F-20,455],[F+20,455],[B-20,455],[B+20,455]],
-    upperback:      [[B,88]],
-    spine:          [[B,158]],
-    shoulderblades: [[B-24,112],[B+24,112]],
-    lumbar:         [[B,205]],
-    glutes:         [[B-18,235],[B+18,235]],
-    calves:         [[B-24,385],[B+24,385]]
+    head:      [[F,34]],
+    neck:      [[F,64]],
+    chest:     [[F,110]],
+    torso:     [[F,188]],
+    upperarms: [[F-58,118],[F+58,118]],
+    lowerarms: [[F-66,172],[F+66,172]],
+    fingers:   [[F-70,204],[F+70,204]],
+    thighs:    [[F-24,290],[F+24,290]],
+    shins:     [[F-22,392],[F+22,392]],
+    feet:      [[F-20,455],[F+20,455]]
   };
 
   // Tapered capsule: a variable-width ribbon from (x1,y1,w1) to (x2,y2,w2)
@@ -4359,9 +4383,7 @@ function renderAnatomyFigure(cfg) {
     return `<path d="M${a1x.toFixed(1)},${a1y.toFixed(1)} L${a2x.toFixed(1)},${a2y.toFixed(1)} A${r2},${r2} 0 0 1 ${b2x.toFixed(1)},${b2y.toFixed(1)} L${b1x.toFixed(1)},${b1y.toFixed(1)} A${r1},${r1} 0 0 1 ${a1x.toFixed(1)},${a1y.toFixed(1)} Z" ${attrs}/>`;
   }
 
-  let svg = `<svg viewBox="0 0 480 500" width="100%" style="max-width:480px;display:block;margin:0 auto;">`;
-  svg += `<text x="${F}" y="14" text-anchor="middle" font-size="9" letter-spacing="2" fill="var(--muted)">FRONT</text>`;
-  svg += `<text x="${B}" y="14" text-anchor="middle" font-size="9" letter-spacing="2" fill="var(--muted)">BACK</text>`;
+  let svg = `<svg viewBox="0 0 240 500" width="100%" style="max-width:260px;display:block;margin:0 auto;">`;
 
   // A fanned hand: wrist point (cx,cy), five tapered-capsule fingers at
   // slightly different angles/lengths (thumb shortest + angled aside,
@@ -4388,18 +4410,17 @@ function renderAnatomyFigure(cfg) {
 
   // Tiny finger-name labels, positioned near the fanned fingertips rather
   // than under a straight row (kept for reference/legend purposes).
-  function fingerLabels(cx, back){
-    const names = back ? ["Back-Thumb","Back-Index","Back-Middle","Back-Ring","Back-Little"]
-                       : ["Thumb","Index","Middle","Ring","Little"];
+  function fingerLabels(cx){
+    const names = ["Thumb","Index","Middle","Ring","Little"];
     let out = "";
     for (let i=0;i<5;i++){
       const x = cx - 20 + i*10;
-      out += `<text x="${x}" y="228" text-anchor="middle" font-size="${back?3.2:3.6}" fill="var(--muted)">${names[i]}</text>`;
+      out += `<text x="${x}" y="228" text-anchor="middle" font-size="3.6" fill="var(--muted)">${names[i]}</text>`;
     }
     return out;
   }
 
-  function figure(cx, back){
+  function figure(cx){
     const s = [];
     const z = zn => zoneAttrs(zn);
 
@@ -4432,61 +4453,30 @@ function renderAnatomyFigure(cfg) {
       s.push(hand(wx, wy+4, side<0, z("fingers")));
     });
 
-    if (!back){
-      // ---- FRONT-specific: Chest / Torso / Thighs / Shins / Feet(top) ----
-      s.push(`<path d="M${cx-36},90 C${cx-38},108 ${cx-36},124 ${cx-30},132 L${cx+30},132 C${cx+36},124 ${cx+38},108 ${cx+36},90 C${cx+22},82 ${cx-22},82 ${cx-36},90 Z" ${z("chest")}/>`);
-      s.push(`<text x="${cx}" y="112" text-anchor="middle" font-size="7.5" fill="var(--muted)">CHEST</text>`);
-      s.push(`<path d="M${cx-32},134 C${cx-36},160 ${cx-34},188 ${cx-30},208 L${cx+30},208 C${cx+34},188 ${cx+36},160 ${cx+32},134 Z" ${z("torso")}/>`);
-      s.push(`<text x="${cx}" y="176" text-anchor="middle" font-size="7.5" fill="var(--muted)">TORSO</text>`);
-      s.push(taperedLimb(cx-24,252,34, cx-20,330,22, z("thighs")));
-      s.push(taperedLimb(cx+24,252,34, cx+20,330,22, z("thighs")));
-      s.push(`<text x="${cx-24}" y="292" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>
-              <text x="${cx+24}" y="292" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>`);
-      s.push(taperedLimb(cx-20,332,20, cx-18,428,13, z("shins")));
-      s.push(taperedLimb(cx+20,332,20, cx+18,428,13, z("shins")));
-      s.push(`<text x="${cx}" y="380" text-anchor="middle" font-size="6" fill="var(--muted)">SHINS</text>`);
-      s.push(`<path d="M${cx-27},450 Q${cx-18},440 ${cx-6},448 Q${cx-2},456 ${cx-10},460 L${cx-25},460 Q${cx-30},456 ${cx-27},450 Z" ${z("feet")}/>`);
-      s.push(`<path d="M${cx+27},450 Q${cx+18},440 ${cx+6},448 Q${cx+2},456 ${cx+10},460 L${cx+25},460 Q${cx+30},456 ${cx+27},450 Z" ${z("feet")}/>`);
-      s.push(`<text x="${cx-17}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">FEET</text>
-              <text x="${cx+17}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">FEET</text>`);
-    } else {
-      // ---- BACK additions: Upper Back / Spine / Shoulder Blades / Lumbar /
-      //      Glutes / Calves (+ shared zones redrawn for this view) ----
-      s.push(`<path d="M${cx-36},80 C${cx-38},92 ${cx-37},100 ${cx-34},106 L${cx+34},106 C${cx+37},100 ${cx+38},92 ${cx+36},80 C${cx+20},74 ${cx-20},74 ${cx-36},80 Z" ${z("upperback")}/>`);
-      s.push(`<text x="${cx}" y="93" text-anchor="middle" font-size="6.5" fill="var(--muted)">UPPER BACK</text>`);
-      s.push(`<ellipse cx="${cx-20}" cy="112" rx="11" ry="17" transform="rotate(-18 ${cx-20} 112)" ${z("shoulderblades")}/>`);
-      s.push(`<ellipse cx="${cx+20}" cy="112" rx="11" ry="17" transform="rotate(18 ${cx+20} 112)" ${z("shoulderblades")}/>`);
-      s.push(taperedLimb(cx,84, 5, cx,206, 3.5, z("spine")));
-      s.push(`<text x="${cx+11}" y="168" transform="rotate(-90 ${cx+11} 168)" text-anchor="middle" font-size="6" fill="var(--muted)">SPINE</text>`);
-      s.push(`<path d="M${cx-34},134 C${cx-37},152 ${cx-35},170 ${cx-31},186 L${cx+31},186 C${cx+35},170 ${cx+37},152 ${cx+34},134 Z" ${z("torso")}/>`);
-      s.push(`<path d="M${cx-31},188 C${cx-34},198 ${cx-33},210 ${cx-29},222 L${cx+29},222 C${cx+33},210 ${cx+34},198 ${cx+31},188 Z" ${z("lumbar")}/>`);
-      s.push(`<text x="${cx}" y="205" text-anchor="middle" font-size="6.5" fill="var(--muted)">LUMBAR</text>`);
-      s.push(`<ellipse cx="${cx-17}" cy="238" rx="17" ry="18" ${z("glutes")}/>`);
-      s.push(`<ellipse cx="${cx+17}" cy="238" rx="17" ry="18" ${z("glutes")}/>`);
-      s.push(`<text x="${cx}" y="242" text-anchor="middle" font-size="6" fill="var(--ink-dim)">GLUTES</text>`);
-      s.push(taperedLimb(cx-24,254,34, cx-20,330,22, z("thighs")));
-      s.push(taperedLimb(cx+24,254,34, cx+20,330,22, z("thighs")));
-      s.push(`<text x="${cx-24}" y="292" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>
-              <text x="${cx+24}" y="292" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>`);
-      s.push(taperedLimb(cx-20,332,20, cx-18,406,15, z("shins")));
-      s.push(taperedLimb(cx+20,332,20, cx+18,406,15, z("shins")));
-      s.push(taperedLimb(cx-19,344,19, cx-17,412,12, z("calves")));
-      s.push(taperedLimb(cx+19,344,19, cx+17,412,12, z("calves")));
-      s.push(`<text x="${cx}" y="380" text-anchor="middle" font-size="6" fill="var(--muted)">SHINS/CALVES</text>`);
-      s.push(`<ellipse cx="${cx-17}" cy="452" rx="14" ry="8" ${z("feet")}/>`);
-      s.push(`<ellipse cx="${cx+17}" cy="452" rx="14" ry="8" ${z("feet")}/>`);
-      s.push(`<text x="${cx-17}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">SOLE</text>
-              <text x="${cx+17}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">SOLE</text>`);
-    }
+    // Chest / Torso / Thighs / Shins / Feet(top)
+    s.push(`<path d="M${cx-36},90 C${cx-38},108 ${cx-36},124 ${cx-30},132 L${cx+30},132 C${cx+36},124 ${cx+38},108 ${cx+36},90 C${cx+22},82 ${cx-22},82 ${cx-36},90 Z" ${z("chest")}/>`);
+    s.push(`<text x="${cx}" y="112" text-anchor="middle" font-size="7.5" fill="var(--muted)">CHEST</text>`);
+    s.push(`<path d="M${cx-32},134 C${cx-36},160 ${cx-34},188 ${cx-30},208 L${cx+30},208 C${cx+34},188 ${cx+36},160 ${cx+32},134 Z" ${z("torso")}/>`);
+    s.push(`<text x="${cx}" y="176" text-anchor="middle" font-size="7.5" fill="var(--muted)">TORSO</text>`);
+    s.push(taperedLimb(cx-24,252,34, cx-20,330,22, z("thighs")));
+    s.push(taperedLimb(cx+24,252,34, cx+20,330,22, z("thighs")));
+    s.push(`<text x="${cx-24}" y="292" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>
+            <text x="${cx+24}" y="292" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>`);
+    s.push(taperedLimb(cx-20,332,20, cx-18,428,13, z("shins")));
+    s.push(taperedLimb(cx+20,332,20, cx+18,428,13, z("shins")));
+    s.push(`<text x="${cx}" y="380" text-anchor="middle" font-size="6" fill="var(--muted)">SHINS</text>`);
+    s.push(`<path d="M${cx-27},450 Q${cx-18},440 ${cx-6},448 Q${cx-2},456 ${cx-10},460 L${cx-25},460 Q${cx-30},456 ${cx-27},450 Z" ${z("feet")}/>`);
+    s.push(`<path d="M${cx+27},450 Q${cx+18},440 ${cx+6},448 Q${cx+2},456 ${cx+10},460 L${cx+25},460 Q${cx+30},456 ${cx+27},450 Z" ${z("feet")}/>`);
+    s.push(`<text x="${cx-17}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">FEET</text>
+            <text x="${cx+17}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">FEET</text>`);
 
-    // Finger name captions (front hands + back hands)
-    s.push(fingerLabels(cx - 70, back));
-    s.push(fingerLabels(cx + 70, back));
+    // Finger name captions
+    s.push(fingerLabels(cx - 70));
+    s.push(fingerLabels(cx + 70));
     return s.join("");
   }
 
-  svg += figure(F, false);
-  svg += figure(B, true);
+  svg += figure(F);
 
   // Dot markers for nectar (teal) and poison (dark-brown) zones
   nectarZones.forEach(zn=>{
@@ -4499,14 +4489,23 @@ function renderAnatomyFigure(cfg) {
       svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="#5C3A21" stroke="#3E2716" stroke-width="1"/>`;
     });
   });
+  vitalityZones.forEach(zn=>{
+    (ZONE_ANCHORS[zn]||[]).forEach(([x,y])=>{
+      svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="rgba(58,73,163,0.55)" stroke="#3A49A3" stroke-width="1"/>`;
+    });
+  });
+  natalZones.forEach(zn=>{
+    (ZONE_ANCHORS[zn]||[]).forEach(([x,y])=>{
+      svg += `<circle cx="${x}" cy="${y}" r="4" fill="none" stroke="#96690F" stroke-width="1.5"/>`;
+    });
+  });
 
-  // Active-bird label below: red circle marker + "<ZONE> — ACTIVE"
-  if (az && activeBird){
-    svg += `<circle cx="150" cy="486" r="4" fill="none" stroke="${accent}" stroke-width="2"/>
-            <text x="160" y="489" text-anchor="start" font-size="9" fill="var(--vermilion)" font-weight="bold">${az.toUpperCase()} — ACTIVE${cfg.activeBird?` (${activeBird})`:''}</text>`;
-  } else if (az){
-    svg += `<circle cx="150" cy="486" r="4" fill="none" stroke="${accent}" stroke-width="2"/>
-            <text x="160" y="489" text-anchor="start" font-size="9" fill="var(--vermilion)" font-weight="bold">${az.toUpperCase()} — ACTIVE</text>`;
+  // Active-bird label below: red circle marker + "<ZONE> — ACTIVE", stacked
+  // and centered so it stays inside the (now front-only, narrower) canvas
+  // regardless of label length.
+  if (az){
+    svg += `<circle cx="${F}" cy="482" r="4" fill="none" stroke="${accent}" stroke-width="2"/>
+            <text x="${F}" y="496" text-anchor="middle" font-size="8.5" fill="var(--vermilion)" font-weight="bold">${az.toUpperCase()} — ACTIVE${activeBird?` (${activeBird})`:''}</text>`;
   }
 
   svg += `</svg>`;
@@ -9633,10 +9632,13 @@ function renderAnatomyPage(){
     <div class="panel"><div class="hd"><h2>${T('Deha Chakra — Nectar &amp; Poison Point Gauge','Deha Chakra — Medidor del punto de néctar y veneno')}</h2><span class="note">${deha.bright?T('Śukla Pakṣa/Bright Half (Waxing)','Śukla Pakṣa/Mitad Clara (Creciente)'):T('Kṛṣṇa Pakṣa/Dark Half (Waning)','Kṛṣṇa Pakṣa/Mitad Oscura (Menguante)')}</span></div>
       <div class="bd">
         <div class="chakra-wrap">
-          <div class="dc-plate-figure-box" style="flex:none; min-width:200px;">${renderBodyGauge(deha)}</div>
+          <div class="dc-plate-figure-box" style="flex:none; min-width:200px;">${renderAnatomyFigure({
+            nectarZones: SIGN_TO_ANATOMY_ZONE[deha.nectar.sign],
+            vitalityZones: SIGN_TO_ANATOMY_ZONE[deha.vitality.sign],
+            natalZones: deha.natal ? SIGN_TO_ANATOMY_ZONE[deha.natal.sign] : []
+          })}</div>
           <div class="chakra-legend dc-legend" style="flex:1; min-width:280px;">
             <div class="li"><span class="sw" style="background:rgba(23,117,80,0.3);border:1px solid var(--jade)"></span> ${T("Nectar point (Amṛta Sthāna) — today's transiting Moon zone","Punto de néctar (Amṛta Sthāna) — la zona de tránsito de la Luna de hoy")}</div>
-            <div class="li"><span class="sw" style="background:rgba(176,50,32,0.3);border:1px solid var(--vermilion)"></span> ${T('Poison point (Viṣa Sthāna) — the opposite (Vedha) zone','Punto de veneno (Viṣa Sthāna) — la zona opuesta (Vedha)')}</div>
             <div class="li"><span class="sw" style="background:rgba(58,73,163,0.16);border:1px solid var(--indigo)"></span> ${T("Vitality zone — the moment's own Ascendant (Lagna) zone","Zona de vitalidad — la zona del Ascendente (Lagna) del momento")}</div>
             ${deha.natal ? `<div class="li"><span class="sw" style="background:var(--body-fill);border:1.5px solid var(--gold)"></span> ${T(`Natal marker — your reference Nakṣatra's own zone (${deha.natal.sign})`, `Marcador natal — la zona propia de tu Nakṣatra de referencia (${deha.natal.sign})`)}</div>` : ''}
             <div class="kv" style="margin-top:14px;">
