@@ -691,72 +691,7 @@
 
 <div id="pageAnatomy" class="page">
   <div class="result-col" id="anatomyPageContent" style="max-width:900px; margin:0 auto;">
-    <div class="anatomy-template">
-      <img src="https://innerbody.imgix.net/muscular_system.png" alt="Human muscular system" style="width:100%; height:auto; display:block;">
-      <svg class="body-overlay" viewBox="0 0 800 1131" width="100%" style="position:absolute; top:0; left:0; pointer-events:none;">
-        <!-- Body parts mapped to nakshatras -->
-        <!-- Aries head -->
-        <g class="nakshatra-group Aries" data-nak="0">
-          <path d="M400,50 L400,80 L440,80 L440,50 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <text x="420" y="65" font-size="10" fill="var(--gold)">Head (Aries)</text>
-        </g>
-        <!-- Taurus face/throat -->
-        <g class="nakshatra-group Taurus" data-nak="1">
-          <path d="M380,90 L420,90 L420,110 L380,110 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <text x="400" y="100" font-size="10" fill="var(--gold)">Face/Throat (Taurus)</text>
-        </g>
-        <!-- Gemini shoulders -->
-        <g class="nakshatra-group Gemini" data-nak="2">
-          <path d="M340,120 L460,120 L460,140 L340,140 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <text x="400" y="130" font-size="10" fill="var(--gold)">Shoulders (Gemini)</text>
-        </g>
-        <!-- Cancer chest -->
-        <g class="nakshatra-group Cancer" data-nak="3">
-          <path d="M360,150 L440,150 L440,180 L360,180 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <text x="400" y="165" font-size="10" fill="var(--gold)">Chest (Cancer)</text>
-        </g>
-        <!-- Leo heart -->
-        <g class="nakshatra-group Leo" data-nak="4">
-          <path d="M360,180 L440,180 L440,210 L360,210 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <text x="400" y="195" font-size="10" fill="var(--gold)">Heart (Leo)</text>
-        </g>
-        <!-- Virgo abdomen -->
-        <g class="nakshatra-group Virgo" data-nak="5">
-          <path d="M370,210 L430,210 L430,240 L370,240 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <text x="400" y="225" font-size="10" fill="var(--gold)">Abdomen (Virgo)</text>
-        </g>
-        <!-- Libra kidneys -->
-        <g class="nakshatra-group Libra" data-nak="6">
-          <path d="M375,240 L425,240 L425,270 L375,270 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <text x="400" y="255" font-size="10" fill="var(--gold)">Kidneys (Libra)</text>
-        </g>
-        <!-- Scorpio pelvis -->
-        <g class="nakshatra-group Scorpio" data-nak="7">
-          <path d="M370,270 L430,270 L430,300 L370,300 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <text x="400" y="285" font-size="10" fill="var(--gold)">Pelvis (Scorpio)</text>
-        </g>
-        <!-- Sagittarius thighs -->
-        <g class="nakshatra-group Sagittarius" data-nak="8">
-          <path d="M380,300 L420,300 L420,340 L380,340 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <text x="400" y="320" font-size="10" fill="var(--gold)">Thighs (Sagittarius)</text>
-        </g>
-        <!-- Capricorn knees -->
-        <g class="nakshatra-group Capricorn" data-nak="9">
-          <path d="M385,340 L415,340 L415,360 L385,360 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <text x="400" y="350" font-size="10" fill="var(--gold)">Knees (Capricorn)</text>
-        </g>
-        <!-- Aquarius calves -->
-        <g class="nakshatra-group Aquarius" data-nak="10">
-          <path d="M390,360 L410,360 L410,390 L390,390 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <text x="400" y="375" font-size="10" fill="var(--gold)">Calves (Aquarius)</text>
-        </g>
-        <!-- Pisces feet -->
-        <g class="nakshatra-group Pisces" data-nak="11">
-          <path d="M395,390 L405,390 L405,410 L395,410 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <text x="400" y="400" font-size="10" fill="var(--gold)">Feet (Pisces)</text>
-        </g>
-      </svg>
-    </div>
+    <div class="anatomy-template"><!-- populated by renderAnatomyPage(): capsule silhouette (no hotlinked photo) --></div>
   </div>
 </div>
 
@@ -4604,51 +4539,84 @@ function sbcZoneLegendHtml(){
    head-to-feet (matches SIGNS order Aries..Pisces exactly). Shared by both
    body-reading panels on the Anatomy page — zoneFill(sign) decides each
    region's fill/stroke, so callers just supply their own colouring logic. */
+function bodyGlyphSVG(glyph, cx, cy){
+  if (glyph==='+') return `<text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="17" font-weight="700" fill="var(--jade)" stroke="none">+</text>`;
+  if (glyph==='−' || glyph==='-') return `<text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="17" font-weight="700" fill="var(--vermilion)" stroke="none">−</text>`;
+  if (glyph==='dot') return `<circle cx="${cx}" cy="${cy}" r="5" fill="var(--indigo)" stroke="none"/>`;
+  if (glyph==='ring') return `<circle cx="${cx}" cy="${cy}" r="16" fill="none" stroke="var(--gold)" stroke-width="2"/>`;
+  return "";
+}
+
 function renderBodySilhouette(zoneFill){
   const S = sign=>{ const z=zoneFill(sign); return `style="fill:${z.fill};stroke:${z.stroke};stroke-width:${z.sw}"`; };
 
+  // per-sign centroid (viewBox 0 0 220 480) — glyph anchor for meaning markers
+  const C = {
+    Aries:      [110, 34],
+    Taurus:     [110, 66],
+    Gemini:     [110, 152],
+    Cancer:     [110, 109],
+    Leo:        [110, 142],
+    Virgo:      [110, 173],
+    Libra:      [110, 201],
+    Scorpio:    [110, 229],
+    Sagittarius:[110, 284],
+    Capricorn:  [110, 334],
+    Aquarius:   [110, 382],
+    Pisces:     [110, 432]
+  };
+
   let svg = `<svg viewBox="0 0 220 480" width="100%" style="max-width:260px;display:block;margin:0 auto;">`;
 
-  // Aries — head
+  // Aries — head (circle)
   svg += `<circle cx="110" cy="34" r="24" ${S('Aries')}/>`;
-  // Taurus — face/throat/neck
-  svg += `<rect x="98" y="56" width="24" height="20" rx="4" ${S('Taurus')}/>`;
-  // Gemini — shoulders/arms/hands (bar + two arms)
-  svg += `<rect x="62" y="76" width="96" height="16" rx="6" ${S('Gemini')}/>`;
-  svg += `<path d="M68,88 C50,110 46,160 52,230 L70,226 C66,165 70,120 84,92 Z" ${S('Gemini')}/>`;
-  svg += `<path d="M152,88 C170,110 174,160 168,230 L150,226 C154,165 150,120 136,92 Z" ${S('Gemini')}/>`;
-  // Cancer — chest / upper stomach
-  svg += `<rect x="70" y="92" width="80" height="34" rx="6" ${S('Cancer')}/>`;
-  // Leo — heart / upper back
-  svg += `<rect x="70" y="126" width="80" height="32" rx="4" ${S('Leo')}/>`;
-  // Virgo — abdomen / intestines
-  svg += `<rect x="72" y="158" width="76" height="30" rx="4" ${S('Virgo')}/>`;
-  // Libra — lower back / kidneys / navel
-  svg += `<rect x="74" y="188" width="72" height="26" rx="4" ${S('Libra')}/>`;
-  // Scorpio — pelvis / reproductive
-  svg += `<rect x="70" y="214" width="80" height="30" rx="8" ${S('Scorpio')}/>`;
-  // Sagittarius — hips/thighs/liver (two thighs)
-  svg += `<rect x="72" y="244" width="30" height="80" rx="10" ${S('Sagittarius')}/>`;
-  svg += `<rect x="118" y="244" width="30" height="80" rx="10" ${S('Sagittarius')}/>`;
-  // Capricorn — knees
-  svg += `<rect x="74" y="324" width="26" height="20" rx="6" ${S('Capricorn')}/>`;
-  svg += `<rect x="120" y="324" width="26" height="20" rx="6" ${S('Capricorn')}/>`;
-  // Aquarius — calves/ankles/circulation
-  svg += `<rect x="76" y="344" width="22" height="76" rx="9" ${S('Aquarius')}/>`;
-  svg += `<rect x="122" y="344" width="22" height="76" rx="9" ${S('Aquarius')}/>`;
-  // Pisces — feet
+  // Taurus — face/throat/neck (capsule)
+  svg += `<rect x="98" y="56" width="24" height="20" rx="10" ${S('Taurus')}/>`;
+  // Gemini — shoulders bar (capsule) + two arm capsules
+  svg += `<rect x="62" y="76" width="96" height="16" rx="8" ${S('Gemini')}/>`;
+  svg += `<rect x="56" y="86" width="18" height="150" rx="9" ${S('Gemini')}/>`;
+  svg += `<rect x="146" y="86" width="18" height="150" rx="9" ${S('Gemini')}/>`;
+  // Cancer — chest / upper stomach (capsule)
+  svg += `<rect x="70" y="92" width="80" height="34" rx="17" ${S('Cancer')}/>`;
+  // Leo — heart / upper back (capsule)
+  svg += `<rect x="70" y="126" width="80" height="32" rx="16" ${S('Leo')}/>`;
+  // Virgo — abdomen / intestines (capsule)
+  svg += `<rect x="72" y="158" width="76" height="30" rx="15" ${S('Virgo')}/>`;
+  // Libra — lower back / kidneys / navel (capsule)
+  svg += `<rect x="74" y="188" width="72" height="26" rx="13" ${S('Libra')}/>`;
+  // Scorpio — pelvis / reproductive (capsule)
+  svg += `<rect x="70" y="214" width="80" height="30" rx="15" ${S('Scorpio')}/>`;
+  // Sagittarius — hips/thighs/liver (two thigh capsules)
+  svg += `<rect x="72" y="244" width="30" height="80" rx="15" ${S('Sagittarius')}/>`;
+  svg += `<rect x="118" y="244" width="30" height="80" rx="15" ${S('Sagittarius')}/>`;
+  // Capricorn — knees (two capsules)
+  svg += `<rect x="74" y="324" width="26" height="20" rx="10" ${S('Capricorn')}/>`;
+  svg += `<rect x="120" y="324" width="26" height="20" rx="10" ${S('Capricorn')}/>`;
+  // Aquarius — calves/ankles/circulation (two capsules)
+  svg += `<rect x="76" y="344" width="22" height="76" rx="11" ${S('Aquarius')}/>`;
+  svg += `<rect x="122" y="344" width="22" height="76" rx="11" ${S('Aquarius')}/>`;
+  // Pisces — feet (ellipses)
   svg += `<ellipse cx="87" cy="432" rx="20" ry="11" ${S('Pisces')}/>`;
   svg += `<ellipse cx="133" cy="432" rx="20" ry="11" ${S('Pisces')}/>`;
+
+  // marker glyphs (drawn on top of the base fills)
+  for (const sign of SIGNS){
+    const z = zoneFill(sign);
+    if (z.glyph){
+      const [cx, cy] = C[sign];
+      svg += bodyGlyphSVG(z.glyph, cx, cy);
+    }
+  }
 
   svg += `</svg>`;
   return svg;
 }
 function renderBodyGauge(deha){
   return renderBodySilhouette(sign=>{
-    if (sign===deha.nectar.sign) return {fill:"var(--hit-good-bg)", stroke:"var(--hit-good-line)", sw:2.5};
-    if (sign===deha.poison.sign) return {fill:"var(--hit-bad-bg)", stroke:"var(--hit-bad-line)", sw:2.5};
-    if (sign===deha.vitality.sign) return {fill:"rgba(58,73,163,0.16)", stroke:"var(--indigo)", sw:2.5};
-    if (deha.natal && sign===deha.natal.sign) return {fill:"var(--body-fill)", stroke:"var(--gold)", sw:2};
+    if (sign===deha.nectar.sign) return {fill:"rgba(23,117,80,0.30)", stroke:"var(--jade)", sw:2.5, glyph:'+'};
+    if (sign===deha.poison.sign) return {fill:"rgba(176,50,32,0.30)", stroke:"var(--vermilion)", sw:2.5, glyph:'−'};
+    if (sign===deha.vitality.sign) return {fill:"rgba(58,73,163,0.16)", stroke:"var(--indigo)", sw:2.5, glyph:'dot'};
+    if (deha.natal && sign===deha.natal.sign) return {fill:"var(--body-fill)", stroke:"var(--gold)", sw:2, glyph:'ring'};
     return {fill:"var(--body-fill)", stroke:"var(--body-stroke)", sw:1};
   });
 }
@@ -6778,6 +6746,10 @@ function runAnalysis(){
         <div class="k">${T('Character','Carácter')}</div><div class="v">${T(nadi.gist, NADI_GIST_ES[nadi.name])}</div>
         <div class="k">${T('Sibling stars','Estrellas hermanas')}</div><div class="v">${nadi.stars.join(', ')}</div>
       </div>` : `<div class="hint">${T('Pick a reference star to see its Nāḍī.','Elige una estrella de referencia para ver su Nāḍī.')}</div>`}
+      <div class="hint" style="margin-top:10px; line-height:1.6;">${T(
+        `<b style="color:var(--muted)">This app's synthesis:</b> across the Sapta Nadi system, each nadi's character echoes a broader classical idea — that the elements and qualities behind a nakshatra grouping also describe how prana, the vital breath animating the body, tends to move through a given moment. Pawan takes its name from vayu, wind and vital air, and Vedic and yogic thought have long treated the vital air as the fastest and least restful of the subtle currents — always circulating, never pooling, the very thing that makes life itself active rather than still. That is why a Pawan transit reads as it does here: a nadi built on the quality of moving air cannot help but deliver its results with that same restlessness and speed, arriving quickly rather than accumulating slowly the way an earthier or wetter-toned nadi might. Read this way, Pawan's reputation for fast, shallow outcomes isn't a quirk of this table — it's the elemental signature of breath itself, translated into how a transit is felt.`,
+        `<b style="color:var(--muted)">Síntesis de esta app:</b> en todo el sistema Sapta Nadi, el carácter de cada nadi hace eco de una idea clásica más amplia — que los elementos y cualidades detrás de una agrupación de nakshatras también describen cómo tiende a moverse el prana, el aliento vital que anima el cuerpo, en un momento dado. Pawan toma su nombre de vayu, el viento y el aire vital, y el pensamiento védico y yóguico ha considerado desde antiguo que el aire vital es la más rápida y menos reposada de las corrientes sutiles — siempre circulando, nunca estancada, precisamente lo que hace que la vida misma sea activa y no quieta. Por eso un tránsito de Pawan se lee como se lee aquí: un nadi construido sobre la cualidad del aire en movimiento no puede sino entregar sus resultados con esa misma inquietud y velocidad, llegando rápido en vez de acumularse despacio como podría hacerlo un nadi de tono más terroso o acuoso. Leído así, la fama de Pawan por resultados rápidos y poco profundos no es un capricho de esta tabla — es la firma elemental del aliento mismo, traducida en cómo se siente un tránsito.`
+      )}</div>
     </div></div>
     <div class="panel"><div class="hd"><h2>${T("Tārā Bala — today's Moon","Tārā Bala — la Luna de hoy")}</h2></div><div class="bd">
       ${tara ? `<div class="kv">
@@ -7474,21 +7446,33 @@ function renderAnatomyPage(){
   const tara = refP.star ? computeTara(pos, refP) : null;
   const deha = computeDehaChakra(pos, panch, refP, tara);
 
-  // Compute activation zones for each body part
-  const activationZones = computeBodyActivationZones(pos, panch, refP, tara);
+  // Pañcha Pakshi body zones: nectar = today's transiting Moon sign,
+  // poison = 7th (Vedha) sign from it, active bird zone = the birth star's limb (Kālapuruṣa sign).
+  const LIMB_TO_SIGN = { 'Knees':'Capricorn','Head':'Aries','Hips':'Sagittarius','Shins (lower legs)':'Aquarius','Eyes':'Taurus','Hair':'Aries','Fingers':'Gemini','Mouth':'Taurus','Nails':'Gemini','Nose':'Taurus','Genitals':'Scorpio','Hands':'Gemini','Forehead':'Aries','Teeth':'Taurus','Arms':'Gemini','Chest':'Cancer','Neck':'Taurus','Feet':'Pisces','Thighs':'Sagittarius','Ears':'Taurus','Back':'Leo','Sides (flanks)':'Libra','Stomach':'Cancer' };
+  const ppMoonIdx = Math.floor(pos.Moon.sidereal/30);
+  const ppMoonSign = SIGNS[ppMoonIdx];
+  const ppPoisonSign = SIGNS[(ppMoonIdx+6)%12];
+  const ppBirdSign = (refP && refP.star && BS_NAK[refP.star]) ? (LIMB_TO_SIGN[BS_NAK[refP.star].limb.en] || null) : null;
+  const ppFill = sign=>{
+    if (sign===ppMoonSign) return {fill:"rgba(23,117,80,0.30)", stroke:"var(--jade)", sw:2.5, glyph:'+'};
+    if (sign===ppPoisonSign) return {fill:"rgba(176,50,32,0.30)", stroke:"var(--vermilion)", sw:2.5, glyph:'−'};
+    if (ppBirdSign && sign===ppBirdSign) return {fill:"var(--body-fill)", stroke:"var(--gold)", sw:2, glyph:'ring'};
+    return {fill:"var(--body-fill)", stroke:"var(--body-stroke)", sw:1};
+  };
 
   container.innerHTML = `
-    <div class="anatomy-template">
-      <img src="https://innerbody.imgix.net/muscular_system.png" alt="Human muscular system" style="width:100%; height:auto; display:block;">
-      <svg class="body-overlay" viewBox="0 0 800 1131" width="100%" style="position:absolute; top:0; left:0; pointer-events:none;">
-        ${renderBodyPartsOverlay(activationZones)}
-      </svg>
+    <div class="panel">
+      <div class="hd"><h2>${T('Pañcha Pakshi Body Map','Mapa Corporal Pañcha Pakshi')}</h2><span class="note">${T('capsule silhouette','silueta cápsula')}</span></div>
+      <div class="bd" style="display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start;">
+        <div style="flex:none; min-width:200px;">${renderBodySilhouette(ppFill)}</div>
+        <div class="chakra-legend" style="flex:1; min-width:260px;">
+          <div class="li"><span class="sw" style="background:rgba(23,117,80,0.30);border:1px solid var(--jade)"></span> ${T('Nectar point (Amṛta) — today\'s transiting Moon zone (+)','Punto de néctar (Amṛta) — zona de tránsito de la Luna de hoy (+)')}</div>
+          <div class="li"><span class="sw" style="background:rgba(176,50,32,0.30);border:1px solid var(--vermilion)"></span> ${T('Poison point (Viṣa) — 7th (Vedha) zone (−)','Punto de veneno (Viṣa) — zona 7.ª (Vedha) (−)')}</div>
+          ${ppBirdSign ? `<div class="li"><span class="sw" style="background:var(--body-fill);border:1.5px solid var(--gold)"></span> ${T(`Active bird zone — your birth star's limb (${ppBirdSign}) (ring)`,`Zona de ave activa — el miembro de tu estrella de nacimiento (${ppBirdSign}) (anillo)`)}</div>` : ''}
+        </div>
+      </div>
     </div>
-  `;
 
-  // Add interactivity for body parts
-  setupBodyPartInteractivity(activationZones);
-}
     <div class="panel">
       <div class="hd"><h2>${T('Anatomy','Anatomía')}</h2><span class="note">${T('body-reading panels','paneles de lectura corporal')}</span></div>
       <div class="bd">
@@ -7567,106 +7551,9 @@ function renderAnatomyPage(){
   `;
 }
 
-// Body activation zones computation
-
-function computeBodyActivationZones(pos, panch, refP, tara){
-  const zones = {};
-  const moonSign = SIGNS[Math.floor(pos.Moon.sidereal/30)];
-  const nak28 = nakshatraFromSidereal(pos.Moon.sidereal, true);
-  const nak27 = nakshatraFromSidereal(pos.Moon.sidereal, false);
-
-  // Map each body part to its activation status
-  const bodyParts = [
-    {name:'Aries', nakIdx:0},
-    {name:'Taurus', nakIdx:1},
-    {name:'Gemini', nakIdx:2},
-    {name:'Cancer', nakIdx:3},
-    {name:'Leo', nakIdx:4},
-    {name:'Virgo', nakIdx:5},
-    {name:'Libra', nakIdx:6},
-    {name:'Scorpio', nakIdx:7},
-    {name:'Sagittarius', nakIdx:8},
-    {name:'Capricorn', nakIdx:9},
-    {name:'Aquarius', nakIdx:10},
-    {name:'Pisces', nakIdx:11}
-  ];
-
-  // Determine activation based on Moon position
-  bodyParts.forEach(part=>{
-    const isActive = moonSign === part.name;
-    zones[part.name] = {
-      active: isActive,
-      tier: isActive ? 'good' : 'neutral',
-      fill: isActive ? 'var(--hit-good-bg)' : 'var(--body-fill)',
-      stroke: isActive ? 'var(--hit-good-line)' : 'var(--body-stroke)',
-      sw: isActive ? 2.5 : 1,
-      nak: nak27.name
-    };
-  });
-
-  // Add panch pakshi bird state
-  if (refP && refP.bird) {
-    zones[refP.bird].special = 'panch-pakshi-bird';
-    zones[refP.bird].fill = 'var(--jade)';
-    zones[refP.bird].stroke = 'var(--gold)';
-    zones[refP.bird].sw = 3;
-  }
-
-  return zones;
-}
-
-function renderBodyPartsOverlay(activationZones){
-  let svg = '';
-  const bodyParts = [
-    {name:'Aries', path:'M400,50 L400,80 L440,80 L440,50 Z', coords:'400,50'},
-    {name:'Taurus', path:'M380,90 L420,90 L420,110 L380,110 Z', coords:'380,90'},
-    {name:'Gemini', path:'M340,120 L460,120 L460,140 L340,140 Z', coords:'340,120'},
-    {name:'Cancer', path:'M360,150 L440,150 L440,180 L360,180 Z', coords:'360,150'},
-    {name:'Leo', path:'M360,180 L440,180 L440,210 L360,210 Z', coords:'360,180'},
-    {name:'Virgo', path:'M370,210 L430,210 L430,240 L370,240 Z', coords:'370,210'},
-    {name:'Libra', path:'M375,240 L425,240 L425,270 L375,270 Z', coords:'375,240'},
-    {name:'Scorpio', path:'M370,270 L430,270 L430,300 L370,300 Z', coords:'370,270'},
-    {name:'Sagittarius', path:'M380,300 L420,300 L420,340 L380,340 Z', coords:'380,300'},
-    {name:'Capricorn', path:'M385,340 L415,340 L415,360 L385,360 Z', coords:'385,340'},
-    {name:'Aquarius', path:'M390,360 L410,360 L410,390 L390,390 Z', coords:'390,360'},
-    {name:'Pisces', path:'M395,390 L405,390 L405,410 L395,410 Z', coords:'395,390'}
-  ];
-
-  bodyParts.forEach(part=>{
-    const zone = activationZones[part.name];
-    const isSpecial = zone.special === 'panch-pakshi-bird';
-    const fill = isSpecial ? zone.fill : (zone.active ? zone.fill : 'var(--body-fill)');
-    const stroke = isSpecial ? zone.stroke : zone.stroke;
-    const sw = isSpecial ? zone.sw : zone.sw;
-
-    svg += `<g class="body-part ${part.name}" data-nak="${zone?.nak || ''}" style="cursor:help;">
-              <path d="${part.path}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>
-              <title>${part.name}: ${zone?.active ? 'Active' : 'Inactive'} — ${zone?.tier || 'neutral'} tier — ${zone?.nak || ''} Nakshatra</title>
-            </g>`;
-  });
-
-  return svg;
-}
-
-function setupBodyPartInteractivity(activationZones){
-  document.querySelectorAll('.body-part').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      const nakName = el.getAttribute('data-nak');
-      showBodyPartDetails(nakName, activationZones);
-    });
-  });
-}
-
-function showBodyPartDetails(nakName, zones){
-  const zone = zones[nakName] || {};
-  alert(`${nakName} Nakshatra activation details:\\n\\n` +
-    `Active: ${zone.active}\\n` +
-    `Tier: ${zone.tier}\\n` +
-    `Nakshatra: ${zone.nak}\\n` +
-    `Fill: ${zone.fill}\\n` +
-    `Stroke: ${zone.stroke}\\n` +
-    `Stroke-width: ${zone.sw}`);
-}
+// Body activation zones for the Pañcha Pakshi map are computed inline in
+// renderAnatomyPage() via renderBodySilhouette(ppFill) — the old hotlinked-photo
+// overlay (computeBodyActivationZones/renderBodyPartsOverlay) was removed in v1.45.
 
 // ---- Calendar ----
 // Monthly overview: every day is sampled at a handful of local hours using
@@ -8366,6 +8253,49 @@ function renderRemediesPage(){
       </div>`;
   }
 
+  let yogaCombosHtml = `
+    <h3 style="margin:18px 0 6px; font-size:13px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">Yoga Combinations — Case Studies</h3>
+    <div class="hint" style="line-height:1.6; margin-bottom:14px;">${T('These are real historical charts reached for often in the tradition — study them as patterns to notice rather than verdicts to chase. None of the placement claims here were independently re-verified against a live calculation engine; birth times are inherently approximate, and what any of this describes is a capacity, not a fixed judgment of the people named.','Estos son casos reales de cartas históricas a los que se suele recurrir en la tradición — étudialos como patrones para notar, no como veredictos para perseguir. Ninguna de las afirmaciones de ubicación aquí fue verificada independientemente contra un motor de cálculo en vivo; las horas de nacimiento son inherentemente aproximadas, y lo que cualquiera de esto describe es una capacidad, no un juicio fijo de las personas nombradas.')}</div>
+
+    <div class="yoga-case" style="margin-top:14px; font-size:12.5px; line-height:1.7; color:var(--ink-dim);">
+      <b>Sasa Yoga (शश — "the hare"), one of the five Panchamahapurusha Yogas (पञ्च-महापुरुष = "five great-persons")</b>
+      <br><br>
+      Sasa belongs to this set of five, formed when Shani — Saturn, our teacher of patience and structure — sits in a kendra (केन्द्र, a pivot-point: houses 1, 4, 7, or 10) from the Lagna (लग्न — the ascendant, or rising point), while occupying its own sign, or Swakshetra (स्वक्षेत्र — "own field"): Capricorn or Aquarius, or its exaltation sign, or Uccha (उच्च — "high place"): Libra. Classically this is read as discipline that becomes authority: staying power long enough that institutions begin to answer to you. Barack Obama's chart is among the better-documented celebrity examples I've come across — his birth data comes from an official record, and multiple Jyotish writers place his Saturn in Capricorn, in the first house, a kendra, which they read as satisfying the yoga. Even a well-attested placement like this one describes temperament and timing, not a promise; what a person does with Saturnine staying-power remains theirs to choose.
+    </div>
+
+    <div class="yoga-case" style="margin-top:14px; font-size:12.5px; line-height:1.7; color:var(--ink-dim);">
+      <b>Neechabhanga Raja Yoga (नीच-भङ्ग — "cancellation of debility")</b>
+      <br><br>
+      Neecha means low or debilitated; bhanga means breaking. Classical texts describe several distinct ways a debilitated planet's weakness can be undone — case by case, rather than by one fixed formula. The most commonly cited route: the planet that rules the debilitated planet's own sign sits strong in a kendra, usually counted from the Lagna (लग्न, the ascendant) though some readings count from the Moon instead. When the cancellation holds, the very placement that looked like a weakness converts into a raja yoga (राज-योग — "king-combination"), a combination read for standing and reach. It is one of my favorite teaching cases for how this system refuses to let any one placement be a final verdict. In Barack Obama's chart, retrograde — Vakri (वक्री) — Jupiter sits debilitated in the first house, but Saturn, the planet classical writers use to cancel that particular debility, sits right there with it in the same kendra; some who work with his chart connect the pattern to the Jupiter Mahadasha (महादशा — "great period," one of the long planetary cycles the tradition uses to time a life) that began for him in the mid-1990s, though I'd treat any such life-event tie as illustrative rather than demonstrated. I offer this one with real humility about method, since astrologers reason through "cancellation" case by case rather than by fixed formula — but as a teaching case for how difficulty transforms with the right supporting strength, it earns its place in any curriculum. As with every yoga here, this describes a pattern of potential, not a determined outcome for the person, and not a verdict on your own chart.
+    </div>
+
+    <div class="yoga-case" style="margin-top:14px; font-size:12.5px; line-height:1.7; color:var(--ink-dim);">
+      <b>Hamsa Yoga (हंस — "the swan"), one of the five Panchamahapurusha Yogas (पञ्च-महापुरुष = "five great-persons")</b>
+      <br><br>
+      Hamsa is Jupiter's turn among these five great-person combinations: Guru in a kendra from the Lagna (लग्न, the ascendant, or rising point), seated in its own sign (Swakshetra) — Sagittarius or Pisces — or its exaltation sign (Uccha): Cancer. The swan in our tradition is said to separate milk from water, so this yoga reads as discernment: a teacher's moral clarity rather than mere cleverness — a description of temperament, not a verdict on any person's character. Dr. A. P. J. Abdul Kalam, aerospace scientist and later President of India, is the example most often reached for: several charts drawn up for him place Jupiter in Sagittarius, its own sign, sitting in a kendra from the ascendant. His birth date is well recorded, though published birth times vary enough across sources that I'd treat the exact ascendant and house as the commonly reported version rather than a settled one; study the pattern, and hold the specific chart lightly.
+    </div>
+
+    <div class="yoga-case" style="margin-top:14px; font-size:12.5px; line-height:1.7; color:var(--ink-dim);">
+      <b>Budhaditya Yoga (बुध-आदित्य — "Mercury-Sun")</b>
+      <br><br>
+      Budha is Mercury, our planet of language and analysis; Aditya is the Sun, the seat of authority and visibility. When the two conjoin in the same house, tradition reads it as a mind built for articulate, public-facing work — administration, commentary, performance — so long as Mercury isn't burned too close to the Sun's glare, a state classical writers call Asta (अस्त — "set"): combustion, when a planet sits so close to the Sun that its own light is said to be overwhelmed, which can complicate the reading. Amitabh Bachchan is commonly cited alongside Dr. Manmohan Singh and Dr. Kalam, with Sun and Mercury reported together in a stellium — a cluster of several planets in one house — in the eighth house alongside Venus and Mars; I want to flag plainly that Bachchan himself has said he was born in the small hours of the morning, while most astrology sites in circulation use an unconfirmed afternoon time — a discrepancy noted openly even by the databank sites that track it. Take this one as illustrative of the yoga's meaning rather than a verified chart — a good reminder that the map is never quite the territory until the birth record is certain, and that what any of this describes is a capacity, not a fixed judgment of the people named here.
+    </div>
+
+    <div class="yoga-case" style="margin-top:14px; font-size:12.5px; line-height:1.7; color:var(--ink-dim);">
+      <b>Chandra-Mangal Yoga (चन्द्र-मंगल — "Moon-Mars")</b>
+      <br><br>
+      This is a wealth-combination of a different temperament than the standard house-lord Dhana Yogas (धन-योग — dhana = "wealth"): Chandra, the Moon, and Mangal, Mars, conjoined in the same house are read as generating resources through boldness and appetite for risk rather than quiet accumulation; some texts extend the yoga to a mutual-kendra relationship between the two as well, though that reading is looser and not every source accepts it. Bill Gates is the example most often named alongside it. Sources I've compared don't agree with one another on the exact geometry — some describe Mars and Moon opposite each other across the seventh house, others place Mars in the fourth — so while his birth date is public, I would treat any specific house claim here as instructive rather than settled. What the yoga teaches stands regardless of the exact degree: a chart can build wealth through calculated daring, and recognizing that temperament in your own placements is worth more than pinning down any one celebrity's exact hour of birth.
+    </div>
+
+    <div class="yoga-case" style="margin-top:14px; font-size:12.5px; line-height:1.7; color:var(--ink-dim);">
+      <b>Gajakesari Yoga (गज-केसरी — "elephant-lion")</b>
+      <br><br>
+      When Bṛhaspati, our teacher-planet Jupiter, lands in a kendra — kendra (केन्द्र) simply means a pivot-point, houses 1, 4, 7, or 10 counted from the Moon — the tradition names this Gajakesari Yoga, one of the great markers of a dignified, far-seeing mind. I think of it as the elephant's steady strength married to the lion's visibility: breadth of judgment that others notice. Vedic astrology writers reach for this yoga often when a chart shows unusual public credibility paired with sound judgment — it is one of the most frequently cited combinations in the whole tradition, precisely because Jupiter near a kendra from the Moon is common enough to recognize in many well-regarded charts, your own included. Study it as a pattern to notice rather than a name to chase — the yoga describes a capacity for large-scale thinking; what you build with it stays entirely your own work.
+    </div>
+
+    <div class="hint" style="line-height:1.6;">*Wishing you every happiness in this study, patience with the placements that resist easy certainty, and success in all of life's endeavors.*</div>
+  `;
+
   container.innerHTML = `
     <div class="panel">
       <div class="hd"><h2>${T('Remedies &amp; Combinations','Remedios y Combinaciones')}</h2><span class="note">${T('independent of the SBC score','independiente de la puntuación SBC')}</span></div>
@@ -8384,6 +8314,7 @@ function renderRemediesPage(){
           <div class="k">${T('Gemstone','Gema')}</div><div class="v">${rl.gemstone} <span style="color:var(--slate); font-size:10.5px;">${T('(traditionally chosen only after a full chart consultation, not from a page like this one)','(tradicionalmente se elige solo tras una consulta completa de la carta, no desde una página como esta)')}</span></div>
         </div>
         ${mahaHtml}
+        ${yogaCombosHtml}
         ${pathakHtml}
       </div>
     </div>
