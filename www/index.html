@@ -5774,17 +5774,6 @@ function sbcZoneLegendHtml(){
    share one visual language. zoneFill(sign) decides each region's
    fill/stroke, so callers just supply their own colouring logic. Sole caller:
    renderBodyGauge() in the Deha Chakra panel. */
-// Optional small marker glyph drawn at a zone's centroid, on top of its
-// fill/stroke — lets a caller flag meaning (nectar/poison/vitality/active)
-// without a separate color-coded legend.
-function bodyGlyphSVG(glyph, cx, cy){
-  if (glyph==='+') return `<text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="17" font-weight="700" fill="var(--jade)" stroke="none">+</text>`;
-  if (glyph==='−' || glyph==='-') return `<text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="17" font-weight="700" fill="var(--vermilion)" stroke="none">−</text>`;
-  if (glyph==='dot') return `<circle cx="${cx}" cy="${cy}" r="5" fill="var(--indigo)" stroke="none"/>`;
-  if (glyph==='ring') return `<circle cx="${cx}" cy="${cy}" r="16" fill="none" stroke="var(--gold)" stroke-width="2"/>`;
-  return "";
-}
-
 function renderBodySilhouette(zoneFill){
   // Resolve all twelve colourings up front — zoneFill() runs exactly once
   // per sign (Aries..Pisces), same contract as before.
@@ -5812,22 +5801,6 @@ function renderBodySilhouette(zoneFill){
     const dy = y2-y1;
     return `<path d="M${cx-hw1},${y1} Q${cx},${y1+5} ${cx+hw1},${y1} C${cx+hw1},${y1+dy*0.4} ${cx+hw2},${y2-dy*0.4} ${cx+hw2},${y2} Q${cx},${y2+5} ${cx-hw2},${y2} C${cx-hw2},${y2-dy*0.4} ${cx-hw1},${y1+dy*0.4} ${cx-hw1},${y1} Z" ${attrs}/>`;
   }
-
-  // per-sign centroid (viewBox 0 0 220 480) — glyph anchor for meaning markers
-  const C = {
-    Aries:      [110, 34],
-    Taurus:     [110, 66],
-    Gemini:     [110, 152],
-    Cancer:     [110, 109],
-    Leo:        [110, 142],
-    Virgo:      [110, 173],
-    Libra:      [110, 201],
-    Scorpio:    [110, 229],
-    Sagittarius:[110, 284],
-    Capricorn:  [110, 334],
-    Aquarius:   [110, 382],
-    Pisces:     [110, 432]
-  };
 
   let svg = `<svg viewBox="0 0 220 480" width="100%" style="max-width:260px;display:block;margin:0 auto;">`;
 
@@ -5873,24 +5846,15 @@ function renderBodySilhouette(zoneFill){
   svg += `<ellipse cx="${cx-27}" cy="441" rx="15" ry="8" transform="rotate(-12 ${cx-27} 441)" ${A.Pisces}/>`;
   svg += `<ellipse cx="${cx+27}" cy="441" rx="15" ry="8" transform="rotate(12 ${cx+27} 441)" ${A.Pisces}/>`;
 
-  // marker glyphs (drawn on top of the base fills)
-  for (const sign of SIGNS){
-    const z = zoneFill(sign);
-    if (z.glyph){
-      const [cx, cy] = C[sign];
-      svg += bodyGlyphSVG(z.glyph, cx, cy);
-    }
-  }
-
   svg += `</svg>`;
   return svg;
 }
 function renderBodyGauge(deha){
   return renderBodySilhouette(sign=>{
-    if (sign===deha.nectar.sign) return {fill:"rgba(23,117,80,0.30)", stroke:"var(--jade)", sw:2.5, glyph:'+'};
-    if (sign===deha.poison.sign) return {fill:"rgba(176,50,32,0.30)", stroke:"var(--vermilion)", sw:2.5, glyph:'−'};
-    if (sign===deha.vitality.sign) return {fill:"rgba(58,73,163,0.16)", stroke:"var(--indigo)", sw:2.5, glyph:'dot'};
-    if (deha.natal && sign===deha.natal.sign) return {fill:"var(--body-fill)", stroke:"var(--gold)", sw:2, glyph:'ring'};
+    if (sign===deha.nectar.sign) return {fill:"var(--hit-good-bg)", stroke:"var(--hit-good-line)", sw:2.5};
+    if (sign===deha.poison.sign) return {fill:"var(--hit-bad-bg)", stroke:"var(--hit-bad-line)", sw:2.5};
+    if (sign===deha.vitality.sign) return {fill:"rgba(58,73,163,0.16)", stroke:"var(--indigo)", sw:2.5};
+    if (deha.natal && sign===deha.natal.sign) return {fill:"var(--body-fill)", stroke:"var(--gold)", sw:2};
     return {fill:"var(--body-fill)", stroke:"var(--body-stroke)", sw:1};
   });
 }
@@ -9616,36 +9580,46 @@ function renderAnatomyPage(){
     }
   } catch(e){}
 
-  // Pañcha Pakshi body zones — unified with the Deha Chakra silhouette:
-  // nectar = today's transiting Moon sign, poison = 7th (Vedha) sign from
-  // it, active bird zone = the birth star's limb (Kālapuruṣa sign). Marker
-  // glyphs (+/−/ring) carry the meaning instead of a separate color legend.
-  const LIMB_TO_SIGN = { 'Knees':'Capricorn','Head':'Aries','Hips':'Sagittarius','Shins (lower legs)':'Aquarius','Eyes':'Taurus','Hair':'Aries','Fingers':'Gemini','Mouth':'Taurus','Nails':'Gemini','Nose':'Taurus','Genitals':'Scorpio','Hands':'Gemini','Forehead':'Aries','Teeth':'Taurus','Arms':'Gemini','Chest':'Cancer','Neck':'Taurus','Feet':'Pisces','Thighs':'Sagittarius','Ears':'Taurus','Back':'Leo','Sides (flanks)':'Libra','Stomach':'Cancer' };
-  let ppBird = null;
-  if (refP.star) ppBird = birdOfStar(refP.star, panch.paksha === "Shukla" ? "bright" : "dark");
-  const ppMoonIdx = Math.floor(pos.Moon.sidereal/30);
-  const ppMoonSign = SIGNS[ppMoonIdx];
-  const ppPoisonSign = SIGNS[(ppMoonIdx+6)%12];
-  const ppBirdSign = (refP && refP.star && BS_NAK[refP.star]) ? (LIMB_TO_SIGN[BS_NAK[refP.star].limb.en] || null) : null;
-  const ppFill = sign=>{
-    if (sign===ppMoonSign) return {fill:"rgba(23,117,80,0.30)", stroke:"var(--jade)", sw:2.5, glyph:'+'};
-    if (sign===ppPoisonSign) return {fill:"rgba(176,50,32,0.30)", stroke:"var(--vermilion)", sw:2.5, glyph:'−'};
-    if (ppBirdSign && sign===ppBirdSign) return {fill:"var(--body-fill)", stroke:"var(--gold)", sw:2, glyph:'ring'};
-    return {fill:"var(--body-fill)", stroke:"var(--body-stroke)", sw:1};
-  };
+  // PP Body Map
   let ppBodyHTML = "";
-  if (ppBird) {
-    ppBodyHTML = `<div class="panel">
-      <div class="hd"><h2>${T('Pañcha Pakshi Body Map','Mapa Corporal Pañcha Pakshi')}</h2><span class="note">${ppBirdBadge(ppBird)} · ${panch.paksha==='Shukla'?'Bright Half':'Dark Half'}</span></div>
-      <div class="bd" style="display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start;">
-        <div style="flex:none; min-width:200px;">${renderBodySilhouette(ppFill)}</div>
-        <div class="chakra-legend" style="flex:1; min-width:260px;">
-          <div class="li"><span class="sw" style="background:rgba(23,117,80,0.30);border:1px solid var(--jade)"></span> ${T('Nectar point (Amṛta) — today\'s transiting Moon zone (+)','Punto de néctar (Amṛta) — zona de tránsito de la Luna de hoy (+)')}</div>
-          <div class="li"><span class="sw" style="background:rgba(176,50,32,0.30);border:1px solid var(--vermilion)"></span> ${T('Poison point (Viṣa) — 7th (Vedha) zone (−)','Punto de veneno (Viṣa) — zona 7.ª (Vedha) (−)')}</div>
-          ${ppBirdSign ? `<div class="li"><span class="sw" style="background:var(--body-fill);border:1.5px solid var(--gold)"></span> ${T(`Active bird zone — your birth star's limb (${ppBirdSign}) (ring)`,`Zona de ave activa — el miembro de tu estrella de nacimiento (${ppBirdSign}) (anillo)`)}</div>` : ''}
-        </div>
-      </div>
-    </div>`;
+  let ppBird = null;
+  if (refP.star) {
+    ppBird = birdOfStar(refP.star, panch.paksha === "Shukla" ? "bright" : "dark");
+    if (ppBird) {
+      const ppData = getPPBodyPart(ppBird, panch.tithiNum, panch.paksha);
+      const hlZone = bodyPartToZone(ppData.birdPoint);
+      const ncZone = bodyPartToZone(ppData.nectarPoint);
+      ppBodyHTML = `<div class="panel"><div class="hd"><h2>${T('Pañcha Pakshi Body Map','Mapa Corporal Pañcha Pakshi')}</h2>
+        <span class="note">${ppBirdBadge(ppBird)} · ${panch.paksha==='Shukla'?'Bright Half':'Dark Half'}</span></div>
+        <div class="bd pp-plate">
+          <div class="pp-plate-cols">
+            <div class="pp-plate-marginalia">
+              <div class="m-row"><div class="m-label">${T('Nectar','Néctar')}</div><div class="m-value">${ppData.nectarPoint}</div></div>
+              <div class="m-row"><div class="m-label">${ppBird} ${T('active','activo')}</div><div class="m-value">${ppData.birdPoint}</div></div>
+              <div class="m-row"><div class="m-label">${T('Tithi','Tithi')}</div><div class="m-value">${panch.paksha} ${panch.tithiName}</div></div>
+            </div>
+            <div class="pp-plate-figure"><div class="pp-body-svg pp-plate-figure-box">${renderAnatomyFigure({nectarZones:[ncZone], poisonZones:[bodyPartToZone(ppData.poisonPoint||'Lower Back')], activeBird:ppBird, activeBirdZone:hlZone, birdColor:(PP_BIRD_COLORS[ppBird]||{}).hex})}</div></div>
+            <div class="pp-plate-controls">
+              <label class="m-label" for="ppBirdSel">${T('Bird view','Vista de ave')}</label>
+              <select id="ppBirdSel" onchange="updatePPBodyHighlight(this.value)">
+                ${['Vulture','Owl','Crow','Cock','Peacock'].map(b=>{
+                  const cur = getPPBodyPart(b, panch.tithiNum, panch.paksha);
+                  const sel = b===ppBird ? ' selected' : '';
+                  return `<option value="${b}"${sel}>${b} — ${cur.birdPoint}</option>`;
+                }).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="pp-plate-keywrap">
+            <div class="pp-plate-caption">${T('Body zone key','Clave de zonas corporales')}</div>
+            <div class="pp-plate-legend">
+              <span><span class="dot" style="background:#48C98C;"></span>${T('Nectar point','Punto de néctar')}</span>
+              <span><span class="dot" style="background:#5C3A21;"></span>${T('Poison point','Punto de veneno')}</span>
+              <span><span class="dot" style="background:#D4AF37;"></span>${T('Active zone','Zona activa')}</span>
+            </div>
+          </div>
+        </div></div>`;
+    }
   }
 
   container.innerHTML = `
@@ -9758,10 +9732,21 @@ function renderAnatomyPage(){
   `;
 }
 
-// Body activation zones for the Pañcha Pakshi map are computed inline in
-// renderAnatomyPage() via renderBodySilhouette(ppFill) — the old hotlinked-photo
-// overlay (computeBodyActivationZones/renderBodyPartsOverlay) and the separate
-// bird-selector dropdown were removed in v1.45 in favor of the unified silhouette.
+function updatePPBodyHighlight(birdName) {
+  // Re-render the body SVG highlighting the SELECTED BIRD's current body part.
+  const svgEl = document.querySelector('.pp-body-svg');
+  if (!svgEl || !birdName) return;
+  const refInfo = getReferencePanchaka();
+  const refP = refInfo.panch;
+  const n = new Date();
+  const pos = computePositions(julianDay(n.getFullYear(), n.getMonth()+1, n.getDate(), n.getHours(), n.getMinutes(), n.getSeconds(), -n.getTimezoneOffset()/60), 0, 0);
+  const panch = computePanchanga(pos);
+  const ppData = getPPBodyPart(birdName, panch.tithiNum, panch.paksha);
+  const hlZone = bodyPartToZone(ppData.birdPoint);
+  const ncZone = bodyPartToZone(ppData.nectarPoint);
+  svgEl.innerHTML = renderAnatomyFigure({nectarZones:[ncZone], poisonZones:[bodyPartToZone(ppData.poisonPoint||'Lower Back')], activeBird:birdName, activeBirdZone:hlZone, birdColor:(PP_BIRD_COLORS[birdName]||{}).hex});
+}
+
 
 // ---- Calendar ----
 // Monthly overview: every day is sampled at a handful of local hours using
