@@ -540,9 +540,9 @@
   .pp-plate-marginalia .m-value{ font-family:var(--serif); color:var(--ink); line-height:1.45; }
   .pp-plate-figure{ flex:1; min-width:260px; display:flex; justify-content:center; }
   .pp-plate-figure-box{
-    position:relative; width:100%; max-width:440px; padding:10px;
-    border:1px solid var(--line); border-radius:var(--radius-sm); background:rgba(0,0,0,0.05);
-  }
+      position:relative; width:100%; max-width:520px; padding:10px;
+      border:1px solid var(--line); border-radius:var(--radius-sm); background:rgba(0,0,0,0.05);
+    }
   .pp-plate-figure-box::before{
     content:""; position:absolute; inset:4px; border:1px solid var(--line-soft);
     border-radius:2px; pointer-events:none;
@@ -567,9 +567,9 @@
      rather than reusing the pp-* classes so the two panels' styling can
      never bleed into each other. */
   .dc-plate-figure-box{
-    position:relative; width:100%; max-width:440px; padding:10px;
-    border:1px solid var(--line); border-radius:var(--radius-sm); background:rgba(0,0,0,0.05);
-  }
+      position:relative; width:100%; max-width:520px; padding:10px;
+      border:1px solid var(--line); border-radius:var(--radius-sm); background:rgba(0,0,0,0.05);
+    }
   .dc-plate-figure-box::before{
     content:""; position:absolute; inset:4px; border:1px solid var(--line-soft);
     border-radius:2px; pointer-events:none;
@@ -4308,71 +4308,62 @@ function getPPBodyPart(lifeBird, tithiNum, paksha) {
 }
 
 /**
- * Render the anatomy figure: BOTH a FRONT view (left) and a BACK view
- * (right) side by side in one SVG (viewBox 0 0 480 500; front x-center=120,
- * back x-center=360). Zone keys (each drawn on both views unless noted):
+ * Render the anatomy figure as a PAIRED BODY HEAT MAP: a FRONT view (left)
+ * and a BACK view (right) side by side in one SVG (viewBox 0 0 500 520;
+ * front x-center=120, back x-center=380). Each body zone is a distinct
+ * path that fills with a "heat" tone — the neutral body reads cool
+ * (layered slate), while the meaningful zones (active bird part / nectar /
+ * poison / vitality / natal) take warm, luminous fills so the whole thing
+ * looks like a thermograph rather than a line drawing.
+ *
+ * Zone keys drawn on the FRONT figure:
  *   head, neck, chest, torso, upperarms, lowerarms, fingers,
- *   thighs, shins, feet (top on front / sole on back),
- *   upperback, spine, shoulderblades, lumbar, glutes, calves (back-only extras).
+ *   thighs, shins, feet (top of foot)
+ * Back-only zones drawn on the BACK figure:
+ *   upperback, shoulderblades, spine, lumbar, glutes, calves
+ * ("calves" maps to the rear of the lower leg; "shins" stayed front.)
+ *
  * cfg = {
- *   nectarZones:    [zone,...] → fill rgba(72,201,140,0.4) + teal dot marker
- *   poisonZones:    [zone,...] → fill rgba(146,43,33,0.35) + dark-brown dot
+ *   nectarZones:    [zone,...] → teal heat fill + teal dot marker
+ *   poisonZones:    [zone,...] → deep brown-red heat fill + dot marker
+ *   activeBirdZone: zone   -> golden heat pulse + red "<ZONE> — ACTIVE"
  *   activeBird:     bird name (label only)
- *   activeBirdZone: zone key of the active bird's body part → golden fill
- *                   + red "<ZONE> — ACTIVE" circle label below the figure
  *   birdColor:      css color for the active label/ring accent
+ *   vitalityZones:  [zone,...] → indigo heat fill (Deha Chakra only)
+ *   natalZones:     [zone,...] → gold outline ring (Deha Chakra only)
  * }
- * Drawing approach: each limb is a tapered "capsule" path (variable-width
- * ribbon with rounded caps at both ends, via taperedLimb()) rather than a
- * plain rect, and the torso/hips are a single smoothed bezier outline —
- * together these read as an actual body silhouette instead of blocky boxes.
- * Fingers are five short capsules fanned out from the wrist at slightly
- * different angles/lengths so the hand reads as a hand, not a comb.
  */
 function renderAnatomyFigure(cfg) {
   const nectarZones = Array.isArray(cfg.nectarZones) ? cfg.nectarZones.filter(Boolean) : [];
   const poisonZones = Array.isArray(cfg.poisonZones) ? cfg.poisonZones.filter(Boolean) : [];
-  // Deha Chakra-only extras (Pañcha Pakshi callers never pass these): the
-  // Ascendant/vitality zone and the natal-Nakṣatra marker, drawn under
-  // nectar/poison priority so they never mask the two primary readings.
   const vitalityZones = Array.isArray(cfg.vitalityZones) ? cfg.vitalityZones.filter(Boolean) : [];
   const natalZones = Array.isArray(cfg.natalZones) ? cfg.natalZones.filter(Boolean) : [];
   const az = cfg.activeBirdZone || "";
   const activeBird = cfg.activeBird || null;
   const accent = cfg.birdColor || "var(--vermilion)";
 
-  function zoneAttrs(zone) {
-    if (!zone) return 'fill="var(--panel-2)" stroke="var(--chart-line)" stroke-width="1.5"';
-    if (zone === az) return `fill="rgba(212,175,55,0.45)" stroke="${accent}" stroke-width="2.5"`;
-    if (nectarZones.includes(zone)) return 'fill="rgba(72,201,140,0.4)" stroke="#48C98C" stroke-width="1.8"';
-    if (poisonZones.includes(zone)) return 'fill="rgba(146,43,33,0.35)" stroke="#5C3A21" stroke-width="1.8"';
-    if (vitalityZones.includes(zone)) return 'fill="rgba(58,73,163,0.22)" stroke="var(--indigo)" stroke-width="1.8"';
-    if (natalZones.includes(zone)) return 'fill="var(--panel-2)" stroke="var(--gold)" stroke-width="2"';
-    return 'fill="var(--panel-2)" stroke="var(--chart-line)" stroke-width="1.5"';
-  }
-
-  // One representative anchor point per zone, for the teal/brown dot
-  // markers. Front view only (the back view was dropped) — F=120 is the
-  // figure's horizontal center. Back-only zones (upperback/spine/
-  // shoulderblades/lumbar/glutes/calves) have no anchor here since nothing
-  // ever draws them without the back figure.
-  const F = 120;
+  const FRONT = 120, BACK = 380;
   const ZONE_ANCHORS = {
-    head:      [[F,34]],
-    neck:      [[F,64]],
-    chest:     [[F,110]],
-    torso:     [[F,188]],
-    upperarms: [[F-58,118],[F+58,118]],
-    lowerarms: [[F-66,172],[F+66,172]],
-    fingers:   [[F-70,204],[F+70,204]],
-    thighs:    [[F-24,290],[F+24,290]],
-    shins:     [[F-22,392],[F+22,392]],
-    feet:      [[F-20,455],[F+20,455]]
+    head:[[FRONT,40]], neck:[[FRONT,72]], chest:[[FRONT,120]], torso:[[FRONT,195]],
+    upperarms:[[FRONT-58,125],[FRONT+58,125]], lowerarms:[[FRONT-66,180],[FRONT+66,180]],
+    fingers:[[FRONT-70,212],[FRONT+70,212]], thighs:[[FRONT-24,300],[FRONT+24,300]],
+    shins:[[FRONT-22,395],[FRONT+22,395]], feet:[[FRONT-20,462],[FRONT+20,462]],
+    upperback:[[BACK,120]], shoulderblades:[[BACK-30,135],[BACK+30,135]],
+    spine:[[BACK,190]], lumbar:[[BACK,225]], glutes:[[BACK-24,285],[BACK+24,285]],
+    calves:[[BACK-22,395],[BACK+22,395]]
   };
 
-  // Tapered capsule: a variable-width ribbon from (x1,y1,w1) to (x2,y2,w2)
-  // with rounded end caps — the workhorse for every limb segment, reads as
-  // an actual body part instead of a rigid rectangle.
+  function zoneAttrs(zone) {
+    if (!zone) return 'fill="rgba(120,116,140,0.10)" stroke="var(--chart-line)" stroke-width="1.4"';
+    if (zone === az)
+      return 'fill="rgba(255,176,52,0.42)" stroke="' + accent + '" stroke-width="2.6" filter="url(#heatglow)"';
+    if (nectarZones.includes(zone)) return 'fill="rgba(94,215,160,0.40)" stroke="#2FA863" stroke-width="1.8"';
+    if (poisonZones.includes(zone)) return 'fill="rgba(214,74,48,0.42)" stroke="#8C2F1C" stroke-width="1.8"';
+    if (vitalityZones.includes(zone)) return 'fill="rgba(110,120,235,0.26)" stroke="var(--indigo)" stroke-width="1.8"';
+    if (natalZones.includes(zone)) return 'fill="rgba(255,255,255,0.04)" stroke="var(--gold)" stroke-width="2"';
+    return 'fill="rgba(120,116,140,0.10)" stroke="var(--chart-line)" stroke-width="1.4"';
+  }
+
   function taperedLimb(x1,y1,w1,x2,y2,w2,attrs){
     const dx = x2-x1, dy = y2-y1;
     const len = Math.sqrt(dx*dx+dy*dy) || 1;
@@ -4380,145 +4371,133 @@ function renderAnatomyFigure(cfg) {
     const r1 = w1/2, r2 = w2/2;
     const a1x = x1+nx*r1, a1y = y1+ny*r1, b1x = x1-nx*r1, b1y = y1-ny*r1;
     const a2x = x2+nx*r2, a2y = y2+ny*r2, b2x = x2-nx*r2, b2y = y2-ny*r2;
-    return `<path d="M${a1x.toFixed(1)},${a1y.toFixed(1)} L${a2x.toFixed(1)},${a2y.toFixed(1)} A${r2},${r2} 0 0 1 ${b2x.toFixed(1)},${b2y.toFixed(1)} L${b1x.toFixed(1)},${b1y.toFixed(1)} A${r1},${r1} 0 0 1 ${a1x.toFixed(1)},${a1y.toFixed(1)} Z" ${attrs}/>`;
+    return `<path d="M${a1x.toFixed(1)},${a1y.toFixed(1)} L${a2x.toFixed(1)},${a2y.toFixed(1)} A${r2.toFixed(1)},${r2.toFixed(1)} 0 0 1 ${b2x.toFixed(1)},${b2y.toFixed(1)} L${b1x.toFixed(1)},${b1y.toFixed(1)} A${r1.toFixed(1)},${r1.toFixed(1)} 0 0 1 ${a1x.toFixed(1)},${a1y.toFixed(1)} Z" ${attrs}/>`;
   }
 
-  let svg = `<svg viewBox="0 0 240 500" width="100%" style="max-width:260px;display:block;margin:0 auto;">`;
-
-  // A fanned hand: wrist point (cx,cy), five tapered-capsule fingers at
-  // slightly different angles/lengths (thumb shortest + angled aside,
-  // middle longest, mirrored for left/right hand via `flip`).
   function hand(cx, cy, flip, attrs){
     const s = [];
-    s.push(`<ellipse cx="${cx}" cy="${cy}" rx="8" ry="9" ${attrs}/>`); // palm
+    s.push(`<ellipse cx="${cx}" cy="${cy}" rx="7" ry="8.5" ${attrs}/>`);
     const fingers = [
-      {ang:-34, len:13, w:3.0}, // thumb
-      {ang:-11, len:19, w:3.2},
-      {ang: 2,  len:21, w:3.2}, // middle (longest)
-      {ang: 15, len:19, w:3.0},
-      {ang: 30, len:15, w:2.6}  // little
+      {ang:-34, len:12, w:2.8},
+      {ang:-11, len:18, w:3.0},
+      {ang: 2,  len:20, w:3.0},
+      {ang: 15, len:18, w:2.8},
+      {ang: 30, len:14, w:2.4}
     ];
     fingers.forEach(f=>{
       const ang = f.ang * Math.PI/180;
       const dir = flip ? -1 : 1;
       const x2 = cx + Math.sin(ang)*f.len*dir;
       const y2 = cy + Math.cos(ang)*f.len;
-      s.push(taperedLimb(cx, cy+2, f.w+1.5, x2, y2, f.w, attrs));
+      s.push(taperedLimb(cx, cy+2, f.w+1.4, x2, y2, f.w, attrs));
     });
     return s.join("");
   }
 
-  // Tiny finger-name labels, positioned near the fanned fingertips rather
-  // than under a straight row (kept for reference/legend purposes).
-  function fingerLabels(cx){
-    const names = ["Thumb","Index","Middle","Ring","Little"];
-    let out = "";
-    for (let i=0;i<5;i++){
-      const x = cx - 20 + i*10;
-      out += `<text x="${x}" y="228" text-anchor="middle" font-size="3.6" fill="var(--muted)">${names[i]}</text>`;
-    }
-    return out;
+  function label(x, y, text, size){
+    return `<text x="${x}" y="${y}" text-anchor="middle" font-size="${size||6}" fill="var(--muted)" font-family="var(--serif)">${text}</text>`;
   }
 
-  function figure(cx){
+  function figureFront(cx){
     const s = [];
     const z = zn => zoneAttrs(zn);
-
-    // Head (slightly oval, reads better than a plain circle) + neck taper
-    s.push(`<ellipse cx="${cx}" cy="34" rx="22" ry="25" ${z("head")}/>`);
-    s.push(`<text x="${cx}" y="38" text-anchor="middle" font-size="8" fill="var(--muted)">HEAD</text>`);
-    s.push(taperedLimb(cx,57,20, cx,72,26, z("neck")));
-
-    // Smooth torso/hip outline: shoulders wide, waist narrower, hips flare —
-    // a single bezier path rather than a straight-edged polygon.
-    s.push(`<path d="M${cx-44},82
-      C${cx-46},100 ${cx-42},112 ${cx-38},118
-      L${cx-33},210
-      C${cx-40},222 ${cx-42},236 ${cx-38},252
-      L${cx+38},252
-      C${cx+42},236 ${cx+40},222 ${cx+33},210
-      L${cx+38},118
-      C${cx+42},112 ${cx+46},100 ${cx+44},82
-      C${cx+30},74 ${cx+14},70 ${cx},70
-      C${cx-14},70 ${cx-30},74 ${cx-44},82 Z"
-      fill="var(--panel-2)" fill-opacity="0.25" stroke="var(--chart-line)" stroke-width="1.5"/>`);
-
-    // Arms: shoulder → elbow → wrist, each segment tapering narrower
+    s.push(`<ellipse cx="${cx}" cy="38" rx="21" ry="24" ${z("head")}/>`);
+    s.push(label(cx, 42, "HEAD", 6.5));
+    s.push(taperedLimb(cx,60,17, cx,76,24, z("neck")));
+    s.push(label(cx, 70, "NECK", 5));
+    s.push(`<path d="M${cx-44},84 C${cx-46},102 ${cx-42},114 ${cx-38},120 L${cx-33},212 C${cx-40},224 ${cx-42},238 ${cx-38},254 L${cx+38},254 C${cx+42},238 ${cx+40},224 ${cx+33},212 L${cx+38},120 C${cx+42},114 ${cx+46},102 ${cx+44},84 C${cx+30},76 ${cx+14},72 ${cx},72 C${cx-14},72 ${cx-30},76 ${cx-44},84 Z" fill="rgba(120,116,140,0.05)" stroke="none"/>`);
     [-1,1].forEach(side=>{
-      const sx = cx + side*38, sy = 92;
-      const ex = cx + side*66, ey = 140;
-      const wx = cx + side*70, wy = 190;
-      s.push(taperedLimb(sx,sy,26, ex,ey,17, z("upperarms")));
-      s.push(taperedLimb(ex,ey,17, wx,wy,12, z("lowerarms")));
+      const sx = cx + side*38, sy = 94;
+      const ex = cx + side*63, ey = 142;
+      const wx = cx + side*68, wy = 196;
+      s.push(taperedLimb(sx,sy,24, ex,ey,15, z("upperarms")));
+      s.push(taperedLimb(ex,ey,15, wx,wy,10, z("lowerarms")));
       s.push(hand(wx, wy+4, side<0, z("fingers")));
     });
-
-    // Chest / Torso / Thighs / Shins / Feet(top)
-    s.push(`<path d="M${cx-36},90 C${cx-38},108 ${cx-36},124 ${cx-30},132 L${cx+30},132 C${cx+36},124 ${cx+38},108 ${cx+36},90 C${cx+22},82 ${cx-22},82 ${cx-36},90 Z" ${z("chest")}/>`);
-    s.push(`<text x="${cx}" y="112" text-anchor="middle" font-size="7.5" fill="var(--muted)">CHEST</text>`);
-    s.push(`<path d="M${cx-32},134 C${cx-36},160 ${cx-34},188 ${cx-30},208 L${cx+30},208 C${cx+34},188 ${cx+36},160 ${cx+32},134 Z" ${z("torso")}/>`);
-    s.push(`<text x="${cx}" y="176" text-anchor="middle" font-size="7.5" fill="var(--muted)">TORSO</text>`);
-    s.push(taperedLimb(cx-24,252,34, cx-20,330,22, z("thighs")));
-    s.push(taperedLimb(cx+24,252,34, cx+20,330,22, z("thighs")));
-    s.push(`<text x="${cx-24}" y="292" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>
-            <text x="${cx+24}" y="292" text-anchor="middle" font-size="6.5" fill="var(--muted)">THIGH</text>`);
-    s.push(taperedLimb(cx-20,332,20, cx-18,428,13, z("shins")));
-    s.push(taperedLimb(cx+20,332,20, cx+18,428,13, z("shins")));
-    s.push(`<text x="${cx}" y="380" text-anchor="middle" font-size="6" fill="var(--muted)">SHINS</text>`);
-    s.push(`<path d="M${cx-27},450 Q${cx-18},440 ${cx-6},448 Q${cx-2},456 ${cx-10},460 L${cx-25},460 Q${cx-30},456 ${cx-27},450 Z" ${z("feet")}/>`);
-    s.push(`<path d="M${cx+27},450 Q${cx+18},440 ${cx+6},448 Q${cx+2},456 ${cx+10},460 L${cx+25},460 Q${cx+30},456 ${cx+27},450 Z" ${z("feet")}/>`);
-    s.push(`<text x="${cx-17}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">FEET</text>
-            <text x="${cx+17}" y="472" text-anchor="middle" font-size="6" fill="var(--muted)">FEET</text>`);
-
-    // Finger name captions
-    s.push(fingerLabels(cx - 70));
-    s.push(fingerLabels(cx + 70));
+    s.push(label(cx-50, 108, "UPPER", 4.5)); s.push(label(cx-50, 116, "ARM", 4.5));
+    s.push(label(cx+50, 108, "UPPER", 4.5)); s.push(label(cx+50, 116, "ARM", 4.5));
+    s.push(label(cx-55, 172, "LOWER", 4.5)); s.push(label(cx-55, 180, "ARM", 4.5));
+    s.push(label(cx+55, 172, "LOWER", 4.5)); s.push(label(cx+55, 180, "ARM", 4.5));
+    s.push(`<path d="M${cx-36},92 C${cx-38},110 ${cx-36},126 ${cx-30},134 L${cx+30},134 C${cx+36},126 ${cx+38},110 ${cx+36},92 C${cx+22},84 ${cx-22},84 ${cx-36},92 Z" ${z("chest")}/>`);
+    s.push(label(cx, 112, "CHEST", 6));
+    s.push(`<path d="M${cx-32},136 C${cx-36},162 ${cx-34},190 ${cx-30},210 L${cx+30},210 C${cx+34},190 ${cx+36},162 ${cx+32},136 Z" ${z("torso")}/>`);
+    s.push(label(cx, 178, "TORSO", 6));
+    s.push(`<circle cx="${cx}" cy="196" r="3.5" fill="none" stroke="var(--gold-dim)" stroke-width="1"/>`);
+    s.push(taperedLimb(cx-24,256,32, cx-20,332,20, z("thighs")));
+    s.push(taperedLimb(cx+24,256,32, cx+20,332,20, z("thighs")));
+    s.push(label(cx-24, 296, "THIGH", 5)); s.push(label(cx+24, 296, "THIGH", 5));
+    s.push(taperedLimb(cx-20,336,18, cx-18,430,11, z("shins")));
+    s.push(taperedLimb(cx+20,336,18, cx+18,430,11, z("shins")));
+    s.push(label(cx, 388, "SHINS", 5));
+    s.push(`<path d="M${cx-26,450} Q${cx-17,438} ${cx-5,446} Q${cx-1,454} ${cx-9,459} L${cx-24,459} Q${cx-29,455} ${cx-26,450} Z" ${z("feet")}/>`);
+    s.push(`<path d="M${cx+26,450} Q${cx+17,438} ${cx+5,446} Q${cx+1,454} ${cx+9,459} L${cx+24,459} Q${cx+29,455} ${cx+26,450} Z" ${z("feet")}/>`);
+    s.push(label(cx-15, 472, "FEET", 5)); s.push(label(cx+15, 472, "FEET", 5));
     return s.join("");
   }
 
-  svg += figure(F);
+  function figureBack(cx){
+    const s = [];
+    const z = zn => zoneAttrs(zn);
+    s.push(`<ellipse cx="${cx}" cy="38" rx="21" ry="24" ${z("head")}/>`);
+    s.push(taperedLimb(cx,60,17, cx,76,24, z("neck")));
+    s.push(`<path d="M${cx-44},84 C${cx-46},102 ${cx-42},114 ${cx-38},120 L${cx-33},212 C${cx-40},224 ${cx-42},238 ${cx-38},254 L${cx+38},254 C${cx+42},238 ${cx+40},224 ${cx+33},212 L${cx+38},120 C${cx+42},114 ${cx+46},102 ${cx+44},84 C${cx+30},76 ${cx+14},72 ${cx},72 C${cx-14},72 ${cx-30},76 ${cx-44},84 Z" fill="rgba(120,116,140,0.05)" stroke="none"/>`);
+    s.push(taperedLimb(cx-26,236,30, cx-24,268,26, z("glutes")));
+    s.push(taperedLimb(cx+26,236,30, cx+24,268,26, z("glutes")));
+    [-1,1].forEach(side=>{
+      const sx = cx + side*38, sy = 94;
+      const ex = cx + side*63, ey = 142;
+      const wx = cx + side*68, wy = 196;
+      s.push(taperedLimb(sx,sy,24, ex,ey,15, z("upperarms")));
+      s.push(taperedLimb(ex,ey,15, wx,wy,10, z("lowerarms")));
+      s.push(hand(wx, wy+4, side<0, z("fingers")));
+    });
+    s.push(`<path d="M${cx-36},92 C${cx-38},110 ${cx-36},126 ${cx-30},134 L${cx+30},134 C${cx+36},126 ${cx+38},110 ${cx+36},92 C${cx+22},84 ${cx-22},84 ${cx-36},92 Z" ${z("upperback")}/>`);
+    s.push(label(cx, 114, "UPPER BACK", 5.5));
+    s.push(`<ellipse cx="${cx-22}" cy="150" rx="10" ry="17" ${z("shoulderblades")}/>`);
+    s.push(`<ellipse cx="${cx+22}" cy="150" rx="10" ry="17" ${z("shoulderblades")}/>`);
+    s.push(label(cx, 146, "SHOULDER", 4.5)); s.push(label(cx, 153, "BLADES", 4.5));
+    s.push(`<path d="M${cx-8},138 C${cx-11},170 ${cx-11},200 ${cx-8},232 L${cx+8},232 C${cx+11},200 ${cx+11},170 ${cx+8},138 Z" ${z("spine")}/>`);
+    s.push(label(cx, 186, "SPINE", 5));
+    s.push(`<path d="M${cx-30},205 C${cx-32},220 ${cx-32},236 ${cx-28},248 L${cx+28},248 C${cx+32},236 ${cx+32},220 ${cx+30},205 Z" ${z("lumbar")}/>`);
+    s.push(label(cx, 228, "LUMBAR", 5));
+    s.push(taperedLimb(cx-20,336,18, cx-18,430,11, z("calves")));
+    s.push(taperedLimb(cx+20,336,18, cx+18,430,11, z("calves")));
+    s.push(label(cx, 388, "CALVES", 5));
+    s.push(`<path d="M${cx-25,450} Q${cx-17,440} ${cx-5,447} Q${cx-1,454} ${cx-8,458} L${cx-23,458} Q${cx-28,455} ${cx-25,450} Z" ${z("feet")}/>`);
+    s.push(`<path d="M${cx+25,450} Q${cx+17,440} ${cx+5,447} Q${cx+1,454} ${cx+8,458} L${cx+23,458} Q${cx+28,455} ${cx+25,450} Z" ${z("feet")}/>`);
+    return s.join("");
+  }
 
-  // Dot markers for nectar (teal) and poison (dark-brown) zones
-  nectarZones.forEach(zn=>{
-    (ZONE_ANCHORS[zn]||[]).forEach(([x,y])=>{
-      svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="#48C98C" stroke="#1E8449" stroke-width="1"/>`;
-    });
-  });
-  poisonZones.forEach(zn=>{
-    (ZONE_ANCHORS[zn]||[]).forEach(([x,y])=>{
-      svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="#5C3A21" stroke="#3E2716" stroke-width="1"/>`;
-    });
-  });
-  vitalityZones.forEach(zn=>{
-    (ZONE_ANCHORS[zn]||[]).forEach(([x,y])=>{
-      svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="rgba(58,73,163,0.55)" stroke="#3A49A3" stroke-width="1"/>`;
-    });
-  });
-  natalZones.forEach(zn=>{
-    (ZONE_ANCHORS[zn]||[]).forEach(([x,y])=>{
-      svg += `<circle cx="${x}" cy="${y}" r="4" fill="none" stroke="#96690F" stroke-width="1.5"/>`;
-    });
-  });
+  let svg = `<svg viewBox="0 0 500 508" width="100%" style="max-width:470px;display:block;margin:0 auto;">
+<defs>
+  <filter id="heatglow" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <linearGradient id="frontshade" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="rgba(255,255,255,0.08)"/><stop offset="1" stop-color="rgba(0,0,0,0.12)"/>
+  </linearGradient>
+</defs>`;
 
-  // Active-bird label below: red circle marker + "<ZONE> — ACTIVE", stacked
-  // and centered so it stays inside the (now front-only, narrower) canvas
-  // regardless of label length.
+  svg += `<text x="${FRONT}" y="14" text-anchor="middle" font-size="7" fill="var(--slate)" font-family="var(--mono)" letter-spacing="0.12em" text-transform="uppercase">FRONT</text>`;
+  svg += `<text x="${BACK}" y="14" text-anchor="middle" font-size="7" fill="var(--slate)" font-family="var(--mono)" letter-spacing="0.12em" text-transform="uppercase">BACK</text>`;
+
+  svg += `<g>${figureFront(FRONT)}</g>`;
+  svg += `<g>${figureBack(BACK)}</g>`;
+
+  nectarZones.forEach(zn=>{ (ZONE_ANCHORS[zn]||[]).forEach(([x,y])=>{ svg += `<circle cx="${x}" cy="${y}" r="3.4" fill="#3FD48C" stroke="#1E8449" stroke-width="1"/>`; }); });
+  poisonZones.forEach(zn=>{ (ZONE_ANCHORS[zn]||[]).forEach(([x,y])=>{ svg += `<circle cx="${x}" cy="${y}" r="3.4" fill="#B33424" stroke="#701F10" stroke-width="1"/>`; }); });
+  vitalityZones.forEach(zn=>{ (ZONE_ANCHORS[zn]||[]).forEach(([x,y])=>{ svg += `<circle cx="${x}" cy="${y}" r="3.4" fill="rgba(110,120,235,0.6)" stroke="#3A49A3" stroke-width="1"/>`; }); });
+  natalZones.forEach(zn=>{ (ZONE_ANCHORS[zn]||[]).forEach(([x,y])=>{ svg += `<circle cx="${x}" cy="${y}" r="4" fill="none" stroke="#96690F" stroke-width="1.5"/>`; }); });
+
   if (az){
-    svg += `<circle cx="${F}" cy="482" r="4" fill="none" stroke="${accent}" stroke-width="2"/>
-            <text x="${F}" y="496" text-anchor="middle" font-size="8.5" fill="var(--vermilion)" font-weight="bold">${az.toUpperCase()} — ACTIVE${activeBird?` (${activeBird})`:''}</text>`;
+    svg += `<circle cx="${(FRONT+BACK)/2}" cy="500" r="4" fill="none" stroke="${accent}" stroke-width="2"/>
+            <text x="${(FRONT+BACK)/2}" y="503" text-anchor="middle" font-size="8" fill="var(--vermilion)" font-weight="bold">${az.toUpperCase()} — ACTIVE${activeBird?` (${activeBird})`:""}</text>`;
   }
 
   svg += `</svg>`;
   return svg;
 }
 
-/**
- * Map a textual body-part description to a zone key for renderAnatomyFigure.
- * Vocabulary comes from NECTAR_POINTS / PP_BIRD_BODY ("Sole", "Hip, Lower
- * back", "Hand fingers", "Hind muscle", …). Specific patterns are tested
- * before general ones — e.g. feet before the generic "back" rule, since
- * "Upper back foot" is a foot, not an upper-back.
- */
 function bodyPartToZone(partText) {
   if (!partText) return "";
   const p = partText.toLowerCase();
