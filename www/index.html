@@ -268,6 +268,10 @@
     color:var(--ink);
   }
   .plaque h1 .accent{ color:var(--gold); font-style:italic;}
+  .plaque h1 .ver{
+    font-family:var(--mono); font-size:11px; font-weight:400; letter-spacing:0.06em;
+    color:var(--muted); vertical-align:2px;
+  }
   .plaque .sub{
     font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
     color:var(--muted); margin-top:6px;
@@ -353,6 +357,17 @@
     font-family:var(--mono); text-align:right; padding:16px 20px; flex:none; border-left:1px solid var(--line-soft);
     display:flex; flex-direction:column; justify-content:center; align-items:flex-end; gap:2px; min-width:110px;
   }
+  /* Below ~600px the .body (which can hold a wide 4-column table, e.g. the
+     Pañcha Pakshi activity-strength ladder) can't shrink past its content
+     width, colliding with .score's fixed-width High/Low block sitting next
+     to it in the unwrapped flex row — stack them instead of letting them fight. */
+  @media (max-width: 600px){
+    .verdict{ flex-direction:column; }
+    .verdict .score{
+      border-left:none; border-top:1px solid var(--line-soft);
+      flex-direction:row; justify-content:space-between; align-items:baseline; text-align:left; width:100%;
+    }
+  }
 
   /* ---------- Moment-gravity headline (Kala Bala office election) ---------- */
   .gravity-banner{
@@ -393,7 +408,7 @@
   .panel > .hd .note{ font-family:var(--mono); font-size:10px; color:var(--slate); letter-spacing:0.05em;}
   .panel > .bd{ padding:16px 18px; }
 
-  .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:18px; }
+  .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:18px; align-items:start; }
   @media (max-width: 760px){ .grid2{grid-template-columns:1fr;} }
   .grid3col{ display:grid; grid-template-columns: repeat(3,1fr); gap:10px; }
   @media (max-width: 700px){ .grid3col{grid-template-columns:repeat(2,1fr);} }
@@ -674,7 +689,7 @@
       </div>
     </div>
     <div>
-      <h1>PL0 <span class="accent">— Sarvato Bhadra Chakra</span></h1>
+      <h1>PL0 <span class="accent">— Sarvato Bhadra Chakra</span> <span class="ver">v1.5</span></h1>
       <div class="sub" data-i18n="subtitle">Panchāṅga · Vedha · Nāḍī · Latta — an instrument for reading the quality of a moment</div>
     </div>
   </div>
@@ -7885,6 +7900,13 @@ function runAnalysis(){
     const bird = mdtHalf === 'bright' ? vg.bright : vg.dark;
     const st = ppStateForBirdAtInstant(bird, mdtWeekdayEN, mdtHalf, mdtHourFromSunrise, mdtDayLenHrs);
     return { ...vg, bird, mainState: st ? st.mainState : null, abstractState: st ? st.abstractState : null };
+  }).sort((a,b)=>{
+    // Strongest → weakest by the same Table No.5 ratio vector (PP_ACT_FACTOR)
+    // used everywhere else in the app to rank a bird's combined main+abstract
+    // Yama state (see byBird/subByBird strength calc above); a row with no
+    // resolvable state (st===null) sorts last.
+    const strength = r => (PP_ACT_FACTOR[r.mainState]||0) * (PP_ACT_FACTOR[r.abstractState]||0);
+    return strength(b) - strength(a);
   });
 
   let html = "";
@@ -9562,7 +9584,12 @@ function renderAnatomyPage(){
   let ppBodyHTML = "";
   let ppBird = null;
   if (refP.star) {
-    ppBird = birdOfStar(refP.star, panch.paksha === "Shukla" ? "bright" : "dark");
+    // Life-bird is fixed at birth (by birth star + birth paksha), not
+    // today's transiting paksha — reuse refP.lifeBird (already computed
+    // correctly in buildReferencePanchakaFromBirth) instead of recomputing
+    // with panch.paksha, which flips the bird whenever today's lunar half
+    // differs from the one at birth.
+    ppBird = refP.lifeBird;
     if (ppBird) {
       const ppData = getPPBodyPart(ppBird, panch.tithiNum, panch.paksha);
       const hlZone = bodyPartToZone(ppData.birdPoint);
@@ -9614,6 +9641,7 @@ function renderAnatomyPage(){
           <div class="dc-plate-figure-box" style="flex:none; min-width:200px;">${renderAnatomyFigure({
             nectarZones: SIGN_TO_ANATOMY_ZONE[deha.nectar.sign],
             vitalityZones: SIGN_TO_ANATOMY_ZONE[deha.vitality.sign],
+            poisonZones: SIGN_TO_ANATOMY_ZONE[deha.poison.sign],
             natalZones: deha.natal ? SIGN_TO_ANATOMY_ZONE[deha.natal.sign] : []
           })}</div>
           <div class="chakra-legend dc-legend" style="flex:1; min-width:280px;">
@@ -10987,79 +11015,9 @@ function renderCommoditiesPage(){
     </div>
 
     <div class="panel" style="border-color:var(--gold-dim);">
-      <div class="hd"><h2>${T('Gold — Isolated Deep Dive','Oro — Análisis aislado')}</h2><span class="note">${T('every gold-specific rule on this page, gathered in one place','cada regla específica sobre el oro de esta página, reunida en un solo lugar')}</span></div>
-      <div class="bd">
-        <div class="hint" style="margin-bottom:12px;">${T('Gold is named more than any other single commodity across these chapters of Bṛhat Saṁhitā. Below is every place it\'s specifically called out — not just the sign-rulership line it shares with everything else — pulled together and, where the rule allows it, checked live.','El oro se menciona más que cualquier otra materia prima en estos capítulos del Bṛhat Saṁhitā. Abajo está cada lugar donde se le nombra específicamente — no solo la línea de gobierno de signo que comparte con todo lo demás — reunido y, donde la regla lo permite, comprobado en vivo.')}</div>
-
-        ${(()=>{
-          const ariesRow = live.rows.find(r=>r.sign==='Aries');
-          const capRow = live.rows.find(r=>r.sign==='Capricorn');
-          const signTag = r => {
-            const vTag = `<span class="tag ${r.venusVerdict==='flourish'?'good':'bad'}">${gName('Venus')}: ${r.venusVerdict==='flourish' ? T('flourish','abundancia') : T('perish-risk','riesgo de escasez')}</span>`;
-            const mTags = [
-              r.maleficsFlourish.length ? `<span class="tag good">${r.maleficsFlourish.map(gName).join('/')} → ${T('flourish','abundancia')}</span>` : '',
-              r.maleficsScarce.length ? `<span class="tag bad">${r.maleficsScarce.map(gName).join('/')} → ${T('scarce &amp; dear','escaso y caro')}</span>` : ''
-            ].filter(Boolean).join(' ');
-            return `${vTag} ${mTags}`;
-          };
-          return `
-        <h3 style="margin:0 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('1 · Which sign governs it, right now','1 · Qué signo lo gobierna, ahora mismo')}</h3>
-        <div class="kv" style="margin-bottom:4px;"><div class="k">Aries</div><div class="v">${signTag(ariesRow)}</div></div>
-        <div class="kv" style="margin-bottom:10px;"><div class="k">Capricorn</div><div class="v">${signTag(capRow)}</div></div>
-
-        <h3 style="margin:14px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('2 · This month\'s storage rule','2 · La regla de almacenamiento de este mes')}</h3>
-        ${live.sunSign==='Leo' ? `
-          <div class="kv"><div class="k">${T('Sun in','Sol en')}</div><div class="v"><span class="tag good">Leo — ${T('rule active','regla activa')}</span></div></div>
-          <div class="hint" style="margin-top:6px;">${T('Gold is named specifically only when the Sun transits Leo (alongside gems, leather, armour, weapons, pearls and silver): store now, resell in exactly the 5th month for much profit — earlier or later brings loss. Still conditioned on a portent this app can\'t detect (see the trading-guidance panel below).','El oro se nombra específicamente solo cuando el Sol transita Leo (junto a gemas, cuero, armadura, armas, perlas y plata): almacena ahora, revende exactamente en el 5.º mes para obtener mucha ganancia — antes o después trae pérdida. Sigue condicionado a un presagio que esta app no puede detectar (ver el panel de guía comercial abajo).')}</div>
-        ` : `
-          <div class="kv"><div class="k">${T('Sun in','Sol en')}</div><div class="v"><span class="tag neutral">${T(live.sunSign,live.sunSign)} — ${T('not active','no activa')}</span></div></div>
-          <div class="hint" style="margin-top:6px;">${T('This rule only names gold when the Sun is in Leo. Not the case right now.','Esta regla solo nombra el oro cuando el Sol está en Leo. No es el caso ahora mismo.')}</div>
-        `}
-        ${seasonalityHtml(goldSeason, 8, 5, 'gold, 182mo history', 'oro, historial de 182 meses')}`;
-        })()}
-
-        <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('3 · Today\'s weekday','3 · El día de la semana de hoy')}</h3>
-        ${(()=>{
-          const rule = GOLD_WEEKDAY_RULE[live.weekday];
-          const dayEs = {Sunday:'domingo',Monday:'lunes',Tuesday:'martes',Wednesday:'miércoles',Thursday:'jueves',Friday:'viernes',Saturday:'sábado'}[live.weekday];
-          return rule ? `
-          <div class="kv"><div class="k">${T('Today is','Hoy es')}</div><div class="v"><span class="tag good">${T(live.weekday,dayEs)} — ${T('favoured for gold','favorable para el oro')}</span></div></div>
-          <div class="hint" style="margin-top:6px;">${T(rule.en,rule.es)}</div>
-        ` : `
-          <div class="kv"><div class="k">${T('Today is','Hoy es')}</div><div class="v"><span class="tag neutral">${T(live.weekday,dayEs)} — ${T('not one of the named days','no es uno de los días nombrados')}</span></div></div>
-          <div class="hint" style="margin-top:6px;">${T('Sunday, Tuesday and Thursday are named for gold-related work. Today is not one of those.','Domingo, martes y jueves están nombrados para el trabajo relacionado con el oro. Hoy no es uno de esos días.')}</div>
-        `;
-        })()}
-        <div class="hint" style="margin-top:6px; font-style:italic;">${T('Sunday\'s clause is further conditioned on the Sun\'s position relative to the Ascendant (an Upachaya house, or the rising sign itself) — this page is deliberately location-independent, like the Pañcha Pakshi panel, so that extra check isn\'t made here.','La cláusula del domingo está además condicionada a la posición del Sol respecto al Ascendente (una casa Upachaya, o el propio signo ascendente) — esta página es deliberadamente independiente de la ubicación, como el panel de Pañcha Pakshi, así que esa comprobación adicional no se hace aquí.')}</div>
-
-        <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('4 · Antara Chakra cross-reference','4 · Referencia cruzada del Antara Chakra')}</h3>
-        ${(()=>{
-          const stateTag = (state, goodTxt, goodTxtEs, badTxt, badTxtEs) => {
-            if (state==='Santa') return goodTxt ? `<span class="tag good">Śānta — ${T(goodTxt,goodTxtEs)}</span>` : `<span class="tag neutral">Śānta — ${T('no gold reading on this side of this point','sin lectura de oro en este lado de este punto')}</span>`;
-            return badTxt ? `<span class="tag bad">${state} — ${T(badTxt,badTxtEs)}</span>` : `<span class="tag neutral">${state} — ${T('no gold reading on this side of this point','sin lectura de oro en este lado de este punto')}</span>`;
-          };
-          return `
-        <div class="kv" style="margin-bottom:4px;"><div class="k">Kośādhyakṣa (E)</div><div class="v">${stateTag(live.goldAntara.kosadhyaksha, 'gain of gold and of a desired object','ganancia de oro y de un objeto deseado', 'injury to gold and suffering to goldsmiths','daño al oro y sufrimiento para los orfebres')}</div></div>
-        <div class="kv" style="margin-bottom:4px;"><div class="k">${T('Southeast','Sureste')}</div><div class="v">${stateTag(live.goldAntara.southeast, 'gain of gold and metals','ganancia de oro y metales', null, null)}</div></div>
-        <div class="kv"><div class="k">Vivastra Strī (SE)</div><div class="v">${stateTag(live.goldAntara.vivastraStri, null, null, 'death of dealers in gold and of sculptors','muerte de comerciantes de oro y de escultores')}</div></div>
-        <div class="hint" style="margin-top:8px;">${T('These are three of the 32 Antara Chakra points, live right now, cross-referenced here because they\'re the only ones that specifically name gold. See the Antara Chakra page for the full wheel.','Estos son tres de los 32 puntos del Antara Chakra, en vivo ahora mismo, referenciados aquí porque son los únicos que nombran específicamente el oro. Ver la página del Antara Chakra para la rueda completa.')}</div>`;
-        })()}
-
-        <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('5 · Botanical omens (reference only, not live)','5 · Presagios botánicos (solo referencia, no en vivo)')}</h3>
-        <ul style="margin:4px 0 0; padding-left:20px; font-size:12.5px; color:var(--ink-dim);">
-          ${GOLD_BOTANICAL_OMENS.map(o=>`<li style="margin-bottom:4px;">${T(o.en,o.es)}</li>`).join('')}
-        </ul>
-        <div class="hint" style="margin-top:6px;">${T('These need a real-world botanical observation (which of two specific trees is currently blossoming) that this app has no way to make — shown for completeness, not as a signal.','Estos necesitan una observación botánica real (cuál de dos árboles específicos está floreciendo actualmente) que esta app no puede hacer — se muestran por completitud, no como señal.')}</div>
-
-        ${backtestSectionHtml(goldBT, 'XAU/gold', 'oro (XAU)', 'gold', 'el oro')}
-        ${riskNoteHtml()}
-      </div>
-    </div>
-
-    <div class="panel" style="border-color:var(--gold-dim);">
       <div class="hd"><h2>${T('Oil — Isolated Deep Dive','Aceite — Análisis aislado')}</h2><span class="note">${T('every oil-specific rule on this page, gathered in one place','cada regla específica sobre el aceite de esta página, reunida en un solo lugar')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:12px;">${T('Oil is named specifically in two places in these chapters of Bṛhat Saṁhitā — gathered here the same way as the Gold panel above. Unlike gold, oil is not named in this text\'s weekday-work list, its 32-point Antara Chakra, or its plant-blossom omens — shown honestly below rather than stretched to fit.','El aceite se menciona específicamente en dos lugares de estos capítulos del Bṛhat Saṁhitā — reunido aquí igual que el panel de Oro arriba. A diferencia del oro, el aceite no se menciona en la lista de trabajo por día de la semana de este texto, en su Antara Chakra de 32 puntos, ni en sus presagios de floración — se muestra con honestidad abajo en vez de forzarlo.')}</div>
+        <div class="hint" style="margin-bottom:12px;">${T('Oil is named specifically in two places in these chapters of Bṛhat Saṁhitā, gathered here into one place the same way an isolated deep-dive works for any single commodity named repeatedly across these chapters. Unlike gold, oil is not named in this text\'s weekday-work list, its 32-point Antara Chakra, or its plant-blossom omens — shown honestly below rather than stretched to fit.','El aceite se menciona específicamente en dos lugares de estos capítulos del Bṛhat Saṁhitā, reunido aquí en un solo lugar de la misma forma en que funciona un análisis aislado para cualquier materia prima nombrada repetidamente en estos capítulos. A diferencia del oro, el aceite no se menciona en la lista de trabajo por día de la semana de este texto, en su Antara Chakra de 32 puntos, ni en sus presagios de floración — se muestra con honestidad abajo en vez de forzarlo.')}</div>
         <div class="hint" style="margin-bottom:12px; font-style:italic;">${T('This "oil" is taila — pressed seed-oil (sesame etc.), the article the text itself names for lamps, cooking and anointing. It is not petroleum, which had no place in a 6th-century commodity list and is not treated as the same article here. For a petroleum/fuel-oil reading, see the "Oil &amp; Gas" sector tag under Modern Synthesis below — the app\'s own disclosed synthesis from planetary significations, not a source citation.','Este "aceite" es taila — aceite de semilla prensado (sésamo, etc.), el artículo que el propio texto nombra para lámparas, cocina y unción. No es petróleo, que no tenía lugar en una lista de materias primas del siglo VI y no se trata aquí como el mismo artículo. Para una lectura de petróleo/combustible, ver la etiqueta de sector "Petróleo y Gas" en Síntesis Moderna más abajo — la síntesis propia y declarada de esta app a partir de significaciones planetarias, no una cita de fuente.')}</div>
 
         ${(()=>{
