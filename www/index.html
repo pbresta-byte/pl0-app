@@ -8274,6 +8274,35 @@ function lordPosRetroTag(g, pos){ return pos[g] && pos[g].speed<0 ? ` <small sty
 // from the birth date/time/place entered in field 1. This page is entirely
 // natal (never changes with the current date), unlike almost everything
 // else in this app, which is either live or keyed to a chosen muhūrta moment.
+
+// ---- Arudha Lagna ----
+// The image the Lagna casts on the 10th-from-itself (the "highest point" of
+// the chart). Classically: count from the Lagna the number of signs that the
+// Lagna lord sits away from the Lagna, then count the same number again from
+// that lord's position — the resulting sign is the Arudha Lagna (AL). This
+// sign is read as the persona one *presents to the world*: the mask/social
+// image, distinct from the Lagna's inner self. The AL occupies the 10th sign
+// from the Lagna in this degree-accurate reckoning (Lagna + 270°), with two
+// classical exceptions: if it would fall in the Lagna itself or the 10th from
+// the Lagna, it is displaced to the 5th or the 9th sign respectively.
+function computeArudhaLagna(ascSiderealDeg){
+  const lagnaLong = norm360(ascSiderealDeg);
+  const lagnaSignIdx = Math.floor(lagnaLong/30);
+  const basic = norm360(lagnaLong + 270); // 10th sign from Lagna
+  const basicSignIdx = Math.floor(basic/30);
+  const dist = ((basicSignIdx - lagnaSignIdx + 12) % 12); // 0-based
+  let finalLong;
+  if (dist === 0){
+    // Arudha falls in the Lagna sign itself → move to the 5th
+    finalLong = norm360(lagnaLong + 120);
+  } else if (dist === 9){
+    // Arudha falls in the 10th from Lagna → move to the 9th
+    finalLong = norm360(lagnaLong + 240);
+  } else {
+    finalLong = basic;
+  }
+  return norm360(finalLong);
+}
 function renderNatalPage(){
   const container = document.getElementById('natalPageContent');
   if (!container) return;
@@ -8289,15 +8318,25 @@ function renderNatalPage(){
   const navLagnaSign = SIGNS[Math.floor(navLagnaSidereal/30)];
   const isWaxingMoon = refP._panch ? refP._panch.paksha === "Shukla" : true;
 
-  const positionRows = (pos, ascSidereal) => {
-    const ascSign = SIGNS[Math.floor(norm360(ascSidereal)/30)];
-    const ascDeg = norm360(ascSidereal)%30;
-    let rows = `<tr>
-      <td class="wide">Lagna</td>
-      <td>${ascSign} ${fmtDeg(ascDeg)}</td>
-      <td>—</td>
-    </tr>`;
-    GRAHA_LIST.forEach(g=>{
+  const positionRows = (pos, ascSidereal, showArudha) => {
+      const ascSign = SIGNS[Math.floor(norm360(ascSidereal)/30)];
+      const ascDeg = norm360(ascSidereal)%30;
+      let rows = `<tr>
+        <td class="wide">Lagna</td>
+        <td>${ascSign} ${fmtDeg(ascDeg)}</td>
+        <td>—</td>
+      </tr>`;
+      if (showArudha){
+        const alLong = computeArudhaLagna(ascSidereal);
+        const alSign = SIGNS[Math.floor(alLong/30)];
+        const alDeg = alLong%30;
+        rows += `<tr>
+          <td class="wide" style="color:var(--gold);">Arudha Lagna <span class="tag gold" title="${T('The sign your Lagna casts on the 10th-from-itself','El signo que tu Lagna proyecta sobre la 10ª desde sí mismo')}">?</span></td>
+          <td style="color:var(--gold);">${alSign} ${fmtDeg(alDeg)}</td>
+          <td class="hint" style="font-size:10.5px;">${T('public image','imagen pública')}</td>
+        </tr>`;
+      }
+      GRAHA_LIST.forEach(g=>{
       const sid = norm360(pos[g].sidereal);
       const sign = SIGNS[Math.floor(sid/30)];
       const deg = sid%30;
@@ -8458,7 +8497,7 @@ function renderNatalPage(){
     <div class="grid3panel">
       <div class="panel"><div class="hd"><h2>${T('D1 (Rāśi) positions','Posiciones D1 (Rāśi)')}</h2><span class="note">${T('natal','natal')}</span></div>
         <div class="bd">
-          <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Position','Posición')}</th><th>${T('Dignity','Dignidad')}</th></tr></thead><tbody>${positionRows(birthPos, birthPos._ascSidereal)}</tbody></table></div>
+          <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Position','Posición')}</th><th>${T('Dignity','Dignidad')}</th></tr></thead><tbody>${positionRows(birthPos, birthPos._ascSidereal, true)}</tbody></table></div>
         </div>
       </div>
       <div class="panel"><div class="hd"><h2>${T('D9 (Navāṁśa) positions','Posiciones D9 (Navāṁśa)')}</h2><span class="note">${T('natal','natal')}</span></div>
@@ -8473,6 +8512,7 @@ function renderNatalPage(){
       </div>
     </div>
     <div class="hint" style="margin:8px 0 0;">${T('(r) = retrograde at birth. Dignity (own/exalted/friend/neutral/enemy/debilitated) is read off the sign each chart places the graha in — the same rule for both D1 and D9. The third table is a separate, independent lens on the same natal placements: how many bindus (0–8) each graha\'s own Bhinnāṣṭakavarga assigns to the sign it was born in (5+ strong, 4 average, 0–3 weak), plus the Sarvāṣṭakavarga total (all 7 grahas\' bindus) for that sign — average 28, above is supportive, below 25 weak. Dignity measures the graha\'s relationship to its sign; bindus count contributions from 8 sources — the two can genuinely disagree about the same placement, which is why they\'re shown side by side rather than merged. Rāhu/Ketu have no Bhinnāṣṭakavarga in this system (7 grahas only), so they show only the Sarva column.','(r) = retrógrado al nacer. La dignidad (propio/exaltado/amigo/neutral/enemigo/debilitado) se lee según el signo en que cada carta ubica al graha — la misma regla para D1 y D9. La tercera tabla es una lente separada e independiente sobre las mismas posiciones natales: cuántos bindus (0–8) asigna el propio Bhinnāṣṭakavarga de cada graha al signo en que nació (5+ fuerte, 4 promedio, 0–3 débil), más el total de Sarvāṣṭakavarga (los bindus de los 7 graha) para ese signo — promedio 28, por encima es favorable, por debajo de 25 débil. La dignidad mide la relación del graha con su signo; los bindus cuentan contribuciones de 8 fuentes — los dos pueden discrepar genuinamente sobre la misma posición, por eso se muestran lado a lado en vez de fusionados. Rāhu/Ketu no tienen Bhinnāṣṭakavarga en este sistema (solo 7 graha), así que muestran solo la columna Sarva.')}</div>
+    <div class="hint" style="margin:8px 0 0;">${T('Arudha Lagna — shown on the D1 table above — is the sign your Lagna casts on the 10th-from-itself: the image you present to the world, your public face, distinct from the Lagna\'s inner self. It is read from your birth Lagna degree (Lagna + 270°, with two classical exceptions when the result falls on the Lagna itself or the 10th from it, which shift it to the 5th or 9th). Its sign is commonly used for Nimitta and spouse-placement judgment.','Arudha Lagna — mostrado en la tabla D1 de arriba — es el signo que tu Lagna proyecta sobre la 10ª desde sí mismo: la imagen que presentas al mundo, tu rostro público, distinta del yo interior del Lagna. Se lee desde el grado de tu Lagna natal (Lagna + 270°, con dos excepciones clásicas cuando el resultado cae en el propio Lagna o en la 10ª desde él, desplazándose a la 5ª o la 9ª). Su signo se usa habitualmente para el juicio de Nimitta y de ubicación del cónyuge.')}</div>
     <div style="height:8px"></div>
 
     <div class="panel"><div class="hd"><h2>${T('Functional benefic / malefic by house lordship','Benéfico / maléfico funcional por señorío de casas')}</h2></div>
