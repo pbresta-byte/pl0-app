@@ -653,6 +653,51 @@
   .antara-reflist{ display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
   .antara-reflist span{ font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); background:var(--panel-2); border:1px solid var(--line-soft); border-radius:var(--radius-pill); padding:1px 8px; }
   @media (max-width: 700px){ .antara-wheel-col svg{ max-width:320px; } }
+
+  /* --- Pañcha Pakshi Yama Matrix panel (run-analysis verdict) ---
+     Condensed, guidance-first replacement for the old 5-row state ladder
+     table. Each yama is one row: state name, its color chip, a 1-line
+     "what this means right now" guidance, and the birds currently living
+     there. Designed to read at a glance instead of as a data table. */
+  .pp-matrix{ display:grid; grid-template-columns:1fr; gap:6px; margin-top:10px; }
+  .pp-matrix .m-row{ display:flex; align-items:center; gap:8px; padding:5px 0; }
+  .pp-matrix .m-rank{ font-family:var(--mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--slate); width:36px; flex:none; }
+  .pp-matrix .m-swatch{ width:13px; height:13px; border-radius:3px; flex:none; }
+  .pp-matrix .m-name{ font-size:12px; color:var(--ink); font-weight:600; min-width:120px; }
+  .pp-matrix .m-guide{ font-size:10.5px; color:var(--ink-dim); line-height:1.3; margin:0 4px; }
+  .pp-matrix .m-birds{ margin-left:auto; white-space:nowrap; }
+  /* week-ahead matrix */
+  .pp-week{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-top:12px; font-size:11px; }
+  .pp-week .w-head{ font-family:var(--mono); font-size:9px; letter-spacing:0.06em; text-transform:uppercase; color:var(--slate); text-align:center; padding-bottom:2px; }
+  .pp-week .w-day{ text-align:center; padding-top:18px; position:relative; }
+  .pp-week .w-day .w-date{ font-weight:600; color:var(--ink); }
+  .pp-week .w-state{ font-size:9.5px; font-family:var(--mono); padding:2px 4px; border-radius:3px; white-space:nowrap; display:block; margin:2px auto; max-width:100%; }
+  /* intent filter: a matching outlook day-row gets a soft gold wash + left notch so the
+     chosen activity's days read as one glanceable set across the week. */
+  .pp-week-outlook tr.pp-intent-hit{ box-shadow:inset 2px 0 0 #D1A94E; background:rgba(209,169,78,0.10) !important; }
+  .pp-week-outlook .pp-timing-cell{ max-width:240px; display:inline-block; }
+  .pp-timing-day{ color:var(--ink-dim); }
+  .pp-timing-night{ color:var(--slate); opacity:0.85; }
+  @media (max-width:700px){ .pp-week-outlook .pp-timing-cell{ display:none; } }
+  /* live "best to ask now" callout */
+  .pp-asknow{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:11.5px; padding:7px 10px; border-radius:var(--radius-sm); margin-bottom:8px; }
+  .pp-asknow.ok{ background:rgba(30,132,73,0.12); border:1px solid rgba(30,132,73,0.35); color:var(--ink); }
+  .pp-asknow.warn{ background:rgba(146,43,33,0.10); border:1px solid rgba(146,43,33,0.35); color:var(--ink); }
+  .pp-asknow .pp-asknow-badge{ font-family:var(--mono); font-size:9.5px; letter-spacing:0.08em; padding:1px 6px; border-radius:3px; background:var(--panel); color:var(--ink); border:1px solid var(--line); }
+  .pp-asknow .pp-asknow-next{ margin-left:auto; color:var(--slate); }
+  /* Light mode — the app is dark by default; this keeps the matrix legible
+     when the OS prefers a light surface. Tuned against the theme-color meta
+     (#96690f) declared in the document head for light. */
+  @media (prefers-color-scheme: light){
+    .pp-matrix .m-guide{ color:var(--muted); }
+    .pp-week .w-state{ background:rgba(0,0,0,0.05); color:var(--ink); }
+    .verdict .ribbon{ opacity:0.8; }
+  }
+  /* High-contrast fallback if reduced-motion or a forced-colors surface
+     drops the theme tokens — keeps text visible. */
+  @media (prefers-contrast: more){
+    .pp-matrix .m-guide, .pp-matrix .m-name{ color:var(--ink); }
+  }
 </style>
 </head>
 <body>
@@ -4580,6 +4625,11 @@ const PP_STATES = ["Ruling","Eating","Walking","Sleeping","Dying"]; // strength 
 const PP_STATES_ES = {Ruling:"Reinando",Eating:"Comiendo",Walking:"Caminando",Sleeping:"Durmiendo",Dying:"Muriendo"};
 const PP_ACT_FACTOR = {Ruling:1.0, Eating:0.8, Walking:0.6, Sleeping:0.4, Dying:0.2}; // Table No.5 ratio vector
 
+// Visual color per Yama state (matches the Pañcha Pakshi ladder palette used
+// app-wide). Declared here so the week-ahead matrix and the cleaned-up ladder
+// share one source of truth instead of each hardcoding hex.
+const PP_STATE_COLOR = {Ruling:'#B8860B', Eating:'#1E8449', Walking:'#21618C', Sleeping:'#7D6608', Dying:'#922B21'};
+
 const PP_NATURAL_BRIGHT = {Crow:1.0, Vulture:0.75, Owl:0.5,  Cock:0.25, Peacock:0.125};
 const PP_NATURAL_DARK   = {Crow:1.0, Vulture:0.75, Owl:0.25, Cock:0.5,  Peacock:0.125}; // Owl/Cock swap per source
 
@@ -7919,25 +7969,24 @@ function runAnalysis(){
     <div class="body">
       <div class="tier"><small>${T('Verdict for','Veredicto para')} ${mdt.mo}/${mdt.da}/${mdt.y} · ${weekdayName}, ${mdt.hh}:${pad2(mdt.mm)} ${T('local','hora local')}</small>${tierLabel} <span style="color:${tier.color}">— ${tier.name}</span></div>
       <div class="desc">
-      <details style="margin-top:8px;"><summary style="cursor:pointer;color:var(--gold);font-size:12px;">Pañcha Pakshi activity-strength ladder</summary>
-      <table style="width:100%;font-size:12px;border-collapse:collapse;margin-top:6px;">
-        <tr style="color:var(--muted);text-align:left;"><th style="padding:3px 6px;">Rank</th><th>Activity</th><th>Strength colour</th><th>Birds currently here</th></tr>
+      <div class="pp-matrix" style="margin-top:8px;">
         ${[
-          {rank:1,name:'Ruling (Yukta)',col:'#B8860B',desc:'peak strength — best for initiating anything important'},
-          {rank:2,name:'Eating (Aahara)',col:'#1E8449',desc:'strong — good for most activities'},
-          {rank:3,name:'Walking (Chara)',col:'#21618C',desc:'moderate — acceptable for routine work'},
-          {rank:4,name:'Sleeping (Nidra)',col:'#7D6608',desc:'weak — avoid new ventures'},
-          {rank:5,name:'Dying (Mrityu)',col:'#922B21',desc:'weakest — avoid all auspicious acts'}
+          {rank:1,name:'Ruling (Yukta)',col:'#B8860B',desc:T('peak strength — best for initiating anything important','máxima fuerza — lo mejor para iniciar algo importante')},
+          {rank:2,name:'Eating (Aahara)',col:'#1E8449',desc:T('strong — good for most activities','fuerte — bueno para la mayoría de actividades')},
+          {rank:3,name:'Walking (Chara)',col:'#21618C',desc:T('moderate — acceptable for routine work','moderado — aceptable para trabajos rutinarios')},
+          {rank:4,name:'Sleeping (Nidra)',col:'#7D6608',desc:T('weak — avoid new ventures','débil — evita nuevas iniciativas')},
+          {rank:5,name:'Dying (Mrityu)',col:'#922B21',desc:T('weakest — avoid all auspicious acts','más débil — evita todos los actos auspiciosos')}
         ].map(row=>{
-          const birdsHere = ppVowelRows.filter(v=>v.mainState===row.name.split(' ')[0]||v.abstractState===row.name.split(' ')[0]);
-          return `<tr>
-            <td style="padding:3px 6px;">${row.rank}</td>
-            <td><b>${row.name}</b><br><small style="color:var(--muted)">${row.desc}</small></td>
-            <td><span style="display:inline-block;width:14px;height:14px;background:${row.col};border-radius:3px;vertical-align:-2px;margin-right:4px;"></span>${row.col}</td>
-            <td>${birdsHere.length?birdsHere.map(b=>ppBirdBadge(b.bird)).join(' '):'<i style=color:var(--muted)>none</i>'}</td>
-          </tr>`;
-        }).join('')}
-      </table></details>
+          const stateName = row.name.split(' ')[0];
+          const birdsHere = ppVowelRows.filter(v=>v.mainState===stateName||v.abstractState===stateName);
+          return `<div class="m-row">
+            <span class="m-rank">${row.rank}</span>
+            <span class="m-swatch" style="background:${row.col};"></span>
+            <span class="m-name" style="color:${row.col};">${T(row.name.split('(')[0].trim(), row.name.split('(')[0].trim())}</span>
+            <span class="m-guide">${row.desc}</span>
+            <span class="m-birds">${birdsHere.length?birdsHere.map(b=>ppBirdBadge(b.bird)).join(' '):'<i style="color:var(--muted)">'+T('none','ninguno')+'</i>'}</span>
+          </div>`;
+        }).join('')}</div>
     </div>
     </div>
     <div class="score">
@@ -7979,6 +8028,126 @@ function runAnalysis(){
       <div class="gdesc">${T(`Holding ${roleText}. ${w.graha} reads ${w.vimLabel.en} by transiting strength.${defaultNote} Governs until ${governsUntilStr} local.${epochNote}`,`Ocupa ${roleText}. ${T(w.graha,GRAHA_ES[w.graha])} se lee ${w.vimLabel.es} por fuerza en tránsito.${defaultNote} Gobierna hasta las ${governsUntilStr} hora local.${epochNote}`)}</div>
       <div class="gchips">${chips}</div>
     </div>`;
+  }
+
+  // --- Week-ahead Pañcha Pakshi outlook (compact guide, not a data dump) ---
+  // Surfaces, per weekday for the next 7 days: the life bird's dominant Yama
+  // (the activity-state it spends the most main-periods in that day) and — for
+  // TODAY only — the explicit main × abstract combo so "Ruling-in-Ruling"
+  // (1.0x1.0) vs "Ruling-in-Sleeping" (1.0x0.4) reads as a real number instead
+  // of a hidden uniform value. Re-derives Pakṣa per day via computePanchanga
+  // so the half isn't frozen to today's date. Defaults to equinox 12/12
+  // day-length for the outlook (the source's own printed table).
+  let weekAheadHtml = "";
+  if (refP.lifeBird) {
+    const lb = refP.lifeBird;
+    // Intent -> preferred yama tier. User selects an activity; days whose
+    // life-bird dominant Yama matches are highlighted.
+    const INTENT_YAMA = {
+      init:    {label: T('Initiate work / new ventures','Iniciar trabajo / nuevas iniciativas'), yama: 'Ruling',    cls:'good'},
+      talk:    {label: T('Negotiations / conversations','Negociaciones / conversaciones'),   yama: 'Eating',    cls:'good'},
+      travel:  {label: T('Travel / movement','Viajar / movimiento'),                           yama: 'Walking',   cls:'neutral'},
+      rest:    {label: T('Rest / behind-the-scenes','Descanso / trabajo en segundo plano'),  yama: 'Sleeping',  cls:'neutral'},
+      avoid:   {label: T('Avoid — endings only','Evitar — solo cierres'),                     yama: 'Dying',     cls:'bad'}
+    };
+    const intentKeys = Object.keys(INTENT_YAMA);
+    const guideCols = T('Day','Día') + "," + T('Main Yama','Yama principal') + "," + T('Combo','Combinación') + "," + T('Yamas','Yamas');
+    const guideHdr = `<tr style="color:var(--slate);font-family:var(--mono);font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;">${guideCols.split(',').map(c=>`<th style="padding:3px 6px;text-align:left;">${c}</th>`).join('')}</tr>`;
+    const guideRows = [];
+    const startDt = new Date(Date.UTC(mdt.y, mdt.mo-1, mdt.da));
+    for (let d=0; d<7; d++){
+      const utc = new Date(Date.UTC(mdt.y, mdt.mo-1, mdt.da + d));
+      const jd = julianDay(utc.getUTCFullYear(), utc.getUTCMonth()+1, utc.getUTCDate(), 12, 0, 0, 0);
+      const wdEN = WEEKDAYS[utc.getUTCDay()];
+      const wPos = computePositions(jd, mdt.lat, mdt.lon, ay);
+      const wPanch = computePanchanga(wPos);
+      const half = wPanch.paksha === "Shukla" ? "bright" : "dark";
+      const ppDay = computePanchapakshiDay(wdEN, half, 12, 12);
+      // real sunrise/day-length so timing rows are anchor-accurate (equinox default fallback)
+      const sunSS = sunriseSunsetLocal(utc.getUTCFullYear(), utc.getUTCMonth()+1, utc.getUTCDate(), mdt.lat, mdt.lon, mdt.tz);
+      const srise = sunSS ? sunSS.sunriseHr : 6;
+      const dlen = sunSS ? ((sunSS.sunsetHr - srise + 24) % 24) : 12;
+      // dominant main-state across the 10 main periods for the life bird
+      const tally = {Ruling:0,Eating:0,Walking:0,Sleeping:0,Dying:0};
+      ppDay.periods.forEach(p=>{ tally[p.byBird[lb].state] = (tally[p.byBird[lb].state]||0)+1; });
+      const domState = PP_STATES.reduce((a,b)=> tally[a] >= tally[b] ? a : b, PP_STATES[0]);
+      // today's live main×abstract combo
+      let combo = "";
+      if (d === 0) {
+        const live = ppStateForInstant(mdtWeekdayEN, mdtHalf, mdtHourFromSunrise, refP, mdtDayLenHrs);
+        if (live) {
+          const st = PP_ACT_FACTOR[live.mainState] * PP_ACT_FACTOR[live.abstractState];
+          const mainT = T(live.mainState, PP_STATES_ES[live.mainState]);
+          const subT = T(live.abstractState, PP_STATES_ES[live.abstractState]);
+          combo = `${mainT}/${subT} ${st.toFixed(2)}`;
+        }
+      }
+      // per-yama time ranges for the life bird (real sunrise-anchored).
+      // Each period knows whether it is a daylight or night ghaṭī band
+      // (computePanchapakshiDay's isDay flag), so the cell can be split
+      // into a sun row and a moon row instead of one flat timeline.
+      const timing = ppDay.periods.map(p=>{
+        const b = p.byBird[lb];
+        const sh = pad2(Math.floor(p.startHr));
+        const sm = pad2(Math.round((p.startHr%1)*60));
+        const eh = pad2(Math.floor(p.endHr % 24));
+        const em = pad2(Math.round((p.endHr%1)*60));
+        return {state:b.state, isDay:p.isDay, range: `${sh}:${sm}-${eh}:${em}`};
+      });
+      guideRows.push({wd: wdEN, domState, combo, isToday: d===0, dayLn: timing.filter(t=>t.isDay).map(t=>`${t.state} ${t.range}`).join(', '), nightLn: timing.filter(t=>!t.isDay).map(t=>`${t.state} ${t.range}`).join(', '), panchHalf: half});
+    }
+    // LIVE "best to ask now" callout — reflects the real current moment at the
+    // user's chosen location, independent of the judged muhūrta. Uses the same
+    // ppLiveNow() clock + computePanchapakshiDay engine as the live Dasha
+    // panel, so it always agrees with the watched clock (60s re-run).
+    let askNow = "";
+    try {
+      const live = ppLiveNow();
+      const nowDay = computePanchapakshiDay(live.weekdayEN, live.half, live.dayLenHrs, live.nightLenHrs);
+      const nowState = ppStateForBirdAtInstant(lb, live.weekdayEN, live.half,
+        (live.dayHalf==='day' ? live.localHr : live.dayLenHrs + live.localHr), live.dayLenHrs, live.nightLenHrs);
+      // nowState is the main×abstract composite (Ruling-in-Eating etc.). For a
+      // quick ask/await verdict we read the dominant (main) tier.
+      const nowMain = nowState && (nowState.mainState || nowState.state);
+      // upcoming icing windows today for the life bird (Ruling + Eating tiers, not yet past)
+      const nowHr = (live.dayHalf==='day' ? live.localHr : live.dayLenHrs + live.localHr);
+      const up = nowDay.periods.filter(p=> p.byBird[lb].state==='Ruling' || p.byBird[lb].state==='Eating');
+      const future = up.filter(p=> p.endHr >= nowHr);
+      const nxt = future.length ? future[0] : up[0];
+      const stTxt = nowMain ? T(nowMain, PP_STATES_ES[nowMain]) : T('—','—');
+      const strong = nowMain && (nowMain==='Ruling' || nowMain==='Eating');
+      let nextTxt = "—";
+      if (nxt) {
+        const s=nxt.startHr, e=nxt.endHr%24;
+        nextTxt = `${T(nxt.byBird[lb].state, PP_STATES_ES[nxt.byBird[lb].state])} ${pad2(Math.floor(s))}:${pad2(Math.round((s%1)*60))}–${pad2(Math.floor(e))}:${pad2(Math.round((e%1)*60))}`;
+      }
+      askNow = `<div class="pp-asknow ${strong?'ok':'warn'}"><span class="pp-asknow-badge">${T('NOW','AHORA')}</span> <span>${T('Your life bird is currently','Tu ave vital está actualmente')} <b>${stTxt}</b> — ${strong ? T('a strong tier: good to ask now.','un nivel fuerte: bueno para preguntar ahora.') : T('a weak tier: wait.','un nivel débil: espera.')}</span> <span class="pp-asknow-next">${T('Next strong window today:','Próxima ventana fuerte hoy:')} <b>${nextTxt}</b></span></div>`;
+    } catch(e){ askNow=""; }
+    html += `<details class="ref-drop" style="margin-top:14px;">
+      <summary style="cursor:pointer;padding:8px 12px;font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-dim);">${T('Pañcha Pakshi — 7-day outlook','Pañcha Pakshi — Perspectiva de 7 días')} <small style="color:var(--slate);">${T(refP.lifeBird, PP_BIRDS_ES[refP.lifeBird])} · ${T('life bird, fixed at birth','ave vital, fija al nacer')}</small></summary>
+      <div style="padding:8px 0 4px;">
+        ${askNow}
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+          <label style="font-family:var(--mono);font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:var(--slate);margin:0;">${T('Filter by intent:','Filtrar por intención:')}</label>
+          <select id="ppIntentFilter" style="font-family:var(--mono);font-size:11px;padding:3px 6px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--panel);color:var(--ink);">
+            ${intentKeys.map(k=>`<option value="${k}" data-yama="${INTENT_YAMA[k].yama}">${INTENT_YAMA[k].label}</option>`).join('')}
+          </select>
+          <span class="hint" style="font-size:10px;color:var(--slate);margin:0;">${T('Highlights days where your life bird rules each Yama.','Resalta los días en que tu ave vital riga cada Yama.')}</span>
+        </div>
+        <table class="pp-week-outlook" style="width:100%;font-size:11.5px;border-collapse:collapse;">
+          ${guideHdr}
+          ${guideRows.map(r=>`<tr data-dom="${r.domState}" style="${r.isToday?'background:rgba(209,169,78,0.06);':''}">
+            <td style="padding:4px 6px;font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-dim);">${T(r.wd, WEEKDAYS_ES[WEEKDAYS.indexOf(r.wd)])}${r.isToday?' · '+'TODAY':''}</td>
+            <td><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:${PP_STATE_COLOR[r.domState]};vertical-align:-1px;margin-right:4px;"></span>${T(r.domState, PP_STATES_ES[r.domState])}</td>
+            <td>${r.combo || T('—','—')}</td>
+            <td><small class="pp-timing-cell" style="color:var(--ink-dim);font-family:var(--mono);">
+              <div class="pp-timing-day">☀ ${r.dayLn}</div>
+              <div class="pp-timing-night">☾ ${r.nightLn}</div>
+            </small></td>
+          </tr>`).join('')}</table>
+        <div class="hint" style="margin-top:8px;">${T('Main Yama = the activity-state your life bird spends the most Yama-periods in that day. Combo (today only) = main × abstract state strength as native(bird) × ACT_FACTOR[main] × ACT_FACTOR[abstract] — Ruling/Ruling 1.00 vs Ruling/Sleeping 0.40 reads as the real difference. Per-Yama = local time ranges from real sunrise (equinox default when location is unavailable).','Yama principal = el estado de actividad en el que tu ave vital pasa más períodos Yama ese día. Combinación (solo hoy) = fuerza de estado principal × abstracto como native(ave) × ACT_FACTOR[principal] × ACT_FACTOR[abstracto] — Reino/Reino 1.00 vs Reino/Dormir 0.40 muestra la diferencia real. Por-Yama = horas locales desde el amanecer real (valor por defecto de equinoccio si no hay ubicación).')}</div>
+      </div>
+    </details>`;
   }
 
   const tithiInfo = bsTithiInfo(panch.tithiNum);
@@ -8176,6 +8345,18 @@ function runAnalysis(){
   </footer>`;
 
   document.getElementById('results').innerHTML = html;
+  // Week-ahead outlook intent filter: highlight rows whose life-bird dominant
+  // Yama matches the selected intent's preferred yama (data-dom on <tr>, data-yama on <option>).
+  const ppFilter = document.getElementById('ppIntentFilter');
+  if (ppFilter) {
+    ppFilter.addEventListener('change', function(){
+      const want = (this.options[this.selectedIndex] || {}).dataset ? this.options[this.selectedIndex].dataset.yama : '';
+      this.closest('.ref-drop').querySelectorAll('tr[data-dom]').forEach(tr=>{
+        tr.classList.toggle('pp-intent-hit', want && tr.dataset.dom === want);
+      });
+    });
+    ppFilter.dispatchEvent(new Event('change'));
+  }
   renderPPPanel();
 }
 
