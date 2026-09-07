@@ -4912,6 +4912,41 @@ function ppStateForInstant(weekdayName, half, hourFromSunrise, refP, dayLenHrs, 
   return ppStateForBirdAtInstant(refP.lifeBird, weekdayName, half, hourFromSunrise, dayLenHrs, nightLenHrs);
 }
 
+/* Live "best to ask now" callout.
+   Independent of the judged muhūrta — reflects the real current moment at the
+   user's chosen location, so it always agrees with the watched clock. Reuses
+   the same ppLiveNow() clock + computePanchapakshiDay engine as the live Dasha
+   panel (60s re-run). Returns '' when the reference has no life bird. */
+function renderAskNowCallout(refP){
+  if (!refP || !refP.lifeBird) return '';
+  const lb = refP.lifeBird;
+  let html = '';
+  try {
+    const live = ppLiveNow();
+    const nowDay = computePanchapakshiDay(live.weekdayEN, live.half, live.dayLenHrs, live.nightLenHrs);
+    const nowState = ppStateForBirdAtInstant(lb, live.weekdayEN, live.half,
+      // hourFromSunrise — day half counts from sunrise, night half continues past sunset hr
+      (live.dayHalf==='day' ? live.localHr : live.dayLenHrs + live.localHr), live.dayLenHrs, live.nightLenHrs);
+    // nowState is the main×abstract composite (e.g. Ruling-in-Eating). For the
+    // ask-await verdict we read the dominant (main) tier.
+    const nowMain = nowState && nowState.mainState;
+    // upcoming strong windows today for the life bird (Ruling + Eating, not yet past)
+    const nowHr = nowDay.periods[0] ? (live.dayHalf==='day' ? live.localHr : live.dayLenHrs + live.localHr) : 0;
+    const up = nowDay.periods.filter(p=> p.byBird[lb].state==='Ruling' || p.byBird[lb].state==='Eating');
+    const future = up.filter(p=> p.endHr >= nowHr);
+    const nxt = future.length ? future[0] : up[0];
+    const stTxt = nowMain ? T(nowMain, PP_STATES_ES[nowMain]) : T('—','—');
+    const strong = nowMain && (nowMain==='Ruling' || nowMain==='Eating');
+    let nextTxt = '—';
+    if (nxt) {
+      const s=nxt.startHr, e=nxt.endHr%24;
+      nextTxt = `${T(nxt.byBird[lb].state, PP_STATES_ES[nxt.byBird[lb].state])} ${pad2(Math.floor(s))}:${pad2(Math.round((s%1)*60))}–${pad2(Math.floor(e))}:${pad2(Math.round((e%1)*60))}`;
+    }
+    html = `<div class="pp-asknow ${strong?'ok':'warn'}"><span class="pp-asknow-badge">${T('NOW','AHORA')}</span> <span>${T('Your life bird is currently','Tu ave vital está actualmente')} <b>${stTxt}</b> — ${strong ? T('a strong tier: good to ask now.','un nivel fuerte: bueno para preguntar ahora.') : T('a weak tier: wait.','un nivel débil: espera.')}</span> <span class="pp-asknow-next">${T('Next strong window today:','Próxima ventana fuerte hoy:')} <b>${nextTxt}</b></span></div>`;
+  } catch(e){ html=''; }
+  return html;
+}
+
 /* Table No. 4, "Identification of Birds from First Sound of the [Name]"
    (Pulippani & Rao, Biorhythms of Natal Moon, 1993, "Fundamentals
    Explained" ch., p.27-33) — a SEPARATE classical method from the
@@ -7964,6 +7999,14 @@ function runAnalysis(){
   const weekdayName = T(WEEKDAYS[new Date(mdt.y,mdt.mo-1,mdt.da).getDay()], WEEKDAYS_ES[new Date(mdt.y,mdt.mo-1,mdt.da).getDay()]);
   const tierLabel = T(tier.label, MUHURTA_TIER_LABEL_ES[tier.name]);
 
+  let askNowHtml = "";
+  if (refP.lifeBird) {
+    // Live "best to ask now" verdict — surfaces above the boxes so the
+    // ask/await answer is always in view, not buried in the 7-day outlook.
+    askNowHtml = renderAskNowCallout(refP);
+  }
+
+  html += (askNowHtml ? `<div class="pp-asknow-wrap" style="margin-bottom:12px;">${askNowHtml}</div>` : '');
   html += `<div class="verdict">
     <div class="ribbon" style="background:${tier.color}"></div>
     <div class="body">
@@ -8100,29 +8143,7 @@ function runAnalysis(){
     // user's chosen location, independent of the judged muhūrta. Uses the same
     // ppLiveNow() clock + computePanchapakshiDay engine as the live Dasha
     // panel, so it always agrees with the watched clock (60s re-run).
-    let askNow = "";
-    try {
-      const live = ppLiveNow();
-      const nowDay = computePanchapakshiDay(live.weekdayEN, live.half, live.dayLenHrs, live.nightLenHrs);
-      const nowState = ppStateForBirdAtInstant(lb, live.weekdayEN, live.half,
-        (live.dayHalf==='day' ? live.localHr : live.dayLenHrs + live.localHr), live.dayLenHrs, live.nightLenHrs);
-      // nowState is the main×abstract composite (Ruling-in-Eating etc.). For a
-      // quick ask/await verdict we read the dominant (main) tier.
-      const nowMain = nowState && (nowState.mainState || nowState.state);
-      // upcoming icing windows today for the life bird (Ruling + Eating tiers, not yet past)
-      const nowHr = (live.dayHalf==='day' ? live.localHr : live.dayLenHrs + live.localHr);
-      const up = nowDay.periods.filter(p=> p.byBird[lb].state==='Ruling' || p.byBird[lb].state==='Eating');
-      const future = up.filter(p=> p.endHr >= nowHr);
-      const nxt = future.length ? future[0] : up[0];
-      const stTxt = nowMain ? T(nowMain, PP_STATES_ES[nowMain]) : T('—','—');
-      const strong = nowMain && (nowMain==='Ruling' || nowMain==='Eating');
-      let nextTxt = "—";
-      if (nxt) {
-        const s=nxt.startHr, e=nxt.endHr%24;
-        nextTxt = `${T(nxt.byBird[lb].state, PP_STATES_ES[nxt.byBird[lb].state])} ${pad2(Math.floor(s))}:${pad2(Math.round((s%1)*60))}–${pad2(Math.floor(e))}:${pad2(Math.round((e%1)*60))}`;
-      }
-      askNow = `<div class="pp-asknow ${strong?'ok':'warn'}"><span class="pp-asknow-badge">${T('NOW','AHORA')}</span> <span>${T('Your life bird is currently','Tu ave vital está actualmente')} <b>${stTxt}</b> — ${strong ? T('a strong tier: good to ask now.','un nivel fuerte: bueno para preguntar ahora.') : T('a weak tier: wait.','un nivel débil: espera.')}</span> <span class="pp-asknow-next">${T('Next strong window today:','Próxima ventana fuerte hoy:')} <b>${nextTxt}</b></span></div>`;
-    } catch(e){ askNow=""; }
+    const askNow = renderAskNowCallout(refP);
     html += `<details class="ref-drop" style="margin-top:14px;">
       <summary style="cursor:pointer;padding:8px 12px;font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-dim);">${T('Pañcha Pakshi — 7-day outlook','Pañcha Pakshi — Perspectiva de 7 días')} <small style="color:var(--slate);">${T(refP.lifeBird, PP_BIRDS_ES[refP.lifeBird])} · ${T('life bird, fixed at birth','ave vital, fija al nacer')}</small></summary>
       <div style="padding:8px 0 4px;">
