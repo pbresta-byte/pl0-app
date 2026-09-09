@@ -685,6 +685,8 @@
   .pp-asknow.warn{ background:rgba(146,43,33,0.10); border:1px solid rgba(146,43,33,0.35); color:var(--ink); }
   .pp-asknow .pp-asknow-badge{ font-family:var(--mono); font-size:9.5px; letter-spacing:0.08em; padding:1px 6px; border-radius:3px; background:var(--panel); color:var(--ink); border:1px solid var(--line); }
   .pp-asknow .pp-asknow-next{ margin-left:auto; color:var(--slate); }
+  .pp-asknow .pp-asknow-tattwa{ display:inline-flex; align-items:center; gap:4px; font-size:10px; color:var(--slate); opacity:0.85; }
+  .pp-asknow .pp-asknow-tattwa i{ width:7px; height:7px; border-radius:50%; display:inline-block; border:1px solid rgba(0,0,0,.25); flex:none; }
   /* Light mode — the app is dark by default; this keeps the matrix legible
      when the OS prefers a light surface. Tuned against the theme-color meta
      (#96690f) declared in the document head for light. */
@@ -731,6 +733,7 @@
         <button type="button" data-page="pageHorary" data-i18n="navHorary">Horary / Praśna (SBC)</button>
         <button type="button" data-page="pageSignificators" data-i18n="navSignificators">World &amp; Commodity Significators</button>
         <button type="button" data-page="pageChintamani" data-i18n="navChintamani">Muhūrta Chintāmaṇi</button>
+        <button type="button" data-page="pageTarot" data-i18n="navTarot">Tarot (Shadow)</button>
       </div>
     </div>
     <div>
@@ -934,6 +937,42 @@
   <div class="result-col" id="significatorsPageContent" style="max-width:1000px; margin:0 auto;"></div>
 </div>
 
+<div id="pageTarot" class="page">
+  <div class="result-col" style="max-width:1000px; margin:0 auto;">
+    <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:4px;">
+      <h2>Pañcha-Tarot <span style="font-size:.6em; color:var(--muted); letter-spacing:.08em;">WESTERN × JYOTISH · SHADOW READ</span></h2>
+    </div>
+    <div class="hint" style="margin-bottom:14px;">A 78-card deck mapped onto the jyotish lattice — graha→Major Arcana (trump), rashi→numbered card (decan), bhāva→court. The cards are read as a <b>shadow</b> complement to this chart: they add colour and association, they never override a jyotish hard rule. Card schema after Kenner, <i>Tarot &amp; Astrology</i> (2012).</div>
+    <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:16px;">
+      <label style="display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:var(--muted);">Style of reading
+        <select id="tarotStyle" style="background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-family:inherit;">
+          <option value="single">Single card</option>
+          <option value="three">Three-card (past · present · future)</option>
+          <option value="ten">Ten-card (Celtic Cross)</option>
+        </select>
+      </label>
+      <label style="display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:var(--muted);">Anchor to a graha (shadow trump)
+        <select id="tarotGrahaAnchor" style="background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-family:inherit;">
+          <option value="">— none —</option>
+          <option>Sun</option><option>Moon</option><option>Mars</option><option>Mercury</option>
+          <option>Jupiter</option><option>Venus</option><option>Saturn</option><option>Rahu</option><option>Ketu</option>
+        </select>
+      </label>
+      <label style="display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:var(--muted);">Anchor to a rashi (numbered/decan)
+        <select id="tarotRashiAnchor" style="background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-family:inherit;">
+          <option value="">— none —</option>
+          <option>Aries</option><option>Taurus</option><option>Gemini</option><option>Cancer</option>
+          <option>Leo</option><option>Virgo</option><option>Libra</option><option>Scorpio</option>
+          <option>Sagittarius</option><option>Capricorn</option><option>Aquarius</option><option>Pisces</option>
+        </select>
+      </label>
+      <button type="button" id="tarotDrawBtn" style="background:var(--gold); color:#fff; border:none; border-radius:6px; padding:10px 18px; font-family:inherit; font-weight:bold; cursor:pointer;">Draw the reading</button>
+    </div>
+    <div class="hint" style="margin-bottom:12px; font-size:.78rem; color:var(--muted);">Ten-card Celtic Cross positions: 1 you · 2 what crosses you · 3 foundation · 4 recent past · 5 your crown/aim · 6 near future · 7 your stance · 8 others · 9 hopes &amp; fears · 10 outcome.</div>
+    <div id="tarotPile" style="display:flex; flex-wrap:wrap; gap:12px; min-height:120px;"></div>
+  </div>
+</div>
+
 
 <script>
 /* =========================================================================
@@ -1004,6 +1043,7 @@ const I18N = {
   navHorary: { en:`Horary / Praśna (SBC)`, es:`Horaria / Praśna (SBC)` },
   navSignificators: { en:`World &amp; Commodity Significators`, es:`Significadores Mundiales y de Materias Primas` },
   navChintamani: { en:`Muhūrta Chintāmaṇi`, es:`Muhūrta Chintāmaṇi` },
+  navTarot: { en:`Tarot (Shadow)`, es:`Tarot (Sombra)` },
   profileLbl: { en:`Saved profile`, es:`Perfil guardado` },
   profileNamePh: { en:`Profile name…`, es:`Nombre del perfil…` },
   profileSave: { en:`Save`, es:`Guardar` },
@@ -4284,8 +4324,55 @@ const PP_BIRD_COLORS = {
              source:"Pulippani & Rao 1993 p.53" },
   Cock:    { hex:"#1E8449", name:"green", sanskrit:"हरित harita",
              source:"Pulippani & Rao 1993 p.53" },
-  Peacock: { hex:"#115E8A", name:"peacock-blue", sanskrit:"नील neela",
-             source:"traditional (bird's plumage)" }
+  Peacock: { hex:"#222222", name:"black", sanskrit:"कृष्ण kṛṣṇa",
+             source:"Pulippani & Rao 1993 IX(a) Colour (bright half) — book says Black; prior app value was a plumage-derived 'peacock-blue' (traditional), corrected to source 2026-09-09" }
+};
+
+/* PP_BIRD_COLORS_DARK — Pulippani & Rao 1993, "Significations for Dark Half
+   Period of Moon Cycle," section XI(a) "Colour": Vulture-Black, Owl-Red,
+   Crow-Golden hue, Cock-White, Peacock-Green. Distinct table from
+   PP_BIRD_COLORS above (which is Bright Half only, p.53) — the book states
+   plainly that bird significations "vary for the dark half period of the
+   Moon," and the colours are not a simple palette swap between the two
+   birds that keep the same colour; four of the five birds change colour
+   entirely between halves (only compare bright vs dark per-bird, not
+   per-colour). */
+const PP_BIRD_COLORS_DARK = {
+  Vulture: { hex:"#222222", name:"black", sanskrit:"कृष्ण kṛṣṇa",
+             source:"Pulippani & Rao 1993, Dark Half Significations XI(a)" },
+  Owl:     { hex:"#C0392B", name:"red", sanskrit:"रक्त rakta",
+             source:"Pulippani & Rao 1993, Dark Half Significations XI(a)" },
+  Crow:    { hex:"#D4AC0D", name:"golden hue", sanskrit:"स्वर्ण varṇa",
+             source:"Pulippani & Rao 1993, Dark Half Significations XI(a)" },
+  Cock:    { hex:"#E8E6E3", name:"white", sanskrit:"श्वेत śveta",
+             source:"Pulippani & Rao 1993, Dark Half Significations XI(a)" },
+  Peacock: { hex:"#1E8449", name:"green", sanskrit:"हरित harita",
+             source:"Pulippani & Rao 1993, Dark Half Significations XI(a)" }
+};
+
+/* PP_BIRD_TATTWA — the five Tattwas (elements) personified as each bird,
+   per lunar half; a SEPARATE attribute from colour above, and it too swaps
+   between halves (only Peacock/Akasa stays fixed). Source: Pulippani & Rao
+   1993 — "VIII. Elements: For Bright half Moon cycle" (bright table) and
+   "X. Elements" under "Significations for Dark Half Period of Moon Cycle"
+   (dark table); the book's own words: "This is the main attribute of the
+   birds... This will vary for the dark half period of the Moon." These five
+   Sanskrit names are the same Tattwa terms Regardie's Golden Dawn material
+   (Vol.2, "Introductory Paper on the Tattwas") uses for the same five
+   elements — see knowledge/frameworks/golden-dawn/
+   2026-09-09-golden-dawn-volume-two-divination.md for that cross-tradition
+   note; nothing about the Golden Dawn text is used here beyond the naming
+   convention, which this app's own Sanskrit already matched independently. */
+const PP_BIRD_TATTWA = {
+  bright: { Vulture:"Tejas", Owl:"Vayu", Crow:"Prithivi", Cock:"Apas", Peacock:"Akasa" },
+  dark:   { Vulture:"Prithivi", Crow:"Tejas", Cock:"Vayu", Owl:"Apas", Peacock:"Akasa" }
+};
+const TATTWA_LABEL = {
+  Akasa:    { en:"Akasa · Ether",    es:"Akasa · Éter" },
+  Vayu:     { en:"Vayu · Air",       es:"Vayu · Aire" },
+  Tejas:    { en:"Tejas · Fire",     es:"Tejas · Fuego" },
+  Apas:     { en:"Apas · Water",     es:"Apas · Agua" },
+  Prithivi: { en:"Prithivi · Earth", es:"Prithivi · Tierra" }
 };
 
 // Rashi palette: tattva-family base + lord accent. Classical convention keeps
@@ -5007,7 +5094,13 @@ function renderAskNowCallout(refP){
       const s=nxt.startHr, e=nxt.endHr%24;
       nextTxt = `${T(nxt.byBird[lb].state, PP_STATES_ES[nxt.byBird[lb].state])} ${pad2(Math.floor(s))}:${pad2(Math.round((s%1)*60))}–${pad2(Math.floor(e))}:${pad2(Math.round((e%1)*60))}`;
     }
-    html = `<div class="pp-asknow ${strong?'ok':'warn'}"><span class="pp-asknow-badge">${T('NOW','AHORA')}</span> <span>${T('Your life bird is currently','Tu ave vital está actualmente')} <b>${stTxt}</b> — ${strong ? T('a strong tier: good to ask now.','un nivel fuerte: bueno para preguntar ahora.') : T('a weak tier: wait.','un nivel débil: espera.')}</span> <span class="pp-asknow-next">${T('Next strong window today:','Próxima ventana fuerte hoy:')} <b>${nextTxt}</b></span></div>`;
+    // Tattwa + colour badge, dynamic per today's Pakṣa (see PP_BIRD_TATTWA /
+    // PP_BIRD_COLORS_DARK notes above): swaps live as bright/dark half flips,
+    // never as a page-load-only value.
+    const tattwaNow = PP_BIRD_TATTWA[live.half] && PP_BIRD_TATTWA[live.half][lb];
+    const colorNow = (live.half==='dark' ? PP_BIRD_COLORS_DARK : PP_BIRD_COLORS)[lb];
+    const tattwaBadge = tattwaNow ? `<span class="pp-asknow-tattwa" title="${T('Bird colour + Tattwa, this Pakṣa — Pulippani & Rao 1993; Sanskrit terms match Regardie Golden Dawn Tattwa naming','Color del ave + Tattwa, este Pakṣa — Pulippani y Rao 1993; términos sánscritos iguales al sistema Tattwa de la Golden Dawn de Regardie')}"><i style="background:${colorNow.hex}"></i>${T(TATTWA_LABEL[tattwaNow].en, TATTWA_LABEL[tattwaNow].es)}</span>` : '';
+    html = `<div class="pp-asknow ${strong?'ok':'warn'}"><span class="pp-asknow-badge">${T('NOW','AHORA')}</span> <span>${T('Your life bird is currently','Tu ave vital está actualmente')} <b>${stTxt}</b> — ${strong ? T('a strong tier: good to ask now.','un nivel fuerte: bueno para preguntar ahora.') : T('a weak tier: wait.','un nivel débil: espera.')}</span> ${tattwaBadge} <span class="pp-asknow-next">${T('Next strong window today:','Próxima ventana fuerte hoy:')} <b>${nextTxt}</b></span></div>`;
   } catch(e){ html=''; }
   return html;
 }
@@ -7929,6 +8022,15 @@ function runAnalysis(){
   const ay = document.getElementById('ayanamsaMode').value;
   const pos = computePositions(mdt.jd, mdt.lat, mdt.lon, ay);
   const panch = computePanchanga(pos);
+  // Export the live computed chart for the Tarot side-engine (auto-anchor):
+  // graha -> sidereal longitude -> rashi + bhava-from-lagna, plus the lagna
+  // sign index. Consumed by window.__plTarot when the Tarot page is shown.
+  try{
+    window.__plChart = {
+      pos: pos, ascSignIdx: SIGNS.indexOf(panch.ascSign),
+      yr: mdt.y, mo: mdt.mo, da: mdt.da
+    };
+  }catch(e){}
   // Pañcāṅga limb end-times (linear-motion estimate) for the strip below.
   // Purely additive display — feeds nothing into the score.
   const panchEnds = panchangaEndTimes(mdt.jd, pos);
@@ -12721,6 +12823,223 @@ if ('serviceWorker' in navigator){
   const mo = new MutationObserver(()=>{ /* re-run cheaply, guarded by dataset flag */ });
   window.__plHighlight = ()=>hl(document);
   document.addEventListener('DOMContentLoaded', ()=>{ hl(document); setTimeout(()=>hl(document),800); });
+})();
+</script>
+
+<script>
+/* =========================================================================
+   Pañcha-Tarot side-engine — Western x Jyotish SHADOW read (2026-09-09).
+   Self-contained IIFE: every name scoped inside, no globals added, so it
+   cannot collide with the monolith's shared script scope.
+   Scheme: Kenner "Tarot & Astrology" (2012) — trumps->planet/sign,
+   36 numbered->decans (Chaldean subrulers), courts->sign decan-domains;
+   suit wheel Wands=Fire, Cups=Water, Swords=Air, Pentacles=Earth.
+   Sephiroth<->graha and chakra<->graha pairings are SYNTH (shadow nav),
+   not attested equivalents. Rahu/Ketu have no functional Western body.
+   ========================================================================= */
+(function(){
+  if (!document.getElementById('tarotDrawBtn')) return; // not present -> inert
+
+  var SUITS = {Wands:'fire', Cups:'water', Swords:'air', Pentacles:'earth'};
+  var SUIT_EL = {fire:'Fire', water:'Water', air:'Air', earth:'Earth'};
+
+  var MAJOR = {
+    'The Fool': {key:'Uranus', kw:'leap of faith, new beginning'},
+    'The Magician': {key:'Mercury', kw:'will, skill, manifesting'},
+    'The High Priestess': {key:'Moon', kw:'intuition, secrets, the unconscious'},
+    'The Empress': {key:'Venus', kw:'abundance, fertility, nurture'},
+    'The Emperor': {key:'Aries', kw:'authority, structure, mastery'},
+    'The Hierophant': {key:'Taurus', kw:'tradition, teaching, values'},
+    'The Lovers': {key:'Gemini', kw:'union, choice, communication'},
+    'The Chariot': {key:'Cancer', kw:'willpower, protection, movement'},
+    'Strength': {key:'Leo', kw:'courage, gentleness, control'},
+    'The Hermit': {key:'Virgo', kw:'introspection, wisdom, solitude'},
+    'The Wheel of Fortune': {key:'Jupiter', kw:'cycles, luck, destiny'},
+    'Justice': {key:'Libra', kw:'fairness, balance, cause/effect'},
+    'The Hanged Man': {key:'Neptune', kw:'surrender, new perspective, pause'},
+    'Death': {key:'Scorpio', kw:'transformation, release, ending'},
+    'Temperance': {key:'Sagittarius', kw:'balance, blending, moderation'},
+    'The Devil': {key:'Capricorn', kw:'bondage, temptation, materiality'},
+    'The Tower': {key:'Mars', kw:'upheaval, sudden change, awakening'},
+    'The Star': {key:'Aquarius', kw:'hope, inspiration, renewal'},
+    'The Moon': {key:'Pisces', kw:'illusion, dreams, the hidden'},
+    'The Sun': {key:'Sun', kw:'vitality, success, clarity'},
+    'Judgment': {key:'Pluto', kw:'awakening, reckoning, rebirth'},
+    'The World': {key:'Saturn', kw:'completion, integration, structure'}
+  };
+
+  var RANK = {
+    'Two': {mode:'Cardinal', kw:'first unfolding of the element'},
+    'Three': {mode:'Cardinal', kw:'growth, expansion of the seed'},
+    'Four': {mode:'Cardinal', kw:'stability, forging of form'},
+    'Five': {mode:'Fixed', kw:'conflict, test of the form'},
+    'Six': {mode:'Fixed', kw:'harmony, resolution'},
+    'Seven': {mode:'Fixed', kw:'assessment, challenge'},
+    'Eight': {mode:'Mutable', kw:'movement, transition'},
+    'Nine': {mode:'Mutable', kw:'near completion, intensity'},
+    'Ten': {mode:'Mutable', kw:'completion, the full cycle'}
+  };
+
+  var RASHI = {
+    'Aries': {sign:'Mesha', suit:'Wands', cards:['Two','Three','Four']},
+    'Taurus': {sign:'Vrishabha', suit:'Pentacles', cards:['Five','Six','Seven']},
+    'Gemini': {sign:'Mithuna', suit:'Swords', cards:['Eight','Nine','Ten']},
+    'Cancer': {sign:'Karka', suit:'Cups', cards:['Two','Three','Four']},
+    'Leo': {sign:'Simha', suit:'Wands', cards:['Five','Six','Seven']},
+    'Virgo': {sign:'Kanya', suit:'Pentacles', cards:['Eight','Nine','Ten']},
+    'Libra': {sign:'Tula', suit:'Swords', cards:['Two','Three','Four']},
+    'Scorpio': {sign:'Vrischika', suit:'Cups', cards:['Five','Six','Seven']},
+    'Sagittarius': {sign:'Dhanu', suit:'Wands', cards:['Eight','Nine','Ten']},
+    'Capricorn': {sign:'Makara', suit:'Pentacles', cards:['Two','Three','Four']},
+    'Aquarius': {sign:'Kumbha', suit:'Swords', cards:['Five','Six','Seven']},
+    'Pisces': {sign:'Meena', suit:'Cups', cards:['Eight','Nine','Ten']}
+  };
+
+  var GRAHA_TRUMP = {
+    'Sun':'The Sun','Moon':'The High Priestess','Mars':'The Tower',
+    'Mercury':'The Magician','Jupiter':'The Wheel of Fortune',
+    'Venus':'The Empress','Saturn':'The World',
+    'Rahu':'The Devil','Ketu':'The Moon'
+  };
+
+  var COURTS = {
+    'Page of Wands':'Aquarius','Knight of Wands':'Sagittarius','Queen of Wands':'Aries','King of Wands':'Leo',
+    'Page of Cups':'Scorpio','Knight of Cups':'Libra','Queen of Cups':'Cancer','King of Cups':'Pisces',
+    'Page of Swords':'Gemini','Knight of Swords':'Taurus','Queen of Swords':'Virgo','King of Swords':'Capricorn',
+    'Page of Pentacles':'Capricorn','Knight of Pentacles':'Taurus','Queen of Pentacles':'Virgo','King of Pentacles':'Taurus'
+  };
+
+  function buildDeck(){
+    var d = [];
+    for (var n in MAJOR) d.push({name:n, kind:'major', suit:'major', el:'major'});
+    for (var suit in SUITS){
+      for (var rank in RANK) d.push({name:rank+' of '+suit, rank:rank, suit:suit, el:SUITS[suit]});
+    }
+    for (var c in COURTS) d.push({name:c, kind:'court', suit:c.split(' of ')[1], el:SUITS[c.split(' of ')[1]], court:true});
+    return d;
+  }
+  var DECK = buildDeck();
+
+  function elLabel(card){
+    if (card.kind==='major') return 'Major Arcana';
+    if (card.court) return SUIT_EL[SUITS[card.suit]]+' · '+card.name;
+    return SUIT_EL[SUITS[card.suit]]+' · '+RANK[card.rank].mode;
+  }
+  function cardSubtitle(card){
+    if (card.kind==='major') return MAJOR[card.name].key;
+    if (card.court) return COURTS[card.name];
+    return RANK[card.rank].mode+' '+card.suit;
+  }
+  function cardMeaning(card){
+    if (card.kind==='major') return MAJOR[card.name].kw;
+    if (card.court) return 'The '+card.name.split(' of ')[0]+' archetype in '+COURTS[card.name]+' energy.';
+    return RANK[card.rank].kw+' of '+card.suit+'.';
+  }
+  function elClass(card){
+    return card.kind==='major' ? 'el-major' : ('el-'+card.el);
+  }
+  function renderCard(card, role, anchor){
+    var div = document.createElement('div');
+    div.style.cssText='width:150px; min-height:230px; border-radius:10px; padding:12px; border:1px solid var(--line); background:var(--panel-2); display:flex; flex-direction:column; gap:6px;';
+    var elColor = card.kind==='major' ? 'var(--gold)' : (card.el==='fire'?'var(--vermilion)':card.el==='water'?'var(--indigo)':card.el==='air'?'var(--gold-dim)':'var(--jade)');
+    div.innerHTML =
+      '<div style="font-size:.68rem; letter-spacing:.1em; color:var(--muted); text-transform:uppercase;">'+(role||'card')+'</div>'+
+      '<div style="font-size:1rem; font-weight:bold; color:var(--gold);">'+card.name+'</div>'+
+      '<div style="font-size:.78rem; color:var(--muted);">'+cardSubtitle(card)+'</div>'+
+      '<div style="font-size:.7rem; padding:2px 7px; border-radius:20px; align-self:flex-start; color:#fff; background:'+elColor+';">'+elLabel(card)+'</div>'+
+      '<div style="font-size:.8rem; margin-top:auto; border-top:1px solid var(--line); padding-top:6px;">'+cardMeaning(card)+'</div>'+
+      (anchor ? '<div style="font-size:.68rem; color:var(--indigo); margin-top:2px;">anchored: '+anchor+'</div>' : '');
+    return div;
+  }
+  function drawRandom(pool, n){
+    var p = pool.slice(), out = [];
+    for (var i=0; i<n && p.length; i++){
+      var idx = Math.floor(Math.random()*p.length);
+      out.push(p.splice(idx,1)[0]);
+    }
+    return out;
+  }
+  var SIGNS_12 = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+  var GRAHAS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu'];
+  function norm360(a){ return ((a % 360) + 360) % 360; }
+
+  // Map every graha in the live chart to {rashi, decan 0-2, bhava 1-12}.
+  function chartAnchors(){
+    var C = (typeof window !== 'undefined' && window.__plChart) || null;
+    if (!C || !C.pos || typeof C.ascSignIdx !== 'number') return null;
+    var ascIdx = C.ascSignIdx, out = {};
+    GRAHAS.forEach(function(g){
+      var pg = C.pos[g]; if (!pg || !isFinite(pg.sidereal)) return;
+      var sid = norm360(pg.sidereal);
+      var si = Math.floor(sid/30) % 12;
+      var rashi = SIGNS_12[si];
+      var decan = Math.floor((sid % 30)/10); // 0,1,2 = first/mid/last decan
+      var bhava = ((si - ascIdx + 12) % 12) + 1;
+      out[g] = { rashi:rashi, si:si, decan:decan, bhava:bhava,
+        sid: sid, date:(C.yr||'')+'-'+(C.mo||'')+'-'+(C.da||'') };
+    });
+    return out;
+  }
+
+  // The card a given graha's chart position pins to (interconnect resolvers).
+  function cardForPosition(P){
+    if (!P) return null;
+    var rc = RASHI[P.rashi]; if (!rc) return null;
+    var rank = rc.cards[P.decan] || rc.cards[0];
+    return { name: rank+' of '+rc.suit, rank:rank, suit:rc.suit, el:SUITS[rc.suit] };
+  }
+
+  function anchorCards(){
+    var out = [];
+    var anchors = chartAnchors();
+    if (anchors){ // AUTO-ANCHOR: read the live computed chart
+      GRAHAS.forEach(function(g){
+        var P = anchors[g]; if (!P) return;
+        // trump (Major) = the graha's own card + its decan-positioned numbered card
+        if (GRAHA_TRUMP[g]){
+          var nm = GRAHA_TRUMP[g];
+          out.push({card:{name:nm, kind:'major', suit:'major', el:'major'},
+            role:'Graha '+g+' → Trump',
+            anchor:g+' · '+P.rashi+' bhāva '+P.bhava+' ('+MAJOR[nm].key+')'});
+        }
+        var posCard = cardForPosition(P);
+        if (posCard){
+          out.push({card:posCard, role:'Chart position → Numbered (decan)',
+            anchor:g+' at '+P.rashi+'·decan '+(P.decan+1)+' bhāva '+P.bhava+' · '+(P.date||'')});
+        }
+      });
+      return out;
+    }
+    // FALLBACK (no chart computed yet): manual dropdown anchors.
+    var gSel = document.getElementById('tarotGrahaAnchor').value;
+    var rSel = document.getElementById('tarotRashiAnchor').value;
+    if (gSel && GRAHA_TRUMP[gSel]){
+      var nm2 = GRAHA_TRUMP[gSel];
+      out.push({card:{name:nm2, kind:'major', suit:'major', el:'major'},
+        role:'Graha → Trump', anchor:gSel+' ('+MAJOR[nm2].key+' · manual)'});
+    }
+    if (rSel && RASHI[rSel]){
+      var rc2 = RASHI[rSel], rank2 = rc2.cards[0], suit2 = rc2.suit;
+      out.push({card:{name:rank2+' of '+suit2, rank:rank2, suit:suit2, el:SUITS[suit2]},
+        role:'Rashi → Numbered (1st decan)', anchor:rSel+' / '+rc2.sign+' · manual'});
+    }
+    return out;
+  }
+  function draw(){
+    var style = document.getElementById('tarotStyle').value;
+    var pile = document.getElementById('tarotPile');
+    pile.innerHTML = '';
+    var anchors = anchorCards();
+    var roles = style==='single' ? ['the card'] :
+      (style==='three' ? ['past','present','future'] :
+       ['you','crosses','foundation','past','crown','future','self','others','hopes','outcome']);
+    var count = style==='ten' ? 10 : (style==='three' ? 3 : 1);
+    var cards = drawRandom(DECK, count);
+    anchors.forEach(function(a){ pile.appendChild(renderCard(a.card, 'ANCHOR · '+a.role, a.anchor)); });
+    cards.forEach(function(c,i){ pile.appendChild(renderCard(c, roles[i]||('pos '+(i+1)), null)); });
+  }
+  document.getElementById('tarotDrawBtn').addEventListener('click', draw);
+  draw();
 })();
 </script>
 
