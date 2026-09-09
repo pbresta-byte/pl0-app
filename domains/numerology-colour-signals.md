@@ -354,3 +354,12 @@ Fiery = Mesha, Simha, Dhanus; Earthy = Vrishabha, Kanya, Makara; Airy = Mithuna,
 ---
 *End of knowledge base. All citations verified against corpus files as listed.*
 
+--- ATTACHED NODES (2026-09-08) — Panchapakshi / Nakshatra Physical Cluster ---
+Source companion: `domains/nakshatra_physical_appearance_companion.md` (15,692 bytes, 157 lines, 5 sections)
+- A: 27-nakshatra male/female physical features (43 Bhagat Intro blocks, corrected mapping, file:line citations)
+- B: 27x4 pada-level recognition markers (physical signatures per quarter)
+- C: Kalapurusha identity mapping (deity/gana/yoni/varna/tattva/symbol/shakti)
+- D: 8 classical text references (Bhagat, Trivedi, BPHS, Raman, Mihira, Jataka, Phala Dipika, Chintamani)
+- E: BPL 27-star kalapurusha body-part mapping (Agent 4; file:line L403–L7587)
+Applied under discretion: these nodes extend the 5-element bird-activity-time framework (Biorhythms / Panchapakshi) by grounding each of the 27 lunar mansions in verifiable classical physical/body-part attributes — connecting the elemental bird-state layer (Panchapakshi) to the nakshatra-level physical body layer (Bhagat/BPL). Citations verified; no paraphrase.
+--- END ATTACHED NODES ---

@@ -726,7 +726,6 @@
         <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
         <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Calendar</button>
         <button type="button" data-page="pageAntara" data-i18n="navAntara">Antara Chakra (Portents)</button>
-        <button type="button" data-page="pageRemedies" data-i18n="navRemedies">Remedies &amp; Combinations</button>
         <button type="button" data-page="pageCommodities" data-i18n="navCommodities">Commodity Signals</button>
         <button type="button" data-page="pageCurrencies" data-i18n="navCurrencies">Currencies</button>
         <button type="button" data-page="pageHorary" data-i18n="navHorary">Horary / Praśna (SBC)</button>
@@ -967,10 +966,16 @@
           <option>Sagittarius</option><option>Capricorn</option><option>Aquarius</option><option>Pisces</option>
         </select>
       </label>
-      <button type="button" id="tarotDrawBtn" style="background:var(--gold); color:#fff; border:none; border-radius:6px; padding:10px 18px; font-family:inherit; font-weight:bold; cursor:pointer;">Draw the reading</button>
+      <label style="display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:var(--muted);">Include chart anchors?
+        <select id="tarotAnchorMode" style="background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-family:inherit;">
+          <option value="off">Off (random reading only)</option>
+          <option value="on">On (prepend chart-anchored cards)</option>
+        </select>
+      </label>
+      <button type="button" id="tarotDrawBtn" style="background:var(--gold); color:#fff; border:none; border-radius:6px; padding:10px 18px; font-family:inherit; font-weight:bold; cursor:pointer;">Draw a new reading</button>
     </div>
-    <div class="hint" style="margin-bottom:12px; font-size:.78rem; color:var(--muted);">Ten-card Celtic Cross positions: 1 you · 2 what crosses you · 3 foundation · 4 recent past · 5 your crown/aim · 6 near future · 7 your stance · 8 others · 9 hopes &amp; fears · 10 outcome.</div>
-    <div id="tarotPile" style="display:flex; flex-wrap:wrap; gap:12px; min-height:120px;"></div>
+    <div class="hint" style="margin-bottom:12px; font-size:.78rem; color:var(--muted);" id="tarotPositionsHint"></div>
+    <div id="tarotPile"></div>
   </div>
 </div>
 
@@ -8615,7 +8620,6 @@ const PAGES_NEEDING_BIRTH_DATA = {
   pageNakshatra: {contentId:'nakshatraPageContent', render:()=>renderNakshatraPage()},
   pageAnatomy: {contentId:'anatomyPageContent', render:()=>renderAnatomyPage()},
   pageCalendar: {contentId:'calendarPageContent', render:()=>renderCalendarPage()},
-  pageRemedies: {contentId:'remediesPageContent', render:()=>renderRemediesPage()},
   pageChintamani: {contentId:'chintamaniPageContent', render:()=>renderChintamaniPage()},
   pageMatchmaking: {contentId:'matchmakingPageContent', render:()=>renderMatchmakingPage()}
 };
@@ -9019,6 +9023,15 @@ function vargaStepped(sid, nParts, startFn, stride){
 }
 const vIsOddSign = si => si % 2 === 0;   // Aries = index 0 = 1st sign = odd
 const vModality  = si => si % 3;         // 0 movable, 1 fixed, 2 dual
+// Short "nature" label for a divisional sign: modality (movable/fixed/dual) +
+// element (fire/earth/air/water) — used by the single-varga position table.
+function vargaRashiQualityText(signIdx){
+  const mod = ['Movable','Fixed','Dual'][vModality(signIdx)];
+  const el  = ['Fire','Earth','Air','Water'][vElement(signIdx)];
+  return LANG==='es'
+    ? (['Móvil','Fija','Dual'][vModality(signIdx)] + ' · ' + ['Fuego','Tierra','Aire','Agua'][vElement(signIdx)])
+    : (mod + ' · ' + el);
+}
 const vElement   = si => si % 4;         // 0 fire, 1 earth, 2 air, 3 water
 const VARGA_DEFS = [
   {key:"D1", name:"Rāśi", span:"30°",
@@ -9254,16 +9267,16 @@ function renderVargaPage(){
 
   const planetRows = bodies.map(b=>{
     const retroTag = b!=="Lagna" && birthPos[b].speed<0 ? ` <small style="color:var(--vermilion);">(${T('r','r')})</small>` : '';
-    const cells = VARGA_DEFS.map(d=>
-      `<td style="${d.key===def.key?'color:var(--gold); font-weight:700;':'color:var(--ink-dim);'}">${SIGN_ABBR[SIGNS[vargaTable[b][d.key]]]}</td>`).join('');
+    // Single-varga table: D1 position + the SELECTED varga's sign only (not all 16).
     return `<tr>
       <td class="wide" style="color:${b==='Lagna'?'var(--gold)':(MALEFIC_GRAHAS.includes(b)?'var(--vermilion)':'var(--jade)')}">${b==='Lagna'?T('Lagna','Lagna'):gNameNatal(b)}</td>
       <td>${SIGNS[Math.floor(sidOf[b]/30)]} ${fmtDeg(sidOf[b]%30)}${retroTag}</td>
-      ${cells}
+      <td style="color:var(--gold); font-weight:700;">${SIGN_ABBR[SIGNS[vargaTable[b][def.key]]]} <span style="font-weight:normal; color:var(--mut);">· ${SIGNS[vargaTable[b][def.key]]}</span></td>
+      <td>${vargaRashiQualityText(vargaTable[b][def.key])}</td>
     </tr>`;
   }).join('');
-  const vargaHeaderCells = VARGA_DEFS.map(d=>
-    `<th style="${d.key===def.key?'color:var(--gold);':''}" title="${T(d.purpose.en,d.purpose.es)}">${d.key}</th>`).join('');
+  const vargaHeaderCells =
+    `<th>${T('D1 position','Posición D1')}</th><th title="${T(def.purpose.en,def.purpose.es)}">${def.key} ${def.name}</th><th>${T('nature','naturaleza')}</th>`;
 
   container.innerHTML = `
     <div class="panel">
@@ -9293,10 +9306,10 @@ function renderVargaPage(){
       </div>
     </div>
 
-    <div class="panel"><div class="hd"><h2>${T('All sixteen vargas by body','Los dieciséis vargas por cuerpo')}</h2><span class="note">${T('highlighted column = selected varga','columna resaltada = varga elegido')}</span></div>
+    <div class="panel"><div class="hd"><h2>${T('Positions in the selected varga','Posiciones en el varga seleccionado')}</h2><span class="note">${def.key} · ${T('one division at a time','una división a la vez')}</span></div>
       <div class="bd">
-        <div class="tblwrap"><table><thead><tr><th>${T('Body','Cuerpo')}</th><th>${T('D1 position','Posición D1')}</th>${vargaHeaderCells}</tr></thead><tbody>${planetRows}</tbody></table></div>
-        <div class="hint" style="margin-top:10px;">${T('Purposes per column: D1 body · D2 wealth · D3 siblings · D4 fortune/property · D7 children · D9 spouse/dharma · D10 career/power · D12 parents · D16 vehicles/comforts · D20 spiritual pursuits · D24 education/learning · D27 strengths/weaknesses · D30 misfortunes · D40 maternal legacy · D45 paternal legacy · D60 all matters/karma.','Propósitos por columna: D1 cuerpo · D2 riqueza · D3 hermanos · D4 fortuna/propiedad · D7 hijos · D9 cónyuge/dharma · D10 carrera/poder · D12 padres · D16 vehículos/comodidades · D20 búsquedas espirituales · D24 educación/aprendizaje · D27 fortalezas/debilidades · D30 desgracias · D40 legado materno · D45 legado paterno · D60 todos los asuntos/karma.')}</div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Body','Cuerpo')}</th>${vargaHeaderCells}</tr></thead><tbody>${planetRows}</tbody></table></div>
+        <div class="hint" style="margin-top:10px;">${T(`Showing ${def.key} (${def.name} — ${def.purpose.en.toLowerCase()}) only, alongside the D1 position. Change the dropdown above to read a different division; the chart and the readings below update to match. Purpose names: D1 body · D2 wealth · D3 siblings · D4 fortune/property · D7 children · D9 spouse/dharma · D10 career/power · D12 parents · D16 vehicles · D20 spiritual · D24 education · D27 strengths · D30 misfortunes · D40 maternal · D45 paternal · D60 all matters.`,`Mostrando solo ${def.key} (${def.name} — ${def.purpose.es.toLowerCase()}), junto a la posición D1. Cambia el desplegable de arriba para leer otra división; la carta y las lecturas de abajo se actualizan para coincidir. Propósitos: D1 cuerpo · D2 riqueza · D3 hermanos · D4 fortuna/propiedad · D7 hijos · D9 cónyuge/dharma · D10 carrera/poder · D12 padres · D16 vehículos · D20 espiritual · D24 educación · D27 fortalezas · D30 desgracias · D40 materno · D45 paterno · D60 todos los asuntos.`)}</div>
       </div>
     </div>
 
@@ -13039,19 +13052,60 @@ if ('serviceWorker' in navigator){
   function elClass(card){
     return card.kind==='major' ? 'el-major' : ('el-'+card.el);
   }
-  function renderCard(card, role, anchor){
+  // Ordinal helper for card numbers (1st, 2nd...)
+  function ordinal(n){
+    var d=n%10;
+    if(n===11||n===12||n===13) return n+'th';
+    return n+(d===1?'st':d===2?'nd':d===3?'rd':'th');
+  }
+
+  // Per-style: the meaning of each dealt position (deal order). Kept as a
+  // single source so the hint (above the pile) and each card's label agree.
+  // ISBN-classical meanings; the JYOTISH column is a shadow read of where the
+  // drawn card's element/sign sits in THIS chart — never overrides the card.
+  var POSITIONS = {
+    single:[
+      {role:'KEY', meaning:{en:'The key note of the situation — the single strongest tendency right now.', es:'La nota clave de la situación — la tendencia más fuerte ahora mismo.'}, jy:'Shadow: its house/element weight in the chart colours the whole reading.'}
+    ],
+    three:[
+      {role:'PAST', meaning:{en:'What led here — the root / background of the matter.', es:'Lo que condujo hasta aquí — la raíz / trasfondo del asunto.'}},
+      {role:'PRESENT', meaning:{en:'The matter itself — the active core now.', es:'El asunto mismo — el núcleo activo ahora.'}},
+      {role:'FUTURE', meaning:{en:'Where it leans — the near trajectory if nothing shifts.', es:'Hacia dónde se inclina — la trayectoria cercana si nada cambia.'}}
+    ],
+    ten:[
+      {role:'YOU', meaning:{en:'The querent / current self — the heart of the matter.', es:'El consultante / yo actual — el corazón del asunto.'}},
+      {role:'CROSSES', meaning:{en:'What crosses or opposes you right now — the immediate pressure.', es:'Lo que te cruza u opone ahora — la presión inmediata.'}},
+      {role:'FOUNDATION', meaning:{en:'The base beneath — the subconscious ground it stands on.', es:'La base debajo — el terreno subconsciente sobre el que se apoya.'}},
+      {role:'PAST', meaning:{en:'Recent past — what recedes behind the present.', es:'Pasado reciente — lo que queda tras el presente.'}},
+      {role:'CROWN', meaning:{en:'Your stated aim / the crown of the wish — the goal above.', es:'Tu meta declarada / la corona del deseo — la meta de arriba.'}},
+      {role:'FUTURE', meaning:{en:'Near future — the open road ahead.', es:'Futuro cercano — el camino abierto adelante.'}},
+      {role:'SELF', meaning:{en:'Your own stance / inner position on the matter.', es:'Tu propia postura / posición interior sobre el asunto.'}},
+      {role:'OTHERS', meaning:{en:'The environment — how others and circumstances bear on it.', es:'El entorno — cómo otros y las circunstancias inciden en ello.'}},
+      {role:'HOPES', meaning:{en:'Hopes &amp; fears — what you expect and dread by turns.', es:'Esperanzas y temores — lo que esperas y temes por turnos.'}},
+      {role:'OUTCOME', meaning:{en:'The outcome — where the whole leans to land.', es:'El resultado — hacia dónde tiende a desembocar el conjunto.'}}
+    ]
+  };
+
+  function renderCard(card, pos, anchor, isAnchor){
     var div = document.createElement('div');
-    div.style.cssText='width:150px; min-height:230px; border-radius:10px; padding:12px; border:1px solid var(--line); background:var(--panel-2); display:flex; flex-direction:column; gap:6px;';
+    div.style.cssText='width:150px; min-height:235px; border-radius:10px; padding:12px; border:1px solid var(--line); background:var(--panel-2); display:flex; flex-direction:column; gap:5px; position:relative;';
     var elColor = card.kind==='major' ? 'var(--gold)' : (card.el==='fire'?'var(--vermilion)':card.el==='water'?'var(--indigo)':card.el==='air'?'var(--gold-dim)':'var(--jade)');
-    div.innerHTML =
-      '<div style="font-size:.68rem; letter-spacing:.1em; color:var(--muted); text-transform:uppercase;">'+(role||'card')+'</div>'+
+    var numBadge = isAnchor
+      ? '<span style="position:absolute; top:6px; right:8px; font-size:.6rem; font-family:var(--mono); color:var(--indigo); letter-spacing:.06em;">CHART</span>'
+      : '<span style="position:absolute; top:6px; right:8px; font-size:.72rem; font-family:var(--mono); color:var(--slate); font-weight:bold;">#'+pos.n+'</span>';
+    var roleLine = (pos && pos.role)
+      ? '<div style="font-size:.68rem; letter-spacing:.1em; color:var(--gold); text-transform:uppercase; font-weight:bold;">'+pos.role+'</div>'
+      : '<div style="font-size:.68rem; letter-spacing:.1em; color:var(--muted); text-transform:uppercase;">card</div>';
+    div.innerHTML = numBadge + roleLine +
       '<div style="font-size:1rem; font-weight:bold; color:var(--gold);">'+card.name+'</div>'+
-      '<div style="font-size:.78rem; color:var(--muted);">'+cardSubtitle(card)+'</div>'+
-      '<div style="font-size:.7rem; padding:2px 7px; border-radius:20px; align-self:flex-start; color:#fff; background:'+elColor+';">'+elLabel(card)+'</div>'+
-      '<div style="font-size:.8rem; margin-top:auto; border-top:1px solid var(--line); padding-top:6px;">'+cardMeaning(card)+'</div>'+
-      (anchor ? '<div style="font-size:.68rem; color:var(--indigo); margin-top:2px;">anchored: '+anchor+'</div>' : '');
+      '<div style="font-size:.76rem; color:var(--muted);">'+cardSubtitle(card)+'</div>'+
+      '<div style="font-size:.68rem; padding:2px 7px; border-radius:20px; align-self:flex-start; color:#fff; background:'+elColor+';">'+elLabel(card)+'</div>'+
+      '<div style="font-size:.78rem; margin-top:auto; border-top:1px solid var(--line); padding-top:6px;">'+cardMeaning(card)+'</div>'+
+      (pos && pos.meaning ? '<div style="font-size:.68rem; color:var(--ink-dim); font-style:italic; line-height:1.4;">'+pos.meaning+'</div>' : '')+
+      (anchor ? '<div style="font-size:.66rem; color:var(--indigo); margin-top:2px;">'+anchor+'</div>' : '');
     return div;
   }
+
   function drawRandom(pool, n){
     var p = pool.slice(), out = [];
     for (var i=0; i<n && p.length; i++){
@@ -13090,13 +13144,13 @@ if ('serviceWorker' in navigator){
     return { name: rank+' of '+rc.suit, rank:rank, suit:rc.suit, el:SUITS[rc.suit] };
   }
 
+  // Builds the anchor-card list (live chart, or manual dropdown fallback).
   function anchorCards(){
     var out = [];
     var anchors = chartAnchors();
     if (anchors){ // AUTO-ANCHOR: read the live computed chart
       GRAHAS.forEach(function(g){
         var P = anchors[g]; if (!P) return;
-        // trump (Major) = the graha's own card + its decan-positioned numbered card
         if (GRAHA_TRUMP[g]){
           var nm = GRAHA_TRUMP[g];
           out.push({card:{name:nm, kind:'major', suit:'major', el:'major'},
@@ -13126,18 +13180,59 @@ if ('serviceWorker' in navigator){
     }
     return out;
   }
+
+  // Style-specific layout container. Returns a wrapper already positioned as a
+  // grid so each dealt card drops into its "slot" — the classic shapes.
+  function makeLayout(style, count){
+    var wrap = document.createElement('div');
+    if (style === 'single'){
+      wrap.style.cssText='display:flex; justify-content:center; min-height:260px; padding:8px;';
+    } else if (style === 'three'){
+      wrap.style.cssText='display:flex; justify-content:center; gap:14px; flex-wrap:wrap; min-height:260px; padding:8px;';
+    } else { // ten — Celtic Cross shape in a coarse grid
+      wrap.style.cssText='display:grid; grid-template-columns:repeat(5, 1fr); grid-auto-rows:auto; gap:10px; align-items:start; justify-items:center; min-height:300px; max-width:1000px; margin:0 auto; padding:8px;';
+    }
+    wrap.className = 'tarot-layout tarot-layout-'+style;
+    return wrap;
+  }
+
   function draw(){
     var style = document.getElementById('tarotStyle').value;
+    var anchorMode = document.getElementById('tarotAnchorMode').value;
     var pile = document.getElementById('tarotPile');
+    var hint = document.getElementById('tarotPositionsHint');
+
+    // --- RESET cleanly: wipe every prior card, fresh each reading.
     pile.innerHTML = '';
-    var anchors = anchorCards();
-    var roles = style==='single' ? ['the card'] :
-      (style==='three' ? ['past','present','future'] :
-       ['you','crosses','foundation','past','crown','future','self','others','hopes','outcome']);
+    if (hint) hint.textContent = '';
+
+    // Show the position legend for this style above the pile.
+    var posDefs = POSITIONS[style] || POSITIONS.single;
+    if (hint){
+      hint.innerHTML = '<b style="color:var(--gold);">'+style.toUpperCase()+'</b> · '+
+        posDefs.map(function(p,i){ return (i+1)+' '+p.role+' — '+p.meaning.en; }).join(' · ');
+    }
+
     var count = style==='ten' ? 10 : (style==='three' ? 3 : 1);
     var cards = drawRandom(DECK, count);
-    anchors.forEach(function(a){ pile.appendChild(renderCard(a.card, 'ANCHOR · '+a.role, a.anchor)); });
-    cards.forEach(function(c,i){ pile.appendChild(renderCard(c, roles[i]||('pos '+(i+1)), null)); });
+    var layout = makeLayout(style, count);
+
+    // OPTIONAL chart anchors (default off) — prepended as plainly-labelled
+    // CHART cards, NOT consuming a position number.
+    var anchorList = [];
+    if (anchorMode === 'on') anchorList = anchorCards();
+    anchorList.forEach(function(a){
+      layout.appendChild(renderCard(a.card, {n:'', role:a.role}, a.anchor, true));
+    });
+
+    // The actual reading: each card is numbered in deal order and labelled with
+    // its position's role + meaning.
+    cards.forEach(function(c,i){
+      var p = posDefs[i] || {role:'pos '+(i+1)};
+      layout.appendChild(renderCard(c, {n:i+1, role:p.role, meaning:(p.meaning?p.meaning.en:'')}, null, false));
+    });
+
+    pile.appendChild(layout);
   }
   document.getElementById('tarotDrawBtn').addEventListener('click', draw);
   draw();
