@@ -722,8 +722,7 @@
         <button type="button" data-page="pageNatal" data-i18n="navNatal">Natal General Reading</button>
         <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">World Era</button>
         <button type="button" data-page="pageDasha" data-i18n="navDasha">Vimśottari Daśā</button>
-        <button type="button" data-page="pageVarga" data-i18n="navVarga">Divisional Varga</button>
-        <button type="button" data-page="pageHouseNature" data-i18n="navHouseNature">House Readings</button>
+        <button type="button" data-page="pageHouseNature" data-i18n="navHouseNature">Houses, Lords, Varga</button>
         <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
         <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Calendar</button>
         <button type="button" data-page="pageAntara" data-i18n="navAntara">Antara Chakra (Portents)</button>
@@ -733,6 +732,7 @@
         <button type="button" data-page="pageHorary" data-i18n="navHorary">Horary / Praśna (SBC)</button>
         <button type="button" data-page="pageSignificators" data-i18n="navSignificators">World &amp; Commodity Significators</button>
         <button type="button" data-page="pageChintamani" data-i18n="navChintamani">Muhūrta Chintāmaṇi</button>
+        <button type="button" data-page="pageMatchmaking" data-i18n="navMatchmaking">Matchmaking</button>
         <button type="button" data-page="pageTarot" data-i18n="navTarot">Tarot (Shadow)</button>
       </div>
     </div>
@@ -889,12 +889,9 @@
   <div class="result-col" id="dashaPageContent" style="max-width:1000px; margin:0 auto;"></div>
 </div>
 
-<div id="pageVarga" class="page">
-  <div class="result-col" id="vargaPageContent" style="max-width:1000px; margin:0 auto;"></div>
-</div>
-
 <div id="pageHouseNature" class="page">
   <div class="result-col" id="houseNaturePageContent" style="max-width:1000px; margin:0 auto;"></div>
+  <div class="result-col" id="vargaPageContent" style="max-width:1000px; margin:0 auto; border-top:1px solid var(--line); padding-top:20px;"></div>
 </div>
 
 <div id="pageNakshatra" class="page">
@@ -935,6 +932,10 @@
 
 <div id="pageSignificators" class="page">
   <div class="result-col" id="significatorsPageContent" style="max-width:1000px; margin:0 auto;"></div>
+</div>
+
+<div id="pageMatchmaking" class="page">
+  <div class="result-col" id="matchmakingPageContent" style="max-width:1000px; margin:0 auto;"></div>
 </div>
 
 <div id="pageTarot" class="page">
@@ -1031,8 +1032,7 @@ const I18N = {
   navMuhurta: { en:`At a Glance`, es:`De un Vistazo` },
   navNatal: { en:`Natal General Reading`, es:`Lectura Natal General` },
   navDasha: { en:`Vimśottari Daśā`, es:`Vimśottari Daśā` },
-  navVarga: { en:`Divisional Varga`, es:`Vargas Divisionales` },
-  navHouseNature: { en:`House Readings`, es:`Lecturas de Casas` },
+  navHouseNature: { en:`Houses, Lords, Varga`, es:`Casas, Señores, Varga` },
   navNakshatra: { en:`World Era`, es:`Era Mundial` },
   navAnatomy: { en:`Anatomy`, es:`Anatomía` },
   navCalendar: { en:`Calendar`, es:`Calendario` },
@@ -1044,6 +1044,7 @@ const I18N = {
   navSignificators: { en:`World &amp; Commodity Significators`, es:`Significadores Mundiales y de Materias Primas` },
   navChintamani: { en:`Muhūrta Chintāmaṇi`, es:`Muhūrta Chintāmaṇi` },
   navTarot: { en:`Tarot (Shadow)`, es:`Tarot (Sombra)` },
+  navMatchmaking: { en:`Matchmaking`, es:`Matchmaking` },
   profileLbl: { en:`Saved profile`, es:`Perfil guardado` },
   profileNamePh: { en:`Profile name…`, es:`Nombre del perfil…` },
   profileSave: { en:`Save`, es:`Guardar` },
@@ -4419,9 +4420,12 @@ function rashiChipStyle(signName) {
 function ppBirdBadge(birdName) {
   const c = PP_BIRD_COLORS[birdName];
   if (!c) return birdName;
-  return `<span style="background:${c.hex};color:${
-    ["Vulture","Owl","Peacock"].includes(birdName) ? "#111" : "#fff"
-  };padding:2px 8px;border-radius:10px;font-size:12px;display:inline-block;">${birdName}</span>`;
+  // Text color chosen by background luminance (dark bg -> white text), so a
+  // black-crowned bird like Peacock (book-corrected 2026-09-09) stays legible.
+  const h = parseInt(c.hex.replace('#',''),16);
+  const lum = (0.299*(h>>16) + 0.587*((h>>8)&255) + 0.114*(h&255))/255;
+  const fg = lum > 0.55 ? "#111" : "#fff";
+  return `<span style="background:${c.hex};color:${fg};padding:2px 8px;border-radius:10px;font-size:12px;display:inline-block;">${birdName}</span>`;
 }
 
 
@@ -7650,6 +7654,50 @@ const WORLD_PLACES = [
   ["Nassau","The Bahamas",25.05,-77.36,-5],["Bridgetown","Barbados",13.10,-59.62,-4],
   ["Port of Spain","Trinidad and Tobago",10.66,-61.52,-4],
 
+  /* Added 2026-09-09 — secondary cities of small/Central-American countries
+     (San Pedro Sula was reported missing). Offsets are standard-time values. */
+  ["San Pedro Sula","Honduras",15.50,-88.03,-6],["La Ceiba","Honduras",15.78,-86.79,-6],
+  ["Comayagua","Honduras",14.46,-87.65,-6],["Roatán","Honduras",16.32,-86.52,-6],
+  ["Choloma","Honduras",15.60,-88.02,-6],["El Progreso","Honduras",15.40,-87.80,-6],
+  ["San Miguel","El Salvador",13.48,-88.18,-6],["Santa Ana","El Salvador",13.99,-89.56,-6],
+  ["Soyapango","El Salvador",13.71,-89.14,-6],["San Vicente","El Salvador",13.64,-88.79,-6],
+  ["Antigua Guatemala","Guatemala",14.56,-90.73,-6],["Quetzaltenango","Guatemala",14.83,-91.52,-6],
+  ["Escuintla","Guatemala",14.30,-90.79,-6],["Cobán","Guatemala",15.48,-90.37,-6],
+  ["Bluefields","Nicaragua",12.00,-83.76,-6],["León","Nicaragua",12.44,-86.89,-6],
+  ["Granada","Nicaragua",11.93,-85.96,-6],["Masaya","Nicaragua",11.97,-86.10,-6],
+  ["Limón","Costa Rica",10.00,-83.04,-6],["Alajuela","Costa Rica",10.02,-84.21,-6],
+  ["Cartago","Costa Rica",9.86,-83.92,-6],["Heredia","Costa Rica",10.00,-84.12,-6],
+  ["Colón","Panama",9.36,-79.90,-5],["David","Panama",8.43,-82.43,-5],
+  ["Santiago de Veraguas","Panama",8.11,-80.98,-5],["Chitré","Panama",7.96,-80.42,-5],
+  ["Puntarenas","Costa Rica",9.98,-84.83,-6],["Chetumal","Mexico",18.50,-88.30,-6],
+  ["Mérida","Mexico",20.97,-89.62,-6],["Cancún","Mexico",21.16,-86.85,-6],
+  ["Playa del Carmen","Mexico",20.63,-87.08,-6],["Cozumel","Mexico",20.42,-86.92,-6],
+  ["Monterrey","Mexico",25.69,-100.32,-6],["Tijuana","Mexico",32.51,-117.04,-8],
+  ["Puebla","Mexico",19.04,-98.21,-6],["León","Mexico",21.12,-101.68,-6],
+  ["Querétaro","Mexico",20.59,-100.39,-6],["Veracruz","Mexico",19.17,-96.13,-6],
+  ["Oaxaca","Mexico",17.06,-96.72,-6],["Chihuahua","Mexico",28.63,-106.07,-7],
+  ["Acapulco","Mexico",16.86,-99.89,-6],["Puerto Vallarta","Mexico",20.65,-105.23,-6],
+  ["Cali","Colombia",3.45,-76.53,-5],["Barranquilla","Colombia",10.99,-74.79,-5],
+  ["Cartagena","Colombia",10.39,-75.48,-5],["Cúcuta","Colombia",7.89,-72.50,-5],
+  ["Bucaramanga","Colombia",7.13,-73.12,-5],["Maracaibo","Venezuela",10.65,-71.65,-4],
+  ["Valencia","Venezuela",10.16,-68.00,-4],["Barquisimeto","Venezuela",10.07,-69.35,-4],
+  ["Mérida","Venezuela",8.60,-71.14,-4],["Guayaquil And Bay","Ecuador",-2.19,-79.89,-5],
+  ["Cuenca","Ecuador",-2.90,-79.01,-5],["Ambato","Ecuador",-1.24,-78.62,-5],
+  ["Santa Cruz","Bolivia",-17.79,-63.19,-4],["Cochabamba","Bolivia",-17.39,-66.16,-4],
+  ["Oruro","Bolivia",-17.98,-67.11,-4],["Rosario","Argentina",-32.94,-60.65,-3],
+  ["Córdoba","Argentina",-31.42,-64.18,-3],["Mendoza","Argentina",-32.89,-68.84,-3],
+  ["Bariloche","Argentina",-41.13,-71.31,-3],["Mar del Plata","Argentina",-38.00,-57.56,-3],
+  ["Salta","Argentina",-24.78,-65.41,-3],["Porto Alegre","Brazil",-30.03,-51.23,-3],
+  ["Recife","Brazil",-8.05,-34.88,-3],["Fortaleza","Brazil",-3.73,-38.52,-3],
+  ["Belo Horizonte","Brazil",-19.92,-43.94,-3],["Curitiba","Brazil",-25.43,-49.27,-3],
+  ["Manaus","Brazil",-3.12,-60.02,-4],["Salvador BA","Brazil",-12.97,-38.51,-3],
+  ["Florianópolis","Brazil",-27.60,-48.55,-3],["Natal","Brazil",-5.79,-35.21,-3],
+  ["Belém","Brazil",-1.46,-48.49,-3],["Asunción Downtown","Paraguay",-25.28,-57.63,-4],
+  ["Ciudad del Este","Paraguay",-25.51,-54.61,-4],["Punta del Este","Uruguay",-34.95,-54.94,-3],
+  ["Salto","Uruguay",-31.39,-57.96,-3],["Arequipa","Peru",-16.41,-71.54,-5],
+  ["Trujillo","Peru",-8.11,-79.03,-5],["Cusco","Peru",-13.53,-71.97,-5],
+  ["Chiclayo","Peru",-6.77,-79.84,-5],["Iquitos","Peru",-3.74,-73.25,-5],
+
   ["Buenos Aires","Argentina",-34.60,-58.38,-3],["Sucre","Bolivia",-19.03,-65.26,-4],["La Paz","Bolivia",-16.50,-68.15,-4],
   ["Brasília","Brazil",-15.79,-47.88,-3],["São Paulo","Brazil",-23.55,-46.63,-3],["Rio de Janeiro","Brazil",-22.91,-43.17,-3],
   ["Salvador","Brazil",-12.97,-38.51,-3],["Santiago","Chile",-33.45,-70.67,-4],["Bogotá","Colombia",4.71,-74.07,-5],
@@ -8563,13 +8611,13 @@ const PAGES_NEEDING_BIRTH_DATA = {
   pageNatal: {contentId:'natalPageContent', render:()=>renderNatalPage()},
   pageAshtakavarga: {contentId:'ashtakavargaPageContent', render:()=>renderAshtakavargaPage()},
   pageDasha: {contentId:'dashaPageContent', render:()=>renderDashaPage()},
-  pageVarga: {contentId:'vargaPageContent', render:()=>renderVargaPage()},
-  pageHouseNature: {contentId:'houseNaturePageContent', render:()=>renderHouseNaturePage()},
+  pageHouseNature: {contentId:'houseNaturePageContent', render:()=>{renderHouseNaturePage(); renderVargaPage();}},
   pageNakshatra: {contentId:'nakshatraPageContent', render:()=>renderNakshatraPage()},
   pageAnatomy: {contentId:'anatomyPageContent', render:()=>renderAnatomyPage()},
   pageCalendar: {contentId:'calendarPageContent', render:()=>renderCalendarPage()},
   pageRemedies: {contentId:'remediesPageContent', render:()=>renderRemediesPage()},
-  pageChintamani: {contentId:'chintamaniPageContent', render:()=>renderChintamaniPage()}
+  pageChintamani: {contentId:'chintamaniPageContent', render:()=>renderChintamaniPage()},
+  pageMatchmaking: {contentId:'matchmakingPageContent', render:()=>renderMatchmakingPage()}
 };
 function renderPageOrBirthDataPlaceholder(pageId){
   const spec = PAGES_NEEDING_BIRTH_DATA[pageId];
@@ -8861,6 +8909,7 @@ function renderNatalPage(){
       <div class="hd"><h2>${T('Natal General Reading','Lectura Natal General')}</h2><span class="note">D1 + D9 · ${T('initial snapshot','impresión inicial')}</span></div>
       <div class="bd">
         <div class="hint">${T('A first-look read of the birth chart from the Rāśi (D1) and Navāṁśa (D9) charts. The functional benefic/malefic table and Raja Yoga check use a Lagna-dependent house-lordship system — genuinely different from the fixed benefic/malefic list used for Vedha scoring elsewhere in this app. This page is entirely natal — it never changes with today\'s date.','Una primera lectura de la carta natal, a partir de las cartas Rāśi (D1) y Navāṁśa (D9). La tabla de benéfico/maléfico funcional y la comprobación de Raja Yoga usan un sistema de señorío de casas dependiente del Lagna — genuinamente distinto de la lista fija de benéfico/maléfico que se usa para la puntuación de Vedha en otras partes de esta app. Esta página es enteramente natal — nunca cambia con la fecha de hoy.')}</div>
+        <div class="hint" style="margin-top:6px;">${T('For the full sixteen-division reading (D1–D60) and the deep house-by-house / lord-by-lord analysis, use menu → <b>Houses, Lords, Varga</b>: it holds everything that used to live on the separate Divisional Varga tab, consolidated onto the house page.','Para la lectura completa de dieciséis divisiones (D1–D60) y el análisis profundo casa por casa / señor por señor, usa menú → <b>Casas, Señores, Varga</b>: contiene todo lo que solía vivir en la pestaña separada de Varga Divisional, consolidado en la página de casas.')}</div>
       </div>
     </div>
 
@@ -9217,6 +9266,10 @@ function renderVargaPage(){
     `<th style="${d.key===def.key?'color:var(--gold);':''}" title="${T(d.purpose.en,d.purpose.es)}">${d.key}</th>`).join('');
 
   container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('Houses, Lords &amp; Divisional Varga','Casas, Señores y Varga Divisional')}</h2><span class="note">${T('house-nature reading below, then the sixteen vargas','lectura de naturaleza de casa abajo, luego los dieciséis vargas')}</span></div>
+      <div class="bd">${T('This combined page reads the birth chart by house and lord (first panel) and then redraws every classical division (parāśara Ṣoḍaśavarga) beneath it.','Esta página combinada lee la carta natal por casa y señor (primer panel) y luego redibuja cada división clásica (Ṣoḍaśavarga de Parāśara) debajo.')}</div>
+    </div>
     <div class="panel">
       <div class="hd"><h2>${T('Divisional Varga','Vargas Divisionales')}</h2><span class="note">D1–D60 · ${T('natal','natal')}</span></div>
       <div class="bd">
@@ -10023,14 +10076,6 @@ function renderAnatomyPage(){
                   return `<option value="${b}"${sel}>${b} — ${cur.birdPoint}</option>`;
                 }).join('')}
               </select>
-            </div>
-          </div>
-          <div class="pp-plate-keywrap">
-            <div class="pp-plate-caption">${T('Body zone key','Clave de zonas corporales')}</div>
-            <div class="pp-plate-legend">
-              <span><span class="dot" style="background:#48C98C;"></span>${T('Nectar point','Punto de néctar')}</span>
-              <span><span class="dot" style="background:#5C3A21;"></span>${T('Poison point','Punto de veneno')}</span>
-              <span><span class="dot" style="background:#D4AF37;"></span>${T('Active zone','Zona activa')}</span>
             </div>
           </div>
         </div></div>`;
@@ -12334,34 +12379,7 @@ function renderChintamaniPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Two-Person Compatibility','Compatibilidad de Dos Personas')}</h2><span class="note">${T('Aṣṭakoota (Guṇa Milan)','Aṣṭakoota (Guṇa Milan)')}</span></div>
       <div class="bd">
-        <div class="hint">${T('Compares two birth charts — a different question from "is this moment auspicious," and entirely separate from the SBC score and everything else on this app. Person A reuses the reference person\'s birth data (field 1); enter Person B below.','Compara dos cartas natales — una pregunta distinta a "¿es auspicioso este momento?", y completamente aparte de la puntuación SBC y de todo lo demás en esta app. La Persona A reutiliza los datos de nacimiento de la persona de referencia (campo 1); introduce la Persona B abajo.')}</div>
-        <h3 style="margin:14px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Person B','Persona B')}</h3>
-        <div class="row2">
-          <div><label>${T('Name (optional)','Nombre (opcional)')}</label><input type="text" id="pbName" value="${escHtml(chintamaniPersonB.name)}"></div>
-          <div><label>${T('Birth date','Fecha de nacimiento')}</label><input type="date" id="pbDate" value="${chintamaniPersonB.date}"></div>
-        </div>
-        <div class="row2">
-          <div><label>${T('Birth time (local)','Hora de nacimiento (local)')}</label><input type="time" id="pbTime" value="${chintamaniPersonB.time}" step="60"></div>
-          <div><label>${T('UTC offset (hrs)','Desfase UTC (hrs)')}</label><input type="text" inputmode="decimal" id="pbTZ" value="${chintamaniPersonB.tz}" placeholder="${T('e.g. -4','p. ej. -4')}"></div>
-        </div>
-        <div class="hint" style="margin-top:-6px; margin-bottom:6px;">${T("Double-check this UTC offset yourself — it's an estimate (or your own manual entry) and can be wrong for historical dates or unusual regional rules. A wrong offset shifts every computed position, including the ascendant.", "Verifica tú mismo este desfase UTC — es una estimación (o tu propia entrada manual) y puede ser incorrecta en fechas históricas o reglas regionales inusuales. Un desfase incorrecto desplaza todas las posiciones calculadas, incluido el ascendente.")}</div>
-        <div class="row2">
-          <div><label>${T('Latitude (+N)','Latitud (+N)')}</label><input type="number" id="pbLat" value="${chintamaniPersonB.lat}" step="0.0001" placeholder="${T('e.g. 25.7617','p. ej. 25.7617')}"></div>
-          <div><label>${T('Longitude (+E)','Longitud (+E)')}</label><input type="number" id="pbLon" value="${chintamaniPersonB.lon}" step="0.0001" placeholder="${T('e.g. -80.1918','p. ej. -80.1918')}"></div>
-        </div>
-        <div class="row2" style="margin-top:10px;">
-          <div><label>${T('Kuja Doṣa house set','Conjunto de casas de Kuja Doṣa')}</label>
-            <select id="kujaHouseSetSelect">
-              <option value="5" ${kujaHouseSet==='5'?'selected':''}>${T('The five houses (1/4/7/8/12)','Las cinco casas (1/4/7/8/12)')}</option>
-              <option value="6" ${kujaHouseSet==='6'?'selected':''}>${T('Six houses, 2nd included','Seis casas, 2.ª incluida')}</option>
-            </select></div>
-          <div><label>${T('Judged from','Juzgado desde')}</label>
-            <select id="kujaRefPointsSelect">
-              <option value="all" ${kujaRefPoints==='all'?'selected':''}>${T('Lagna, Moon & Venus','Lagna, Luna y Venus')}</option>
-              <option value="lagna" ${kujaRefPoints==='lagna'?'selected':''}>${T('Lagna only','Solo Lagna')}</option>
-            </select></div>
-        </div>
-        <div id="ashtakootaResult" style="margin-top:14px;"></div>
+        <div class="hint">${T('This comparison now lives on its own Matchmaking page (hamburger menu → Matchmaking), where both persons\' birth data is entered and the eight-koota + Kuja Doṣa + Vimśopaka result is shown. Removing it here keeps a single home for the feature.','Esta comparación vive ahora en su propia página de Matchmaking (menú → Matchmaking), donde se introducen los datos de nacimiento de ambas personas y se muestra el resultado de ocho-koota + Kuja Doṣa + Vimśopaka. Retirarla aquí mantiene un único hogar para la función.')}</div>
       </div>
     </div>
   `;
@@ -12375,18 +12393,37 @@ function renderChintamaniPage(){
   if (pn) pn.addEventListener('input', updateChintamaniRelocation);
   if (cn) cn.addEventListener('input', updateChintamaniRelocation);
   if (chintamaniActivity === 'relocation') updateChintamaniRelocation();
-
-  ['pbName','pbDate','pbTime','pbTZ','pbLat','pbLon'].forEach(id=>{
-    document.getElementById(id).addEventListener('input', updateAshtakootaResult);
-  });
-  document.getElementById('kujaHouseSetSelect').addEventListener('change', (e)=>{ kujaHouseSet = e.target.value; updateAshtakootaResult(); });
-  document.getElementById('kujaRefPointsSelect').addEventListener('change', (e)=>{ kujaRefPoints = e.target.value; updateAshtakootaResult(); });
-  updateAshtakootaResult();
 }
 
 let chintamaniPersonB = { name:'', date:'', time:'', tz:'', lat:'', lon:'' };
 let kujaHouseSet = '5';     // '5' = verse-only houses, '6' = +2nd house variant
 let kujaRefPoints = 'all';  // 'all' = Lagna+Moon+Venus, 'lagna' = Lagna only
+
+// Additional considerations shown alongside the raw Aṣṭakoota total: extra
+// classical and cross-tradition (shadow) factors that affect a pairing but
+// are NOT folded into the 8-koota /36 score (which stays the book-true total).
+function renderMatchmakingConsiderations(ak){
+  const parts = [];
+  const bSi = SIGNS.indexOf(ak.brideSign), gSi = SIGNS.indexOf(ak.groomSign);
+  const el = ['Fire','Earth','Air','Water'];
+
+  // --- Elemental affinity of the two lunar signs (jyotish tattva + west shadow)
+  const bEl = el[vElement(bSi)], gEl = el[vElement(gSi)];
+  if (bEl === gEl) parts.push(`<span class="tag good" style="font-size:10.5px;">${T('Same element (Tattva)','Mismo elemento (Tattva)')}</span> ${T(`Both lunar signs are ${bEl} — natural elemental harmony.` ,`Ambos signos lunares son ${bEl} — armonía elemental natural.`)}`);
+  else parts.push(`<span class="tag neutral" style="font-size:10.5px;">${T('Different elements','Elementos distintos')}</span> ${T(`${ak.brideSign} is ${bEl}, ${ak.groomSign} is ${gEl} — complementary or mixing energies (fire+air blends; earth+earth same).`, `${ak.brideSign} es ${bEl}, ${ak.groomSign} es ${gEl} — energías complementarias o mixtas (fuego+aire se mezcla; tierra+tierra igual).`)}`);
+
+  // --- Moon signs distance (Bhakoota folded into score; note the dosha already shown)
+  const dist = ((gSi - bSi + 12) % 12) + 1;
+  parts.push(`<span class="tag neutral" style="font-size:10.5px;">${T('Moon-sign distance','Distancia de signo lunar')}</span> ${T('House '+dist+' from Person A lunar sign — the Bhakoota guṇa already weights the 2/5/6/8/9/12 dosha positions above.','Casa '+dist+' desde el signo lunar de la Persona A — el guṇa Bhakoota ya pondera arriba las posiciones dosha 2/5/6/8/9/12.')}`);
+
+  // --- Nāḍī (already flagged in score, restate for emphasis)
+  if (ak.nadiSame) parts.push(`<span class="tag bad" style="font-size:10.5px;">${T('Same Nāḍī','Misma Nāḍī')}</span> ${T('Both in the same Nāḍī (madhya/ādya/antya) — classically a serious defect.','Ambos en la misma Nāḍī (madhya/ādya/antya) — clásicamente un defecto grave.')}`);
+
+  // --- Western/Liberal shadow: Venus natural-layer read (very soft, SYNTH).
+  parts.push(`<span class="tag neutral" style="font-size:10.5px;">${T('Shadow (western)','Sombra (occidental)')}</span> ${T('A Western-glance read: lunar-sign element+modality harmony (tropical reference-frame, so offsets differ from the sidereal chart above) — treated strictly as label, never overriding the Aṣṭakoota total.','Una lectura de vistazo occidental: la armonía de elemento+modalidad del signo lunar (marco de referencia tropical, así que los desfases difieren de la carta sideral de arriba) — se trata estrictamente como etiqueta, nunca superando el total de Aṣṭakoota.')}`);
+
+  return parts.map(p=>`<div style="margin-bottom:6px;">${p}</div>`).join('');
+}
 // Self-contained (only touches #ashtakootaResult), same pattern as
 // updateChintamaniRelocation() -- Person B's <input> elements are never
 // rebuilt on keystroke, only this result div.
@@ -12444,6 +12481,13 @@ function updateAshtakootaResult(){
     </tbody></table></div>
     <div class="hint" style="margin-top:8px;">${T('Person A','Persona A')}: ${ak.brideStar} · ${ak.brideSign} — ${T('Person B','Persona B')}: ${ak.groomStar} · ${ak.groomSign}. ${T('Yoni and Bhakoota use a simplified reading of their printed grids; Nāḍī and Gaṇa use the standard classical tables.','Yoni y Bhakoota usan una lectura simplificada de sus tablas impresas; Nāḍī y Gaṇa usan las tablas clásicas estándar.')}</div>
 
+    <h3 style="margin:16px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Additional considerations','Consideraciones adicionales')} <span class="tag neutral">${T('read alongside the score','leo junto a la puntuación')}</span></h3>
+    <div class="bd" style="padding:10px; background:var(--panel-2); border:1px solid var(--line); border-radius:8px;">
+      <div style="line-height:1.8; font-size:12px;">
+        ${renderMatchmakingConsiderations(ak)}
+      </div>
+    </div>
+
     <h3 style="margin:16px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Kuja/Maṅgala Doṣa','Kuja/Maṅgala Doṣa')}</h3>
     <div class="okbox"><span class="tag ${kujaVerdict.cls}">${kujaVerdict.label}</span></div>
     <div class="tblwrap" style="margin-top:8px;"><table><thead><tr><th></th><th>${T('Mars\'s house, by reference point','Casa de Marte, por punto de referencia')}</th><th></th></tr></thead><tbody>
@@ -12460,6 +12504,63 @@ function updateAshtakootaResult(){
       ${vim.rows.map(r=>{ const mt = inMulatrikona(r.graha, posA[r.graha].sidereal);
         return `<tr><td class="wide">${T(r.graha,GRAHA_ES[r.graha])}</td><td>${trDignity(r.tier)}${mt?` <span class="tag good" style="font-size:10px;">${T('Mūlatrikoṇa','Mūlatrikoṇa')}</span>`:''}</td><td>${r.weight}</td><td><span class="tag ${r.earned>0?'good':'neutral'}">${r.earned}</span></td></tr>`; }).join('')}
     </tbody></table></div>`;
+}
+
+/* =========================================================================
+   MATCHMAKING page (pageMatchmaking) — Aṣṭakoota two-person compatibility.
+   Person A = the reference person's birth data (field 1); Person B entered
+   here. Reuses updateAshtakootaResult()/computeAshtakoota()/Kuja/Vimśopaka.
+   ========================================================================= */
+function renderMatchmakingPage(){
+  const container = document.getElementById('matchmakingPageContent');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('Matchmaking — Aṣṭakoota (Guṇa Milan)','Matchmaking — Aṣṭakoota (Guṇa Milan)')}</h2><span class="note">${T('two-person compatibility','compatibilidad de dos personas')}</span></div>
+      <div class="bd">
+        <div class="hint">${T('Compares two birth charts. Person A is the reference person entered in field 1 (Reference Person) on the main page; Person B is entered below. The reading is entirely separate from the SBC score — it answers a different question ("are these two people compatible?") from "is this moment auspicious?".','Compara dos cartas natales. La Persona A es la persona de referencia introducida en el campo 1 (Persona de referencia) de la página principal; la Persona B se introduce abajo. La lectura es totalmente independiente de la puntuación SBC — responde una pregunta distinta ("¿son compatibles estas dos personas?") de "¿es auspicioso este momento?".')}</div>
+
+        <h3 style="margin:14px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Person B','Persona B')}</h3>
+        <div class="row2">
+          <div><label>${T('Name (optional)','Nombre (opcional)')}</label><input type="text" id="pbName" value="${escHtml(chintamaniPersonB.name)}"></div>
+          <div><label>${T('Birth date','Fecha de nacimiento')}</label><input type="date" id="pbDate" value="${chintamaniPersonB.date}"></div>
+        </div>
+        <div class="row2">
+          <div><label>${T('Birth time (local)','Hora de nacimiento (local)')}</label><input type="time" id="pbTime" value="${chintamaniPersonB.time}" step="60"></div>
+          <div><label>${T('UTC offset (hrs)','Desfase UTC (hrs)')}</label><input type="text" inputmode="decimal" id="pbTZ" value="${chintamaniPersonB.tz}" placeholder="${T('e.g. -4','p. ej. -4')}"></div>
+        </div>
+        <div class="hint" style="margin-top:-6px; margin-bottom:6px;">${T("Double-check this UTC offset yourself — it's an estimate (or your own manual entry) and can be wrong for historical dates or unusual regional rules. A wrong offset shifts every computed position, including the ascendant.", "Verifica tú mismo este desfase UTC — es una estimación (o tu propia entrada manual) y puede ser incorrecta en fechas históricas o reglas regionales inusuales. Un desfase incorrecto desplaza todas las posiciones calculadas, incluido el ascendente.")}</div>
+        <div class="row2">
+          <div><label>${T('Latitude (+N)','Latitud (+N)')}</label><input type="number" id="pbLat" value="${chintamaniPersonB.lat}" step="0.0001" placeholder="${T('e.g. 25.7617','p. ej. 25.7617')}"></div>
+          <div><label>${T('Longitude (+E)','Longitud (+E)')}</label><input type="number" id="pbLon" value="${chintamaniPersonB.lon}" step="0.0001" placeholder="${T('e.g. -80.1918','p. ej. -80.1918')}"></div>
+        </div>
+        <div class="row2" style="margin-top:10px;">
+          <div><label>${T('Kuja Doṣa house set','Conjunto de casas de Kuja Doṣa')}</label>
+            <select id="kujaHouseSetSelect">
+              <option value="5" ${kujaHouseSet==='5'?'selected':''}>${T('The five houses (1/4/7/8/12)','Las cinco casas (1/4/7/8/12)')}</option>
+              <option value="6" ${kujaHouseSet==='6'?'selected':''}>${T('Six houses, 2nd included','Seis casas, 2.ª incluida')}</option>
+            </select></div>
+          <div><label>${T('Judged from','Juzgado desde')}</label>
+            <select id="kujaRefPointsSelect">
+              <option value="all" ${kujaRefPoints==='all'?'selected':''}>${T('Lagna, Moon & Venus','Lagna, Luna y Venus')}</option>
+              <option value="lagna" ${kujaRefPoints==='lagna'?'selected':''}>${T('Lagna only','Solo Lagna')}</option>
+            </select></div>
+        </div>
+        <div id="ashtakootaResult" style="margin-top:14px;"></div>
+
+        <div class="hint" style="margin-top:12px; line-height:1.7;">${T('Full method behind this table: Aṣṭakoota scores eight lunar guṇas (Varna, Vashya, Tārā, Yoni, Graha-Maitri, Gaṇa, Bhakoota, Nāḍī) for maximum 36. A separate Arundhati read uses trine/dwadasamsa logic on the Moon; Kuja Doṣa assesses Mars house placement; Vimśopaka Bala grades strength. As with the main page, the app cannot verify "Maṅgala Doṣa" as a standalone named classical doctrine — the underlying text is about Mars\'s house placement, and the framing is a later reading.','Método completo detrás de esta tabla: Aṣṭakoota puntúa ocho guṇas lunares (Varna, Vashya, Tārā, Yoni, Graha-Maitri, Gaṇa, Bhakoota, Nāḍī) para un máximo de 36. Una lectura Arundhati aparte usa la lógica del trino/dwadasamsa en la Luna; Kuja Doṣa evalúa la ubicación de Marte por casa; Vimśopaka Bala califica la fuerza. Como en la página principal, la app no puede verificar "Maṅgala Doṣa" como doctrina clásica propia — el texto subyacente trata de la ubicación de Marte por casa, y el encuadre es una lectura posterior.')}</div>
+      </div>
+    </div>
+  `;
+
+  ['pbName','pbDate','pbTime','pbTZ','pbLat','pbLon'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateAshtakootaResult);
+  });
+  const khs = document.getElementById('kujaHouseSetSelect'); if (khs) khs.addEventListener('change', (e)=>{ kujaHouseSet=e.target.value; updateAshtakootaResult(); });
+  const krp = document.getElementById('kujaRefPointsSelect'); if (krp) krp.addEventListener('change', (e)=>{ kujaRefPoints=e.target.value; updateAshtakootaResult(); });
+  updateAshtakootaResult();
 }
 
 // Self-contained (only touches #chintamaniRelocationResult), same pattern
@@ -12667,7 +12768,7 @@ function initChartStyle(){
 // calls its own equivalent block).
 function rerenderChartPages(){
   runAnalysis();
-  if (document.getElementById('pageVarga').classList.contains('active')) renderVargaPage();
+  if (document.getElementById('pageHouseNature').classList.contains('active')){ renderHouseNaturePage(); renderVargaPage(); }
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
