@@ -9985,6 +9985,14 @@ function renderAnatomyPage(){
             <span class="hint" style="display:inline;">${T('Medical-astrology significator (Kālapuruṣa body regions per rāśi) — descriptive, not a diagnosis. Humour per Varāhamihira (Prasnapadavi ch.VIII).','Significador de astrología médica (regiones del cuerpo Kālapuruṣa por rāśi) — descriptivo, no un diagnóstico. Humor según Varāhamihira (Prasnapadavi cap. VIII).')}</span>
           </div>
         </div>
+        <details class="ref-drop" style="margin-top:12px;"><summary>${T('Horary house → limb reference (parallel classical table)','Tabla de referencia — casa horaria → miembro (tabla clásica paralela)')}</summary>
+          <div class="bd" style="padding:10px 12px;">
+            <div class="tblwrap"><table><tbody>
+              ${Array.from({length:12},(_,i)=>i+1).map(h=>`<tr><td class="wide">${T(`House ${h}`+` (${SIGNS[h-1]})`,`Casa ${h}`+` (${SIGNS[h-1]})`)}</td><td>${T(HOUSE_TO_LIMB_BHAT[h], HOUSE_TO_LIMB_BHAT_ES[h])}</td></tr>`).join('')}
+            </tbody></table></div>
+            <div class="hint" style="margin-top:8px;">${T('The horary/prashna body frame scores limbs by house rather than by sign — Bhat, Prasnapadavi ch.VIII. It runs head-to-feet in the same order as the Kālapuruṣa sign table above, so a limb indicated on the live gauge has a matching house a classical prashna reader would locate by the 6th/8th/12th-house affliction + 8th-lord check. Descriptive, not a diagnosis.','El marco corporal horario/prashna puntúa miembros por casa en vez de por signo — Bhat, Prasnapadavi cap. VIII. Recorre la cabeza a los pies en el mismo orden que la tabla de signos Kālapuruṣa de arriba, así que un miembro indicado en el medidor en vivo tiene una casa correspondiente que un lector clásico de prashna ubicaría por la aflicción de las casas 6.ª/8.ª/12.ª y el señor de la 8.ª. Descriptivo, no un diagnóstico.')}</div>
+          </div>
+        </details>
         <div class="hint hint-emphasis" style="margin-top:14px; line-height:1.6;">
           ${T(`<b style="color:var(--muted)">Method (app synthesis):</b> Nectar = the Kālapuruṣa (cosmic-body) zone of today's transiting Moon — read as the zone currently "alive." Poison = the zone 7th from it (Vedha opposition). Śukla pakṣa intensifies Nectar; Kṛṣṇa pakṣa intensifies Poison. Today's Tārā sharpens/softens both. Not medical advice.`,
           `<b style="color:var(--muted)">Método (síntesis propia):</b> Néctar = la zona Kālapuruṣa (cuerpo cósmico) del signo en tránsito de la Luna — la zona actualmente "viva". Veneno = la zona séptima (oposición Vedha). Śukla pakṣa intensifica el Néctar; Kṛṣṇa pakṣa intensifica el Veneno. El Tārā de hoy agudiza o suaviza ambas. No es consejo médico.`)}
