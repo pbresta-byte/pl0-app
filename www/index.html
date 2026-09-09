@@ -2656,6 +2656,71 @@ const BODY_ZONES = {
   Pisces:     {title:"Feet & lymphatic system",  goodFor:"rest, foot care, meditation, closing a chapter",             avoid:"foot injury, escapism, immune vulnerability"}
 };
 
+/* Medical-astrology significator supplement for the Deha Chakra (top) panel —
+   condensed from the Kālapuruṣa body-part signifiicators and the per-sign
+   pathogenic effects in Dr Shanker Adawal, "Medical Astrology" (2008), ch.3-4
+   & 18. Descriptive, never diagnostic. Rendered ONLY in the top half of the
+   Anatomy page; the Pañcha Pakshi bottom heatmap is untouched. Kept as a
+   one-line per-sign gloss (body regions classically assigned to each rāśi)
+   so it can be dropped straight into the Deha Chakra boxes. */
+const BODY_MED_SIGNIF = {
+  Aries:      "head, cerebral hemispheres, brains, eyes, facial skin",
+  Taurus:     "face, throat, neck, ears, tonsils, lower jaw",
+  Gemini:     "shoulders, arms, hands, fingers, lungs, nerves",
+  Cancer:     "chest, breasts, oesophagus, stomach, upper digestion",
+  Leo:        "heart, upper back, spine, aorta, spinal cord",
+  Virgo:      "abdomen, bowels, intestines, pancreas (digestive tract)",
+  Libra:      "lower back, kidneys, loins, lumbar region, skin",
+  Scorpio:    "pelvis, reproductive organs, bladder, rectum, urinary tract",
+  Sagittarius:"hips, thighs, liver, sciatic nerves, femur",
+  Capricorn:  "knees, joints, bones, teeth, skin, gall-bladder",
+  Aquarius:   "calves, ankles, shins, legs, circulation",
+  Pisces:     "feet, toes, lymphatic system"
+};
+/* Spanish mirror, same order as BODY_MED_SIGNIF. */
+const BODY_MED_SIGNIF_ES = {
+  Aries:      "cabeza, hemisferios cerebrales, cerebro, ojos, piel del rostro",
+  Taurus:     "cara, garganta, cuello, oídos, amígdalas, mandíbula",
+  Gemini:     "hombros, brazos, manos, dedos, pulmones, nervios",
+  Cancer:     "pecho, senos, esófago, estómago, digestión alta",
+  Leo:        "corazón, espalda alta, columna, aorta, médula espinal",
+  Virgo:      "abdomen, intestinos, tubo digestivo, páncreas",
+  Libra:      "zona lumbar, riñones, lomos, región lumbar, piel",
+  Scorpio:    "pelvis, órganos reproductivos, vejiga, recto, vías urinarias",
+  Sagittarius:"caderas, muslos, hígado, nervio ciático, fémur",
+  Capricorn:  "rodillas, articulaciones, huesos, dientes, piel, vesícula",
+  Aquarius:   "pantorrillas, tobillos, espinillas, piernas, circulación",
+  Pisces:     "pies, dedos de pies, sistema linfático"
+};
+
+/* Horary/medical supplement from M.R. Bhat, "Essentials of Horary Astrology or
+   Prasnapadavi", ch.VIII "Diseases" (a Kerala prashna text that cites
+   Varāhamihira). Two compatible-but-separate facts, kept alongside BODY_MED_SIGNIF
+   (Adawal, Medical Astrology 2008) so a reader or the live gauge can cross-check
+   the same limb through an independent classical lens. Descriptive, never
+   diagnostic; top-half Anatomy panel only, the Pañcha Pakshi bottom heatmap is
+   never touched. */
+const TRIDOSHA_PLANET = {                   // Varāhamihira as given in Bhat, ch.VIII
+  Sun:"Pitta (bile)", Mars:"Pitta (bile)",
+  Moon:"Vāta + Kapha (wind + phlegm)", Venus:"Vāta + Kapha (wind + phlegm)",
+  Saturn:"Vāta (wind)", Mercury:"all three humours", Jupiter:"Kapha (phlegm)"
+};
+const TRIDOSHA_PLANET_ES = {
+  Sun:"Pitta (bilis)", Mars:"Pitta (bilis)",
+  Moon:"Vāta + Kapha (viento + flema)", Venus:"Vāta + Kapha (viento + flema)",
+  Saturn:"Vāta (viento)", Mercury:"los tres humores", Jupiter:"Kapha (flema)"
+};
+/* 12-house → limb map (the horary/prashna body frame, Bhat ch.VIII; also matches
+   the Kālapuruṣa sign map top-to-bottom so the two tables cross-validate). */
+const HOUSE_TO_LIMB_BHAT = {
+  1:"head", 2:"face", 3:"neck", 4:"shoulders", 5:"heart", 6:"stomach",
+  7:"abdomen (below navel)", 8:"privates", 9:"thighs", 10:"knees", 11:"shanks", 12:"feet"
+};
+const HOUSE_TO_LIMB_BHAT_ES = {
+  1:"cabeza", 2:"cara", 3:"cuello", 4:"hombros", 5:"corazón", 6:"estómago",
+  7:"abdomen (bajo el ombligo)", 8:"genitales", 9:"muslos", 10:"rodillas", 11:"espinillas", 12:"pies"
+};
+
 /* Sign → renderAnatomyFigure() zone key, so the Deha Chakra gauge can be
    drawn on the same manuscript-plate figure as the Pañcha Pakshi Body Map
    instead of its own Kālapuruṣa silhouette. Picked by hand (not run through
@@ -9909,18 +9974,20 @@ function renderAnatomyPage(){
             </div>
           </div>
         </div>
+        <div class="hint" style="margin-top:12px; padding:9px 12px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);">
+          <div style="font-size:12.5px; line-height:1.7;">
+            <b style="color:var(--jade)">${T('Performing well','Rendiendo bien')}:</b> ${deha.nectar.title}
+            <span style="color:var(--slate); font-size:11px;">${T(`(${deha.nectar.sign} — ${BODY_MED_SIGNIF[deha.nectar.sign]||deha.nectar.sign})`,`(${deha.nectar.sign} — ${BODY_MED_SIGNIF_ES[deha.nectar.sign]||deha.nectar.sign})`)}</span>
+            <span style="color:var(--gold); font-size:11px;"> · ${T('humour','humor')}: ${T(TRIDOSHA_PLANET[SIGN_LORD[deha.nectar.sign]], TRIDOSHA_PLANET_ES[SIGN_LORD[deha.nectar.sign]])||'—'}</span><br>
+            <b style="color:var(--vermilion)">${T('Afflicted / watch','Afligido / vigilar')}:</b> ${deha.poison.title}
+            <span style="color:var(--slate); font-size:11px;">${T(`(${deha.poison.sign} — ${BODY_MED_SIGNIF[deha.poison.sign]||deha.poison.sign})`,`(${deha.poison.sign} — ${BODY_MED_SIGNIF_ES[deha.poison.sign]||deha.poison.sign})`)}</span>
+            <span style="color:var(--gold); font-size:11px;"> · ${T('humour','humor')}: ${T(TRIDOSHA_PLANET[SIGN_LORD[deha.poison.sign]], TRIDOSHA_PLANET_ES[SIGN_LORD[deha.poison.sign]])||'—'}</span><br>
+            <span class="hint" style="display:inline;">${T('Medical-astrology significator (Kālapuruṣa body regions per rāśi) — descriptive, not a diagnosis. Humour per Varāhamihira (Prasnapadavi ch.VIII).','Significador de astrología médica (regiones del cuerpo Kālapuruṣa por rāśi) — descriptivo, no un diagnóstico. Humor según Varāhamihira (Prasnapadavi cap. VIII).')}</span>
+          </div>
+        </div>
         <div class="hint hint-emphasis" style="margin-top:14px; line-height:1.6;">
-          ${T(`<b style="color:var(--muted)">Method (this app's synthesis, not a verbatim classical table):</b> the Nectar point is the Kālapuruṣa
-          (cosmic-body) zone of today's transiting Moon sign — wherever the Moon transits is read as the zone currently "alive." The Poison
-          point is the zone 7th from it, using the same opposition (Vedha) logic as the SBC panels. Śukla pakṣa (waxing, bright half)
-          intensifies the Nectar reading; Kṛṣṇa pakṣa (waning, dark half) intensifies the Poison reading. Today's Tārā (computed from your
-          reference Nakṣatra) sharpens or softens both — this is the natal-Moon "biorhythm" driving the gauge. Not medical advice.`,
-          `<b style="color:var(--muted)">Método (síntesis propia de esta app, no una tabla clásica literal):</b> el punto de néctar es la zona
-          Kālapuruṣa (cuerpo cósmico) del signo por el que transita la Luna hoy — dondequiera que transite la Luna se lee como la zona
-          actualmente "viva". El punto de veneno es la zona 7 desde ahí, usando la misma lógica de oposición (Vedha) que los paneles SBC.
-          Śukla pakṣa (creciente, mitad clara) intensifica la lectura de néctar; Kṛṣṇa pakṣa (menguante, mitad oscura) intensifica
-          la lectura de veneno. El Tārā de hoy (calculado desde tu Nakṣatra de referencia) agudiza o suaviza ambas — este es el
-          "biorritmo" de la Luna natal que impulsa el medidor. No es consejo médico.`)}
+          ${T(`<b style="color:var(--muted)">Method (app synthesis):</b> Nectar = the Kālapuruṣa (cosmic-body) zone of today's transiting Moon — read as the zone currently "alive." Poison = the zone 7th from it (Vedha opposition). Śukla pakṣa intensifies Nectar; Kṛṣṇa pakṣa intensifies Poison. Today's Tārā sharpens/softens both. Not medical advice.`,
+          `<b style="color:var(--muted)">Método (síntesis propia):</b> Néctar = la zona Kālapuruṣa (cuerpo cósmico) del signo en tránsito de la Luna — la zona actualmente "viva". Veneno = la zona séptima (oposición Vedha). Śukla pakṣa intensifica el Néctar; Kṛṣṇa pakṣa intensifica el Veneno. El Tārā de hoy agudiza o suaviza ambas. No es consejo médico.`)}
         </div>
       </div>
     </div>
