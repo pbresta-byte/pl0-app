@@ -719,15 +719,15 @@
       </div>
       <div class="hamburger-menu-list">
         <button type="button" data-page="pageMuhurta" class="active" data-i18n="navMuhurta">At a Glance</button>
-        <button type="button" data-page="pageNatal" data-i18n="navNatal">Natal General Reading</button>
+        <button type="button" data-page="pageNatal" data-i18n="navNatal">General</button>
+        <button type="button" data-page="pageAvastha" data-i18n="navAvastha">Avasthas</button>
+        <button type="button" data-page="pagePanchaPakshi" data-i18n="navPanchaPakshi">Pañcha Pakshi</button>
         <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">World Era</button>
         <button type="button" data-page="pageDasha" data-i18n="navDasha">Vimśottari Daśā</button>
         <button type="button" data-page="pageHouseNature" data-i18n="navHouseNature">Houses, Lords, Varga</button>
         <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
         <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Calendar</button>
         <button type="button" data-page="pageAntara" data-i18n="navAntara">Antara Chakra (Portents)</button>
-        <button type="button" data-page="pageCommodities" data-i18n="navCommodities">Commodity Signals</button>
-        <button type="button" data-page="pageCurrencies" data-i18n="navCurrencies">Currencies</button>
         <button type="button" data-page="pageHorary" data-i18n="navHorary">Horary / Praśna (SBC)</button>
         <button type="button" data-page="pageSignificators" data-i18n="navSignificators">World &amp; Commodity Significators</button>
         <button type="button" data-page="pageChintamani" data-i18n="navChintamani">Muhūrta Chintāmaṇi</button>
@@ -880,6 +880,10 @@
   <div class="result-col" id="natalPageContent" style="max-width:1000px; margin:0 auto;"></div>
 </div>
 
+<div id="pageAvastha" class="page">
+  <div class="result-col" id="avasthaPageContent" style="max-width:1000px; margin:0 auto;"></div>
+</div>
+
 <div id="pageAshtakavarga" class="page">
   <div class="result-col" id="ashtakavargaPageContent" style="max-width:1000px; margin:0 auto;"></div>
 </div>
@@ -891,6 +895,13 @@
 <div id="pageHouseNature" class="page">
   <div class="result-col" id="houseNaturePageContent" style="max-width:1000px; margin:0 auto;"></div>
   <div class="result-col" id="vargaPageContent" style="max-width:1000px; margin:0 auto; border-top:1px solid var(--line); padding-top:20px;"></div>
+</div>
+
+<div id="pagePanchaPakshi" class="page">
+  <div class="result-col" id="panchaPakshiLadderContent" style="max-width:1000px; margin:0 auto;"></div>
+  <div class="result-col" style="max-width:1000px; margin:0 auto;">
+    <div class="panel"><div class="hd"><h2 data-i18n="ppLiveChartTitle">Pañcha Pakshi — Live Yama Chart</h2><span class="note" data-i18n="liveUpdatesMinute">updates every minute</span></div><div class="bd" id="ppPanelContainer"></div></div>
+  </div>
 </div>
 
 <div id="pageNakshatra" class="page">
@@ -911,14 +922,6 @@
 
 <div id="pageRemedies" class="page">
   <div class="result-col" id="remediesPageContent" style="max-width:900px; margin:0 auto;"></div>
-</div>
-
-<div id="pageCommodities" class="page">
-  <div class="result-col" id="commoditiesPageContent" style="max-width:900px; margin:0 auto;"></div>
-</div>
-
-<div id="pageCurrencies" class="page">
-  <div class="result-col" id="currenciesPageContent" style="max-width:900px; margin:0 auto;"></div>
 </div>
 
 <div id="pageChintamani" class="page">
@@ -1035,16 +1038,18 @@ const I18N = {
   navMenuLabel: { en:`Menu`, es:`Menú` },
   navMenuTitle: { en:`Menu`, es:`Menú` },
   navMuhurta: { en:`At a Glance`, es:`De un Vistazo` },
-  navNatal: { en:`Natal General Reading`, es:`Lectura Natal General` },
+  navNatal: { en:`General`, es:`General` },
+  navAvastha: { en:`Avasthas`, es:`Avasthas` },
   navDasha: { en:`Vimśottari Daśā`, es:`Vimśottari Daśā` },
   navHouseNature: { en:`Houses, Lords, Varga`, es:`Casas, Señores, Varga` },
+  navPanchaPakshi: { en:`Pañcha Pakshi`, es:`Pañcha Pakshi` },
+  ppLiveChartTitle: { en:`Pañcha Pakshi — Live Yama Chart`, es:`Pañcha Pakshi — Gráfico Yama en vivo` },
+  liveUpdatesMinute: { en:`updates every minute`, es:`se actualiza cada minuto` },
   navNakshatra: { en:`World Era`, es:`Era Mundial` },
   navAnatomy: { en:`Anatomy`, es:`Anatomía` },
   navCalendar: { en:`Calendar`, es:`Calendario` },
   navAntara: { en:`Antara Chakra (Portents)`, es:`Antara Chakra (Presagios)` },
   navRemedies: { en:`Remedies &amp; Combinations`, es:`Remedios y Combinaciones` },
-  navCommodities: { en:`Commodity Signals`, es:`Señales de Materias Primas` },
-  navCurrencies: { en:`Currencies`, es:`Divisas` },
   navHorary: { en:`Horary / Praśna (SBC)`, es:`Horaria / Praśna (SBC)` },
   navSignificators: { en:`World &amp; Commodity Significators`, es:`Significadores Mundiales y de Materias Primas` },
   navChintamani: { en:`Muhūrta Chintāmaṇi`, es:`Muhūrta Chintāmaṇi` },
@@ -4422,15 +4427,22 @@ function rashiChipStyle(signName) {
 /**
  * PP bird badge with its classical color.
  */
-function ppBirdBadge(birdName) {
-  const c = PP_BIRD_COLORS[birdName];
+function ppBirdBadge(birdName, half) {
+  // Colour swaps between halves — four of the five birds change colour
+  // entirely (only Peacock/Akasa's Tattwa is fixed; its COLOUR still swaps:
+  // black in Bright Half, green in Dark Half). `half` MUST be passed by
+  // every caller ('bright' or 'dark') — omitting it used to silently fall
+  // back to Bright Half colours even when rendering a Dark Half moment,
+  // which is the bug this signature change fixes (2026-09-10).
+  const table = half === 'dark' ? PP_BIRD_COLORS_DARK : PP_BIRD_COLORS;
+  const c = table[birdName];
   if (!c) return birdName;
   // Text color chosen by background luminance (dark bg -> white text), so a
   // black-crowned bird like Peacock (book-corrected 2026-09-09) stays legible.
   const h = parseInt(c.hex.replace('#',''),16);
   const lum = (0.299*(h>>16) + 0.587*((h>>8)&255) + 0.114*(h&255))/255;
   const fg = lum > 0.55 ? "#111" : "#fff";
-  return `<span style="background:${c.hex};color:${fg};padding:2px 8px;border-radius:10px;font-size:12px;display:inline-block;">${birdName}</span>`;
+  return `<span style="background:${c.hex};color:${fg};padding:2px 8px;border-radius:10px;font-size:12px;display:inline-block;" title="${c.name} (${half==='dark'?'Dark':'Bright'} Half)">${birdName}</span>`;
 }
 
 
@@ -5670,6 +5682,212 @@ function vimshopakaLabel(v){
   if (v<10) return {en:"poorly disposed",es:"mal dispuesto"};
   if (v<15) return {en:"mixed",es:"mixto"};
   return {en:"well-disposed",es:"bien dispuesto"};
+}
+
+// Divisional sign for one varga key, matching whichever convention this
+// app's ALREADY-VERIFIED Shadvarga Vimshopaka figure uses for D1/D2/D3/D9/
+// D12/D30 above (so anything built on top of it, like Vaiśeṣikāṁśa below,
+// never disagrees with that existing figure) — D9 in particular
+// deliberately reuses the SBC book's movable/fixed/dual navPos, NOT the
+// element-based D9 the Houses/Lords/Varga page uses (the two disagree; see
+// that page's own D9 self-check note). Every other division (D4/D7/D10/
+// D16/D20/D24/D27/D40/D45) has only ONE implementation in this app — the
+// generic vargaSignForKey() engine — so there is no consistency choice to
+// make for those.
+function vimshopakaVargaSignIdx(key, graha, pos, navPos){
+  if (key === "D3") return drekkanaSignIdx(pos[graha].sidereal);
+  if (key === "D9") return Math.floor(norm360(navPos[graha].sidereal)/30);
+  if (key === "D12") return dwadasamshaSignIdx(pos[graha].sidereal);
+  if (key === "D30") return trimsamshaSignIdx(pos[graha].sidereal); // verified 9/9 against JHora's own D-30 reference table (2026-09) — the "Rasi/30°" Options toggle is NOT this sign assignment, whatever it actually governs
+  return vargaSignForKey(key, pos[graha].sidereal); // D1, D2, D4, D7, D10, D16, D20, D24, D27, D40, D45, D60
+}
+
+/* =========================================================================
+   VAIŚEṢIKĀṀŚA — BPHS ch.7 śl.42-53. A named-title system, not a point
+   score: within a given varga-set (Shaḍvarga/6, Saptavarga/7, Daśāvarga/10,
+   Ṣoḍaśavarga/16), count how many of that set's divisions place the graha
+   in its exaltation, Mūlatrikoṇa, or own sign — that count (starting at 2;
+   0 or 1 carries no title) has a fixed classical name, e.g. 3 good vargas
+   in the Daśāvarga set = "Uttamāṁśa". Names and counts verified against TWO
+   independent translations (Girish Chand and Santhanam editions), which
+   agree exactly.
+   ========================================================================= */
+const VAISESHIKAMSA_SETS = {
+  shad:    ['D1','D2','D3','D9','D12','D30'],
+  sapta:   ['D1','D2','D3','D7','D9','D12','D30'],
+  dasa:    ['D1','D2','D3','D7','D9','D10','D12','D16','D30','D60'],
+  shodasa: ['D1','D2','D3','D4','D7','D9','D10','D12','D16','D20','D24','D27','D30','D40','D45','D60']
+};
+// Names verified against JHora's own "Divisional Dignities" reference note
+// (2026-09) — the most authoritative, unambiguous source checked yet, and
+// it corrected a few spellings/choices this app had taken from OCR'd BPHS
+// translations: count 9 in Dasavarga is Airavata (not Shakravahana — the
+// two are synonyms, "Indra's elephant" named two ways, but Airavata is
+// JHora's own primary term); count 14 in Shodashavarga is Indrasana ("Indra's
+// seat/throne"), not Shakrasimhasana ("Shakra['s] simhasana/throne") — again
+// synonymous in meaning, JHora's own term kept as primary here.
+// Names verified 2026-09 directly against the installed JHora binary's own
+// embedded string table (C:\Program Files (x86)\Jagannatha Hora\bin\
+// jhora.exe) — not the "Divisional Dignities" prose note this app used
+// before, which turned out to add a grammatical "-amsa" suffix that isn't
+// actually part of JHora's own UI labels, and which also had two outright
+// wrong spellings for the Shodashavarga set: the note said "Nagapushpa"
+// (a flower) where JHora's own string table plainly reads "Nagapurusha" (a
+// serpent-being), and "Poornachandra"/"Sree Vallabha" where JHora's table
+// reads "PurnaChandra"/"Srivallabha". Spelling is otherwise kept exactly
+// as extracted (JHora itself is inconsistent about doubled vowels — e.g.
+// "Chaamara" but "Chatra," "Airaavata" but "Simhasana" — preserved as-is
+// rather than normalised, since matching JHora verbatim is the point).
+const VAISESHIKAMSA_NAMES = {
+  shad:    {2:"Kimshuka",3:"Vyanjana",4:"Chaamara",5:"Chatra",6:"Kundala"},
+  sapta:   {2:"Kimshuka",3:"Vyanjana",4:"Chaamara",5:"Chatra",6:"Kundala",7:"Mukuta"},
+  dasa:    {2:"Paarijaata",3:"Uttama",4:"Gopura",5:"Simhasana",6:"Paaraavata",7:"Devaloka",8:"Brahmaloka",9:"Airaavata",10:"Sreedhaama"},
+  shodasa: {2:"Bhedaka",3:"Kusuma",4:"Nagapurusha",5:"Kanduka",6:"Kerala",7:"Kalpavriksha",8:"Chandanavana",9:"Purnachandra",10:"Uchchaisrava",11:"Dhanvantari",12:"Suryakanta",13:"Vidruma",14:"Indraasana",15:"Goloka",16:"Srivallabha"}
+};
+const VAISESHIKAMSA_SET_LABEL = {
+  shad:{en:"Shadvarga (6)",es:"Shadvarga (6)"}, sapta:{en:"Saptavarga (7)",es:"Saptavarga (7)"},
+  dasa:{en:"Dashavarga (10)",es:"Dashavarga (10)"}, shodasa:{en:"Shodashavarga (16)",es:"Shodashavarga (16)"}
+};
+function vaiseshikamsaCount(graha, pos, navPos, setKey){
+  let count = 0;
+  VAISESHIKAMSA_SETS[setKey].forEach(vk=>{
+    if (vk === 'D2') return; // Hora only ever resolves to Cancer/Leo, not a planet's actual
+      // zodiacal placement — applying exaltation/own-sign dignity to that binary result
+      // produces spurious credits (verified: Jupiter's Kala-ground-truth count only
+      // reconciles across all four varga-sets when D2 is excluded here)
+    const signIdx = vimshopakaVargaSignIdx(vk, graha, pos, navPos);
+    const tier = dignityTierInSign(graha, signIdx);
+    if (tier==='Exalted' || tier==='Own' || tier==='Own (per source note)') count++;
+  });
+  return count;
+}
+// Graha Yuddha (planetary war) — BPHS ch.27 śl.20, fought only between the
+// five star-planets Mars/Mercury/Jupiter/Venus/Saturn (Sun/Moon never war,
+// per the verse itself). The verse's own criterion is exact longitude
+// equality, impractical against a real ephemeris, so — like this app's
+// existing combustion orbs — a conventional ~1° conjunction stands in for
+// "equal." Winner: the LESSER longitude, per the source commentary's own
+// "normally, we are taught" rule (a separate, more elaborate rule using
+// planetary latitude also exists in the source, but this app doesn't track
+// latitude, so that finer version isn't implemented).
+const GRAHA_YUDDHA_PLANETS = ["Mars","Mercury","Jupiter","Venus","Saturn"];
+const GRAHA_YUDDHA_ORB_DEG = 1;
+function grahaYuddhaLoser(graha, pos){
+  if (!GRAHA_YUDDHA_PLANETS.includes(graha)) return false;
+  const gSid = norm360(pos[graha].sidereal);
+  const gSignIdx = Math.floor(gSid/30);
+  return GRAHA_YUDDHA_PLANETS.some(other=>{
+    if (other===graha) return false;
+    const oSid = norm360(pos[other].sidereal);
+    if (Math.floor(oSid/30) !== gSignIdx) return false; // war only within the same sign
+    return Math.abs(gSid-oSid)<=GRAHA_YUDDHA_ORB_DEG && gSid>oSid; // higher longitude loses
+  });
+}
+// BPHS ch.7 śl.51-53's own "yogānāśaka" (destroyer of the combination) rule:
+// a graha's otherwise-good Vaiśeṣikāṁśa combinations are cancelled outright,
+// not merely reduced, if it is (a) combust, (b) defeated in Graha Yuddha,
+// (c) natally debilitated (unless Nīcha Bhaṅga cancels that debility — see
+// nichaBhangaCheck; a cancelled debility is no longer a real debility, so it
+// no longer triggers this either), or (d) in a weak Avasthā — read here as
+// Jāgradādi Suṣupti (asleep) or a "bad" Dīptādi state (Vikala/Kruddha/Khala),
+// reusing this SAME page's own Avasthas table rather than inventing a fresh
+// Śayanādi computation this app has already declined to assert elsewhere.
+function vaiseshikamsaYoganashakaReasons(graha, pos){
+  const reasons = [];
+  const orb = COMBUSTION_ORB_DEG[graha];
+  const sid = norm360(pos[graha].sidereal);
+  const combust = orb ? (()=>{ const diff=norm360(sid-pos.Sun.sidereal); return diff<=orb || (360-diff)<=orb; })() : false;
+  if (combust) reasons.push({en:'combust',es:'combusto'});
+  if (grahaYuddhaLoser(graha, pos)) reasons.push({en:'defeated in Graha Yuddha',es:'derrotado en Graha Yuddha'});
+  const tier = dignityTier(graha, sid);
+  if (tier==='Debilitated'){
+    const ascSignIdx = Math.floor(norm360(pos._ascSidereal)/30);
+    const nb = nichaBhangaCheck(graha, sid, pos, ascSignIdx);
+    if (!nb || !nb.cancelled) reasons.push({en:'debilitated',es:'debilitado'});
+  }
+  const {jagradadi, dipitadi} = computeGrahaAvasthas(graha, pos);
+  if (jagradadi==='Sushupti') reasons.push({en:'Jāgradādi Suṣupti (asleep)',es:'Jāgradādi Suṣupti (dormido)'});
+  if (dipitadi && DIPITADI_TAG[dipitadi]==='bad') reasons.push({en:`Dīptādi ${dipitadi}`,es:`Dīptādi ${dipitadi}`});
+  return reasons;
+}
+function vaiseshikamsaYoganashaka(graha, pos){
+  return vaiseshikamsaYoganashakaReasons(graha, pos).length>0;
+}
+function vaiseshikamsaLabel(setKey, count, cancelled){
+  if (cancelled) return '—';
+  const name = VAISESHIKAMSA_NAMES[setKey][count];
+  return name ? `${count}-${name}` : '—';
+}
+
+// Per-title meaning text, keyed by title name (shared across Shad/Sapta,
+// since those two reuse the same five names through count 6). Shad/Sapta/
+// Shodashavarga descriptions are JHora's own "Divisional Dignities" note —
+// what the title's name itself evokes, not a life-outcome verse. Dashavarga
+// keeps its own richer, life-outcome results (Phaladeepika, already
+// cross-checked against BPHS/Jātaka Pārijāta) instead, since that source
+// gives a fuller answer than a bare etymology for that set specifically.
+const VAISESHIKAMSA_DESC = {
+  Kimshuka: T('Named for the Kiṃśuka tree, known for its beautiful blossoms — the graha\'s strength is likened to a tree in full bloom.','Nombrado por el árbol Kiṃśuka, conocido por sus hermosas flores — la fuerza del graha se compara con un árbol en plena floración.'),
+  Vyanjana: T('Vyañjana means insignia and paraphernalia — the trappings of rank, not yet the throne itself.','Vyañjana significa insignias y parafernalia — los distintivos del rango, todavía no el trono mismo.'),
+  Chaamara: T('Named for the cāmara, the plume servants use to fan a master — a real mark of authority.','Nombrado por el cāmara, el abanico de plumas que los sirvientes usan para abanicar a su señor — una marca real de autoridad.'),
+  Chatra: T('Chatra literally means an umbrella, but specifically the umbrella-like cover held over a king\'s head — power and authority made visible.','Chatra significa literalmente sombrilla, pero específicamente la cubierta tipo sombrilla sostenida sobre la cabeza de un rey — poder y autoridad hechos visibles.'),
+  Kundala: T('Kuṇḍala means an ear-ring or bracelet — an ornament that itself symbolizes power.','Kuṇḍala significa arete o brazalete — un adorno que en sí mismo simboliza el poder.'),
+  Mukuta: T('Mukuṭa means crown — the graha here is like a crowned king, fully empowered to deliver its results.','Mukuṭa significa corona — el graha aquí es como un rey coronado, plenamente capaz de entregar sus resultados.'),
+  Bhedaka: T('Bhedaka means piercing, distinguishing.','Bhedaka significa perforante, distintivo.'),
+  Kusuma: T('Kusuma means a beautiful flower.','Kusuma significa una hermosa flor.'),
+  Nagapurusha: T('Nāgapuruṣa means a serpent-being (nāga) in human form (puruṣa) — a different figure from "Nāgapuṣpa" (a flower), a name this app\'s own reference note had confused this tier with before checking JHora\'s own strings directly.','Nāgapuruṣa significa un ser-serpiente (nāga) con forma humana (puruṣa) — una figura distinta de "Nāgapuṣpa" (una flor), nombre con el que la propia nota de referencia de esta app había confundido este nivel antes de revisar directamente las cadenas propias de JHora.'),
+  Kanduka: T('Kanduka means a play-ball — sport and entertainment.','Kanduka significa una pelota de juego — deporte y entretenimiento.'),
+  Kerala: T('Named for Kerala, a region of India — also the name of a renowned king.','Nombrado por Kerala, una región de la India — también el nombre de un rey célebre.'),
+  Kalpavriksha: T('Named for the Kalpavṛkṣa, the celestial tree that grants whatever one desires.','Nombrado por el Kalpavṛkṣa, el árbol celestial que concede cualquier deseo.'),
+  Chandanavana: T('Chandanavana means a garden of sandalwood trees.','Chandanavana significa un jardín de árboles de sándalo.'),
+  Purnachandra: T('Pūrṇacandra means the full moon.','Pūrṇacandra significa la luna llena.'),
+  Uchchaisrava: T('Named for Uccaiḥśravas, Indra\'s celestial flying horse — symbolizing purity and power.','Nombrado por Uccaiḥśravas, el caballo volador celestial de Indra — símbolo de pureza y poder.'),
+  Dhanvantari: T('Named for Dhanvantari, the celestial physician who can cure any disease.','Nombrado por Dhanvantari, el médico celestial que puede curar cualquier enfermedad.'),
+  Suryakanta: T('Named for Sūryakānta, a gem dear to the Sun — it glows and radiates heat when touched by sunlight, symbolizing splendour and power.','Nombrado por Sūryakānta, una gema querida por el Sol — brilla e irradia calor al tocarla la luz solar, símbolo de esplendor y poder.'),
+  Vidruma: T('Named for vidruma, a fragrant coral-red tree — power paired with attractiveness.','Nombrado por vidruma, un árbol coralino rojo y fragante — poder junto a atractivo.'),
+  Indraasana: T('Indrāsana means the throne of Indra, leader of the gods — the most powerful position short of the very top.','Indrāsana significa el trono de Indra, señor de los dioses — la posición más poderosa, un peldaño por debajo de la cima misma.'),
+  Goloka: T('Goloka is one of the highest heavens — among the most blessed states.','Goloka es uno de los cielos más altos — entre los estados más bendecidos.'),
+  Srivallabha: T('Śrīvallabha means Lord Viṣṇu — the most prosperous and godly state of all.','Śrīvallabha significa el Señor Viṣṇu — el estado más próspero y divino de todos.')
+};
+const VAISESHIKAMSA_DASA_RESULT = {
+  2: T('The native becomes respectable, endowed with many good qualities, wealth, happiness, authority, and dignity.','El nativo se vuelve respetable, dotado de muchas buenas cualidades, riqueza, felicidad, autoridad y dignidad.'),
+  3: T('The native turns out modest, clever, and well-behaved — a quieter, more inward strength than the titles above it.','El nativo resulta modesto, inteligente y de buen comportamiento — una fuerza más callada e interior que los títulos de arriba.'),
+  4: T('The native gains intelligence and wealth, along with lands, cows, and a house of their own.','El nativo gana inteligencia y riqueza, junto con tierras, vacas y una casa propia.'),
+  5: T('The native becomes a king\'s friend, or the equal of one — a seat of real influence, named for the throne (siṁhāsana) itself.','El nativo se vuelve amigo de un rey, o su igual — un asiento de influencia real, nombrado por el propio trono (siṁhāsana).'),
+  6: T('The native is endowed with good houses, elephants, vehicles, and other princely appendages — the trappings of real material standing.','El nativo es dotado de buenas casas, elefantes, vehículos y demás séquito principesco — los signos de una posición material real.'),
+  7: T('The native attains kingship, and renown for good qualities — named for the world of the gods (devaloka), the tier where fame becomes lasting.','El nativo alcanza la realeza, y renombre por sus buenas cualidades — nombrado por el mundo de los dioses (devaloka), el nivel donde la fama se vuelve duradera.'),
+  8: T('The native is endowed with good fortune, wealth, grain, kingship, and children — a fuller, more domestic version of the tier below it (also cited elsewhere as Suraloka, a near-synonym for the same heavenly plane).','El nativo es dotado de buena fortuna, riqueza, grano, realeza e hijos — una versión más plena y doméstica del nivel anterior (citado también en otras fuentes como Suraloka, casi sinónimo del mismo plano celestial).'),
+  9: T('Not given a life-outcome verse the way the other tiers are, but named for Airavata, Indra\'s own white elephant — symbolizing pure, spotless achievement, one step below the very top of the scale.','No se le da un verso de resultado vital como a los demás niveles, pero se nombra por Airavata, el propio elefante blanco de Indra — simboliza un logro puro e inmaculado, un peldaño por debajo de la cima misma de la escala.'),
+  10: T('The source\'s own top-of-scale line: full strength across the whole set makes the native "a king of kings." Shrīdhāma means "abode of Śrī" (Lakṣmī); under the Vaishnavamsa name this tier is glossed as the abode of Lakṣmī and Viṣṇu together — wealth paired with an unshakeable, protective foundation, not wealth alone.','La propia frase máxima de la fuente: fuerza plena en todo el conjunto hace al nativo "rey de reyes." Śrīdhāma significa "morada de Śrī" (Lakṣmī); bajo el nombre Vaishnavamsa este nivel se glosa como la morada conjunta de Lakṣmī y Viṣṇu — riqueza emparejada con un fundamento protector e inquebrantable, no riqueza sola.')
+};
+const VAISESHIKAMSA_SET_ORDER = ['shad','sapta','dasa','shodasa'];
+// One applicable/reference-dropdown block per varga-set, same pattern for
+// all four: titles this chart actually reaches (accounting for yogānāśaka
+// cancellation) shown directly; every other title tucked into a collapsed
+// reference dropdown, matching this app's existing pattern elsewhere (e.g.
+// the World Era page's 28-star table).
+function renderVaiseshikamsaMeaningBlock(setKey, birthPos, navPosForVim){
+  const isDasa = setKey === 'dasa';
+  const counts = Object.keys(VAISESHIKAMSA_NAMES[setKey]).map(Number);
+  const dasaTitleNote = {8:' <span style="color:var(--slate); font-size:10.5px;">(≈ Suraloka)</span>', 9:' <span style="color:var(--slate); font-size:10.5px;">(≈ Shakravahana)</span>', 10:' <span style="color:var(--slate); font-size:10.5px;">(cited elsewhere as Vaishnavamsa)</span>'};
+  const meaningRows = counts.map(count=>({
+    count,
+    title: VAISESHIKAMSA_NAMES[setKey][count] + (isDasa ? (dasaTitleNote[count]||'') : ''),
+    result: isDasa ? VAISESHIKAMSA_DASA_RESULT[count] : VAISESHIKAMSA_DESC[VAISESHIKAMSA_NAMES[setKey][count]]
+  }));
+  const countsPresent = new Set(GRAHA_LIST.filter(g=>!vaiseshikamsaYoganashaka(g, birthPos)).map(g=>vaiseshikamsaCount(g, birthPos, navPosForVim, setKey)));
+  const applicable = meaningRows.filter(r=>countsPresent.has(r.count));
+  const others = meaningRows.filter(r=>!countsPresent.has(r.count));
+  const rowHtml = r => `<tr><td class="wide">${r.count}</td><td>${r.title}</td><td>${r.result}</td></tr>`;
+  const resultColLabel = isDasa ? T('Result (Phaladeepika)','Resultado (Phaladeepika)') : T('What the name evokes (JHora)','Qué evoca el nombre (JHora)');
+  const tableHead = `<thead><tr><th>${T('Count','Recuento')}</th><th>${T('Title','Título')}</th><th>${resultColLabel}</th></tr></thead>`;
+  const setLabel = T(VAISESHIKAMSA_SET_LABEL[setKey].en, VAISESHIKAMSA_SET_LABEL[setKey].es);
+  return `
+    <h3 style="margin:16px 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${setLabel}</h3>
+    <div class="tblwrap"><table>${tableHead}<tbody>${applicable.length ? applicable.map(rowHtml).join('') : `<tr><td colspan="3">${T(`No ${setLabel} count in this chart matches a titled tier (all below 2).`,`Ningún recuento de ${setLabel} en esta carta coincide con un nivel titulado (todos por debajo de 2).`)}</td></tr>`}</tbody></table></div>
+    ${others.length ? `<details class="ref-drop" style="margin-top:8px;"><summary>${T('Other titles — reference, not present in this chart','Otros títulos — referencia, no presentes en esta carta')}</summary>
+      <div class="bd"><div class="tblwrap"><table>${tableHead}<tbody>${others.map(rowHtml).join('')}</tbody></table></div></div>
+    </details>` : ''}`;
 }
 
 // BPHS ch.27 — Kala Bala time-lordship. Vara (day) lord is simply the
@@ -8168,51 +8386,7 @@ function runAnalysis(){
   const hitLookup = new Set([...hitTypeMap.keys()]);
   const getHit = { has: s => hitTypeMap.get(s) || false };
 
-  // Which graha(s) are behind each struck star, and how strong that hit
-  // reads on this app's own ch. IX dignity-weight scale (the same number
-  // already summed into the verdict's "Dignity adjustment" line above —
-  // not a new metric, just surfaced per-star here instead of only as one
-  // combined total). Used to order "Letters affected" by actual impact.
-  const hitsByStar = new Map();
-  vedha.hits.forEach(h=>{
-    if (!hitsByStar.has(h.targetStar)) hitsByStar.set(h.targetStar, []);
-    hitsByStar.get(h.targetStar).push(h);
-  });
-
   const nadi = refP.star ? nadiOfStar(refP.star) : null;
-
-  // "Letters affected right now" — SBC pada-consonants of whichever stars
-  // are currently colored on the ring above (reuses the ch. IX principle
-  // already applied to the reference person's own Consonant Pañcaka below:
-  // a Vedha hit on a Star afflicts that Star's pada-consonants), shown here
-  // for ALL currently-struck stars rather than filtered to one person's own
-  // consonant, since this reads directly off the ring rather than off refP.
-  const struckLetterStars = [...hitTypeMap.keys()].filter(s=>NAK_PADA_CONSONANTS[s])
-    .map(s=>{
-      const hits = hitsByStar.get(s);
-      const weight = hits.reduce((sum,h)=>sum+dignityWeight(h.graha, h.siderealLong, h.dir), 0);
-      return { star:s, hits, weight };
-    })
-    .sort((a,b)=>Math.abs(b.weight)-Math.abs(a.weight));
-
-  // Panch Pakshi vowel-sound groups (Table No.4, see PP_VOWEL_GROUPS) — a
-  // second, independently-sourced "letters" system, unrelated to SBC. Each
-  // of the 5 vowel groups has one bird for today's Pakṣa (bright/dark half,
-  // already known from panch.paksha), read live with the same real-sunrise
-  // ppState engine (mdtWeekdayEN/mdtHalf/mdtHourFromSunrise/mdtDayLenHrs,
-  // computed above) the reference person's own life-bird uses for scoring.
-  const ppVowelRows = PP_VOWEL_GROUPS.map(vg=>{
-    const bird = mdtHalf === 'bright' ? vg.bright : vg.dark;
-    const st = ppStateForBirdAtInstant(bird, mdtWeekdayEN, mdtHalf, mdtHourFromSunrise, mdtDayLenHrs);
-    return { ...vg, bird, mainState: st ? st.mainState : null, abstractState: st ? st.abstractState : null };
-  }).sort((a,b)=>{
-    // Strongest → weakest by the same Table No.5 ratio vector (PP_ACT_FACTOR)
-    // used everywhere else in the app to rank a bird's combined main+abstract
-    // Yama state (see byBird/subByBird strength calc above); a row with no
-    // resolvable state (st===null) sorts last.
-    const strength = r => (PP_ACT_FACTOR[r.mainState]||0) * (PP_ACT_FACTOR[r.abstractState]||0);
-    return strength(b) - strength(a);
-  });
 
   let html = "";
 
@@ -8226,31 +8400,29 @@ function runAnalysis(){
     askNowHtml = renderAskNowCallout(refP);
   }
 
+  // Components summary — everything else feeding the SBC score above,
+  // named and colour-tagged individually so a reader can see WHICH classical
+  // check is driving a "Mixed" or "Unfavourable" verdict rather than just
+  // trusting one blended number. Each of these already has its own full
+  // panel further down this page; this is a compact index into them, not a
+  // duplicate computation.
+  const componentChips = [
+    tara ? `<span class="tag ${tara.tone==='good'?'good':tara.tone==='bad'?'bad':'neutral'}">${T('Tārā','Tārā')}: ${tara.name}</span>` : '',
+    latta.length ? `<span class="tag bad">${T('Latta','Latta')}: ${latta.length} ${T('hit(s)','golpe(s)')}</span>` : `<span class="tag good">${T('Latta: clear','Latta: despejado')}</span>`,
+    upagraha ? `<span class="tag bad">${T('Upagraha','Upagraha')}: ${upagraha.name}</span>` : `<span class="tag good">${T('Upagraha: clear','Upagraha: despejado')}</span>`,
+    (chandrashtama && chandrashtama.active) ? `<span class="tag ${chandrashtama.waxing?'neutral':'bad'}">${T('Chāndrāṣṭama','Chāndrāṣṭama')}${chandrashtama.waxing?` (${T('waxing','creciente')})`:''}</span>` : `<span class="tag good">${T('Chāndrāṣṭama: clear','Chāndrāṣṭama: despejado')}</span>`,
+    doshas.length ? `<span class="tag ${doshas.some(d=>d.tone==='bad')?'bad':'good'}">${doshas.length} ${T('doṣa flag(s)','marca(s) de doṣa')}</span>` : `<span class="tag good">${T('No doṣa flags','Sin marcas de doṣa')}</span>`
+  ].filter(Boolean).join(' ');
+
   html += (askNowHtml ? `<div class="pp-asknow-wrap" style="margin-bottom:12px;">${askNowHtml}</div>` : '');
   html += `<div class="verdict">
     <div class="ribbon" style="background:${tier.color}"></div>
     <div class="body">
-      <div class="tier"><small>${T('Verdict for','Veredicto para')} ${mdt.mo}/${mdt.da}/${mdt.y} · ${weekdayName}, ${mdt.hh}:${pad2(mdt.mm)} ${T('local','hora local')}</small>${tierLabel} <span style="color:${tier.color}">— ${tier.name}</span></div>
+      <div class="tier"><small>${T('Verdict for','Veredicto para')} ${mdt.mo}/${mdt.da}/${mdt.y} · ${weekdayName}, ${mdt.hh}:${pad2(mdt.mm)} ${T('local','hora local')}</small>${tierLabel} <span style="color:${tier.color}">— ${tier.name}</span> <span class="tag neutral" style="font-size:10px; vertical-align:middle;" title="${T('This headline verdict is the SBC (Sarvato Bhadra Chakra) score specifically — Pañcha Pakshi and the other checks below are separate systems, shown in their own panels.','Este veredicto es específicamente la puntuación SBC (Sarvato Bhadra Chakra) — Pañcha Pakshi y las demás comprobaciones de abajo son sistemas aparte, mostrados en sus propios paneles.')}">SBC</span></div>
       <div class="desc">
-      <div class="pp-matrix" style="margin-top:8px;">
-        ${[
-          {rank:1,name:'Ruling (Yukta)',col:'#B8860B',desc:T('peak strength — best for initiating anything important','máxima fuerza — lo mejor para iniciar algo importante')},
-          {rank:2,name:'Eating (Aahara)',col:'#1E8449',desc:T('strong — good for most activities','fuerte — bueno para la mayoría de actividades')},
-          {rank:3,name:'Walking (Chara)',col:'#21618C',desc:T('moderate — acceptable for routine work','moderado — aceptable para trabajos rutinarios')},
-          {rank:4,name:'Sleeping (Nidra)',col:'#7D6608',desc:T('weak — avoid new ventures','débil — evita nuevas iniciativas')},
-          {rank:5,name:'Dying (Mrityu)',col:'#922B21',desc:T('weakest — avoid all auspicious acts','más débil — evita todos los actos auspiciosos')}
-        ].map(row=>{
-          const stateName = row.name.split(' ')[0];
-          const birdsHere = ppVowelRows.filter(v=>v.mainState===stateName||v.abstractState===stateName);
-          return `<div class="m-row">
-            <span class="m-rank">${row.rank}</span>
-            <span class="m-swatch" style="background:${row.col};"></span>
-            <span class="m-name" style="color:${row.col};">${T(row.name.split('(')[0].trim(), row.name.split('(')[0].trim())}</span>
-            <span class="m-guide">${row.desc}</span>
-            <span class="m-birds">${birdsHere.length?birdsHere.map(b=>ppBirdBadge(b.bird)).join(' '):'<i style="color:var(--muted)">'+T('none','ninguno')+'</i>'}</span>
-          </div>`;
-        }).join('')}</div>
-    </div>
+        <div class="hint" style="margin-top:4px;">${T('Other classical checks feeding this score — each detailed further down this page:','Otras comprobaciones clásicas que alimentan esta puntuación — cada una detallada más abajo en esta página:')}</div>
+        <div class="pillrow" style="margin-top:6px;">${componentChips}</div>
+      </div>
     </div>
     <div class="score">
       <div class="n" style="color:${tier.color}">${score>0?'+':''}${score.toFixed(1)}</div>
@@ -8427,8 +8599,8 @@ function runAnalysis(){
     <div class="hd"><h2>${T('Today\'s Lunar Day','Día Lunar de Hoy')}</h2><span class="note">${T('live','en vivo')}</span></div>
     <div class="bd">
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
-          <small style="color:var(--muted);font-family:var(--mono);">PP birds (classical colours):</small>
-          ${Object.keys(PP_BIRD_COLORS).map(b=>ppBirdBadge(b)).join(' ')}
+          <small style="color:var(--muted);font-family:var(--mono);">${T('PP birds (classical colours','Aves PP (colores clásicos')} — ${panch.paksha==='Shukla'?T('Bright Half','Mitad Clara'):T('Dark Half','Mitad Oscura')}):</small>
+          ${Object.keys(PP_BIRD_COLORS).map(b=>ppBirdBadge(b, panch.paksha==='Shukla'?'bright':'dark')).join(' ')}
         </div>
       ${renderBsTithiCard(panch)}
       <details class="ref-drop"><summary>${T('All fifteen lunar days','Los quince días lunares')}</summary>
@@ -8470,22 +8642,19 @@ function runAnalysis(){
         ${sbcZoneLegendHtml()}
 
         <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--line);">
-          <h3 style="margin:0 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Letters affected right now','Letras afectadas ahora mismo')}</h3>
-
-          <div style="font-size:11px; color:var(--slate); text-transform:uppercase; letter-spacing:.03em; margin-bottom:4px;">${T('SBC — pada-consonants under Vedha','SBC — consonantes de pada bajo Vedha')}</div>
-          ${struckLetterStars.length ? `<div class="pillrow">${struckLetterStars.map(({star,hits,weight})=>{
-            const type = hitTypeMap.get(star).type;
-            const grahas = hits.map(h=>T(h.graha,GRAHA_ES[h.graha])).join('/');
-            return `<span class="tag ${type==='good'?'good':'bad'}" title="${T('Dignity-weight strength of this Vedha hit — same figure summed into the verdict\'s Dignity adjustment line','Fuerza de dignidad de este golpe de Vedha — la misma cifra sumada en la línea de Ajuste de dignidad del veredicto')}">${star}: ${NAK_PADA_CONSONANTS[star].join('/')} <b>${weight>0?'+':''}${weight.toFixed(2)}</b> <span style="opacity:.75">(${grahas})</span></span>`;
-          }).join('')}</div>` : `<div class="hint">${T('No star is currently taking Vedha, so no pada-consonants are afflicted right now.','Ninguna estrella está tomando Vedha ahora mismo, así que ninguna consonante de pada está afligida ahora.')}</div>`}
-
-          <div style="font-size:11px; color:var(--slate); text-transform:uppercase; letter-spacing:.03em; margin:14px 0 4px;">${T('Pañcha Pakshi — vowel-sound groups','Pañcha Pakshi — grupos de sonido vocálico')}</div>
-          <div class="tblwrap"><table><thead><tr><th>${T('First sound','Sonido inicial')}</th><th>${T('Bird now','Ave ahora')}</th><th>${T('State','Estado')}</th></tr></thead><tbody>${ppVowelRows.map(r=>`<tr>
-            <td class="wide">${r.label}</td>
-            <td>${T(r.bird, PP_BIRDS_ES[r.bird])}</td>
-            <td>${r.mainState ? `${T(r.mainState, PP_STATES_ES[r.mainState])} · ${T(r.abstractState, PP_STATES_ES[r.abstractState])}` : '—'}</td>
-          </tr>`).join('')}</tbody></table></div>
-          <div class="hint" style="margin-top:8px; line-height:1.6;">${T('This is how a Pañcha Pakshi bird gets identified by name when the birth star is unknown — a separate system from the SBC pada-consonants above, not a variant of them. Shown unconditionally since it needs no reference person: one bird per vowel group for today\'s Pakṣa, with that bird\'s live Yama state. Full name → first-vowel-sound parsing (Dravidian phonetics) is not implemented; this shows all 5 groups\' current bird state directly rather than resolving one name to one group.','Así es como se identifica un ave Pañcha Pakshi por su nombre cuando no se conoce la estrella de nacimiento — un sistema aparte de las consonantes de pada del SBC de arriba, no una variante de ellas. Se muestra sin condiciones porque no necesita persona de referencia: un ave por grupo vocálico para el Pakṣa de hoy, con el estado Yama en vivo de esa ave. El análisis completo nombre → primer sonido vocálico (fonética drávida) no está implementado; esto muestra el estado actual del ave de los 5 grupos directamente en vez de resolver un nombre a un grupo.')}</div>
+          <h3 style="margin:0 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('General SBC reading','Lectura general SBC')}</h3>
+          <div class="hint" style="margin-bottom:8px; line-height:1.6;">${T('A plain count of what\'s landing on the ring right now — a graha counts the same here whether it\'s exalted or debilitated. Separate from the dignity-weighted SBC score in the verdict above; the two can disagree.','Un recuento simple de lo que está cayendo en el anillo ahora mismo — un graha cuenta igual aquí sea exaltado o debilitado. Es independiente de la puntuación SBC ponderada por dignidad del veredicto de arriba; ambas pueden discrepar.')}</div>
+          <div class="pillrow">
+            <span class="tag good">${vedha.beneficHits.length} ${T('benefic hit(s)','golpe(s) benéfico(s)')}</span>
+            <span class="tag bad">${vedha.maleficHits.length} ${T('malefic hit(s)','golpe(s) maléfico(s)')}</span>
+          </div>
+          <div class="hint" style="margin-top:8px;">${
+            vedha.beneficHits.length > vedha.maleficHits.length
+              ? T('More benefic than malefic Vedha is landing right now — a generally favourable sky, on this simple count alone.','Cae ahora más Vedha benéfico que maléfico — un cielo generalmente favorable, según este simple recuento.')
+              : vedha.maleficHits.length > vedha.beneficHits.length
+              ? T('More malefic than benefic Vedha is landing right now — a generally strained sky, on this simple count alone.','Cae ahora más Vedha maléfico que benéfico — un cielo generalmente tenso, según este simple recuento.')
+              : T('Benefic and malefic Vedha are landing in equal measure right now — a mixed sky, on this simple count alone.','El Vedha benéfico y maléfico caen ahora en igual medida — un cielo mixto, según este simple recuento.')
+          }</div>
         </div>
       </div>
     </div>
@@ -8541,10 +8710,6 @@ function runAnalysis(){
       </div>` : `<div class="hint">${T('Enable Tārā Bala in Options and set a reference star.','Activa Tārā Bala en Opciones y define una estrella de referencia.')}</div>`}
     </div></div>
   </div>`;
-
-  if (document.getElementById('chartPanchapakshi').checked){
-    html += `<div class="panel"><div class="hd"><h2>${T('Pañcha Pakshi — Live Yama Chart','Pañcha Pakshi — Gráfico Yama en vivo')}</h2><span class="note">${T('updates every minute','se actualiza cada minuto')}</span></div><div class="bd" id="ppPanelContainer"></div></div>`;
-  }
 
   html += `<div class="panel"><div class="hd"><h2>${T('Latta &amp; Upagraha checks','Comprobaciones de Latta y Upagraha')}</h2></div><div class="bd">`;
   if (latta.length){
@@ -8614,6 +8779,7 @@ function runAnalysis(){
 // birth-data page compute on NaN and show garbled output).
 const PAGES_NEEDING_BIRTH_DATA = {
   pageNatal: {contentId:'natalPageContent', render:()=>renderNatalPage()},
+  pageAvastha: {contentId:'avasthaPageContent', render:()=>renderAvasthaPage()},
   pageAshtakavarga: {contentId:'ashtakavargaPageContent', render:()=>renderAshtakavargaPage()},
   pageDasha: {contentId:'dashaPageContent', render:()=>renderDashaPage()},
   pageHouseNature: {contentId:'houseNaturePageContent', render:()=>{renderHouseNaturePage(); renderVargaPage();}},
@@ -8647,10 +8813,9 @@ function showPage(pageId){
   closeHamburgerMenu();
   if (PAGES_NEEDING_BIRTH_DATA[pageId]) renderPageOrBirthDataPlaceholder(pageId);
   if (pageId === 'pageAntara') renderAntaraChakraPage();
-  if (pageId === 'pageCommodities') renderCommoditiesPage();
-  if (pageId === 'pageCurrencies') renderCurrenciesPage();
   if (pageId === 'pageHorary') renderHoraryPage();
   if (pageId === 'pageSignificators') renderSignificatorsPage();
+  if (pageId === 'pagePanchaPakshi'){ renderPanchaPakshiLadder(); renderPPPanel(); }
 }
 
 // ---- House Lord Results (panel on the Natal General Reading page) ----
@@ -8740,7 +8905,7 @@ function renderNatalPage(){
   const navLagnaSign = SIGNS[Math.floor(navLagnaSidereal/30)];
   const isWaxingMoon = refP._panch ? refP._panch.paksha === "Shukla" : true;
 
-  const positionRows = (pos, ascSidereal, showArudha) => {
+  const positionRows = (pos, ascSidereal) => {
       const ascSign = SIGNS[Math.floor(norm360(ascSidereal)/30)];
       const ascDeg = norm360(ascSidereal)%30;
       let rows = `<tr>
@@ -8748,16 +8913,6 @@ function renderNatalPage(){
         <td>${ascSign} ${fmtDeg(ascDeg)}</td>
         <td>—</td>
       </tr>`;
-      if (showArudha){
-        const alLong = computeArudhaLagna(ascSidereal);
-        const alSign = SIGNS[Math.floor(alLong/30)];
-        const alDeg = alLong%30;
-        rows += `<tr>
-          <td class="wide" style="color:var(--gold);">Arudha Lagna <span class="tag gold" title="${T('The sign your Lagna casts on the 10th-from-itself','El signo que tu Lagna proyecta sobre la 10ª desde sí mismo')}">?</span></td>
-          <td style="color:var(--gold);">${alSign} ${fmtDeg(alDeg)}</td>
-          <td class="hint" style="font-size:10.5px;">${T('public image','imagen pública')}</td>
-        </tr>`;
-      }
       GRAHA_LIST.forEach(g=>{
       const sid = norm360(pos[g].sidereal);
       const sign = SIGNS[Math.floor(sid/30)];
@@ -8910,7 +9065,7 @@ function renderNatalPage(){
 
   container.innerHTML = `
     <div class="panel">
-      <div class="hd"><h2>${T('Natal General Reading','Lectura Natal General')}</h2><span class="note">D1 + D9 · ${T('initial snapshot','impresión inicial')}</span></div>
+      <div class="hd"><h2>${T('General','General')}</h2><span class="note">D1 + D9 · ${T('initial snapshot','impresión inicial')}</span></div>
       <div class="bd">
         <div class="hint">${T('A first-look read of the birth chart from the Rāśi (D1) and Navāṁśa (D9) charts. The functional benefic/malefic table and Raja Yoga check use a Lagna-dependent house-lordship system — genuinely different from the fixed benefic/malefic list used for Vedha scoring elsewhere in this app. This page is entirely natal — it never changes with today\'s date.','Una primera lectura de la carta natal, a partir de las cartas Rāśi (D1) y Navāṁśa (D9). La tabla de benéfico/maléfico funcional y la comprobación de Raja Yoga usan un sistema de señorío de casas dependiente del Lagna — genuinamente distinto de la lista fija de benéfico/maléfico que se usa para la puntuación de Vedha en otras partes de esta app. Esta página es enteramente natal — nunca cambia con la fecha de hoy.')}</div>
         <div class="hint" style="margin-top:6px;">${T('For the full sixteen-division reading (D1–D60) and the deep house-by-house / lord-by-lord analysis, use menu → <b>Houses, Lords, Varga</b>: it holds everything that used to live on the separate Divisional Varga tab, consolidated onto the house page.','Para la lectura completa de dieciséis divisiones (D1–D60) y el análisis profundo casa por casa / señor por señor, usa menú → <b>Casas, Señores, Varga</b>: contiene todo lo que solía vivir en la pestaña separada de Varga Divisional, consolidado en la página de casas.')}</div>
@@ -8920,7 +9075,7 @@ function renderNatalPage(){
     <div class="grid3panel">
       <div class="panel"><div class="hd"><h2>${T('D1 (Rāśi) positions','Posiciones D1 (Rāśi)')}</h2><span class="note">${T('natal','natal')}</span></div>
         <div class="bd">
-          <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Position','Posición')}</th><th>${T('Dignity','Dignidad')}</th></tr></thead><tbody>${positionRows(birthPos, birthPos._ascSidereal, true)}</tbody></table></div>
+          <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Position','Posición')}</th><th>${T('Dignity','Dignidad')}</th></tr></thead><tbody>${positionRows(birthPos, birthPos._ascSidereal)}</tbody></table></div>
         </div>
       </div>
       <div class="panel"><div class="hd"><h2>${T('D9 (Navāṁśa) positions','Posiciones D9 (Navāṁśa)')}</h2><span class="note">${T('natal','natal')}</span></div>
@@ -8935,7 +9090,6 @@ function renderNatalPage(){
       </div>
     </div>
     <div class="hint" style="margin:8px 0 0;">${T('(r) = retrograde at birth. Dignity (own/exalted/friend/neutral/enemy/debilitated) is read off the sign each chart places the graha in — the same rule for both D1 and D9. The third table is a separate, independent lens on the same natal placements: how many bindus (0–8) each graha\'s own Bhinnāṣṭakavarga assigns to the sign it was born in (5+ strong, 4 average, 0–3 weak), plus the Sarvāṣṭakavarga total (all 7 grahas\' bindus) for that sign — average 28, above is supportive, below 25 weak. Dignity measures the graha\'s relationship to its sign; bindus count contributions from 8 sources — the two can genuinely disagree about the same placement, which is why they\'re shown side by side rather than merged. Rāhu/Ketu have no Bhinnāṣṭakavarga in this system (7 grahas only), so they show only the Sarva column.','(r) = retrógrado al nacer. La dignidad (propio/exaltado/amigo/neutral/enemigo/debilitado) se lee según el signo en que cada carta ubica al graha — la misma regla para D1 y D9. La tercera tabla es una lente separada e independiente sobre las mismas posiciones natales: cuántos bindus (0–8) asigna el propio Bhinnāṣṭakavarga de cada graha al signo en que nació (5+ fuerte, 4 promedio, 0–3 débil), más el total de Sarvāṣṭakavarga (los bindus de los 7 graha) para ese signo — promedio 28, por encima es favorable, por debajo de 25 débil. La dignidad mide la relación del graha con su signo; los bindus cuentan contribuciones de 8 fuentes — los dos pueden discrepar genuinamente sobre la misma posición, por eso se muestran lado a lado en vez de fusionados. Rāhu/Ketu no tienen Bhinnāṣṭakavarga en este sistema (solo 7 graha), así que muestran solo la columna Sarva.')}</div>
-    <div class="hint" style="margin:8px 0 0;">${T('Arudha Lagna — shown on the D1 table above — is the sign your Lagna casts on the 10th-from-itself: the image you present to the world, your public face, distinct from the Lagna\'s inner self. It is read from your birth Lagna degree (Lagna + 270°, with two classical exceptions when the result falls on the Lagna itself or the 10th from it, which shift it to the 5th or 9th). Its sign is commonly used for Nimitta and spouse-placement judgment.','Arudha Lagna — mostrado en la tabla D1 de arriba — es el signo que tu Lagna proyecta sobre la 10ª desde sí mismo: la imagen que presentas al mundo, tu rostro público, distinta del yo interior del Lagna. Se lee desde el grado de tu Lagna natal (Lagna + 270°, con dos excepciones clásicas cuando el resultado cae en el propio Lagna o en la 10ª desde él, desplazándose a la 5ª o la 9ª). Su signo se usa habitualmente para el juicio de Nimitta y de ubicación del cónyuge.')}</div>
     <div style="height:8px"></div>
 
     <div class="panel"><div class="hd"><h2>${T('Functional benefic / malefic by house lordship','Benéfico / maléfico funcional por señorío de casas')}</h2></div>
@@ -9001,6 +9155,225 @@ function renderNatalPage(){
   `;
 }
 function gNameNatal(g){ return T(g, GRAHA_ES[g]); }
+
+/* =========================================================================
+   AVASTHAS — planetary "states" read off the natal chart. Three classical
+   layers shown per graha, computed here (not read off window.AVASTHA's
+   bare English-only strings) so every label goes through T() and matches
+   this app's own dignity/combustion/retrograde data:
+   - Baladi (5-fold, degree-in-sign): Bāla/Kumāra/Yuvā/Vṛddha/Mṛta, straight
+     for odd signs, reversed for even signs.
+   - Jāgradādi (3-fold, dignity-based): Jāgrat/Svapna/Suṣupti.
+   - Dīptādi / Nava Avasthā (9-fold): dignity, refined by combustion and
+     retrograde motion, giving Dīpta/Svastha/Mudita/Śānta/Dīna/Duḥkhita/
+     Vikala/Kruddha/Khala. NOTE — some texts instead derive this 9-fold set
+     purely from degree-in-sign (like Baladi, just split into ninths); this
+     table uses the dignity/combustion/motion method instead, disclosed
+     below rather than silently merged with the degree-based one.
+   Rāhu/Ketu get a Baladi (degree only, no dignity dependency) but no
+   Jāgradādi/Dīptādi, matching this app's existing convention elsewhere that
+   the nodes carry no functional sign-dignity in most signs.
+   ========================================================================= */
+const BALADI_ES = {Balavastha:"Bālāvasthā",Kumaravastha:"Kumārāvasthā",Yuvavastha:"Yuvāvasthā",Vridhavastha:"Vṛddhāvasthā",Mritavastha:"Mṛtāvasthā"};
+const JAGRADADI_ES = {Jagrat:"Jāgrat",Swapna:"Svapna",Sushupti:"Suṣupti"};
+const DIPITADI_ES = {Deepta:"Dīpta",Swastha:"Svastha",Mudita:"Mudita",Shanta:"Śānta",Deena:"Dīna",Dukhi:"Duḥkhita",Vikala:"Vikala",Kruddha:"Kruddha",Khala:"Khala"};
+// Plain-English gloss shown in parentheses next to every Sanskrit term in
+// the table below, always in English regardless of app language (matches
+// how this app already glosses Jāgradādi/Dīptādi elsewhere) — read as "the
+// modern-language shorthand for this term," not a full translation.
+const BALADI_GLOSS = {Balavastha:"Child",Kumaravastha:"Youth",Yuvavastha:"Adult",Vridhavastha:"Old",Mritavastha:"Dead"};
+const JAGRADADI_GLOSS = {Jagrat:"Awake",Swapna:"Dreaming",Sushupti:"Asleep"};
+const DIPITADI_GLOSS = {Deepta:"Blazing",Swastha:"Healthy",Mudita:"Delighted",Shanta:"Peaceful",Deena:"Pitiable",Dukhi:"Sorrowful",Vikala:"Agitated",Kruddha:"Enraged",Khala:"Afflicted"};
+const JAGRADADI_TAG = {Jagrat:"good",Swapna:"neutral",Sushupti:"bad"};
+const DIPITADI_TAG = {Deepta:"good",Swastha:"good",Mudita:"good",Shanta:"neutral",Deena:"neutral",Dukhi:"bad",Vikala:"bad",Kruddha:"bad",Khala:"bad"};
+
+/* =========================================================================
+   LĀJJITĀDI AVASTHĀ (6-fold) — BPHS's "yet other Avasthās" chapter, verses
+   11-18. Checked in the order the verse itself lists them (first match
+   wins): Lajjita, Garvita, Kṣudhita, Trāṣita, Mudita, Kṣobhita. Cross-
+   verified against TWO independent translations (Girish Chand and
+   Santhanam editions); Santhanam's clearer punctuation resolved two
+   places Girish Chand's rendering read ambiguously (Lajjita's malefic
+   list includes the Sun; Mudita is friend's-sign OR benefic-conjunct/
+   aspect OR conjunct Jupiter — three alternatives, not Jupiter as a
+   required extra condition). "Conjunct" = same sign (this app's existing
+   whole-sign convention); "aspected by" reuses aspectsSignWholeSign()'s
+   whole-sign Parāśarī dṛṣṭi. This Mudita is unrelated to Dīptādi's own
+   "Mudita" tier above — same word, two independent classical systems.
+   ========================================================================= */
+const LAJJITADI_TAG = {Lajjita:"bad", Garvita:"good", Kshudhita:"bad", Trashita:"bad", Mudita:"good", Kshobhita:"bad"};
+const LAJJITADI_GLOSS = {Lajjita:"Ashamed", Garvita:"Proud", Kshudhita:"Hungry", Trashita:"Thirsty", Mudita:"Delighted", Kshobhita:"Agitated"};
+function lajjitadiAvastha(graha, pos, ascSignIdx){
+  const sid = norm360(pos[graha].sidereal);
+  const signIdx = Math.floor(sid/30);
+  const house = ((signIdx - ascSignIdx + 12) % 12) + 1;
+  const others = GRAHA_LIST.filter(g=>g!==graha);
+  const conjunctWith = g => Math.floor(norm360(pos[g].sidereal)/30) === signIdx;
+  const aspectedBy = g => aspectsSignWholeSign(g, Math.floor(norm360(pos[g].sidereal)/30), signIdx);
+  const isEnemy = g => naisargikaRelOf(graha, g)==='enemy';
+  const isMalefic = g => MALEFIC_GRAHAS.includes(g);
+  const isBenefic = g => !MALEFIC_GRAHAS.includes(g);
+
+  if (house===5 && others.some(g => (g==='Rahu'||g==='Ketu'||g==='Sun'||g==='Saturn'||g==='Mars') && conjunctWith(g))) return 'Lajjita';
+  if (dignityTier(graha,sid)==='Exalted' || inMulatrikona(graha,sid)) return 'Garvita';
+  if (dignityTier(graha,sid)==='Enemy' || others.some(g=>isEnemy(g) && (conjunctWith(g)||aspectedBy(g))) || (graha!=='Saturn' && conjunctWith('Saturn'))) return 'Kshudhita';
+  if (vElement(signIdx)===3 && others.some(g=>isMalefic(g)&&aspectedBy(g)) && !others.some(g=>isBenefic(g)&&aspectedBy(g))) return 'Trashita';
+  if (dignityTier(graha,sid)==='Friend' || others.some(g=>isBenefic(g) && (conjunctWith(g)||aspectedBy(g))) || (graha!=='Jupiter' && conjunctWith('Jupiter'))) return 'Mudita';
+  if (graha!=='Sun' && conjunctWith('Sun') && (others.some(g=>isMalefic(g) && (conjunctWith(g)||aspectedBy(g))) || others.some(g=>isEnemy(g)&&aspectedBy(g)))) return 'Kshobhita';
+  return null;
+}
+
+/* =========================================================================
+   ŚAYANĀDI AVASTHĀ (12-fold) — BPHS's own formula (verses 30-37), computed
+   per graha rather than the single whole-chart reading this app's earlier
+   "not shown" note assumed. Formula, verbatim: (planet's own Nakṣatra
+   number × the planet's serial number 1-9, Sun..Ketu × its Navāṁśa number
+   1-9) + (Janma Nakṣatra number + Iṣṭa Ghaṭī + Ascendant sign number),
+   all mod 12; remainder 1 = Śayana, ... 11 = Kautuka, 0 = Nidrā. Iṣṭa
+   Ghaṭī = hours-since-sunrise × 2.5, rounded up to the next whole ghaṭī
+   per the verse's own "if there is vighaṭī also, increase the ghaṭī count
+   by one" rule. NOT implemented: the verse's further Cheshṭā (Dṛṣṭi/
+   Cheṣṭā/Vicheṣṭā) refinement — it needs the birth name's first-letter
+   numeric value from a table this app's source OCR renders illegibly, so
+   it's skipped rather than guessed at.
+   ========================================================================= */
+const SHAYANADI_GRAHA_NUM = {Sun:1,Moon:2,Mars:3,Mercury:4,Jupiter:5,Venus:6,Saturn:7,Rahu:8,Ketu:9};
+const SHAYANADI_STATES = ["Shayana","Upavesana","Netrapani","Prakasana","Gamana","Agamana","Sabha","Agama","Bhojana","Nrityalipsa","Kautuka","Nidra"];
+const SHAYANADI_GLOSS = {
+  Shayana:"Lying down", Upavesana:"Sitting", Netrapani:"Watchful", Prakasana:"Shining forth",
+  Gamana:"Departing", Agamana:"Arriving", Sabha:"In assembly", Agama:"Approaching",
+  Bhojana:"Dining", Nrityalipsa:"Wishing to dance", Kautuka:"Curious", Nidra:"Deep sleep"
+};
+function shayanadiAvastha(graha, birthPos, bdt){
+  const sid = norm360(birthPos[graha].sidereal);
+  const degIn = sid - Math.floor(sid/30)*30;
+  const nakNum = Math.floor(sid/(40/3)) % 27 + 1;
+  const navamsaNum = Math.min(9, Math.floor(degIn/(10/3)) + 1);
+  const product = nakNum * SHAYANADI_GRAHA_NUM[graha] * navamsaNum;
+
+  const janmaNakNum = Math.floor(norm360(birthPos.Moon.sidereal)/(40/3)) % 27 + 1;
+  const sun = sunriseSunsetLocal(bdt.y, bdt.mo, bdt.da, bdt.lat, bdt.lon, bdt.tz);
+  const sunriseHr = sun ? sun.sunriseHr : 6;
+  const hoursFromSunrise = ((bdt.hh + bdt.mm/60) - sunriseHr + 24) % 24;
+  const ishtaGhati = Math.ceil(hoursFromSunrise * 2.5);
+  const ascSignNum = Math.floor(norm360(birthPos._ascSidereal)/30) + 1;
+
+  const total = product + janmaNakNum + ishtaGhati + ascSignNum;
+  const remainder = total % 12;
+  return SHAYANADI_STATES[remainder===0 ? 11 : remainder-1];
+}
+function avasthaDignityInput(g, sid){
+  const tier = dignityTier(g, sid);
+  if (tier==="Exalted") return "exalt";
+  if (tier==="Own" || tier==="Own (per source note)") return "own";
+  if (tier==="Friend") return "friend";
+  if (tier==="Neutral") return "neutral";
+  if (tier==="Enemy") return "enemy";
+  return "debilitated"; // matches no case in AV.dipitadi -> falls to retro/combust/Khala
+}
+// Shared by the Avasthas table and vaiseshikamsaYoganashaka() below, so both
+// read the same Jāgradādi/Dīptādi for a graha rather than two computations
+// drifting apart. Rāhu/Ketu get nulls throughout (no functional dignity).
+function computeGrahaAvasthas(g, pos){
+  const isNode = (g==="Rahu"||g==="Ketu");
+  if (isNode) return {jagradadi:null, dipitadi:null, combust:false, retro:pos[g].speed<0};
+  const sid = norm360(pos[g].sidereal);
+  const retro = pos[g].speed<0;
+  const dInput = avasthaDignityInput(g, sid);
+  const dInputForDipitadi = inMulatrikona(g, sid) ? "moolatrikona" : dInput;
+  const orb = COMBUSTION_ORB_DEG[g];
+  const sunDiff = norm360(sid - pos.Sun.sidereal);
+  const combust = orb ? (sunDiff<=orb || (360-sunDiff)<=orb) : false;
+  const AV = window.AVASTHA;
+  return {
+    jagradadi: AV.jagradadi(dInput),
+    dipitadi: AV.dipitadi(dInputForDipitadi, combust, retro),
+    combust, retro
+  };
+}
+function renderAvasthaPage(){
+  const container = document.getElementById('avasthaPageContent');
+  if (!container) return;
+
+  const refInfo = getReferencePanchaka();
+  const birthPos = refInfo.birthPos;
+  const AV = window.AVASTHA;
+  const navPosForVim = computeNavamsaPos(birthPos);
+  const bdt = readDateTime("b");
+  const ascSignIdx = Math.floor(norm360(birthPos._ascSidereal)/30);
+
+  const vaiseshikamsaSetKeys = ['shad','sapta','dasa','shodasa'];
+  const vaiseshikamsaRows = GRAHA_LIST.map(g=>{
+    const reasons = vaiseshikamsaYoganashakaReasons(g, birthPos);
+    const cancelled = reasons.length>0;
+    const reasonsEn = reasons.map(r=>r.en).join(', ');
+    const reasonsEs = reasons.map(r=>r.es).join(', ');
+    const cells = vaiseshikamsaSetKeys.map(setKey=>{
+      const count = vaiseshikamsaCount(g, birthPos, navPosForVim, setKey);
+      const label = vaiseshikamsaLabel(setKey, count, cancelled);
+      if (label==='—'){
+        return cancelled && count>=2
+          ? `<td><span style="color:var(--vermilion);" title="${T(`${reasonsEn} — cancels what would otherwise be ${count}-${VAISESHIKAMSA_NAMES[setKey][count]} (yogānāśaka)`,`${reasonsEs} — cancela lo que de otro modo sería ${count}-${VAISESHIKAMSA_NAMES[setKey][count]} (yogānāśaka)`)}">—</span></td>`
+          : `<td><span style="color:var(--muted)">—</span></td>`;
+      }
+      return `<td><span class="tag ${count>=Math.ceil(VAISESHIKAMSA_SETS[setKey].length*0.7)?'good':'neutral'}">${label}</span></td>`;
+    }).join('');
+    return `<tr>
+      <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}${cancelled?` <small style="color:var(--vermilion);" title="${T(`${reasonsEn} — see hint below the table`,`${reasonsEs} — ver nota bajo la tabla`)}">⚠</small>`:''}</td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  const rows = GRAHA_LIST.map(g=>{
+    const sid = norm360(birthPos[g].sidereal);
+    const signIdx = Math.floor(sid/30);
+    const sign = SIGNS[signIdx];
+    const degIn = sid - signIdx*30;
+    const baladi = AV.baladi(signIdx, degIn);
+
+    const {jagradadi:jRaw, dipitadi:dRaw, retro} = computeGrahaAvasthas(g, birthPos);
+    const jagradadi = jRaw===null ? '—' : jRaw;
+    const dipitadi = dRaw===null ? '—' : dRaw;
+    const jagTag = JAGRADADI_TAG[jagradadi] || 'neutral';
+    const dipTag = DIPITADI_TAG[dipitadi] || 'neutral';
+    const lajjitadi = lajjitadiAvastha(g, birthPos, ascSignIdx);
+    const lajTag = lajjitadi ? (LAJJITADI_TAG[lajjitadi]||'neutral') : 'neutral';
+    const shayanadi = shayanadiAvastha(g, birthPos, bdt);
+
+    return `<tr>
+      <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
+      <td>${sign} ${fmtDeg(degIn)}${retro?` <small style="color:var(--vermilion);">(${T('r','r')})</small>`:''}</td>
+      <td>${T(baladi, BALADI_ES[baladi]||baladi)} <span style="color:var(--slate); font-size:10.5px;">(${BALADI_GLOSS[baladi]||''})</span></td>
+      <td>${jagradadi==='—'?'—':`<span class="tag ${jagTag}">${T(jagradadi, JAGRADADI_ES[jagradadi]||jagradadi)}</span> <span style="color:var(--slate); font-size:10.5px;">(${JAGRADADI_GLOSS[jagradadi]||''})</span>`}</td>
+      <td>${dipitadi==='—'?'—':`<span class="tag ${dipTag}">${T(dipitadi, DIPITADI_ES[dipitadi]||dipitadi)}</span> <span style="color:var(--slate); font-size:10.5px;">(${DIPITADI_GLOSS[dipitadi]||''})</span>`}</td>
+      <td>${lajjitadi===null?'—':`<span class="tag ${lajTag}">${lajjitadi}</span> <span style="color:var(--slate); font-size:10.5px;">(${LAJJITADI_GLOSS[lajjitadi]||''})</span>`}</td>
+      <td>${shayanadi} <span style="color:var(--slate); font-size:10.5px;">(${SHAYANADI_GLOSS[shayanadi]||''})</span></td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="hd"><h2>${T('Avasthas','Avasthas')}</h2><span class="note">${T('natal','natal')}</span></div>
+      <div class="bd">
+        <div class="hint">${T('The classical "states" a graha stands in at birth — layered on top of ordinary sign dignity, not a replacement for it. Five systems shown side by side: a 5-fold state read purely from degree-in-sign (Baladi), a 3-fold waking/dreaming/sleeping state read from dignity (Jāgradādi), a 9-fold refinement of dignity by combustion and retrograde motion (Dīptādi), a 6-fold state read from sign, conjunction and aspect (Lājjitādi), and a 12-fold state computed per graha from its own Nakṣatra, Navāṁśa, and the birth Ascendant (Śayanādi). Rāhu/Ketu get only the degree-based Baladi and the fully-computed Śayanādi, since they carry no functional sign-dignity in most signs in this app\'s scheme.','Los "estados" clásicos en que se encuentra un graha al nacer — superpuestos a la dignidad de signo ordinaria, no en su reemplazo. Se muestran cinco sistemas en paralelo: un estado de 5 niveles leído solo por grado dentro del signo (Baladi), un estado de 3 niveles de vigilia/sueño/sueño profundo leído desde la dignidad (Jāgradādi), un refinamiento de 9 niveles de la dignidad según combustión y movimiento retrógrado (Dīptādi), un estado de 6 niveles leído por signo, conjunción y aspecto (Lājjitādi), y un estado de 12 niveles calculado por graha a partir de su propio Nakṣatra, Navāṁśa y el Ascendente natal (Śayanādi). Rāhu/Ketu solo reciben el Baladi por grado y el Śayanādi totalmente calculado, ya que no llevan dignidad de signo funcional en la mayoría de los signos en el esquema de esta app.')}</div>
+        <div class="tblwrap" style="margin-top:12px;"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Position','Posición')}</th><th>${T('Baladi','Baladi')}</th><th>${T('Jāgradādi','Jāgradādi')}</th><th>${T('Dīptādi','Dīptādi')}</th><th>${T('Lājjitādi','Lājjitādi')}</th><th>${T('Śayanādi','Śayanādi')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <div class="hint" style="margin-top:8px; line-height:1.6;">${T('A strong graha needs Kumāra or Yuvā (not Bāla or Mṛta), and Jāgrat over Sushupti — Dīptādi refines that further by combustion/retrograde motion. Lājjitādi and Śayanādi are separate, independent systems read from different mechanics (conjunction/aspect, and a Nakṣatra-Navāṁśa-Ascendant formula respectively) — they don\'t rank on the same ladder as the first three and aren\'t meant to agree with them.','Un graha fuerte necesita Kumāra o Yuvā (no Bāla ni Mṛta), y Jāgrat por encima de Sushupti — Dīptādi lo refina más según combustión/retrogradación. Lājjitādi y Śayanādi son sistemas separados e independientes, leídos con mecánicas distintas (conjunción/aspecto, y una fórmula de Nakṣatra-Navāṁśa-Ascendente respectivamente) — no se ordenan en la misma escala que los tres primeros ni están pensados para coincidir con ellos.')}</div>
+        <div class="hint" style="margin-top:8px; line-height:1.6;">${T('Not implemented for Śayanādi: the verse\'s further Cheṣṭā (Dṛṣṭi/Cheṣṭā/Vicheṣṭā) refinement — it needs the birth name\'s first-letter numeric value from a table this app\'s source renders illegibly, so it\'s skipped rather than guessed at.','No implementado para Śayanādi: el refinamiento posterior de Cheṣṭā (Dṛṣṭi/Cheṣṭā/Vicheṣṭā) del verso — necesita el valor numérico de la primera letra del nombre de nacimiento, de una tabla que la fuente de esta app reproduce de forma ilegible, así que se omite en vez de adivinarlo.')}</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="hd"><h2>${T('Vaiśeṣikāṁśa','Vaiśeṣikāṁśa')}</h2><span class="note">${T('named strength titles across divisions','títulos de fuerza nombrados entre divisiones')}</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:12px; line-height:1.6;">${T('A different classical system from the three avasthas above — named titles, not a numeric score. Within each of four named varga-sets (Shadvarga 6, Saptavarga 7, Dashavarga 10, Shodashavarga 16 — each set including the one before it plus more divisions), count how many of that set\'s divisions place the graha in its own sign or better (exaltation/Mūlatrikoṇa/own). That count carries a fixed classical title — e.g. 3 good vargas in the Dashavarga set is titled Uttamāṁśa. A blank cell means fewer than 2 of that set\'s divisions were good — the source names no title below that. A graha marked ⚠ has its count cancelled outright across all four sets — the source calls such a graha a "yogānāśaka," a destroyer of the combination, not merely a weaker version of it — for being combust, defeated in Graha Yuddha (planetary war), natally debilitated (unless Nīcha Bhaṅga cancels that), or in a weak Avasthā (Suṣupti, or a "bad" Dīptādi state — see the Avasthas table above). Hover the ⚠ or the cancelled cell for which reason(s) applied. Note: reference software (e.g. JHora) typically shows only the bare count with no cancellation step — this app deliberately goes one verse further into BPHS, since that fuller rule is directly sourced and not merely a guess.','Un sistema clásico distinto de los tres avasthas de arriba — títulos nombrados, no una puntuación numérica. Dentro de cada uno de cuatro conjuntos de varga nombrados (Shadvarga 6, Saptavarga 7, Dashavarga 10, Shodashavarga 16 — cada conjunto incluye al anterior más divisiones), se cuenta cuántas divisiones de ese conjunto ubican al graha en signo propio o mejor (exaltación/Mūlatrikoṇa/propio). Ese recuento lleva un título clásico fijo — p. ej. 3 vargas buenos en el conjunto Dashavarga se titula Uttamāṁśa. Una celda en blanco significa que menos de 2 divisiones de ese conjunto fueron buenas — la fuente no nombra título por debajo de eso. Un graha marcado ⚠ tiene su recuento cancelado por completo en los cuatro conjuntos — la fuente llama a tal graha "yogānāśaka," un destructor de la combinación, no simplemente una versión más débil de ella — por estar combusto, derrotado en Graha Yuddha (guerra planetaria), debilitado natalmente (salvo que Nīcha Bhaṅga lo cancele), o en un Avasthā débil (Suṣupti, o un estado Dīptādi "malo" — ver la tabla de Avasthas arriba). Pasa el cursor sobre el ⚠ o la celda cancelada para ver qué razón(es) aplicaron. Nota: el software de referencia (p. ej. JHora) suele mostrar solo el recuento sin este paso de cancelación — esta app deliberadamente va un verso más allá en el BPHS, ya que esa regla más completa está directamente sourced y no es una mera suposición.')}</div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th>${vaiseshikamsaSetKeys.map(k=>`<th>${T(VAISESHIKAMSA_SET_LABEL[k].en,VAISESHIKAMSA_SET_LABEL[k].es)}</th>`).join('')}</tr></thead><tbody>${vaiseshikamsaRows}</tbody></table></div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('Title spelling is checked directly against JHora\'s own installed program (its embedded label strings, not just its written documentation, which turned out to add a grammatical "-amsa" suffix JHora\'s own UI doesn\'t actually use, and to mis-spell two Shodashavarga titles outright). See the per-set tables below for the full name list and what each name evokes. The Shadvarga divisions counted here are the same six this app already uses (unseen) to help elect which graha governs the current Hour/Day/Month/Year.','La ortografía de los títulos se verifica directamente contra el propio programa instalado de JHora (sus cadenas de etiqueta incrustadas, no solo su documentación escrita, que resultó añadir un sufijo gramatical "-amsa" que la propia interfaz de JHora no usa realmente, y escribir mal directamente dos títulos de Shodashavarga). Ver las tablas por conjunto abajo para la lista completa de nombres y qué evoca cada uno. Las divisiones de Shadvarga contadas aquí son las mismas seis que esta app ya usa (sin mostrarla) para ayudar a elegir qué graha gobierna la Hora/Día/Mes/Año actual.')}</div>
+
+        ${VAISESHIKAMSA_SET_ORDER.map(setKey=>renderVaiseshikamsaMeaningBlock(setKey, birthPos, navPosForVim)).join('<div style="height:16px"></div>')}
+      </div>
+    </div>
+  `;
+}
 
 // ---- Divisional Varga page (16 classical divisions) ----
 // Pure-math core below is bracket-marked so a headless regression can extract
@@ -9095,7 +9468,7 @@ const VARGA_DEFS = [
    calc:sid=>vargaStepped(sid,45,si=>[0,4,8][vModality(si)],1)}, // movable→Ar fixed→Le dual→Sg
   {key:"D60", name:"Shashtiāṁśa", span:"0°30'",
    purpose:{en:"all matters / karma",es:"todos los asuntos / karma"}, parts:60,
-   calc:sid=>Math.floor(norm360(sid)*2)%12} // standard: ignore sign, longitude×2 mod 12 from Aries
+   calc:sid=>vargaStepped(sid,60,si=>si,1)} // count of 60 amsas starts from the planet's own D1 sign, not Aries
 ];
 
 /* Dignity tier of a graha given a SIGN INDEX (varga output), not a longitude.
@@ -9148,6 +9521,21 @@ const VARGA_READING_THEME = {
   D45:{en:"paternal legacy",es:"el legado paterno"},
   D60:{en:"karma of past deeds",es:"el karma de actos pasados"}
 };
+// Classical natural significations (karakatva, BPHS ch. 3) — one compact
+// phrase per graha, reused below to give the varga reading synthesis a
+// second sentence grounded in what the graha itself classically signifies,
+// not just the house it lands in.
+const GRAHA_KARAKA = {
+  Sun:{en:"soul, authority and the father",es:"el alma, la autoridad y el padre"},
+  Moon:{en:"the mind, the mother and public sentiment",es:"la mente, la madre y el sentir público"},
+  Mars:{en:"courage, siblings and land",es:"el coraje, los hermanos y la tierra"},
+  Mercury:{en:"intellect, speech and trade",es:"el intelecto, el habla y el comercio"},
+  Jupiter:{en:"wisdom, wealth and the guru",es:"la sabiduría, la riqueza y el gurú"},
+  Venus:{en:"love, marriage and comfort",es:"el amor, el matrimonio y la comodidad"},
+  Saturn:{en:"discipline, longevity and labour",es:"la disciplina, la longevidad y el trabajo"},
+  Rahu:{en:"ambition and the unconventional",es:"la ambición y lo poco convencional"},
+  Ketu:{en:"detachment and past-life karma",es:"el desapego y el karma de vidas pasadas"}
+};
 const DIGNITY_TAIL = {
   "Exalted":   {en:"unusually strong here (exalted)",es:"inusualmente fuerte aquí (exaltado)"},
   "Own":       {en:"strong in its own sign",es:"fuerte en su propio signo"},
@@ -9173,8 +9561,10 @@ function vargaPlanetReadingLine(def, g, vSignIdx, lagnaVIdx){
   const tier = dignityTier(g, vSignIdx*30); // reuse the engine's own dignity ladder on a synthetic whole-sign longitude
   const tail = DIGNITY_TAIL[tier] || {en:"",es:""};
   const theme = VARGA_READING_THEME[def.key] || {en:def.purpose.en, es:def.purpose.es};
-  const en = `${g} in ${sans} (${signName}), the ${house}${ordinalSuffix(house)} of ${def.name}, suggests its ${theme.en} significations act through ${HOUSE_SIGNIF[house].en}${tail.en?` — ${tail.en}`:''}.`;
-  const es = `${T(g,GRAHA_ES[g])} en ${sans} (${signName}), la ${house}ª de ${def.name}, sugiere que sus significaciones de ${theme.es} actúan a través de ${HOUSE_SIGNIF[house].es}${tail.es?` — ${tail.es}`:''}.`;
+  const karaka = GRAHA_KARAKA[g] || {en:"",es:""};
+  const flavor = SIGN_DESC[signName] || ["",""];
+  const en = `${g} in ${sans} (${signName}), the ${house}${ordinalSuffix(house)} of ${def.name}, suggests its ${theme.en} significations act through ${HOUSE_SIGNIF[house].en}${tail.en?` — ${tail.en}`:''}. As natural significator of ${karaka.en}, ${g} here colours ${theme.en} with ${signName}'s own character: ${flavor[0].toLowerCase()}`;
+  const es = `${T(g,GRAHA_ES[g])} en ${sans} (${signName}), la ${house}ª de ${def.name}, sugiere que sus significaciones de ${theme.es} actúan a través de ${HOUSE_SIGNIF[house].es}${tail.es?` — ${tail.es}`:''}. Como significador natural de ${karaka.es}, ${T(g,GRAHA_ES[g])} aquí matiza ${theme.es} con el carácter propio de ${signName}: ${flavor[1].toLowerCase()}`;
   // PL9 report style: bold "<Planet> in <Sign> in <varga>" heading, then the
   // template sentence as a single labeled synthesis block.
   return `<div class="pl9-place" style="margin-top:0; margin-bottom:14px;">
@@ -9301,7 +9691,7 @@ function renderVargaPage(){
         ${renderChartAuto(chartPos, chartAscSign, {plainHouses:true})}
         <div class="hint" style="margin-top:10px;">${T(`Chart shows the ${def.key} (${def.name}) — read for ${def.purpose.en}. House 1 carries the ${def.key} Lagna; planets sit in their ${def.key} signs.`, `La carta muestra el ${def.key} (${def.name}) — se lee para ${def.purpose.es}. La casa 1 lleva el Lagna del ${def.key}; los planetas están en sus signos del ${def.key}.`)}</div>
         <div class="hint">${T('I tried tinting these houses by rashi (राशि = zodiac sign) and found the color competed with the divisional reading itself — so I\'ve returned to plain houses here, keeping sign-color for the main chart alone.', 'Probé teñir estas casas por rashi (राशि = signo zodiacal) y encontré que el color competía con la lectura divisional misma — así que he vuelto a casas planas aquí, guardando el color de signo solo para la carta principal.')}</div>
-        <div class="hint">${T("Note: this D9 follows the element-based Navāṁśa count (fire→Aries, earth→Capricorn, air→Libra, water→Cancer). The Natal General Reading page's D9 uses the SBC book's movable/fixed/dual count instead — two classical conventions that genuinely disagree; both are shown as-is rather than silently merged.","Nota: este D9 sigue el cómputo Navāṁśa por elementos (fuego→Aries, tierra→Capricornio, aire→Libra, agua→Cáncer). El D9 de la página Lectura Natal General usa el cómputo movable/fijo/dual del libro SBC — dos convenciones clásicas que genuinamente discrepan; ambas se muestran tal cual en vez de fusionarse en silencio.")}</div>
+        <div class="hint">${T("Note: this D9 follows the element-based Navāṁśa count (fire→Aries, earth→Capricorn, air→Libra, water→Cancer). The General page's D9 uses the SBC book's movable/fixed/dual count instead — two classical conventions that genuinely disagree; both are shown as-is rather than silently merged.","Nota: este D9 sigue el cómputo Navāṁśa por elementos (fuego→Aries, tierra→Capricornio, aire→Libra, agua→Cáncer). El D9 de la página General usa el cómputo movable/fijo/dual del libro SBC — dos convenciones clásicas que genuinamente discrepan; ambas se muestran tal cual en vez de fusionarse en silencio.")}</div>
         ${d9SelfCheckHtml}
       </div>
     </div>
@@ -9415,6 +9805,12 @@ function renderHouseNaturePage(){
   const birthPos = refInfo.birthPos;
   const ascIdx = Math.floor(norm360(birthPos._ascSidereal)/30);
 
+  const arudhaLong = computeArudhaLagna(birthPos._ascSidereal);
+  const arudhaSignIdx = Math.floor(arudhaLong/30);
+  const arudhaSign = SIGNS[arudhaSignIdx];
+  const arudhaDeg = arudhaLong%30;
+  const arudhaHouse = ((arudhaSignIdx - ascIdx + 12) % 12) + 1;
+
   const H = Math.min(12, Math.max(1, houseNatureSel||1));
   const signIdx = (ascIdx + H - 1) % 12;
   const signName = SIGNS[signIdx];
@@ -9510,6 +9906,16 @@ function renderHouseNaturePage(){
           <span class="tag gold">${H}${ordinalSuffix(H)} ${T('house','casa')}</span>
           <span class="tag neutral">${T(HOUSE_SIGNIF[H].en, HOUSE_SIGNIF[H].es)}</span>
         </div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Arudha Lagna','Arudha Lagna')}</h2><span class="note">${T('public image','imagen pública')}</span></div>
+      <div class="bd">
+        <div class="tblwrap"><table><tbody>
+          <tr><td class="wide" style="color:var(--gold);">${T('Arudha Lagna','Arudha Lagna')}</td><td style="color:var(--gold);">${arudhaSign} ${fmtDeg(arudhaDeg)}</td></tr>
+          <tr><td class="wide">${T('Falls in house (from Lagna)','Cae en la casa (desde el Lagna)')}</td><td>${arudhaHouse}${ordinalSuffix(arudhaHouse)}</td></tr>
+        </tbody></table></div>
+        <div class="hint" style="margin-top:8px;">${T('The sign your Lagna casts on the 10th-from-itself: the image you present to the world, your public face, distinct from the Lagna\'s inner self. Read from your birth Lagna degree (Lagna + 270°, with two classical exceptions when the result falls on the Lagna itself or the 10th from it, which shift it to the 5th or 9th). Its sign is commonly used for Nimitta and spouse-placement judgment.','El signo que tu Lagna proyecta sobre la 10ª desde sí mismo: la imagen que presentas al mundo, tu rostro público, distinta del yo interior del Lagna. Se lee desde el grado de tu Lagna natal (Lagna + 270°, con dos excepciones clásicas cuando el resultado cae en el propio Lagna o en la 10ª desde él, desplazándose a la 5ª o la 9ª). Su signo se usa habitualmente para el juicio de Nimitta y de ubicación del cónyuge.')}</div>
       </div>
     </div>
 
@@ -9701,7 +10107,7 @@ function renderDashaPage(){
       <div class="bd">
         <div class="tblwrap"><table><thead><tr><th>${T('Level','Nivel')}</th><th>${T('Lord','Señor')}</th><th>${T('Period','Período')}</th><th>${T('Rules (from Lagna)','Gobierna (desde Lagna)')}</th><th>${T('Functional reading','Lectura funcional')}</th></tr></thead><tbody>${chainRows}</tbody></table></div>
         ${muhurtaCrossRef}
-        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The "Rules" and "Functional reading" columns reuse the same house-lordship engine as the Natal General Reading page — a Yogakāraka Daśā lord and a merely functionally-malefic one are meaningfully different, even at the same nesting depth. Rāhu/Ketu own no sign in that scheme, so they\'re shown without a functional reading here, not scored as neutral by omission.','Las columnas "Gobierna" y "Lectura funcional" reutilizan el mismo motor de señorío de casas que la página Lectura Natal General — un señor de Daśā Yogakāraka y uno meramente maléfico funcional son significativamente distintos, incluso a la misma profundidad de anidamiento. Rāhu/Ketu no gobiernan ningún signo en ese esquema, así que se muestran sin lectura funcional aquí, no puntuados como neutrales por omisión.')}</div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The "Rules" and "Functional reading" columns reuse the same house-lordship engine as the General page — a Yogakāraka Daśā lord and a merely functionally-malefic one are meaningfully different, even at the same nesting depth. Rāhu/Ketu own no sign in that scheme, so they\'re shown without a functional reading here, not scored as neutral by omission.','Las columnas "Gobierna" y "Lectura funcional" reutilizan el mismo motor de señorío de casas que la página General — un señor de Daśā Yogakāraka y uno meramente maléfico funcional son significativamente distintos, incluso a la misma profundidad de anidamiento. Rāhu/Ketu no gobiernan ningún signo en ese esquema, así que se muestran sin lectura funcional aquí, no puntuados como neutrales por omisión.')}</div>
         <div class="hint" style="margin-top:6px;">${T('Boundary dates can drift by a few days from other software\'s — a few arcminutes of difference in the birth Moon\'s exact degree shifts how much of the first Daśā period is already elapsed, and that shift then carries forward at constant size through every later period.','Las fechas límite pueden variar unos días respecto a otro software — unos pocos minutos de arco de diferencia en el grado exacto de la Luna natal desplazan cuánto del primer período de Daśā ya transcurrió, y ese desplazamiento se traslada luego, con tamaño constante, a través de cada período posterior.')}</div>
       </div>
     </div>
@@ -9905,13 +10311,12 @@ function renderNakshatraPage(){
         <h3 style="margin:0 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('The Moon right now','La Luna ahora mismo')} — ${liveNak}</h3>
         ${renderBsNakCard(liveNak)}
         <div class="hint" style="margin-top:12px; line-height:1.6;">${T('A star carries a fixed nature and a fixed limb of the stellar body, which is why the same star suits some undertakings and ruins others. Each card\'s "paired lunar day" line names the lunar day governed by the same power, which reinforces it — see the At a Glance page for today\'s own lunar day reading.','Una estrella lleva una naturaleza fija y un miembro fijo del cuerpo estelar, y por eso la misma estrella conviene a unas empresas y arruina otras. La línea "día lunar emparejado" de cada tarjeta nombra el día lunar gobernado por el mismo poder, que la refuerza — ver la página De un Vistazo para la lectura del día lunar de hoy.')}</div>
-      </div>
-    </div>
-
-    <div class="panel"><div class="hd"><h2>${T('All Twenty-Eight Stars','Las Veintiocho Estrellas')}</h2><span class="note">${T('reference','referencia')}</span></div>
-      <div class="bd">
-        ${renderBsNakTable(liveNak)}
-        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The star count is also a timing unit: an undertaking begun under a star ripens in as many years as the star has stars in it, and an illness that begins under one lifts in as many days. "Named for" lists only the undertakings a star is explicitly singled out for — a star missing from a list is not thereby forbidden for it, merely unremarkable.','El número de estrellas es también una unidad de tiempo: una empresa comenzada bajo una estrella madura en tantos años como estrellas la componen, y una enfermedad que comienza bajo ella remite en tantos días. "Nombrada para" enumera solo las empresas para las que una estrella se destaca explícitamente — que una estrella falte en una lista no la prohíbe para ella, solo la deja sin mención.')}</div>
+        <details class="ref-drop" style="margin-top:14px;"><summary>${T('All Twenty-Eight Stars — reference table for the other stars','Las Veintiocho Estrellas — tabla de referencia para las demás estrellas')}</summary>
+          <div class="bd">
+            ${renderBsNakTable(liveNak)}
+            <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The star count is also a timing unit: an undertaking begun under a star ripens in as many years as the star has stars in it, and an illness that begins under one lifts in as many days. "Named for" lists only the undertakings a star is explicitly singled out for — a star missing from a list is not thereby forbidden for it, merely unremarkable.','El número de estrellas es también una unidad de tiempo: una empresa comenzada bajo una estrella madura en tantos años como estrellas la componen, y una enfermedad que comienza bajo ella remite en tantos días. "Nombrada para" enumera solo las empresas para las que una estrella se destaca explícitamente — que una estrella falte en una lista no la prohíbe para ella, solo la deja sin mención.')}</div>
+          </div>
+        </details>
       </div>
     </div>`;
 
@@ -10863,6 +11268,178 @@ function checkRajYoga(lordships, birthPos){
   });
   return { pairs, dualRulers };
 }
+
+// --- Trikalagnana Yoga -------------------------------------------------
+// "Knowledge of three times" (past/present/future). Sarvartha Chintamani
+// 5/53, per two cross-checked sources (blog.pocketpandit.com/trikalagnana-
+// yoga/, and the indiadivine.org forum thread "Trikala Gyan Yoga
+// information required" — Ramadas Rao's post gives the precise Mridvamsha
+// definition, Satya Kuruvilla quotes the verse verbatim): "Jupiter in
+// mrudvamsha, in own navamsa sign or in gopuramsha, aspected by a benefic
+// planet, gives trikalagnana yoga." Composed entirely from this app's own
+// already-verified primitives — navamsaSidereal() for own-navamsa, the
+// Vaiseshikamsa dasa-set (Gopura = count 4, see VAISESHIKAMSA_NAMES.dasa)
+// for Gopuramsha, and aspectsSignWholeSign() for the benefic-aspect
+// condition. No new divisional-chart math introduced; Mridvamsha's D60
+// ordinal (19th part for odd natal signs, 42nd for even) is the one new
+// piece of arithmetic, and it's pure division — no new lord-sequence
+// needed since Mridvamsha is defined purely by ordinal position.
+const TRIKALAGNANA_OWN_NAVAMSA_SIGNS = ['Sagittarius','Pisces'];
+function mridvamshaOrdinal(sidereal){
+  const signIdx = Math.floor(norm360(sidereal)/30);
+  const degInSign = norm360(sidereal) - signIdx*30;
+  const ordinal = Math.floor(degInSign/0.5) + 1; // D60: 60 parts of 0.5 deg each
+  const isOddSign = (signIdx % 2) === 0; // Aries(idx0)=classical sign#1=odd, Taurus(idx1)=#2=even, ...
+  const threshold = isOddSign ? 19 : 42;
+  return { ordinal, threshold, isMridvamsha: ordinal === threshold };
+}
+function trikalagnanaYoga(pos, navPos){
+  const jupSid = pos.Jupiter.sidereal;
+  const jupNavSign = SIGNS[Math.floor(norm360(navamsaSidereal(jupSid))/30)];
+  const ownNavamsa = TRIKALAGNANA_OWN_NAVAMSA_SIGNS.includes(jupNavSign);
+  const mrid = mridvamshaOrdinal(jupSid);
+  const gopuraCount = vaiseshikamsaCount('Jupiter', pos, navPos, 'dasa');
+  const isGopuramsha = gopuraCount === 4;
+  const jupSignIdx = Math.floor(norm360(jupSid)/30);
+  const beneficAspect = ['Venus','Mercury','Moon'].some(b=>{
+    if (!pos[b]) return false;
+    const bSignIdx = Math.floor(norm360(pos[b].sidereal)/30);
+    return aspectsSignWholeSign(b, bSignIdx, jupSignIdx);
+  });
+  const present = ownNavamsa && (mrid.isMridvamsha || isGopuramsha) && beneficAspect;
+  return {
+    present,
+    reasons: {
+      ownNavamsa: { pass: ownNavamsa, navamsaSign: jupNavSign },
+      mridvamsha: { pass: mrid.isMridvamsha, ordinal: mrid.ordinal, threshold: mrid.threshold },
+      gopuramsha: { pass: isGopuramsha, dasavargaCount: gopuraCount },
+      beneficAspect: { pass: beneficAspect }
+    }
+  };
+}
+
+// --- Six yogas from Visti Larsen's Jñāna Yoga series (parts 1-3) -------
+// Classical formation rules cited to Parashara (bhāveśa-phala verses) and
+// one Jaimini-tradition verse for Dhimantah — see internal-os knowledge
+// vault raw/visti-larsen-jnana-yoga-series.md for the full citation trail
+// and which parts are Parashara's own verse vs. Larsen's own synthesis
+// (Tapasvi Yoga's Venus+Ketu+Saturn framing is explicitly the latter).
+// All six are D1 (Rasi) house-lord combinations — no divisional-chart math.
+function dhimantahYoga(lordships, birthPos){
+  const ascSignIdx = Math.floor(norm360(birthPos._ascSidereal)/30);
+  const lagnaLord = SIGN_LORD[SIGNS[ascSignIdx]];
+  const lagnaLordHouse = bsHouseFromAsc(birthPos[lagnaLord].sidereal, ascSignIdx);
+  const from36 = [3,6].includes(lagnaLordHouse);
+  const lord3 = SIGN_LORD[SIGNS[(ascSignIdx+2)%12]], lord6 = SIGN_LORD[SIGNS[(ascSignIdx+5)%12]];
+  const lagnaLordSignIdx = Math.floor(norm360(birthPos[lagnaLord].sidereal)/30);
+  const assoc36 = [lord3, lord6].some(l=>{
+    if (l===lagnaLord) return false;
+    const lSignIdx = Math.floor(norm360(birthPos[l].sidereal)/30);
+    return lSignIdx===lagnaLordSignIdx || aspectsSignWholeSign(l, lSignIdx, lagnaLordSignIdx);
+  });
+  const lord5 = SIGN_LORD[SIGNS[(ascSignIdx+4)%12]];
+  const lord5House = bsHouseFromAsc(birthPos[lord5].sidereal, ascSignIdx);
+  const lord5SignIdx = Math.floor(norm360(birthPos[lord5].sidereal)/30);
+  const fifthConnect = lord5House === 1 || lord5===lagnaLord || aspectsSignWholeSign(lord5, lord5SignIdx, ascSignIdx);
+  const present = from36 || assoc36 || fifthConnect;
+  return { present, reasons: { lagnaLordHouse, lagnaLordIn3rdOr6th: from36, lagnaLordAssociatedWith3rdOr6thLord: assoc36, fifthHouseOrLordConnectsToLagna: fifthConnect } };
+}
+function sadhanaVidyaYoga(lordships, birthPos){
+  const ascSignIdx = Math.floor(norm360(birthPos._ascSidereal)/30);
+  const lagnaLord = SIGN_LORD[SIGNS[ascSignIdx]];
+  const lagnaLordHouse = bsHouseFromAsc(birthPos[lagnaLord].sidereal, ascSignIdx);
+  return { present: lagnaLordHouse === 8, reasons: { lagnaLordHouse } };
+}
+function tapasviYoga(birthPos){
+  const ascSignIdx = Math.floor(norm360(birthPos._ascSidereal)/30);
+  const venusHouse = bsHouseFromAsc(birthPos.Venus.sidereal, ascSignIdx);
+  const ketuHouse = bsHouseFromAsc(birthPos.Ketu.sidereal, ascSignIdx);
+  return { present: venusHouse===8 && ketuHouse===8, reasons: { venusHouse, ketuHouse } };
+}
+function bahuvidyaYoga(lordships, birthPos){
+  const ascSignIdx = Math.floor(norm360(birthPos._ascSidereal)/30);
+  const lord4 = SIGN_LORD[SIGNS[(ascSignIdx+3)%12]], lord5 = SIGN_LORD[SIGNS[(ascSignIdx+4)%12]];
+  const h4 = bsHouseFromAsc(birthPos[lord4].sidereal, ascSignIdx);
+  const h5 = bsHouseFromAsc(birthPos[lord5].sidereal, ascSignIdx);
+  const learning = h4 === 7, faith = h5 === 7;
+  return { present: learning || faith, reasons: { fourthLordHouse: h4, fifthLordHouse: h5, fourthLordIn7th_learning: learning, fifthLordIn7th_faith: faith } };
+}
+function vidyaVinashaYoga(lordships, birthPos){
+  const ascSignIdx = Math.floor(norm360(birthPos._ascSidereal)/30);
+  const lord12 = SIGN_LORD[SIGNS[(ascSignIdx+11)%12]];
+  const h12 = bsHouseFromAsc(birthPos[lord12].sidereal, ascSignIdx);
+  const inLagna = h12 === 1, inFifth = h12 === 5, inSeventh = h12 === 7;
+  const jupiterMitigates = inFifth && aspectsSignWholeSign('Jupiter', Math.floor(norm360(birthPos.Jupiter.sidereal)/30), (ascSignIdx+4)%12);
+  return {
+    present: inLagna || (inFifth && !jupiterMitigates) || inSeventh,
+    reasons: { twelfthLordHouse: h12, inLagna, inFifth, inSeventh, jupiterMitigatesFifth: jupiterMitigates }
+  };
+}
+function granthakartaYoga(lordships, birthPos){
+  const ascSignIdx = Math.floor(norm360(birthPos._ascSidereal)/30);
+  const lord5 = SIGN_LORD[SIGNS[(ascSignIdx+4)%12]], lord11 = SIGN_LORD[SIGNS[(ascSignIdx+10)%12]];
+  const h5 = bsHouseFromAsc(birthPos[lord5].sidereal, ascSignIdx);
+  const lord5SignIdx = Math.floor(norm360(birthPos[lord5].sidereal)/30);
+  const lord11SignIdx = Math.floor(norm360(birthPos[lord11].sidereal)/30);
+  const inEleventh = h5 === 11;
+  const conjunct11thLord = lord5!==lord11 && lord5SignIdx===lord11SignIdx;
+  return { present: inEleventh || conjunct11thLord, reasons: { fifthLordHouse: h5, fifthLordIn11th: inEleventh, conjunctEleventhLord: conjunct11thLord } };
+}
+
+// --- Śārada Yoga + generalized dreṣkāṇa-insight rule --------------------
+// From Visti Larsen's Jñāna Yoga part 4, citing the "Jagannath Dreṣkāṇa"
+// framework. NOTE: both rules below depend only on WHICH DECAN-THIRD
+// (1st/2nd/3rd, i.e. 0-10°/10-20°/20-30° within a sign) a planet occupies,
+// plus that sign's own modality (movable/fixed/dual) for Śārada Yoga
+// specifically -- NEITHER rule requires resolving the Jagannath table's
+// own decan-to-TARGET-SIGN mapping (confirmed to be a genuinely different
+// scheme from this app's existing drekkanaSignIdx(): the source claims
+// "the 1st Dreṣkāṇa is always a movable sign" for ALL signs, a property
+// the standard trine-based decan method does not have — e.g. Leo's own
+// standard decan-1 target is Leo itself, a fixed sign). Since neither
+// yoga rule as literally stated needs that target-sign resolution, this
+// implementation sidesteps the ambiguity rather than guessing at it.
+const SIGN_MODALITY = ['movable','fixed','dual','movable','fixed','dual','movable','fixed','dual','movable','fixed','dual']; // Aries..Pisces
+function dreshkanaOrdinal(sidereal){
+  const signIdx = Math.floor(norm360(sidereal)/30);
+  const degInSign = norm360(sidereal) - signIdx*30;
+  return { signIdx, ordinal: Math.floor(degInSign/10) }; // 0,1,2 = 1st/2nd/3rd dreskana
+}
+function saradaYoga(pos, birthPos){
+  const bp = birthPos || pos;
+  const moon = dreshkanaOrdinal(pos.Moon.sidereal);
+  const modality = SIGN_MODALITY[moon.signIdx];
+  const requiredOrdinal = {movable:0, fixed:1, dual:2}[modality];
+  const decanMatches = moon.ordinal === requiredOrdinal;
+  const ascSignIdx = Math.floor(norm360(bp._ascSidereal)/30);
+  const moonHouse = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx);
+  const mercuryHouse = bsHouseFromAsc(pos.Mercury.sidereal, ascSignIdx);
+  const offsetFromMoon = ((mercuryHouse - moonHouse + 12) % 12) + 1;
+  const mercuryKendraFromMoon = [1,4,7,10].includes(offsetFromMoon);
+  return {
+    present: decanMatches && mercuryKendraFromMoon,
+    reasons: { moonSignModality: modality, moonDreshkanaOrdinal: moon.ordinal, decanMatchesModalityRule: decanMatches, mercuryHouseFromMoon: offsetFromMoon, mercuryKendraFromMoon }
+  };
+}
+const DRESHKANA_THRIVING_PLANETS = { 0:['Sun','Mars'], 1:['Jupiter','Venus'], 2:['Saturn','Moon'] }; // Mercury thrives in all three, checked separately
+function dreshkanaInsightYoga(pos, birthPos){
+  const bp = birthPos || pos;
+  const ascSignIdx = Math.floor(norm360(bp._ascSidereal)/30);
+  const candidates = ['Sun','Mars','Jupiter','Venus','Saturn','Moon','Mercury'];
+  const hits = candidates.filter(g=>{
+    if (!pos[g]) return false;
+    const d = dreshkanaOrdinal(pos[g].sidereal);
+    const thrives = g==='Mercury' ? true : (DRESHKANA_THRIVING_PLANETS[d.ordinal]||[]).includes(g);
+    if (!thrives) return false;
+    const gHouse = bsHouseFromAsc(pos[g].sidereal, ascSignIdx);
+    const inLagna = gHouse === 1;
+    const lordsLagna = SIGN_LORD[SIGNS[ascSignIdx]] === g;
+    const aspectsLagna = aspectsSignWholeSign(g, d.signIdx, ascSignIdx);
+    return inLagna || lordsLagna || aspectsLagna;
+  });
+  return { present: hits.length > 0, reasons: { thrivingPlanetsConnectedToLagna: hits } };
+}
+
 // Natal check only (Mahāpuruṣa Yoga is a birth-chart feature, not a transit
 // one) — needs the reference person's full birth positions, only available
 // in "compute from birth data" mode.
@@ -12034,7 +12611,7 @@ function renderSignificatorsPage(){
     const clauses = live.rows.length ? live.rows.map(r=>{
       const parts = [declutterCommodityList(r.rise), declutterCommodityList(r.fall)].filter(Boolean);
       return parts.length ? `<div style="margin-bottom:4px;">${parts.join(' ')}</div>` : '';
-    }).filter(Boolean).join('') || `<span class="hint" style="display:inline;">${T('gold/oil only — see the Gold/Oil deep-dive panels on Commodity Signals','solo oro/aceite — ver los paneles de análisis aislado en Señales de Materias Primas')}</span>` : `<span class="hint" style="display:inline;">${T('no entry for this sign','sin entrada para este signo')}</span>`;
+    }).filter(Boolean).join('') || `<span class="hint" style="display:inline;">${T('gold/oil only — this source has no rise/fall entry for other commodities on this sign','solo oro/aceite — esta fuente no tiene entrada de alza/baja para otras materias primas en este signo')}</span>` : `<span class="hint" style="display:inline;">${T('no entry for this sign','sin entrada para este signo')}</span>`;
     return `<tr><td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${T(g,GRAHA_ES[g])}${retro?` <small style="color:var(--vermilion);">(${T('r','r')})</small>`:''}</td>
       <td class="wide">${live.sign}</td>
       <td><span class="tag ${tierCls}">${dignity(g, pos[g].sidereal)}</span></td>
@@ -12066,7 +12643,7 @@ function renderSignificatorsPage(){
     <div class="panel">
       <div class="hd"><h2>${T('World &amp; Commodity Significators','Significadores Mundiales y de Materias Primas')}</h2></div>
       <div class="bd">
-        <div class="hint">${T('A separate, older classical significator system from the Commodity Signals page — shown side by side rather than merged, since the two genuinely disagree on some lists even for the same sign. The one live signal here: whenever a sign is afflicted by Vedha of Sun, Mars, Saturn, Rāhu or Ketu, the parts of the world it governs "suffer" — checked live below and highlighted in red.','Un sistema de significadores clásico distinto y más antiguo que la página de Señales de Materias Primas — se muestra en paralelo en vez de fusionado, ya que las dos difieren realmente en algunas listas incluso para el mismo signo. La única señal en vivo aquí: cuando un signo está afligido por Vedha del Sol, Marte, Saturno, Rāhu o Ketu, las partes del mundo que gobierna "sufren" — se comprueba en vivo abajo y se resalta en rojo.')}</div>
+        <div class="hint">${T('A separate, older classical significator system, distinct from the modern commodity-price synthesis used elsewhere in this app, since the two genuinely disagree on some lists even for the same sign. The one live signal here: whenever a sign is afflicted by Vedha of Sun, Mars, Saturn, Rāhu or Ketu, the parts of the world it governs "suffer" — checked live below and highlighted in red.','Un sistema de significadores clásico distinto y más antiguo que la síntesis moderna de precios de materias primas usada en otras partes de esta app, ya que las dos difieren realmente en algunas listas incluso para el mismo signo. La única señal en vivo aquí: cuando un signo está afligido por Vedha del Sol, Marte, Saturno, Rāhu o Ketu, las partes del mundo que gobierna "sufren" — se comprueba en vivo abajo y se resalta en rojo.')}</div>
       </div>
     </div>
 
@@ -12615,6 +13192,55 @@ function updateChintamaniRelocation(){
 // remembers whose life bird we're tracking; ppLastAutoBird remembers what
 // we last auto-selected FOR that person, so a value that still matches it
 // means "nothing manual happened" rather than "the user picked this".
+// ---- Pañcha Pakshi — Yama Ladder (its own tab) ----
+// Always-live 5-tier strength table, one bird per vowel-sound group (Table
+// No.4), read off the real current moment via ppLiveNow() — independent of
+// both birth data and the muhūrta moment judged on At a Glance, matching
+// the Live Yama Chart panel's own "always live" convention now that both
+// share this tab.
+function renderPanchaPakshiLadder(){
+  const container = document.getElementById('panchaPakshiLadderContent');
+  if (!container) return;
+
+  const live = ppLiveNow();
+  const hourFromSunrise = ((live.date.getHours() + live.date.getMinutes()/60) - live.sunriseHr + 24) % 24;
+  const ppVowelRows = PP_VOWEL_GROUPS.map(vg=>{
+    const bird = live.half === 'bright' ? vg.bright : vg.dark;
+    const st = ppStateForBirdAtInstant(bird, live.weekdayEN, live.half, hourFromSunrise, live.dayLenHrs);
+    return { ...vg, bird, mainState: st ? st.mainState : null, abstractState: st ? st.abstractState : null };
+  }).sort((a,b)=>{
+    const strength = r => (PP_ACT_FACTOR[r.mainState]||0) * (PP_ACT_FACTOR[r.abstractState]||0);
+    return strength(b) - strength(a);
+  });
+
+  const rowsHtml = [
+    {rank:1,name:'Ruling (Yukta)',col:'#B8860B',desc:T('peak strength — best for initiating anything important','máxima fuerza — lo mejor para iniciar algo importante')},
+    {rank:2,name:'Eating (Aahara)',col:'#1E8449',desc:T('strong — good for most activities','fuerte — bueno para la mayoría de actividades')},
+    {rank:3,name:'Walking (Chara)',col:'#21618C',desc:T('moderate — acceptable for routine work','moderado — aceptable para trabajos rutinarios')},
+    {rank:4,name:'Sleeping (Nidra)',col:'#7D6608',desc:T('weak — avoid new ventures','débil — evita nuevas iniciativas')},
+    {rank:5,name:'Dying (Mrityu)',col:'#922B21',desc:T('weakest — avoid all auspicious acts','más débil — evita todos los actos auspiciosos')}
+  ].map(row=>{
+    const stateName = row.name.split(' ')[0];
+    const birdsHere = ppVowelRows.filter(v=>v.mainState===stateName||v.abstractState===stateName);
+    return `<div class="m-row">
+      <span class="m-rank">${row.rank}</span>
+      <span class="m-swatch" style="background:${row.col};"></span>
+      <span class="m-name" style="color:${row.col};">${T(row.name.split('(')[0].trim(), row.name.split('(')[0].trim())}</span>
+      <span class="m-guide">${row.desc}</span>
+      <span class="m-birds">${birdsHere.length?birdsHere.map(b=>ppBirdBadge(b.bird, live.half)).join(' '):'<i style="color:var(--muted)">'+T('none','ninguno')+'</i>'}</span>
+    </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="panel"><div class="hd"><h2>${T('Pañcha Pakshi — Yama Ladder','Pañcha Pakshi — Escalera de Yama')}</h2><span class="note">${T('5-tier strength, by vowel-sound bird — live','fuerza de 5 niveles, por ave de sonido vocálico — en vivo')}</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:8px;">${T('Which bird occupies each of the five Yama strength tiers right now, one bird per vowel-sound group (Table No.4) — this is how a Pañcha Pakshi bird gets identified when the birth star is unknown, a separate system from SBC. Bird badge colours swap between Bright and Dark Half (see the Live Yama Chart below); hover a badge for its classical colour name.','Qué ave ocupa ahora mismo cada uno de los cinco niveles de fuerza Yama, un ave por grupo de sonido vocálico (Tabla N.º 4) — así se identifica un ave Pañcha Pakshi cuando no se conoce la estrella de nacimiento, un sistema aparte del SBC. Los colores de la insignia de cada ave cambian entre Mitad Clara y Mitad Oscura (ver el Gráfico Yama en vivo abajo); pasa el cursor sobre una insignia para ver el nombre clásico de su color.')}</div>
+        <div class="pp-matrix">${rowsHtml}</div>
+      </div>
+    </div>
+  `;
+}
+
 let ppLastRefStar, ppLastAutoBird = null;
 function renderPPPanel(){
   const container = document.getElementById('ppPanelContainer');
@@ -12705,7 +13331,7 @@ function renderPPPanel(){
     <div class="pp-controls">
       <label>${T('Bird','Ave')}:</label>
       <select id="ppBirdSelect">${options}</select>
-      <span class="tag gold">${weekdayDisp} · ${halfDisp} · ${cycleDisp} · ${clockStr}</span>
+      <span class="tag ${live.half==='dark'?'good':'gold'}">${weekdayDisp} · ${halfDisp} · ${cycleDisp} · ${clockStr}</span>
       <span class="tag neutral">${T('Sunrise','Amanecer')} ${fmtHM(live.sunriseHr)} · ${T('Sunset','Atardecer')} ${fmtHM(live.sunsetHr)}</span>
     </div>
     <div class="tblwrap">${chartSvg}</div>
@@ -12863,10 +13489,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
       if (document.getElementById(pid).classList.contains('active')) renderPageOrBirthDataPlaceholder(pid);
     });
     if (document.getElementById('pageAntara').classList.contains('active')) renderAntaraChakraPage();
-    if (document.getElementById('pageCommodities').classList.contains('active')) renderCommoditiesPage();
-    if (document.getElementById('pageCurrencies').classList.contains('active')) renderCurrenciesPage();
     if (document.getElementById('pageHorary').classList.contains('active')) renderHoraryPage();
     if (document.getElementById('pageSignificators').classList.contains('active')) renderSignificatorsPage();
+    if (document.getElementById('pagePanchaPakshi').classList.contains('active')){ renderPanchaPakshiLadder(); renderPPPanel(); }
     renderNameToBird();
   });
   document.getElementById('chartPanchapakshi').addEventListener('change', renderPPPanel);
@@ -12898,6 +13523,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   runAnalysis();
   setInterval(renderPPPanel, 60000);
   setInterval(()=>{ if (document.getElementById('pageAntara')?.classList.contains('active')) renderAntaraChakraPage(); }, 60000);
+  setInterval(()=>{ if (document.getElementById('pagePanchaPakshi')?.classList.contains('active')) renderPanchaPakshiLadder(); }, 60000);
 });
 
 if ('serviceWorker' in navigator){
@@ -13044,13 +13670,112 @@ if ('serviceWorker' in navigator){
     if (card.court) return COURTS[card.name];
     return RANK[card.rank].mode+' '+card.suit;
   }
+  // Short Western-flavoured descriptor per sign — used to flesh out court-card
+  // readings and the chart-echo line below. Deliberately plain diction (no
+  // Sanskrit), since the echo is meant to read as a light overlay, not a
+  // second jyotish lecture on top of the card.
+  var SIGN_FLAVOR = {
+    Aries:'initiative and impatience', Taurus:'patience and appetite',
+    Gemini:'curiosity and duality', Cancer:'feeling and memory',
+    Leo:'pride and warmth', Virgo:'precision and service',
+    Libra:'poise and negotiation', Scorpio:'intensity and control',
+    Sagittarius:'reach and belief', Capricorn:'discipline and ambition',
+    Aquarius:'detachment and vision', Pisces:'dissolution and empathy'
+  };
+  var COURT_ROLE = {
+    Page:'the student, a first stirring', Knight:'the quester, headlong pursuit',
+    Queen:'mastery held inward', King:'mastery turned outward'
+  };
   function cardMeaning(card){
     if (card.kind==='major') return MAJOR[card.name].kw;
-    if (card.court) return 'The '+card.name.split(' of ')[0]+' archetype in '+COURTS[card.name]+' energy.';
+    if (card.court){
+      var role = card.name.split(' of ')[0], sign = COURTS[card.name];
+      return COURT_ROLE[role]+', cast in '+sign+'’s '+SIGN_FLAVOR[sign]+'.';
+    }
     return RANK[card.rank].kw+' of '+card.suit+'.';
+  }
+  // One short sentence linking THIS drawn card to the native's own live
+  // chart — real graha/sign/house data, phrased in western diction so it
+  // sits as a faint overlay under the card's own archetype, not a rival
+  // reading. Returns '' when no chart is loaded, or the card keys to an
+  // outer planet this app doesn't track (Uranus/Neptune/Pluto — see the
+  // engine's own header note on that).
+  function chartEcho(card){
+    var anchors = chartAnchors();
+    if (!anchors) return '';
+    function occupants(sign){
+      return GRAHAS.filter(function(g){ return anchors[g] && anchors[g].rashi===sign; });
+    }
+    var sign = null;
+    if (card.kind==='major'){
+      var k = MAJOR[card.name].key;
+      if (GRAHAS.indexOf(k)!==-1){
+        var p = anchors[k];
+        if (!p) return '';
+        return 'Your own <b>'+k+'</b> sits in '+p.rashi+' (house '+p.bhava+'), tuning this card toward '+SIGN_FLAVOR[p.rashi]+'.';
+      }
+      if (SIGNS_12.indexOf(k)===-1) return ''; // outer planet, no natal position tracked
+      sign = k;
+    } else if (card.court){
+      sign = COURTS[card.name];
+    } else {
+      var el = card.el;
+      var here = GRAHAS.filter(function(g){
+        var p = anchors[g]; if (!p) return false;
+        return SUITS[RASHI[p.rashi].suit] === el;
+      });
+      if (!here.length) return 'Nothing of yours sits in a '+SUIT_EL[el].toLowerCase()+' sign right now — this card speaks to territory you haven’t built yet.';
+      return 'Your own <b>'+here.join(' &amp; ')+'</b>'+(here.length>1?' both sit':' sits')+' in a '+SUIT_EL[el].toLowerCase()+' sign, echoing this card directly.';
+    }
+    var occ = occupants(sign);
+    if (occ.length){
+      return 'Your own <b>'+occ.join(' &amp; ')+'</b>'+(occ.length>1?' sit':' sits')+' in '+sign+' — '+SIGN_FLAVOR[sign]+' is live in your actual chart, not just the card.';
+    }
+    return sign+' is quiet in your own chart — this card speaks to territory you haven’t built there yet.';
   }
   function elClass(card){
     return card.kind==='major' ? 'el-major' : ('el-'+card.el);
+  }
+
+  /* ---- Original digital glyph system (2026-09) ----
+     Deliberately NOT a 1:1 of Rider-Waite-Smith artwork or any illustrated
+     figure — this app has no image-generation tool, and even if it did,
+     78 individually-generated illustrations would drift in style card to
+     card. Instead: astrological Unicode symbols for the Majors (already
+     meaningful — every Major already carries a planet/sign in MAJOR[].key),
+     four hand-drawn line-icons for the suits, and chess-piece glyphs for
+     court rank (Page/Knight/Queen/King already mirrors a chess hierarchy).
+     All vector/text, monochrome via currentColor, no external assets. */
+  var ASTRO_GLYPH = {
+    Sun:'☉', Moon:'☽', Mercury:'☿', Venus:'♀', Mars:'♂', Jupiter:'♃', Saturn:'♄',
+    Uranus:'♅', Neptune:'♆', Pluto:'♇',
+    Aries:'♈', Taurus:'♉', Gemini:'♊', Cancer:'♋', Leo:'♌', Virgo:'♍',
+    Libra:'♎', Scorpio:'♏', Sagittarius:'♐', Capricorn:'♑', Aquarius:'♒', Pisces:'♓'
+  };
+  var COURT_BADGE = { Page:'♟', Knight:'♞', Queen:'♛', King:'♚' };
+  var SUIT_ICON = {
+    Wands: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="21" x2="12" y2="8"/><path d="M8 8 Q12 2 16 8 Q12 5.5 8 8 Z" fill="currentColor" stroke="none"/></svg>',
+    Cups: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10l-1.3 7.2a4 4 0 0 1-7.4 0L7 4z"/><line x1="12" y1="15" x2="12" y2="19"/><line x1="9" y1="21" x2="15" y2="21"/></svg>',
+    Swords: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="16"/><line x1="8" y1="6.5" x2="16" y2="6.5"/><path d="M9 16h6l-1.4 4h-3.2z"/></svg>',
+    Pentacles: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><circle cx="12" cy="12" r="9.2"/><path d="M12 5 L14 10.4 L20 10.7 L15.2 14.2 L17 20 L12 16.4 L7 20 L8.8 14.2 L4 10.7 L10 10.4 Z"/></svg>'
+  };
+  var RANK_NUM = {Two:2,Three:3,Four:4,Five:5,Six:6,Seven:7,Eight:8,Nine:9,Ten:10};
+
+  function glyphMarkup(card){
+    if (card.kind==='major'){
+      var ch = ASTRO_GLYPH[MAJOR[card.name].key] || '✦';
+      return '<div class="pt-glyph pt-glyph-astro">'+ch+'</div>';
+    }
+    var icon = SUIT_ICON[card.suit] || '';
+    if (card.court){
+      var role = card.name.split(' of ')[0];
+      return '<div class="pt-glyph pt-glyph-suit">'+icon+
+        '<span class="pt-court-badge">'+(COURT_BADGE[role]||'')+'</span></div>';
+    }
+    var n = RANK_NUM[card.rank] || 1;
+    var pips = '';
+    for (var i=0;i<n;i++) pips += '<span class="pt-pip">'+icon+'</span>';
+    return '<div class="pt-glyph pt-glyph-pips">'+pips+'</div>';
   }
   // Ordinal helper for card numbers (1st, 2nd...)
   function ordinal(n){
@@ -13086,23 +13811,73 @@ if ('serviceWorker' in navigator){
     ]
   };
 
+  // One-time scoped stylesheet for the card face — kept out of the shared
+  // monolith stylesheet since this whole engine is meant to stay inert/
+  // collision-free when the Tarot page isn't present.
+  (function injectStyle(){
+    if (document.getElementById('ptCardStyle')) return;
+    var s = document.createElement('style');
+    s.id = 'ptCardStyle';
+    s.textContent = [
+      '.pt-card{width:168px; min-height:258px; border-radius:var(--radius); padding:14px 13px 12px; position:relative;',
+      '  display:flex; flex-direction:column; gap:7px; background:var(--panel-2); border:1px solid var(--line);',
+      '  box-shadow:var(--shadow); overflow:hidden;}',
+      '.pt-card::before{content:""; position:absolute; inset:5px; border:1px solid var(--line-soft);',
+      '  border-radius:calc(var(--radius) - 3px); pointer-events:none;}',
+      '.pt-card.el-fire{background:linear-gradient(165deg, rgba(176,50,32,0.11), var(--panel-2) 62%);}',
+      '.pt-card.el-water{background:linear-gradient(165deg, rgba(58,73,163,0.11), var(--panel-2) 62%);}',
+      '.pt-card.el-air{background:linear-gradient(165deg, rgba(150,105,15,0.11), var(--panel-2) 62%);}',
+      '.pt-card.el-earth{background:linear-gradient(165deg, rgba(23,117,80,0.11), var(--panel-2) 62%);}',
+      '.pt-card.el-major{background:linear-gradient(165deg, rgba(209,169,78,0.16), var(--panel-2) 62%);}',
+      '.pt-badge{position:absolute; top:9px; right:11px; font-family:var(--mono); font-size:.64rem; letter-spacing:.05em; color:var(--slate); font-weight:600;}',
+      '.pt-badge.chart{color:var(--indigo);}',
+      '.pt-role{font-family:var(--mono); font-size:.63rem; letter-spacing:.11em; text-transform:uppercase; color:var(--gold); font-weight:600; margin-top:2px;}',
+      '.pt-name{font-family:var(--serif); font-size:1.08rem; font-weight:600; color:var(--ink); line-height:1.28;}',
+      '.pt-sub{font-family:var(--mono); font-size:.7rem; color:var(--muted); font-style:italic;}',
+      '.pt-elem{align-self:flex-start; font-family:var(--mono); font-size:.6rem; letter-spacing:.04em; padding:2px 9px; border-radius:var(--radius-pill); color:#fff;}',
+      '.pt-elem.fire{background:var(--vermilion);} .pt-elem.water{background:var(--indigo);}',
+      '.pt-elem.air{background:var(--gold-dim);} .pt-elem.earth{background:var(--jade);} .pt-elem.major{background:var(--gold);}',
+      '.pt-meaning{font-size:.83rem; color:var(--ink-dim); line-height:1.42; border-top:1px solid var(--line-soft); padding-top:8px; margin-top:auto;}',
+      '.pt-posnote{font-size:.71rem; color:var(--ink-dim); font-style:italic; line-height:1.4;}',
+      '.pt-echo{border-left:2px solid var(--gold); background:var(--house1); padding:6px 9px;',
+      '  border-radius:0 var(--radius-sm) var(--radius-sm) 0; font-size:.72rem; color:var(--ink-dim); line-height:1.42;}',
+      '.pt-echo b{color:var(--gold); font-weight:600;}',
+      '.pt-anchortag{font-family:var(--mono); font-size:.65rem; color:var(--indigo); margin-top:1px;}',
+      '.pt-glyph{display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:4px;',
+      '  min-height:56px; border:1px solid var(--line-soft); border-radius:var(--radius-sm);',
+      '  background:rgba(0,0,0,0.03); position:relative; padding:6px 8px;}',
+      '.pt-glyph-astro{font-size:2.1rem; color:var(--gold); line-height:1;}',
+      '.pt-glyph-suit svg{width:34px; height:34px;}',
+      '.pt-card.el-fire .pt-glyph-suit svg, .pt-card.el-fire .pt-pip svg{color:var(--vermilion);}',
+      '.pt-card.el-water .pt-glyph-suit svg, .pt-card.el-water .pt-pip svg{color:var(--indigo);}',
+      '.pt-card.el-air .pt-glyph-suit svg, .pt-card.el-air .pt-pip svg{color:var(--brass);}',
+      '.pt-card.el-earth .pt-glyph-suit svg, .pt-card.el-earth .pt-pip svg{color:var(--jade);}',
+      '.pt-court-badge{position:absolute; bottom:3px; right:6px; font-size:1.05rem; color:var(--ink); opacity:.85;}',
+      '.pt-glyph-pips{max-width:140px;}',
+      '.pt-pip svg{width:15px; height:15px;}'
+    ].join('\n');
+    document.head.appendChild(s);
+  })();
+
   function renderCard(card, pos, anchor, isAnchor){
     var div = document.createElement('div');
-    div.style.cssText='width:150px; min-height:235px; border-radius:10px; padding:12px; border:1px solid var(--line); background:var(--panel-2); display:flex; flex-direction:column; gap:5px; position:relative;';
-    var elColor = card.kind==='major' ? 'var(--gold)' : (card.el==='fire'?'var(--vermilion)':card.el==='water'?'var(--indigo)':card.el==='air'?'var(--gold-dim)':'var(--jade)');
-    var numBadge = isAnchor
-      ? '<span style="position:absolute; top:6px; right:8px; font-size:.6rem; font-family:var(--mono); color:var(--indigo); letter-spacing:.06em;">CHART</span>'
-      : '<span style="position:absolute; top:6px; right:8px; font-size:.72rem; font-family:var(--mono); color:var(--slate); font-weight:bold;">#'+pos.n+'</span>';
+    div.className = 'pt-card '+elClass(card);
+    var badge = isAnchor
+      ? '<span class="pt-badge chart">CHART</span>'
+      : '<span class="pt-badge">#'+pos.n+'</span>';
     var roleLine = (pos && pos.role)
-      ? '<div style="font-size:.68rem; letter-spacing:.1em; color:var(--gold); text-transform:uppercase; font-weight:bold;">'+pos.role+'</div>'
-      : '<div style="font-size:.68rem; letter-spacing:.1em; color:var(--muted); text-transform:uppercase;">card</div>';
-    div.innerHTML = numBadge + roleLine +
-      '<div style="font-size:1rem; font-weight:bold; color:var(--gold);">'+card.name+'</div>'+
-      '<div style="font-size:.76rem; color:var(--muted);">'+cardSubtitle(card)+'</div>'+
-      '<div style="font-size:.68rem; padding:2px 7px; border-radius:20px; align-self:flex-start; color:#fff; background:'+elColor+';">'+elLabel(card)+'</div>'+
-      '<div style="font-size:.78rem; margin-top:auto; border-top:1px solid var(--line); padding-top:6px;">'+cardMeaning(card)+'</div>'+
-      (pos && pos.meaning ? '<div style="font-size:.68rem; color:var(--ink-dim); font-style:italic; line-height:1.4;">'+pos.meaning+'</div>' : '')+
-      (anchor ? '<div style="font-size:.66rem; color:var(--indigo); margin-top:2px;">'+anchor+'</div>' : '');
+      ? '<div class="pt-role">'+pos.role+'</div>'
+      : '<div class="pt-role" style="color:var(--muted);">card</div>';
+    var echo = chartEcho(card);
+    div.innerHTML = badge + roleLine +
+      glyphMarkup(card)+
+      '<div class="pt-name">'+card.name+'</div>'+
+      '<div class="pt-sub">'+cardSubtitle(card)+'</div>'+
+      '<span class="pt-elem '+card.el+'">'+elLabel(card)+'</span>'+
+      '<div class="pt-meaning">'+cardMeaning(card)+'</div>'+
+      (pos && pos.meaning ? '<div class="pt-posnote">'+pos.meaning+'</div>' : '')+
+      (echo ? '<div class="pt-echo">'+echo+'</div>' : '')+
+      (anchor ? '<div class="pt-anchortag">'+anchor+'</div>' : '');
     return div;
   }
 
@@ -13145,23 +13920,31 @@ if ('serviceWorker' in navigator){
   }
 
   // Builds the anchor-card list (live chart, or manual dropdown fallback).
+  // AUTO-ANCHOR is deliberately a FIXED SMALL SET — Sun, Moon, and the
+  // Ascendant-ruling graha (one Trump card each, deduped if the Asc lord
+  // is Sun/Moon) — not all 9 grahas. An earlier version emitted a Trump
+  // AND a decan-numbered card for every graha (up to 18 cards), which
+  // overwhelmed a single/three-card reading; kept intentionally compact
+  // so anchor count stays proportionate no matter which spread is drawn.
   function anchorCards(){
     var out = [];
     var anchors = chartAnchors();
     if (anchors){ // AUTO-ANCHOR: read the live computed chart
-      GRAHAS.forEach(function(g){
+      var C = (typeof window !== 'undefined' && window.__plChart) || null;
+      var ascLord = null;
+      if (C && typeof C.ascSignIdx === 'number'){
+        var ascSign = SIGNS_12[((C.ascSignIdx % 12) + 12) % 12];
+        ascLord = SIGN_LORD[ascSign];
+      }
+      var keyGrahas = ['Sun','Moon'];
+      if (ascLord && keyGrahas.indexOf(ascLord)===-1) keyGrahas.push(ascLord);
+      keyGrahas.forEach(function(g){
         var P = anchors[g]; if (!P) return;
-        if (GRAHA_TRUMP[g]){
-          var nm = GRAHA_TRUMP[g];
-          out.push({card:{name:nm, kind:'major', suit:'major', el:'major'},
-            role:'Graha '+g+' → Trump',
-            anchor:g+' · '+P.rashi+' bhāva '+P.bhava+' ('+MAJOR[nm].key+')'});
-        }
-        var posCard = cardForPosition(P);
-        if (posCard){
-          out.push({card:posCard, role:'Chart position → Numbered (decan)',
-            anchor:g+' at '+P.rashi+'·decan '+(P.decan+1)+' bhāva '+P.bhava+' · '+(P.date||'')});
-        }
+        var nm = GRAHA_TRUMP[g]; if (!nm) return;
+        var roleLabel = g==='Sun' ? 'Sun → Trump' : g==='Moon' ? 'Moon → Trump' : 'Ascendant lord ('+g+') → Trump';
+        out.push({card:{name:nm, kind:'major', suit:'major', el:'major'},
+          role:roleLabel,
+          anchor:g+' · '+P.rashi+' bhāva '+P.bhava+' ('+MAJOR[nm].key+')'});
       });
       return out;
     }
@@ -13217,13 +14000,28 @@ if ('serviceWorker' in navigator){
     var cards = drawRandom(DECK, count);
     var layout = makeLayout(style, count);
 
-    // OPTIONAL chart anchors (default off) — prepended as plainly-labelled
-    // CHART cards, NOT consuming a position number.
+    // OPTIONAL chart anchors (default off) — plainly-labelled CHART cards,
+    // NOT consuming a position number. Rendered in their OWN wrapping row,
+    // never inside `layout` — for the 'ten' style, `layout` is a plain
+    // 5-column grid with cards placed by DOM order (the Celtic Cross shape
+    // depends on that order), so mixing anchor cards into it would shove
+    // the real spread out of its cross positions rather than just crowding
+    // it visually.
     var anchorList = [];
     if (anchorMode === 'on') anchorList = anchorCards();
-    anchorList.forEach(function(a){
-      layout.appendChild(renderCard(a.card, {n:'', role:a.role}, a.anchor, true));
-    });
+    if (anchorList.length){
+      var anchorWrap = document.createElement('div');
+      anchorWrap.className = 'tarot-anchor-row';
+      anchorWrap.style.cssText = 'display:flex; flex-wrap:wrap; justify-content:center; gap:10px; padding:8px 8px 14px; margin:0 auto 10px; max-width:560px; border-bottom:1px solid var(--line-soft);';
+      var anchorLabel = document.createElement('div');
+      anchorLabel.style.cssText = 'flex:1 0 100%; font-family:var(--mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--indigo); text-align:center; margin-bottom:2px;';
+      anchorLabel.textContent = 'Chart Anchors (' + anchorList.length + ')';
+      anchorWrap.appendChild(anchorLabel);
+      anchorList.forEach(function(a){
+        anchorWrap.appendChild(renderCard(a.card, {n:'', role:a.role}, a.anchor, true));
+      });
+      pile.appendChild(anchorWrap);
+    }
 
     // The actual reading: each card is numbered in deal order and labelled with
     // its position's role + meaning.
