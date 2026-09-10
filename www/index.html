@@ -736,7 +736,7 @@
       </div>
     </div>
     <div>
-      <h1>PL0 <span class="accent">— Sarvato Bhadra Chakra</span> <span class="ver">v1.53</span></h1>
+      <h1>PL0 <span class="accent">— Sarvato Bhadra Chakra</span> <span class="ver">v1.59</span></h1>
       <div class="sub" data-i18n="subtitle">Panchāṅga · Vedha · Nāḍī · Latta — an instrument for reading the quality of a moment</div>
     </div>
   </div>
@@ -13240,6 +13240,7 @@ if ('serviceWorker' in navigator){
 </script>
 
 
+<script>
 /* ===== AVASTHA ENGINE v1.0 ===== */
 window.AVASTHA=window.AVASTHA||{};(function(){const AV=window.AVASTHA;AV.norm=v=>((v%360)+360)%360;AV.baladi=function(si,d){const odd=si%2===0;let x=d;if(!odd)x=30-d;if(x<6)return"Balavastha";if(x<12)return"Kumaravastha";if(x<18)return"Yuvavastha";if(x<24)return"Vridhavastha";return"Mritavastha";};AV.jagradadi=function(d){if(d==="exalt"||d==="own")return"Jagrat";if(d==="friend"||d==="neutral")return"Swapna";return"Sushupti";};AV.dipitadi=function(d,c,m){if(d==="exalt"||d==="moolatrikona")return"Deepta";if(d==="own")return"Swastha";if(d==="intimate")return"Mudita";if(d==="friend")return"Shanta";if(d==="neutral")return"Deena";if(d==="enemy")return"Dukhi";if(m)return"Vikala";if(c)return"Kruddha";return"Khala";};AV.shayanadi12=["Sayana","Upavesana","Netrapani","Prakasana","Gamana","Agamana","Sabha","Agama","Bhojana","Nrityalipsa","Kautuka","Nidra"];AV.shayanadiIndex=function(r){return AV.shayanadi12[((r%12)+12)%12];};AV.transitAvasthaWeight=function(na,ta,tl,nl){const dist=Math.abs(AV.norm(tl-nl));const decay=Math.max(0,1-dist/180);const mis=na!==ta?0.7:1.0;return decay*mis;};console.log("AVASTHA engine loaded");})();
 
@@ -13264,6 +13265,7 @@ window.AVASTHA = window.AVASTHA || {};
   };
   console.log('AVASTHA Kalman Compass decay loaded v1.1');
 })();
+</script>
 
 </body>
 </html>
