@@ -8907,6 +8907,63 @@ function renderNatalPage(){
     rajYogaHtml = `<div class="hint">${T('No angle-ruler and fortune-ruler are conjunct, exchanged, or held by the same planet from this Lagna.','Ningún regente de ángulo y regente de fortuna están en conjunción, intercambiados, o en manos del mismo planeta desde este Lagna.')}</div>`;
   }
 
+  // Nine classical yoga-formation rules beyond Raja Yoga itself — six from
+  // Visti Larsen's Jñāna Yoga parts 1-3 (Parashara bhāva-phala verses plus
+  // one Jaimini-tradition verse and Larsen's own Tapasvi synthesis), two
+  // more from part 4 (the Jagannath Dreṣkāṇa framework), and Trikalagnana
+  // Yoga (Sarvartha Chintamani 5/53, sourced separately). Detection
+  // functions live earlier in this file, right after checkRajYoga; see
+  // internal-os knowledge vault raw/visti-larsen-jnana-yoga-series.md and
+  // raw/visti-larsen-jnana-yoga-part4-sarada-yoga.md for the full citation
+  // trail behind each gloss below.
+  const JNANA_YOGAS = [
+    { result: dhimantahYoga(lordships, birthPos),
+      nameEn:'Dhīmantaḥ Yoga', nameEs:'Yoga Dhīmantaḥ',
+      glossEn:'A researcher\'s or intellectual\'s disposition. The Lagna lord reaching the 3rd or 6th house — or joining forces with whichever planet rules those houses — channels native intelligence into sustained effort and applied skill; a strong 5th-house connection to the Lagna does the same through creative intelligence instead. Cited to a Jaimini-tradition verse rather than Parashara\'s own bhāva-phala chapter.',
+      glossEs:'Una disposición de investigador o intelectual. Que el señor del Lagna llegue a la casa 3 o 6 — o se una al señor de esas casas — canaliza la inteligencia nativa hacia el esfuerzo sostenido y la habilidad aplicada; una fuerte conexión de la casa 5 con el Lagna hace lo mismo a través de la inteligencia creativa. Citado de un verso de tradición Jaimini, no del propio capítulo bhāva-phala de Parashara.' },
+    { result: sadhanaVidyaYoga(lordships, birthPos),
+      nameEn:'Sādhana-Vidyā Yoga', nameEs:'Yoga Sādhana-Vidyā',
+      glossEn:'"लग्नेशेऽष्टमगे जातः सिद्धविद्याविशारदः" — with the Lagna lord seated in the 8th house, the house of hidden things, Parashara reads this not as misfortune but as an opening: real fluency in occult, esoteric, or transformational subjects most people never touch.',
+      glossEs:'"लग्नेशेऽष्टमगे जातः सिद्धविद्याविशारदः" — con el señor del Lagna en la casa 8, la casa de lo oculto, Parashara lo lee no como infortunio sino como una apertura: fluidez real en temas ocultos, esotéricos o transformacionales que la mayoría nunca toca.' },
+    { result: tapasviYoga(birthPos),
+      nameEn:'Tapasvi Yoga', nameEs:'Yoga Tapasvi',
+      glossEn:'Larsen\'s own synthesis layered on the Lagna-lord-in-8th verse above (not a separately-numbered Parashara verse): Venus and Ketu conjunct in the 8th, with Saturn present as that house\'s natural kāraka, describes a real capacity for austerity — he likens it to Śukrāchārya, the archetypal ascetic-teacher.',
+      glossEs:'Síntesis propia de Larsen sobre el verso anterior del señor del Lagna en la 8 (no un verso numerado de Parashara): Venus y Ketu conjuntos en la 8, con Saturno como kāraka natural de esa casa, describe una capacidad real de austeridad — la compara con Śukrāchārya, el arquetipo del maestro asceta.' },
+    { result: bahuvidyaYoga(lordships, birthPos),
+      nameEn:'Bahuvidyā Yoga', nameEs:'Yoga Bahuvidyā',
+      glossEn:'"सुखेशे सप्तमे जातो बहुविद्यासमन्वितः" — the 4th lord reaching the 7th house spreads learning across many branches rather than one. Larsen\'s own extension: the 5th lord doing the same instead gives broad faith — ease accepting many belief systems, not many academic subjects.',
+      glossEs:'"सुखेशे सप्तमे जातो बहुविद्यासमन्वितः" — el señor de la 4 en la casa 7 reparte el aprendizaje en muchas ramas en vez de una sola. Extensión propia de Larsen: si es el señor de la 5, da fe amplia — facilidad para aceptar muchos sistemas de creencias, no muchas materias académicas.' },
+    { result: vidyaVinashaYoga(lordships, birthPos),
+      nameEn:'Vidyā-Vināśa Yoga', nameEs:'Yoga Vidyā-Vināśa',
+      glossEn:'Three sub-cases, all built on the 12th house of loss: the 12th lord landing in the Lagna, the 5th, or the 7th each describe education cut short — by want of means, by circumstance, or by the demands of marriage — though Parashara notes Jupiter\'s influence on the 5th-house case can soften it.',
+      glossEs:'Tres subcasos, todos sobre la casa 12 de las pérdidas: que el señor de la 12 caiga en el Lagna, la 5 o la 7 describe educación interrumpida — por falta de medios, por circunstancias, o por las exigencias del matrimonio — aunque Parashara señala que la influencia de Júpiter puede suavizar el caso de la 5.' },
+    { result: granthakartaYoga(lordships, birthPos),
+      nameEn:'Grantha-Kartā Yoga', nameEs:'Yoga Grantha-Kartā',
+      glossEn:'"...ग्रन्थकर्ता महादक्षो बहुपुत्रधनान्वितः" — the 5th lord (house of intelligence and creative output) reaching the 11th (house of gains), or joining the 11th lord outright, is Parashara\'s own author-yoga: knowledge that doesn\'t stay private but gets written down and gains an audience.',
+      glossEs:'"...ग्रन्थकर्ता महादक्षो बहुपुत्रधनान्वितः" — el señor de la 5 (casa de la inteligencia y la producción creativa) llegando a la 11 (casa de las ganancias), o uniéndose al señor de la 11, es el propio yoga de autor de Parashara: conocimiento que no queda privado sino que se escribe y encuentra público.' },
+    { result: saradaYoga(birthPos, birthPos),
+      nameEn:'Śārada Yoga', nameEs:'Yoga Śārada',
+      glossEn:'Śārada is another name for Sarasvatī — "the giver of essence." When the Moon sits in the decan its own sign\'s modality calls for (movable/fixed/dual, per the Jagannath Dreṣkāṇa table) and Mercury holds a kendra from the Moon, Larsen reads this as a gift for grasping the essence of scripture and knowledge directly, not just accumulating facts.',
+      glossEs:'Śārada es otro nombre de Sarasvatī — "la que otorga la esencia." Cuando la Luna está en el decanato que corresponde a la modalidad de su propio signo (móvil/fijo/dual, según la tabla del Dreṣkāṇa de Jagannath) y Mercurio sostiene un kendra desde la Luna, Larsen lo lee como un don para captar la esencia de las escrituras y el conocimiento directamente, no solo acumular datos.' },
+    { result: dreshkanaInsightYoga(birthPos, birthPos),
+      nameEn:'Dreṣkāṇa-Insight Yoga (generalized)', nameEs:'Yoga de Perspicacia del Dreṣkāṇa (generalizado)',
+      glossEn:'Larsen\'s own broadening of the Śārada principle: any of the "thriving" planets for a given decan — Sun/Mars at sunrise\'s, Jupiter/Venus at midday\'s, Saturn/Moon at sunset\'s, Mercury in any of the three — placed in, aspecting, or ruling the Lagna can confer the same kind of insight, not just the specific Moon-Mercury combination.',
+      glossEs:'Ampliación propia de Larsen del principio Śārada: cualquiera de los planetas "que prosperan" en un decanato dado — Sol/Marte al amanecer, Júpiter/Venus al mediodía, Saturno/Luna al atardecer, Mercurio en los tres — situado en, aspectando, o gobernando el Lagna puede conferir el mismo tipo de perspicacia, no solo la combinación específica Luna-Mercurio.' },
+    { result: trikalagnanaYoga(birthPos, navPos),
+      nameEn:'Trikālagnāna Yoga', nameEs:'Yoga Trikālagnāna',
+      glossEn:'"Knowledge of the three times" — past, present, and future (Sarvārtha Chintāmaṇi 5/53). Jupiter has to be doing real work here: own sign in the navāṁśa, landed on a precise D60 ordinal (Mridvāṁśa) or a Vaiśeṣikāṁśa count of Gopura-or-higher, AND aspected by a benefic — all three layers at once, which is why this is the rarest of the nine.',
+      glossEs:'"Conocimiento de los tres tiempos" — pasado, presente y futuro (Sarvārtha Chintāmaṇi 5/53). Júpiter tiene que cumplir varias condiciones a la vez: signo propio en el navāṁśa, un ordinal D60 preciso (Mridvāṁśa) o un conteo Vaiśeṣikāṁśa de Gopura o superior, Y aspectado por un benéfico — las tres capas juntas, por lo que es el más raro de los nueve.' }
+  ];
+  const jnanaYogaActiveCount = JNANA_YOGAS.filter(y=>y.result.present).length;
+  const jnanaYogaHtml = JNANA_YOGAS.map(y=>{
+    const cls = y.result.present ? 'good' : 'neutral';
+    const label = y.result.present ? T('Present in this chart','Presente en esta carta') : T('Not present','No presente');
+    return `<div class="li" style="margin-bottom:9px;">
+      <span class="tag ${cls}">${T(y.nameEn,y.nameEs)}</span> <span class="tag ${cls}">${label}</span>
+      <div style="margin-top:4px; color:var(--slate); font-size:11.5px; line-height:1.6;">${T(y.glossEn,y.glossEs)}</div>
+    </div>`;
+  }).join('');
+
   const vargottamaList = GRAHA_LIST.filter(g=>{
     const d1 = SIGNS[Math.floor(norm360(birthPos[g].sidereal)/30)];
     const d9 = SIGNS[Math.floor(norm360(navPos[g].sidereal)/30)];
@@ -9031,10 +9088,14 @@ function renderNatalPage(){
       </div>
     </div>
 
-    <div class="panel"><div class="hd"><h2>${T('Raja Yoga — power combinations','Raja Yoga — combinaciones de poder')}</h2><span class="note">${rajYoga.pairs.length+rajYoga.dualRulers.length} ${T('active','activa(s)')}</span></div>
+    <div class="panel"><div class="hd"><h2>${T('Yoga combinations','Combinaciones de yoga')}</h2><span class="note">${rajYoga.pairs.length+rajYoga.dualRulers.length+jnanaYogaActiveCount} ${T('active','activa(s)')}</span></div>
       <div class="bd">
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('Ten classical yoga-formation rules checked against this birth chart: Raja Yoga (power/status, below) plus nine knowledge-and-insight yogas from Visti Larsen\'s Jñāna Yoga series and one from Sarvārtha Chintāmaṇi. Each is a distinct, independently-sourced classical condition — none of these overlap with the 28 Chintāmaṇi Chara Yogas (a separate, daily-panchāṅga system) or the Cross-Varga Yoga Aggregate panel below.','Diez reglas clásicas de formación de yoga evaluadas contra esta carta natal: Raja Yoga (poder/estatus, abajo) más nueve yogas de conocimiento y perspicacia de la serie Jñāna Yoga de Visti Larsen y uno del Sarvārtha Chintāmaṇi. Cada uno es una condición clásica distinta y de fuente independiente — ninguno se superpone con los 28 Chara Yogas de Chintāmaṇi (un sistema separado de panchāṅga diario) ni con el panel de Agregado de Yogas entre Vargas de más abajo.')}</div>
+        <div style="font-size:13px; font-weight:600; color:var(--gold); margin-bottom:6px;">${T('Raja Yoga — power combinations','Raja Yoga — combinaciones de poder')}</div>
         <div class="hint" style="margin-bottom:10px;">${T('This chart\'s angle-houses (self, home, partnerships, career) and fortune-houses (creative intelligence, dharma) are checked for shared rulers — a classical marker of elevated status or success.','Se revisa si las casas angulares de esta carta (uno mismo, hogar, asociaciones, carrera) y las de fortuna (inteligencia creativa, dharma) comparten regente — un marcador clásico de estatus o éxito elevado.')}</div>
         ${rajYogaHtml}
+        <div style="font-size:13px; font-weight:600; color:var(--gold); margin:14px 0 6px;">${T('Jñāna Yoga series — knowledge & insight combinations','Serie Jñāna Yoga — combinaciones de conocimiento y perspicacia')}</div>
+        ${jnanaYogaHtml}
       </div>
     </div>
 
