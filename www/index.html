@@ -733,7 +733,8 @@
         <button type="button" data-page="pageChintamani" data-i18n="navChintamani">Muhūrta Chintāmaṇi</button>
         <button type="button" data-page="pageMatchmaking" data-i18n="navMatchmaking">Matchmaking</button>
         <button type="button" data-page="pageTarot" data-i18n="navTarot">Tarot (Shadow)</button>
-      </div>
+                <button type="button" data-page="pageYoga" data-i18n="navYoga">Yoga/Combinations</button>
+              </div>
     </div>
     <div>
       <h1>PL0 <span class="accent">— Sarvato Bhadra Chakra</span> <span class="ver">v1.60</span></h1>
@@ -1055,6 +1056,7 @@ const I18N = {
   navChintamani: { en:`Muhūrta Chintāmaṇi`, es:`Muhūrta Chintāmaṇi` },
   navTarot: { en:`Tarot (Shadow)`, es:`Tarot (Sombra)` },
   navMatchmaking: { en:`Matchmaking`, es:`Matchmaking` },
+  navYoga: { en:`Yoga/Combinations`, es:`Yoga/Combinaciones` },
   profileLbl: { en:`Saved profile`, es:`Perfil guardado` },
   profileNamePh: { en:`Profile name…`, es:`Nombre del perfil…` },
   profileSave: { en:`Save`, es:`Guardar` },
@@ -2286,6 +2288,24 @@ function sbcSignFlourishLiveNow(pos){
     row.signVedha.forEach(sign => hits[sign].push(g));
   }
   return hits;
+}
+
+/* Per-sign good/bad map for the D1/D9 chart house overlay (2026-09-14
+   request): reuses the same sbcSignVedhaLiveNow/sbcSignFlourishLiveNow
+   mechanism the Commodity Signals page already relies on (ch. XVII's own
+   "whenever these signs are afflicted... these parts suffer" rule) so a
+   house reads green/red for the same reason the SBC ring's ✦/✕ badges do —
+   one mechanism, two views, not a second scoring system invented for the
+   chart. 'good' when benefic sign-Vedha hits outnumber malefic ones on that
+   sign right now, 'bad' the other way, null when tied or unhit. */
+function computeSignAfflictionMap(pos){
+  const bad = sbcSignVedhaLiveNow(pos), good = sbcSignFlourishLiveNow(pos);
+  const map = {};
+  SIGNS.forEach(s=>{
+    const b = (bad[s]||[]).length, g = (good[s]||[]).length;
+    map[s] = g>b ? 'good' : b>g ? 'bad' : null;
+  });
+  return map;
 }
 
 /* =========================================================================
@@ -6041,7 +6061,15 @@ function planetGlyphStyle(it){
 }
 
 function renderChart(pos, ascSign, opts){
-  const plainHouses = !!(opts && opts.plainHouses);
+  // Default palette: no rashi-tattva rainbow tint (2026-09-14 — restored
+  // plain house backgrounds). When opts.afflict is supplied (a
+  // sign -> 'good'|'bad'|null map, see computeSignAfflictionMap()) each
+  // house is tinted instead by whether more benefic or malefic Vedha is
+  // landing on its sign right now — green=favourable, red=unfavourable,
+  // same semantic colors already used by the SBC ring and Deha Chakra — so
+  // a glance at the chart shows which "areas" (houses) sit behind the
+  // aggregate score above.
+  const afflict = (opts && opts.afflict) || null;
   const ascIdx = SIGNS.indexOf(ascSign);
   const planetsBySign = planetsBySignFor(pos, ascSign);
   let svg = `<svg viewBox="0 0 400 400" width="100%" style="max-width:440px;display:block;margin:0 auto;">`;
@@ -6054,18 +6082,16 @@ function renderChart(pos, ascSign, opts){
     const houseNum = i+1;
     const signIdx = (ascIdx + i) % 12;
     const sign = SIGNS[signIdx];
-    const rc = plainHouses ? {} : (RASHI_COLORS[sign] || {});
+    const aff = afflict ? afflict[sign] : null;
     const poly = HOUSE_POLY[i];
     const cen = centroid(poly);
     const anchor = poly.length===4 ? pull(cen, poly[0], 0.34) : pull(cen, centroid([poly[0],poly[1]]), 0.05);
     const items = planetsBySign[sign];
-    // Rashi color fill: tattva-family tint at low opacity; house-1 keeps its own highlight
-    // layered over it. Classical basis: BPHS ch.4 tattva groups + lord colors in jyotish-colors.js.
-    // (plainHouses reverts to the uncolored default — used by the Varga page.)
-    const rashiFill = rc.fill ? `${rc.fill}22` : "transparent";
-    svg += `<polygon points="${poly.map(p=>p.join(',')).join(' ')}" style="fill:${houseNum===1?'var(--house1)':rashiFill}" stroke="${rc.accent||'none'}" stroke-width="${rc.accent?0.8:0}"/>`;
-    // Sign label chip: colored by rashi with lord-accent underline
-    svg += `<text x="${anchor[0]}" y="${anchor[1]-14}" text-anchor="middle" font-size="9" style="fill:${rc.fill||'var(--chart-label)'};font-weight:600" font-family="var(--mono)">${houseNum}·${SIGN_ABBR[sign]}</text>`;
+    const affFill = aff==='good' ? 'var(--hit-good-bg)' : aff==='bad' ? 'var(--hit-bad-bg)' : 'transparent';
+    const affLine = aff==='good' ? 'var(--hit-good-line)' : aff==='bad' ? 'var(--hit-bad-line)' : 'none';
+    const affInk  = aff==='good' ? 'var(--hit-good-ink)' : aff==='bad' ? 'var(--hit-bad-ink)' : 'var(--chart-label)';
+    svg += `<polygon points="${poly.map(p=>p.join(',')).join(' ')}" style="fill:${houseNum===1?'var(--house1)':affFill}" stroke="${affLine}" stroke-width="${affLine!=='none'?1:0}"/>`;
+    svg += `<text x="${anchor[0]}" y="${anchor[1]-14}" text-anchor="middle" font-size="9" style="fill:${affInk};font-weight:600" font-family="var(--mono)">${houseNum}·${SIGN_ABBR[sign]}</text>`;
     items.forEach((it,k)=>{
       // Planet text now colored by its classical BPHS dhyana color
       const {col, strokeOn} = planetGlyphStyle(it);
@@ -6092,7 +6118,9 @@ const SOUTH_GRID_SIGNS = [
   ["Sagittarius","Scorpio","Libra","Virgo"]
 ];
 function renderChartSouthIndian(pos, ascSign, opts){
-  const plainHouses = !!(opts && opts.plainHouses);
+  // See renderChart()'s comment above — same default-plain / opts.afflict
+  // green-red overlay contract, applied to the South Indian fixed grid.
+  const afflict = (opts && opts.afflict) || null;
   const ascIdx = SIGNS.indexOf(ascSign);
   const planetsBySign = planetsBySignFor(pos, ascSign);
   const cell = 100, size = cell*4;
@@ -6105,13 +6133,15 @@ function renderChartSouthIndian(pos, ascSign, opts){
       const signIdx = SIGNS.indexOf(sign);
       const houseNum = ((signIdx - ascIdx + 12) % 12) + 1;
       const isAsc = houseNum === 1;
-      const rc = plainHouses ? {} : (RASHI_COLORS[sign] || {});
-      const rashiFill = rc.fill ? `${rc.fill}22` : "transparent";
+      const aff = afflict ? afflict[sign] : null;
+      const affFill = aff==='good' ? 'var(--hit-good-bg)' : aff==='bad' ? 'var(--hit-bad-bg)' : 'transparent';
+      const affLine = aff==='good' ? 'var(--hit-good-line)' : aff==='bad' ? 'var(--hit-bad-line)' : 'var(--chart-line)';
+      const affInk  = aff==='good' ? 'var(--hit-good-ink)' : aff==='bad' ? 'var(--hit-bad-ink)' : 'var(--chart-label)';
       const x = c*cell, y = r*cell;
-      svg += `<rect x="${x+1}" y="${y+1}" width="${cell-2}" height="${cell-2}" style="fill:${isAsc?'var(--house1)':rashiFill}" stroke="${rc.accent||'var(--chart-line)'}" stroke-width="${rc.accent?0.8:1}"/>`;
+      svg += `<rect x="${x+1}" y="${y+1}" width="${cell-2}" height="${cell-2}" style="fill:${isAsc?'var(--house1)':affFill}" stroke="${affLine}" stroke-width="${aff?0.8:1}"/>`;
       // Sign number·abbr label, top-left of cell; the Ascendant's cell also gets
       // a gold ring so "where is house 1" reads at a glance, not just by number.
-      svg += `<text x="${x+8}" y="${y+16}" text-anchor="start" font-size="9" style="fill:${isAsc?'var(--gold)':(rc.fill||'var(--chart-label)')};font-weight:700" font-family="var(--mono)">${houseNum}·${SIGN_ABBR[sign]}</text>`;
+      svg += `<text x="${x+8}" y="${y+16}" text-anchor="start" font-size="9" style="fill:${isAsc?'var(--gold)':affInk};font-weight:700" font-family="var(--mono)">${houseNum}·${SIGN_ABBR[sign]}</text>`;
       if (isAsc){
         svg += `<rect x="${x+3}" y="${y+3}" width="${cell-6}" height="${cell-6}" fill="none" style="stroke:var(--gold)" stroke-width="2"/>`;
       }
@@ -8465,104 +8495,6 @@ function runAnalysis(){
     </div>`;
   }
 
-  // --- Week-ahead Pañcha Pakshi outlook (compact guide, not a data dump) ---
-  // Surfaces, per weekday for the next 7 days: the life bird's dominant Yama
-  // (the activity-state it spends the most main-periods in that day) and — for
-  // TODAY only — the explicit main × abstract combo so "Ruling-in-Ruling"
-  // (1.0x1.0) vs "Ruling-in-Sleeping" (1.0x0.4) reads as a real number instead
-  // of a hidden uniform value. Re-derives Pakṣa per day via computePanchanga
-  // so the half isn't frozen to today's date. Defaults to equinox 12/12
-  // day-length for the outlook (the source's own printed table).
-  let weekAheadHtml = "";
-  if (refP.lifeBird) {
-    const lb = refP.lifeBird;
-    // Intent -> preferred yama tier. User selects an activity; days whose
-    // life-bird dominant Yama matches are highlighted.
-    const INTENT_YAMA = {
-      init:    {label: T('Initiate work / new ventures','Iniciar trabajo / nuevas iniciativas'), yama: 'Ruling',    cls:'good'},
-      talk:    {label: T('Negotiations / conversations','Negociaciones / conversaciones'),   yama: 'Eating',    cls:'good'},
-      travel:  {label: T('Travel / movement','Viajar / movimiento'),                           yama: 'Walking',   cls:'neutral'},
-      rest:    {label: T('Rest / behind-the-scenes','Descanso / trabajo en segundo plano'),  yama: 'Sleeping',  cls:'neutral'},
-      avoid:   {label: T('Avoid — endings only','Evitar — solo cierres'),                     yama: 'Dying',     cls:'bad'}
-    };
-    const intentKeys = Object.keys(INTENT_YAMA);
-    const guideCols = T('Day','Día') + "," + T('Main Yama','Yama principal') + "," + T('Combo','Combinación') + "," + T('Yamas','Yamas');
-    const guideHdr = `<tr style="color:var(--slate);font-family:var(--mono);font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;">${guideCols.split(',').map(c=>`<th style="padding:3px 6px;text-align:left;">${c}</th>`).join('')}</tr>`;
-    const guideRows = [];
-    const startDt = new Date(Date.UTC(mdt.y, mdt.mo-1, mdt.da));
-    for (let d=0; d<7; d++){
-      const utc = new Date(Date.UTC(mdt.y, mdt.mo-1, mdt.da + d));
-      const jd = julianDay(utc.getUTCFullYear(), utc.getUTCMonth()+1, utc.getUTCDate(), 12, 0, 0, 0);
-      const wdEN = WEEKDAYS[utc.getUTCDay()];
-      const wPos = computePositions(jd, mdt.lat, mdt.lon, ay);
-      const wPanch = computePanchanga(wPos);
-      const half = wPanch.paksha === "Shukla" ? "bright" : "dark";
-      const ppDay = computePanchapakshiDay(wdEN, half, 12, 12);
-      // real sunrise/day-length so timing rows are anchor-accurate (equinox default fallback)
-      const sunSS = sunriseSunsetLocal(utc.getUTCFullYear(), utc.getUTCMonth()+1, utc.getUTCDate(), mdt.lat, mdt.lon, mdt.tz);
-      const srise = sunSS ? sunSS.sunriseHr : 6;
-      const dlen = sunSS ? ((sunSS.sunsetHr - srise + 24) % 24) : 12;
-      // dominant main-state across the 10 main periods for the life bird
-      const tally = {Ruling:0,Eating:0,Walking:0,Sleeping:0,Dying:0};
-      ppDay.periods.forEach(p=>{ tally[p.byBird[lb].state] = (tally[p.byBird[lb].state]||0)+1; });
-      const domState = PP_STATES.reduce((a,b)=> tally[a] >= tally[b] ? a : b, PP_STATES[0]);
-      // today's live main×abstract combo
-      let combo = "";
-      if (d === 0) {
-        const live = ppStateForInstant(mdtWeekdayEN, mdtHalf, mdtHourFromSunrise, refP, mdtDayLenHrs);
-        if (live) {
-          const st = PP_ACT_FACTOR[live.mainState] * PP_ACT_FACTOR[live.abstractState];
-          const mainT = T(live.mainState, PP_STATES_ES[live.mainState]);
-          const subT = T(live.abstractState, PP_STATES_ES[live.abstractState]);
-          combo = `${mainT}/${subT} ${st.toFixed(2)}`;
-        }
-      }
-      // per-yama time ranges for the life bird (real sunrise-anchored).
-      // Each period knows whether it is a daylight or night ghaṭī band
-      // (computePanchapakshiDay's isDay flag), so the cell can be split
-      // into a sun row and a moon row instead of one flat timeline.
-      const timing = ppDay.periods.map(p=>{
-        const b = p.byBird[lb];
-        const sh = pad2(Math.floor(p.startHr));
-        const sm = pad2(Math.round((p.startHr%1)*60));
-        const eh = pad2(Math.floor(p.endHr % 24));
-        const em = pad2(Math.round((p.endHr%1)*60));
-        return {state:b.state, isDay:p.isDay, range: `${sh}:${sm}-${eh}:${em}`};
-      });
-      guideRows.push({wd: wdEN, domState, combo, isToday: d===0, dayLn: timing.filter(t=>t.isDay).map(t=>`${t.state} ${t.range}`).join(', '), nightLn: timing.filter(t=>!t.isDay).map(t=>`${t.state} ${t.range}`).join(', '), panchHalf: half});
-    }
-    // LIVE "best to ask now" callout — reflects the real current moment at the
-    // user's chosen location, independent of the judged muhūrta. Uses the same
-    // ppLiveNow() clock + computePanchapakshiDay engine as the live Dasha
-    // panel, so it always agrees with the watched clock (60s re-run).
-    const askNow = renderAskNowCallout(refP);
-    html += `<details class="ref-drop" style="margin-top:14px;">
-      <summary style="cursor:pointer;padding:8px 12px;font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-dim);">${T('Pañcha Pakshi — 7-day outlook','Pañcha Pakshi — Perspectiva de 7 días')} <small style="color:var(--slate);">${T(refP.lifeBird, PP_BIRDS_ES[refP.lifeBird])} · ${T('life bird, fixed at birth','ave vital, fija al nacer')}</small></summary>
-      <div style="padding:8px 0 4px;">
-        ${askNow}
-        <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
-          <label style="font-family:var(--mono);font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:var(--slate);margin:0;">${T('Filter by intent:','Filtrar por intención:')}</label>
-          <select id="ppIntentFilter" style="font-family:var(--mono);font-size:11px;padding:3px 6px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--panel);color:var(--ink);">
-            ${intentKeys.map(k=>`<option value="${k}" data-yama="${INTENT_YAMA[k].yama}">${INTENT_YAMA[k].label}</option>`).join('')}
-          </select>
-          <span class="hint" style="font-size:10px;color:var(--slate);margin:0;">${T('Highlights days where your life bird rules each Yama.','Resalta los días en que tu ave vital riga cada Yama.')}</span>
-        </div>
-        <table class="pp-week-outlook" style="width:100%;font-size:11.5px;border-collapse:collapse;">
-          ${guideHdr}
-          ${guideRows.map(r=>`<tr data-dom="${r.domState}" style="${r.isToday?'background:rgba(209,169,78,0.06);':''}">
-            <td style="padding:4px 6px;font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-dim);">${T(r.wd, WEEKDAYS_ES[WEEKDAYS.indexOf(r.wd)])}${r.isToday?' · '+'TODAY':''}</td>
-            <td><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:${PP_STATE_COLOR[r.domState]};vertical-align:-1px;margin-right:4px;"></span>${T(r.domState, PP_STATES_ES[r.domState])}</td>
-            <td>${r.combo || T('—','—')}</td>
-            <td><small class="pp-timing-cell" style="color:var(--ink-dim);font-family:var(--mono);">
-              <div class="pp-timing-day">☀ ${r.dayLn}</div>
-              <div class="pp-timing-night">☾ ${r.nightLn}</div>
-            </small></td>
-          </tr>`).join('')}</table>
-        <div class="hint" style="margin-top:8px;">${T('Main Yama = the activity-state your life bird spends the most Yama-periods in that day. Combo (today only) = main × abstract state strength as native(bird) × ACT_FACTOR[main] × ACT_FACTOR[abstract] — Ruling/Ruling 1.00 vs Ruling/Sleeping 0.40 reads as the real difference. Per-Yama = local time ranges from real sunrise (equinox default when location is unavailable).','Yama principal = el estado de actividad en el que tu ave vital pasa más períodos Yama ese día. Combinación (solo hoy) = fuerza de estado principal × abstracto como native(ave) × ACT_FACTOR[principal] × ACT_FACTOR[abstracto] — Reino/Reino 1.00 vs Reino/Dormir 0.40 muestra la diferencia real. Por-Yama = horas locales desde el amanecer real (valor por defecto de equinoccio si no hay ubicación).')}</div>
-      </div>
-    </details>`;
-  }
-
   const tithiInfo = bsTithiInfo(panch.tithiNum);
   const tithiClsLabel = tithiInfo.amavasya ? null : BS_TITHI_CLASS[tithiInfo.cls];
   const nakCls = NAK_ACTIVITY_CLASS[panch.nak.name];
@@ -8595,12 +8527,28 @@ function runAnalysis(){
   // Condensed: only the live card shows directly; the other 14 lunar days
   // are reference material, not something a glance page needs open by
   // default, so they sit behind the dropdown below instead.
+  // Tārā Bala / Latta / Upagraha — condensed here (2026-09-14 request) rather
+  // than as their own separate panels further down the page: same data,
+  // folded into one glance-friendly strip right under the day's own reading.
+  const tlUpTags = [];
+  if (tara) tlUpTags.push(`<span class="tag ${tara.tone==='good'?'good':tara.tone==='bad'?'bad':'neutral'}">Tārā: ${T(tara.name,tara.name)}</span>`);
+  if (latta.length) latta.forEach(l=>tlUpTags.push(`<span class="tag bad">Latta: ${T(l.graha,GRAHA_ES[l.graha])}</span>`));
+  else tlUpTags.push(`<span class="tag good">${T('No Latta hit','Sin golpe Latta')}</span>`);
+  if (upagraha) tlUpTags.push(`<span class="tag bad">Upagraha: ${upagraha.name}</span>`);
+  else tlUpTags.push(`<span class="tag good">${T('No Upagraha hit','Sin golpe Upagraha')}</span>`);
+  const tlUpNotes = [
+    tara ? T(tara.gist, TARA_GIST_ES[tara.name]) : '',
+    latta.length ? latta.map(l=>`${T(l.graha,GRAHA_ES[l.graha])}: ${T(l.result,LATTA_RESULT_ES[l.graha])}`).join('; ') : '',
+    upagraha ? `${upagraha.name}: ${T(upagraha.result,UPAGRAHA_RESULT_ES[upagraha.name])}` : ''
+  ].filter(Boolean).join(' · ');
+
   html += `<div class="panel">
     <div class="hd"><h2>${T('Today\'s Lunar Day','Día Lunar de Hoy')}</h2><span class="note">${T('live','en vivo')}</span></div>
     <div class="bd">
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
-          <small style="color:var(--muted);font-family:var(--mono);">${T('PP birds (classical colours','Aves PP (colores clásicos')} — ${panch.paksha==='Shukla'?T('Bright Half','Mitad Clara'):T('Dark Half','Mitad Oscura')}):</small>
-          ${Object.keys(PP_BIRD_COLORS).map(b=>ppBirdBadge(b, panch.paksha==='Shukla'?'bright':'dark')).join(' ')}
+        <div style="margin-bottom:10px;">
+          <small style="color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.05em;">${T('Tārā / Latta / Upagraha — today','Tārā / Latta / Upagraha — hoy')}</small>
+          <div class="pillrow" style="margin-top:6px;">${tlUpTags.join('')}</div>
+          ${tlUpNotes ? `<div class="hint" style="margin-top:6px;">${tlUpNotes}</div>` : ''}
         </div>
       ${renderBsTithiCard(panch)}
       <details class="ref-drop"><summary>${T('All fifteen lunar days','Los quince días lunares')}</summary>
@@ -8611,6 +8559,10 @@ function runAnalysis(){
 
   const navPos = computeNavamsaPos(pos);
   const navAscSign = SIGNS[Math.floor(navamsaSidereal(pos._ascSidereal)/30)];
+  // Same live sign-Vedha affliction map for both charts below — it reflects
+  // the real sky right now, not a divisional-chart remap, so D1 and D9 share
+  // one map rather than each computing its own from different longitudes.
+  const houseAfflictMap = computeSignAfflictionMap(pos);
   const navStrengthRows = GRAHA_LIST.map(g=>{
     const d1Sign = SIGNS[Math.floor(norm360(pos[g].sidereal)/30)];
     const d9Sign = SIGNS[Math.floor(norm360(navPos[g].sidereal)/30)];
@@ -8625,10 +8577,14 @@ function runAnalysis(){
 
   html += `<div class="grid2">
     <div class="panel"><div class="hd"><h2>${T('Current D1 (Janma)','D1 (Janma) Actual')}</h2><span class="note">${CHART_STYLE==='south'?T('South Indian format','formato sureño indio'):T('North Indian format','formato norteño indio')}</span></div>
-      <div class="bd">${CHART_STYLE==='south'?`<div class="hint" style="margin-bottom:8px;">${T('South Indian format is a map that never turns: the twelve signs sit fixed in their cells, Aries always in the same place, however your chart falls. Find the gold ring — it marks whichever cell holds your Lagna (लग्न = the rising point), and that cell is your first house; read the rest of the houses onward from there.','El formato sureño indio es un mapa que nunca gira: los doce signos están fijos en sus celdas, Aries siempre en el mismo lugar, sin importar cómo cae tu carta. Busca el anillo de oro — marca la celda que contiene tu Lagna (लग्न = el punto ascendente), y esa celda es tu primera casa; lee el resto de las casas de allí en adelante.')}</div>`:''}${renderChartAuto(pos, panch.ascSign)}</div></div>
+      <div class="bd">${CHART_STYLE==='south'?`<div class="hint" style="margin-bottom:8px;">${T('South Indian format is a map that never turns: the twelve signs sit fixed in their cells, Aries always in the same place, however your chart falls. Find the gold ring — it marks whichever cell holds your Lagna (लग्न = the rising point), and that cell is your first house; read the rest of the houses onward from there.','El formato sureño indio es un mapa que nunca gira: los doce signos están fijos en sus celdas, Aries siempre en el mismo lugar, sin importar cómo cae tu carta. Busca el anillo de oro — marca la celda que contiene tu Lagna (लग्न = el punto ascendente), y esa celda es tu primera casa; lee el resto de las casas de allí en adelante.')}</div>`:''}${renderChartAuto(pos, panch.ascSign, {afflict:houseAfflictMap})}</div></div>
     <div class="panel"><div class="hd"><h2>${T('D9 (Navamsa) Current','D9 (Navamsa) Actual')}</h2><span class="note">${T('planet strength, not scored','fuerza planetaria, no puntuado')}</span></div>
-      <div class="bd">${renderChartAuto(navPos, navAscSign)}</div></div>
-  </div><div style="height:20px"></div>
+      <div class="bd">${renderChartAuto(navPos, navAscSign, {afflict:houseAfflictMap})}</div></div>
+  </div>
+  <div class="chakra-legend" style="margin:6px 0 20px;">
+    <div class="li"><span class="sw" style="background:var(--hit-good-bg);border:1px solid var(--hit-good-line)"></span> ${T('house sign favoured by live benefic Vedha','signo de casa favorecido por Vedha benéfico en vivo')}</div>
+    <div class="li"><span class="sw" style="background:var(--hit-bad-bg);border:1px solid var(--hit-bad-line)"></span> ${T('house sign struck by live malefic Vedha','signo de casa golpeado por Vedha maléfico en vivo')}</div>
+  </div>
 
   <div class="grid2">
     <div class="panel"><div class="hd"><h2>Sarvato Bhadra Chakra</h2><span class="note">${T('perimeter ring','anillo perimetral')}</span></div>
@@ -8655,6 +8611,21 @@ function runAnalysis(){
               ? T('More malefic than benefic Vedha is landing right now — a generally strained sky, on this simple count alone.','Cae ahora más Vedha maléfico que benéfico — un cielo generalmente tenso, según este simple recuento.')
               : T('Benefic and malefic Vedha are landing in equal measure right now — a mixed sky, on this simple count alone.','El Vedha benéfico y maléfico caen ahora en igual medida — un cielo mixto, según este simple recuento.')
           }</div>
+          ${vedha.hits.length ? `
+          <h3 style="margin:16px 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('What this may bring','Lo que esto puede traer')}</h3>
+          <div class="hint" style="margin-bottom:8px;">${T('Predictive, not certain — each line follows from the live formation on the ring above (which graha, which direction, which Pañcaka item), read forward into likely effect rather than restated as a static fact.','Predictivo, no certero — cada línea se deriva de la formación en vivo en el anillo de arriba (qué graha, qué dirección, qué elemento del Pañcaka), leída hacia adelante como efecto probable, no repetida como un hecho estático.')}</div>
+          <ul style="margin:0; padding-left:18px; font-size:12.5px; color:var(--ink-dim); line-height:1.7;">
+            ${vedha.hits.map(h=>{
+              const graha = T(h.graha, GRAHA_ES[h.graha]);
+              const effect = T(GRAHA_VEDHA_READING[h.graha], GRAHA_VEDHA_READING_ES[h.graha]);
+              const dirLabel = T(h.dir, {Front:'Frente',Right:'Derecha',Left:'Izquierda'}[h.dir]);
+              const struckLabel = h.struck.map(trStruck).join(T(' and ',' y '));
+              return T(
+                `<li>With <b>${graha}</b> casting ${dirLabel} Vedha onto your ${struckLabel}, expect this window to lean toward ${effect}.</li>`,
+                `<li>Con <b>${graha}</b> lanzando Vedha ${dirLabel} sobre tu ${struckLabel}, espera que esta ventana se incline hacia ${effect}.</li>`
+              );
+            }).join('')}
+          </ul>` : ''}
         </div>
       </div>
     </div>
@@ -8690,8 +8661,9 @@ function runAnalysis(){
     ${vedha.hits.length ? `<div style="margin-top:10px;" class="pillrow">${vedha.hits.map(h=>`<span class="tag ${h.benefic?'good':'bad'}">${T(h.graha,GRAHA_ES[h.graha])} ${T('on','en')} ${h.onStar} (${T(h.dir,{Front:'Frente',Right:'Derecha',Left:'Izquierda'}[h.dir])} Vedha) → ${h.struck.map(trStruck).join(' + ')} — ${T(GRAHA_VEDHA_READING[h.graha], GRAHA_VEDHA_READING_ES[h.graha])}</span>`).join('')}</div>` : ''}
     </div></div>`;
 
-  html += `<div class="grid2">
-    <div class="panel"><div class="hd"><h2>${T('Nāḍī of the reference star','Nāḍī de la estrella de referencia')}</h2></div><div class="bd">
+  // Tārā Bala / Latta / Upagraha no longer get their own panels here — see
+  // the condensed strip folded into the Lunar Day panel above (2026-09-14).
+  html += `<div class="panel"><div class="hd"><h2>${T('Nāḍī of the reference star','Nāḍī de la estrella de referencia')}</h2></div><div class="bd">
       ${nadi ? `<div class="kv">
         <div class="k">Nāḍī</div><div class="v">${nadi.name} (${T('lord','señor')}: ${T(nadi.lord,GRAHA_ES[nadi.lord])})</div>
         <div class="k">${T('Character','Carácter')}</div><div class="v">${T(nadi.gist, NADI_GIST_ES[nadi.name])}</div>
@@ -8701,35 +8673,7 @@ function runAnalysis(){
         `<b style="color:var(--muted)">This app's synthesis:</b> across the Sapta Nadi system, each nadi's character echoes a broader classical idea — that the elements and qualities behind a nakshatra grouping also describe how prana, the vital breath animating the body, tends to move through a given moment. Pawan takes its name from vayu, wind and vital air, and Vedic and yogic thought have long treated the vital air as the fastest and least restful of the subtle currents — always circulating, never pooling, the very thing that makes life itself active rather than still. That is why a Pawan transit reads as it does here: a nadi built on the quality of moving air cannot help but deliver its results with that same restlessness and speed, arriving quickly rather than accumulating slowly the way an earthier or wetter-toned nadi might. Read this way, Pawan's reputation for fast, shallow outcomes isn't a quirk of this table — it's the elemental signature of breath itself, translated into how a transit is felt.`,
         `<b style="color:var(--muted)">Síntesis de esta app:</b> en todo el sistema Sapta Nadi, el carácter de cada nadi hace eco de una idea clásica más amplia — que los elementos y cualidades detrás de una agrupación de nakshatras también describen cómo tiende a moverse el prana, el aliento vital que anima el cuerpo, en un momento dado. Pawan toma su nombre de vayu, el viento y el aire vital, y el pensamiento védico y yóguico ha considerado desde antiguo que el aire vital es la más rápida y menos reposada de las corrientes sutiles — siempre circulando, nunca estancada, precisamente lo que hace que la vida misma sea activa y no quieta. Por eso un tránsito de Pawan se lee como se lee aquí: un nadi construido sobre la cualidad del aire en movimiento no puede sino entregar sus resultados con esa misma inquietud y velocidad, llegando rápido en vez de acumularse despacio como podría hacerlo un nadi de tono más terroso o acuoso. Leído así, la fama de Pawan por resultados rápidos y poco profundos no es un capricho de esta tabla — es la firma elemental del aliento mismo, traducida en cómo se siente un tránsito.`
       )}</div>` : `<div class="hint">${T('Pick a reference star to see its Nāḍī.','Elige una estrella de referencia para ver su Nāḍī.')}</div>`}
-    </div></div>
-    <div class="panel"><div class="hd"><h2>${T("Tārā Bala — today's Moon","Tārā Bala — la Luna de hoy")}</h2></div><div class="bd">
-      ${tara ? `<div class="kv">
-        <div class="k">${T('Position','Posición')}</div><div class="v">${tara.offset} ${T('of 27 from Janma Nakṣatra','de 27 desde Janma Nakṣatra')}</div>
-        <div class="k">Tārā</div><div class="v">${tara.name} ${tagFor(tara.tone)}</div>
-        <div class="k">${T('Reading','Lectura')}</div><div class="v">${T(tara.gist, TARA_GIST_ES[tara.name])}</div>
-      </div>` : `<div class="hint">${T('Enable Tārā Bala in Options and set a reference star.','Activa Tārā Bala en Opciones y define una estrella de referencia.')}</div>`}
-    </div></div>
-  </div>`;
-
-  html += `<div class="panel"><div class="hd"><h2>${T('Latta &amp; Upagraha checks','Comprobaciones de Latta y Upagraha')}</h2></div><div class="bd">`;
-  if (latta.length){
-    html += latta.map(l=>{
-      const result = T(l.result, LATTA_RESULT_ES[l.graha]);
-      const graha = T(l.graha, GRAHA_ES[l.graha]);
-      return T(`<div class="warnbox"><b>${graha}'s Latta</b> falls on the reference star today — classical reading: ${result}.</div>`,
-                `<div class="warnbox">El <b>Latta de ${graha}</b> cae hoy sobre la estrella de referencia — lectura clásica: ${result}.</div>`);
-    }).join('');
-  } else {
-    html += `<div class="okbox">${T("No graha's Latta point falls on the reference star at this moment.","Ningún punto Latta de graha cae sobre la estrella de referencia en este momento.")}</div>`;
-  }
-  if (upagraha){
-    const uResult = T(upagraha.result, UPAGRAHA_RESULT_ES[upagraha.name]);
-    html += T(`<div class="warnbox"><b>${upagraha.name}</b> (Upagraha, counted from the Sun) falls on the reference star today — classical reading: ${uResult}.</div>`,
-               `<div class="warnbox"><b>${upagraha.name}</b> (Upagraha, contado desde el Sol) cae hoy sobre la estrella de referencia — lectura clásica: ${uResult}.</div>`);
-  } else {
-    html += `<div class="okbox">${T('No Upagraha point falls on the reference star today.','Ningún punto Upagraha cae sobre la estrella de referencia hoy.')}</div>`;
-  }
-  html += `</div></div>`;
+    </div></div>`;
 
   const refNote = T(refInfo.note, "calculado a partir de datos de nacimiento");
   html += `<footer class="notes">
@@ -8751,18 +8695,6 @@ function runAnalysis(){
   </footer>`;
 
   document.getElementById('results').innerHTML = html;
-  // Week-ahead outlook intent filter: highlight rows whose life-bird dominant
-  // Yama matches the selected intent's preferred yama (data-dom on <tr>, data-yama on <option>).
-  const ppFilter = document.getElementById('ppIntentFilter');
-  if (ppFilter) {
-    ppFilter.addEventListener('change', function(){
-      const want = (this.options[this.selectedIndex] || {}).dataset ? this.options[this.selectedIndex].dataset.yama : '';
-      this.closest('.ref-drop').querySelectorAll('tr[data-dom]').forEach(tr=>{
-        tr.classList.toggle('pp-intent-hit', want && tr.dataset.dom === want);
-      });
-    });
-    ppFilter.dispatchEvent(new Event('change'));
-  }
   renderPPPanel();
 }
 
@@ -11299,7 +11231,7 @@ function trikalagnanaYoga(pos, navPos){
   const ownNavamsa = TRIKALAGNANA_OWN_NAVAMSA_SIGNS.includes(jupNavSign);
   const mrid = mridvamshaOrdinal(jupSid);
   const gopuraCount = vaiseshikamsaCount('Jupiter', pos, navPos, 'dasa');
-  const isGopuramsha = gopuraCount === 4;
+  const isGopuramsha = gopuraCount >= 4; // Gopura (count 4) OR higher: Simhasana 5 / Paaraavata 6 / etc.
   const jupSignIdx = Math.floor(norm360(jupSid)/30);
   const beneficAspect = ['Venus','Mercury','Moon'].some(b=>{
     if (!pos[b]) return false;
