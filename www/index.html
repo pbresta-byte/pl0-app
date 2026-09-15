@@ -1806,6 +1806,37 @@ const GRAHA_VEDHA_READING = {
   Venus:   "romance, comfort, aesthetic or relational pleasure"
 };
 
+/* Thematic day-scene narrative (2026-09-15 request): replaces the old
+   pillrow-of-hits under the Pañcaka Vedha breakdown table, which had
+   become a near-duplicate of the SBC panel's own "What this may bring"
+   list above it (same vedha.hits, same GRAHA_VEDHA_READING phrases, just
+   itemized twice). This reads the same real, computed hits as one short
+   atmospheric paragraph instead of a second bullet list — genuinely
+   different register, same underlying data, no invented specifics. */
+function narrateDayTheme(vedha, panch, weekdayName){
+  const hits = vedha.hits;
+  if (!hits.length){
+    return T(
+      `${weekdayName} passes under ${panch.tithiName}, the Moon moving quietly through ${panch.nak.name} — no graha is casting Vedha onto the reference chart right now, so today reads as an unmarked stretch: whatever unfolds will be shaped by circumstance more than by this particular sky.`,
+      `${weekdayName} transcurre bajo ${panch.tithiName}, con la Luna moviéndose en silencio por ${panch.nak.name} — ningún graha lanza Vedha sobre la carta de referencia ahora mismo, así que hoy se lee como un tramo sin marcas: lo que ocurra estará moldeado más por la circunstancia que por este cielo en particular.`
+    );
+  }
+  const uniqueGrahas = [...new Set(hits.map(h=>h.graha))];
+  const grahaPhrase = uniqueGrahas.map(g=>T(g,GRAHA_ES[g])).join(uniqueGrahas.length>1 ? T(' and ',' y ') : '');
+  const flavorPhrase = uniqueGrahas.map(g=>T(GRAHA_VEDHA_READING[g],GRAHA_VEDHA_READING_ES[g])).join(T('; ',' ; '));
+  const strongerBenefic = vedha.beneficHits.length > vedha.maleficHits.length;
+  const strongerMalefic = vedha.maleficHits.length > vedha.beneficHits.length;
+  const overallTone = strongerBenefic
+    ? T('a day that leans toward ease, even where its edges feel unsettled','un día que se inclina hacia la facilidad, incluso donde sus bordes se sienten inquietos')
+    : strongerMalefic
+    ? T('a day carrying real friction under its surface, worth moving through carefully','un día que carga fricción real bajo la superficie, mejor atravesarlo con cuidado')
+    : T('a day pulled two ways at once, its outcome genuinely undecided','un día jalado en dos direcciones a la vez, con un desenlace genuinamente indeciso');
+  return T(
+    `${weekdayName} under ${panch.tithiName}, Moon in ${panch.nak.name}: ${grahaPhrase} ${uniqueGrahas.length>1?'are':'is'} actively casting Vedha onto the reference chart, colouring the day toward ${flavorPhrase}. Altogether, ${overallTone}.`,
+    `${weekdayName} bajo ${panch.tithiName}, Luna en ${panch.nak.name}: ${grahaPhrase} ${uniqueGrahas.length>1?'lanzan':'lanza'} Vedha activamente sobre la carta de referencia, coloreando el día hacia ${flavorPhrase}. En conjunto, ${overallTone}.`
+  );
+}
+
 // ch. "Horary Astrology" (Sarvatobhadra Chakra, M.K. Agarwal, p.27-28) —
 // graduated reading for how many malefics are simultaneously striking a
 // single Pañcaka item (applied here to the Praśna Star and Praśna
@@ -2090,6 +2121,38 @@ function computeSignAfflictionMap(pos){
     map[s] = g>b ? 'good' : b>g ? 'bad' : null;
   });
   return map;
+}
+
+/* Western tropical companion reading (2026-09-15 request): a distinct
+   second lens on the same live moment, in its own idiom (Ptolemaic aspect
+   between tropical Sun/Moon, traditional 7-planet sign rulers — no outer
+   planets, matching this app's own GRAHA_LIST scope) rather than a
+   re-skinned Vedic sentence. pos[g].tropical is already computed for every
+   graha regardless of the ayanamsa mode the user has selected (see
+   computePositions() above), so no separate ephemeris call is needed here
+   — this just reads that field back out. tone: 'good'|'bad'|'mixed', so
+   the caller can say plainly whether it agrees or diverges from the SBC
+   verdict above it. */
+const WESTERN_SIGN_RULER = {
+  Aries:'Mars', Taurus:'Venus', Gemini:'Mercury', Cancer:'Moon', Leo:'Sun', Virgo:'Mercury',
+  Libra:'Venus', Scorpio:'Mars', Sagittarius:'Jupiter', Capricorn:'Saturn', Aquarius:'Saturn', Pisces:'Jupiter'
+};
+const WESTERN_ASPECTS = [
+  {name:'conjunction', nameEs:'conjunción', angle:0,   orb:8, tone:'mixed'},
+  {name:'sextile',     nameEs:'sextil',     angle:60,  orb:6, tone:'good'},
+  {name:'square',      nameEs:'cuadratura', angle:90,  orb:8, tone:'bad'},
+  {name:'trine',       nameEs:'trígono',    angle:120, orb:8, tone:'good'},
+  {name:'opposition',  nameEs:'oposición',  angle:180, orb:8, tone:'bad'}
+];
+function westernTropicalRead(pos){
+  const sunSign = SIGNS[Math.floor(norm360(pos.Sun.tropical)/30)];
+  const moonSign = SIGNS[Math.floor(norm360(pos.Moon.tropical)/30)];
+  let sep = Math.abs(norm360(pos.Sun.tropical - pos.Moon.tropical));
+  if (sep > 180) sep = 360 - sep;
+  let aspect = null, bestDelta = Infinity;
+  WESTERN_ASPECTS.forEach(a=>{ const d = Math.abs(sep-a.angle); if (d<=a.orb && d<bestDelta){ aspect=a; bestDelta=d; } });
+  const tone = aspect ? aspect.tone : 'mixed'; // no major aspect in orb: a quiet, undramatic day
+  return { sunSign, moonSign, sunRuler:WESTERN_SIGN_RULER[sunSign], moonRuler:WESTERN_SIGN_RULER[moonSign], aspect, tone };
 }
 
 // Classical combustion (Astāngata) orbs — standard across Vedic astrology
@@ -5746,6 +5809,24 @@ function renderBodyGauge(deha){
 
 function fmtDeg(x){ const d=Math.floor(x), m=Math.floor((x-d)*60); return `${d}°${String(m).padStart(2,'0')}'`; }
 
+// Dignity tier -> the app's own semantic colors (2026-09-15 request: make
+// the Graha positions table more visually educational). Reuses the exact
+// same --jade/--vermilion/--gold/--slate vocabulary every other panel on
+// this page already uses for good/bad/neutral, rather than a new palette —
+// Exalted/Own read as strong-favourable, Debilitated as strong-unfavourable,
+// Enemy as a milder unfavourable (warmer, not alarmed), Friend/Neutral as
+// muted. Keyed on dignityTier()'s raw (untranslated) return value so it
+// works under either language.
+const DIGNITY_COLOR = {
+  "Exalted": {color:"var(--jade)", weight:700},
+  "Own": {color:"var(--jade)", weight:600},
+  "Own (per source note)": {color:"var(--jade)", weight:600},
+  "Friend": {color:"var(--jade)", weight:400},
+  "Neutral": {color:"var(--slate)", weight:400},
+  "Enemy": {color:"var(--vermilion)", weight:500},
+  "Debilitated": {color:"var(--vermilion)", weight:700},
+  "—": {color:"var(--slate)", weight:400}
+};
 function renderPlanetTable(pos){
   let rows="";
   for (const g of GRAHA_LIST){
@@ -5755,16 +5836,18 @@ function renderPlanetTable(pos){
     const nak = nakshatraFromSidereal(sid, false);
     const nak28 = nakshatraFromSidereal(sid, true);
     const dir = vedhaDirectionOf(g, pos[g].speed);
-    const dig = dignity(g, sid);
+    const tier = dignityTier(g, sid);
+    const dig = trDignity(tier);
+    const digStyle = DIGNITY_COLOR[tier] || DIGNITY_COLOR.Neutral;
     const dirTag = dir==="Right" ? `<span class="tag bad">${T("Right (retro)","Derecha (retro)")}</span>` : dir==="Left" ? `<span class="tag gold">${T("Left (fast)","Izquierda (rápida)")}</span>` : `<span class="tag neutral">${T("Front","Frente")}</span>`;
     rows += `<tr>
       <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${T(g, GRAHA_ES[g])}</td>
-      <td>${sign} ${fmtDeg(degInSign)}</td>
+      <td><span style="${rashiChipStyle(sign)}">${sign}</span> ${fmtDeg(degInSign)}</td>
       <td>${nak.name} · ${T('pada','pada')} ${nak.pada}</td>
       <td>${nak28.name!==nak.name ? nak28.name : '—'}</td>
       <td>${pos[g].speed.toFixed(3)}°/${T('day','día')}</td>
       <td>${dirTag}</td>
-      <td>${dig}</td>
+      <td style="color:${digStyle.color};font-weight:${digStyle.weight};">${dig}</td>
     </tr>`;
   }
   return `<div class="tblwrap"><table><thead><tr><th>Graha</th><th>Rāśi</th><th>Nakṣatra (27★)</th><th>SBC (28★)</th><th>${T('Motion','Movimiento')}</th><th>${T('Vedha dir.','Dir. Vedha')}</th><th>${T('Dignity','Dignidad')}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -7955,6 +8038,7 @@ function runAnalysis(){
   // the real sky right now, not a divisional-chart remap, so D1 and D9 share
   // one map rather than each computing its own from different longitudes.
   const houseAfflictMap = computeSignAfflictionMap(pos);
+  const western = westernTropicalRead(pos);
   const navStrengthRows = GRAHA_LIST.map(g=>{
     const d1Sign = SIGNS[Math.floor(norm360(pos[g].sidereal)/30)];
     const d9Sign = SIGNS[Math.floor(norm360(navPos[g].sidereal)/30)];
@@ -7989,7 +8073,8 @@ function runAnalysis(){
         </div>
         ${sbcZoneLegendHtml()}
 
-        <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--line);">
+        <div class="grid2" style="margin-top:16px; padding-top:14px; border-top:1px solid var(--line);">
+        <div>
           <h3 style="margin:0 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('General SBC reading','Lectura general SBC')}</h3>
           <div class="hint" style="margin-bottom:8px; line-height:1.6;">${T('A plain count of what\'s landing on the ring right now — a graha counts the same here whether it\'s exalted or debilitated. Separate from the dignity-weighted SBC score in the verdict above; the two can disagree.','Un recuento simple de lo que está cayendo en el anillo ahora mismo — un graha cuenta igual aquí sea exaltado o debilitado. Es independiente de la puntuación SBC ponderada por dignidad del veredicto de arriba; ambas pueden discrepar.')}</div>
           <div class="pillrow">
@@ -8019,6 +8104,27 @@ function runAnalysis(){
             }).join('')}
           </ul>` : ''}
         </div>
+        <div>
+          <h3 style="margin:0 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('Western tropical companion','Complemento tropical occidental')}</h3>
+          <div class="hint" style="margin-bottom:8px; line-height:1.6;">${T(
+            `Sun in ${western.sunSign} (ruled by ${T(western.sunRuler,GRAHA_ES[western.sunRuler])}), Moon in ${western.moonSign} (ruled by ${T(western.moonRuler,GRAHA_ES[western.moonRuler])}) — the tropical zodiac, the frame Western astrology reads from, as opposed to the sidereal one used everywhere else on this page.`,
+            `Sol en ${western.sunSign} (regido por ${T(western.sunRuler,GRAHA_ES[western.sunRuler])}), Luna en ${western.moonSign} (regida por ${T(western.moonRuler,GRAHA_ES[western.moonRuler])}) — el zodiaco trópico, el marco desde el que lee la astrología occidental, a diferencia del sidéreo usado en el resto de esta página.`
+          )}</div>
+          <div class="hint" style="margin-bottom:8px; line-height:1.6;">${
+            western.aspect
+              ? T(`Sun and Moon stand in ${western.aspect.name}, roughly ${Math.round(Math.abs(norm360(pos.Sun.tropical-pos.Moon.tropical))>180?360-Math.abs(norm360(pos.Sun.tropical-pos.Moon.tropical)):Math.abs(norm360(pos.Sun.tropical-pos.Moon.tropical)))}° apart — classically ${western.aspect.tone==='good'?'an easy, flowing angle':western.aspect.tone==='bad'?'a tense, friction-prone angle':'an intensifying angle, will and instinct fused into one drive'} for whatever this day is already about.`,
+                 `Sol y Luna están en ${western.aspect.nameEs}, a unos ${Math.round(Math.abs(norm360(pos.Sun.tropical-pos.Moon.tropical))>180?360-Math.abs(norm360(pos.Sun.tropical-pos.Moon.tropical)):Math.abs(norm360(pos.Sun.tropical-pos.Moon.tropical)))}° de separación — clásicamente ${western.aspect.tone==='good'?'un ángulo fácil y fluido':western.aspect.tone==='bad'?'un ángulo tenso, propenso a la fricción':'un ángulo intensificador, voluntad e instinto fundidos en un mismo impulso'} para lo que sea que ya define este día.`)
+              : T('Sun and Moon make no major Ptolemaic aspect right now — a quieter, less dramatically charged sky by this measure alone.','Sol y Luna no forman ningún aspecto ptolemaico mayor ahora mismo — un cielo más silencioso y menos cargado según esta sola medida.')
+          }</div>
+          <div class="hint" style="line-height:1.6;">${(()=>{
+            const vedhaTone = vedha.beneficHits.length>vedha.maleficHits.length ? 'good' : vedha.maleficHits.length>vedha.beneficHits.length ? 'bad' : 'mixed';
+            const agree = vedhaTone===western.tone;
+            return agree
+              ? T('This tropical read lands on the same side as the SBC verdict above — two independent systems, one direction.','Esta lectura trópica cae del mismo lado que el veredicto SBC de arriba — dos sistemas independientes, una misma dirección.')
+              : T('This tropical read diverges from the SBC verdict above — worth weighing both rather than treating either as the whole picture.','Esta lectura trópica diverge del veredicto SBC de arriba — conviene sopesar ambas en vez de tomar una sola como el cuadro completo.');
+          })()}</div>
+        </div>
+        </div>
       </div>
     </div>
     <div class="panel"><div class="hd"><h2>${T('Planet, sign, dignity, rulership, friendship etc.','Planeta, signo, dignidad, señorío, amistad, etc.')}</h2><span class="note">${T('Current Transit','Tránsito Actual')}</span></div>
@@ -8029,7 +8135,9 @@ function runAnalysis(){
     </div>
   </div>`;
 
-  html += `<div class="panel"><div class="hd"><h2>${T('Graha positions','Posiciones de los Graha')}</h2><span class="note">${T('sidereal, Lahiri','sidéreo, Lahiri')}${ay==='tropical'? T(' — disabled, tropical shown',' — desactivado, se muestra trópico'):''}</span></div><div class="bd">${renderPlanetTable(pos)}</div></div>`;
+  html += `<div class="panel"><div class="hd"><h2>${T('Graha positions','Posiciones de los Graha')}</h2><span class="note">${T('sidereal, Lahiri','sidéreo, Lahiri')}${ay==='tropical'? T(' — disabled, tropical shown',' — desactivado, se muestra trópico'):''}</span></div><div class="bd">${renderPlanetTable(pos)}
+    <div class="hint" style="margin-top:8px;">${T('Rāśi chip = tattva family (fire/earth/air/water); Dignity text = strength right now — ','Chip de Rāśi = familia de tattva (fuego/tierra/aire/agua); texto de Dignidad = fuerza ahora mismo — ')}<b style="color:var(--jade)">${T('green','verde')}</b> ${T('favourable (Exalted/Own/Friend, darker = stronger)','favorable (Exaltado/Propio/Amigo, más oscuro = más fuerte)')}, <b style="color:var(--vermilion)">${T('red','rojo')}</b> ${T('unfavourable (Enemy/Debilitated, darker = weaker)','desfavorable (Enemigo/Debilitado, más oscuro = más débil)')}, <span style="color:var(--slate)">${T('grey','gris')}</span> ${T('neutral.','neutral.')}</div>
+    </div></div>`;
 
   // Panchaka Vedha breakdown
   let vrows = "";
@@ -8050,7 +8158,7 @@ function runAnalysis(){
   });
   html += `<div class="panel"><div class="hd"><h2>${T('Pañcaka Vedha breakdown','Desglose de Vedha del Pañcaka')}</h2></div>
     <div class="bd"><div class="tblwrap"><table><thead><tr><th>Pañcaka</th><th>${T('Value','Valor')}</th><th>${T('Benefic Vedha','Vedha benéfico')}</th><th>${T('Malefic Vedha','Vedha maléfico')}</th></tr></thead><tbody>${vrows}</tbody></table></div>
-    ${vedha.hits.length ? `<div style="margin-top:10px;" class="pillrow">${vedha.hits.map(h=>`<span class="tag ${h.benefic?'good':'bad'}">${T(h.graha,GRAHA_ES[h.graha])} ${T('on','en')} ${h.onStar} (${T(h.dir,{Front:'Frente',Right:'Derecha',Left:'Izquierda'}[h.dir])} Vedha) → ${h.struck.map(trStruck).join(' + ')} — ${T(GRAHA_VEDHA_READING[h.graha], GRAHA_VEDHA_READING_ES[h.graha])}</span>`).join('')}</div>` : ''}
+    <div class="hint" style="margin-top:10px; font-style:italic; line-height:1.7;">${narrateDayTheme(vedha, panch, weekdayName)}</div>
     </div></div>`;
 
   // Tārā Bala / Latta / Upagraha no longer get their own panels here — see
@@ -9452,6 +9560,37 @@ function dashaLordReading(lord, lordships, birthPos, isWaxingMoon){
     : {label:T('Mixed / neutral','Mixto / neutral'), cls:'neutral'};
   return { housesText: houses.map(h=>T(h+ordinalSuffix(h),'casa '+h)).join(', '), tag:overall.cls, label:overall.label };
 }
+/* Layer-to-layer "funnel" note (2026-09-15 request): the classical
+   Vimśottari principle that a nested sub-period's own significations only
+   manifest as far as the coarser period containing it allows — a benefic
+   Antardaśā inside a malefic Mahādaśā delivers a muted version of its own
+   promise, not its full independent one. Computed per-row from the real
+   functional-benefic/malefic tag each row already carries (not static
+   flavor text), so it's correct for whichever chart is loaded. level 0
+   (Mahādaśā) has no parent to funnel through, so it gets its own framing. */
+function dashaFunnelNote(level, childReading, parentReading, childLordName, parentLordName){
+  if (level === 0){
+    return T(
+      `The widest lens — nothing sits above ${childLordName}'s Mahādaśā, so every nested period below funnels through its own coarse promise first.`,
+      `El lente más amplio — nada está por encima de la Mahādaśā de ${childLordName}, así que cada período anidado debajo se filtra primero por su propia promesa gruesa.`
+    );
+  }
+  const c = childReading.tag, p = parentReading.tag;
+  if (c==='good' && p==='good')
+    return T(`Reinforced by ${parentLordName}'s own favourable period above it — ${childLordName}'s promise should land close to its full strength, not diluted.`,
+              `Reforzado por el período favorable de ${parentLordName} encima — la promesa de ${childLordName} debería llegar cerca de su fuerza plena, sin diluirse.`);
+  if (c==='bad' && p==='bad')
+    return T(`Compounds the difficulty ${parentLordName} already set above it — expect the harder edge of both readings together, not just this one alone.`,
+              `Se suma a la dificultad que ${parentLordName} ya impuso arriba — espera el lado más duro de ambas lecturas juntas, no solo de esta.`);
+  if (c==='good' && p==='bad')
+    return T(`Arrives constrained by ${parentLordName}'s harder period above it — ${childLordName}'s own promise shows, but muted or delayed rather than delivered in full.`,
+              `Llega limitado por el período más duro de ${parentLordName} encima — la propia promesa de ${childLordName} se asoma, pero atenuada o retrasada, no entregada por completo.`);
+  if (c==='bad' && p==='good')
+    return T(`Somewhat cushioned by ${parentLordName}'s more favourable period above it — friction still shows, but softened rather than raw.`,
+              `Algo amortiguado por el período más favorable de ${parentLordName} encima — la fricción se nota igual, pero suavizada, no en crudo.`);
+  return T(`Reads as mixed on its own, and ${parentLordName}'s own period above it doesn't tip the balance clearly either way — genuinely undecided at this depth.`,
+            `Se lee mixto por sí sola, y el propio período de ${parentLordName} encima tampoco inclina la balanza con claridad — genuinamente indecisa a esta profundidad.`);
+}
 function fmtDashaDate(jd, tz){
   const d = jdToLocalString(jd, tz);
   return `${pad2(d.day)}-${pad2(d.month)}-${d.year} ${pad2(d.hh)}:${pad2(d.mm)}`;
@@ -9480,13 +9619,16 @@ function renderDashaPage(){
 
   const chainRows = chain.map((p,i)=>{
     const reading = dashaLordReading(p.lord, lordships, birthPos, isWaxingMoon);
+    const parentReading = i>0 ? dashaLordReading(chain[i-1].lord, lordships, birthPos, isWaxingMoon) : null;
+    const funnelNote = dashaFunnelNote(i, reading, parentReading, gNameNatal(p.lord), i>0?gNameNatal(chain[i-1].lord):null);
     return `<tr>
       <td class="wide" style="font-size:10.5px; color:var(--slate); text-transform:uppercase;">${T(VIMSHOTTARI_LEVEL_NAMES[i].en,VIMSHOTTARI_LEVEL_NAMES[i].es)}</td>
       <td style="color:${MALEFIC_GRAHAS.includes(p.lord)?'var(--vermilion)':'var(--jade)'}; font-weight:600;">${gNameNatal(p.lord)}</td>
       <td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td>
       <td style="font-size:11px;">${reading.housesText}</td>
       <td><span class="tag ${reading.tag}">${reading.label}</span></td>
-    </tr>`;
+    </tr>
+    <tr><td></td><td colspan="4" style="font-size:11px; font-style:italic; color:var(--slate); padding-top:0; padding-bottom:10px; border-bottom:1px solid var(--line);">${funnelNote}</td></tr>`;
   }).join('');
 
   let muhurtaCrossRef = '';
@@ -9508,6 +9650,7 @@ function renderDashaPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Current Daśā stack','Pila de Daśā actual')}</h2><span class="note">${T('as of right now','a partir de ahora mismo')}</span></div>
       <div class="bd">
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('Each nested period below is read through the coarser one containing it, not on its own — a benefic Antardaśā inside a malefic Mahādaśā delivers a muted version of its own promise, not its full independent one. The italic line under each row below spells out that specific funnel, computed from the real functional reading each layer carries, not a generic repeated note.','Cada período anidado abajo se lee a través del período más grueso que lo contiene, no por sí solo — una Antardaśā benéfica dentro de una Mahādaśā maléfica entrega una versión atenuada de su propia promesa, no la promesa completa e independiente. La línea en cursiva bajo cada fila explica ese embudo específico, calculado a partir de la lectura funcional real de cada nivel, no una nota genérica repetida.')}</div>
         <div class="tblwrap"><table><thead><tr><th>${T('Level','Nivel')}</th><th>${T('Lord','Señor')}</th><th>${T('Period','Período')}</th><th>${T('Rules (from Lagna)','Gobierna (desde Lagna)')}</th><th>${T('Functional reading','Lectura funcional')}</th></tr></thead><tbody>${chainRows}</tbody></table></div>
         ${muhurtaCrossRef}
         <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The "Rules" and "Functional reading" columns reuse the same house-lordship engine as the General page — a Yogakāraka Daśā lord and a merely functionally-malefic one are meaningfully different, even at the same nesting depth. Rāhu/Ketu own no sign in that scheme, so they\'re shown without a functional reading here, not scored as neutral by omission.','Las columnas "Gobierna" y "Lectura funcional" reutilizan el mismo motor de señorío de casas que la página General — un señor de Daśā Yogakāraka y uno meramente maléfico funcional son significativamente distintos, incluso a la misma profundidad de anidamiento. Rāhu/Ketu no gobiernan ningún signo en ese esquema, así que se muestran sin lectura funcional aquí, no puntuados como neutrales por omisión.')}</div>
