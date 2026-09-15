@@ -721,6 +721,7 @@
         <button type="button" data-page="pageMuhurta" class="active" data-i18n="navMuhurta">At a Glance</button>
         <button type="button" data-page="pageNatal" data-i18n="navNatal">General</button>
         <button type="button" data-page="pageAvastha" data-i18n="navAvastha">Avasthas</button>
+        <button type="button" data-page="pageAshtakavarga" data-i18n="navAshtakavarga">Ashtakavarga</button>
         <button type="button" data-page="pagePanchaPakshi" data-i18n="navPanchaPakshi">Pañcha Pakshi</button>
         <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">World Era</button>
         <button type="button" data-page="pageDasha" data-i18n="navDasha">Vimśottari Daśā</button>
@@ -730,14 +731,17 @@
         <button type="button" data-page="pageAntara" data-i18n="navAntara">Antara Chakra (Portents)</button>
         <button type="button" data-page="pageHorary" data-i18n="navHorary">Horary / Praśna (SBC)</button>
         <button type="button" data-page="pageSignificators" data-i18n="navSignificators">World &amp; Commodity Significators</button>
+        <button type="button" data-page="pageCommodities" data-i18n="navCommodities">Commodity Signals</button>
+        <button type="button" data-page="pageCurrencies" data-i18n="navCurrencies">Currencies</button>
         <button type="button" data-page="pageChintamani" data-i18n="navChintamani">Muhūrta</button>
         <button type="button" data-page="pageMatchmaking" data-i18n="navMatchmaking">Matchmaking</button>
+        <button type="button" data-page="pageRemedies" data-i18n="navRemedies">Remedies &amp; Combinations</button>
         <button type="button" data-page="pageTarot" data-i18n="navTarot">Tarot (Shadow)</button>
                 <button type="button" data-page="pageYoga" data-i18n="navYoga">Yoga/Combinations</button>
               </div>
     </div>
     <div>
-      <h1>PL0 <span class="accent">— Sarvato Bhadra Chakra</span> <span class="ver">v1.62</span></h1>
+      <h1>PL0 <span class="accent">— Sarvato Bhadra Chakra</span> <span class="ver">v1.63</span></h1>
       <div class="sub" data-i18n="subtitle">Panchāṅga · Vedha · Nāḍī · Latta — an instrument for reading the quality of a moment</div>
     </div>
   </div>
@@ -941,6 +945,14 @@
   <div class="result-col" id="significatorsPageContent" style="max-width:1000px; margin:0 auto;"></div>
 </div>
 
+<div id="pageCommodities" class="page">
+  <div class="result-col" id="commoditiesPageContent" style="max-width:1000px; margin:0 auto;"></div>
+</div>
+
+<div id="pageCurrencies" class="page">
+  <div class="result-col" id="currenciesPageContent" style="max-width:1000px; margin:0 auto;"></div>
+</div>
+
 <div id="pageMatchmaking" class="page">
   <div class="result-col" id="matchmakingPageContent" style="max-width:1000px; margin:0 auto;"></div>
 </div>
@@ -1055,6 +1067,9 @@ const I18N = {
   navCalendar: { en:`Calendar`, es:`Calendario` },
   navAntara: { en:`Antara Chakra (Portents)`, es:`Antara Chakra (Presagios)` },
   navRemedies: { en:`Remedies &amp; Combinations`, es:`Remedios y Combinaciones` },
+  navAshtakavarga: { en:`Ashtakavarga`, es:`Ashtakavarga` },
+  navCommodities: { en:`Commodity Signals`, es:`Señales de Materias Primas` },
+  navCurrencies: { en:`Currencies`, es:`Divisas` },
   navHorary: { en:`Horary / Praśna (SBC)`, es:`Horaria / Praśna (SBC)` },
   navSignificators: { en:`World &amp; Commodity Significators`, es:`Significadores Mundiales y de Materias Primas` },
   navChintamani: { en:`Muhūrta`, es:`Muhūrta` },
@@ -8724,7 +8739,8 @@ const PAGES_NEEDING_BIRTH_DATA = {
   pageAnatomy: {contentId:'anatomyPageContent', render:()=>renderAnatomyPage()},
   pageCalendar: {contentId:'calendarPageContent', render:()=>renderCalendarPage()},
   pageChintamani: {contentId:'chintamaniPageContent', render:()=>renderChintamaniPage()},
-  pageMatchmaking: {contentId:'matchmakingPageContent', render:()=>renderMatchmakingPage()}
+  pageMatchmaking: {contentId:'matchmakingPageContent', render:()=>renderMatchmakingPage()},
+  pageRemedies: {contentId:'remediesPageContent', render:()=>renderRemediesPage()}
 };
 function renderPageOrBirthDataPlaceholder(pageId){
   const spec = PAGES_NEEDING_BIRTH_DATA[pageId];
@@ -8752,6 +8768,8 @@ function showPage(pageId){
   if (pageId === 'pageAntara') renderAntaraChakraPage();
   if (pageId === 'pageHorary') renderHoraryPage();
   if (pageId === 'pageSignificators') renderSignificatorsPage();
+  if (pageId === 'pageCommodities') renderCommoditiesPage();
+  if (pageId === 'pageCurrencies') renderCurrenciesPage();
   if (pageId === 'pagePanchaPakshi'){ renderPanchaPakshiLadder(); renderPPPanel(); }
 }
 
