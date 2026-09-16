@@ -9347,7 +9347,62 @@ function renderNatalPage(){
       nameEn:'Vichitra Saudha Prakara Yoga', nameEs:'Yoga Vichitra Saudha Prakara',
       glossEn:'Acquiring innumerable mansions. The 4th and 10th lords conjoined together with BOTH Saturn and Mars — Raman notes a Saturn-Mars combination is usually harmful, but "here probably the general rule is excepted."',
       glossEs:'Adquirir innumerables mansiones. Los señores de la 4.ª y la 10.ª conjuntos junto con Saturno Y Marte — Raman señala que una combinación Saturno-Marte suele ser dañina, pero "aquí probablemente se exceptúa la regla general."',
-      reasonLine: r => T(`4th+10th lords conjoined: ${hf(r.lordsConjoined)}. With Saturn+Mars: ${hf(r.withSaturnMars)}.`, `Señores de la 4.ª+10.ª conjuntos: ${hf(r.lordsConjoined)}. Con Saturno+Marte: ${hf(r.withSaturnMars)}.`) }
+      reasonLine: r => T(`4th+10th lords conjoined: ${hf(r.lordsConjoined)}. With Saturn+Mars: ${hf(r.withSaturnMars)}.`, `Señores de la 4.ª+10.ª conjuntos: ${hf(r.lordsConjoined)}. Con Saturno+Marte: ${hf(r.withSaturnMars)}.`) },
+    { result: ayatnaGrihaPraptaYogaA(birthPos, lagnaIdx), num: 189,
+      nameEn:'Ayatna Griha Prapta Yoga I', nameEs:'Yoga Ayatna Griha Prapta I',
+      glossEn:'Acquiring substantial house property with hardly any effort. The lords of Lagna and the 7th conjoined together in Lagna or the 4th, aspected by a benefic — Raman notes that without the benefic aspect, some effort becomes necessary instead.',
+      glossEs:'Adquirir bienes inmuebles sustanciales con poco esfuerzo. Los señores del Lagna y la 7.ª conjuntos en el Lagna o la 4.ª, aspectados por un benéfico — Raman señala que sin el aspecto benéfico, se necesita algo de esfuerzo en cambio.',
+      reasonLine: r => T(`Lagna+7th lords conjoined in Lagna/4th: ${hf(r.inLagnaOr4th)}. Benefic aspect: ${hf(r.beneficAspect)}.`, `Señores del Lagna+7.ª conjuntos en Lagna/4.ª: ${hf(r.inLagnaOr4th)}. Aspecto benéfico: ${hf(r.beneficAspect)}.`) },
+    { result: ayatnaGrihaPraptaYogaB(birthPos, lagnaIdx), num: 190,
+      nameEn:'Ayatna Griha Prapta Yoga II', nameEs:'Yoga Ayatna Griha Prapta II',
+      glossEn:'The second path to effortless house property: the 9th lord in a kendra, with the 4th lord in exaltation, Moolatrikona or own sign.',
+      glossEs:'El segundo camino hacia bienes inmuebles sin esfuerzo: el señor de la 9.ª en kendra, con el señor de la 4.ª exaltado, en Moolatrikona o en signo propio.',
+      reasonLine: r => T(`9th lord in kendra: ${hf(r.lord9Kendra)}. 4th lord exalted/Moolatrikona/own: ${hf(r.lord4Strong)}.`, `Señor de la 9.ª en kendra: ${hf(r.lord9Kendra)}. Señor de la 4.ª exaltado/Moolatrikona/propio: ${hf(r.lord4Strong)}.`) },
+    { result: grihanasaYogaA(birthPos, lagnaIdx), num: 191,
+      nameEn:'Grihanasa Yoga I', nameEs:'Yoga Grihanasa I',
+      glossEn:'Loss of house property. Raman\'s Remarks reinterpret the Definition\'s "12th" as the 12th from the 4th house (i.e. the 3rd from Lagna), not the 12th from Lagna: the 4th lord in the 3rd from Lagna, aspected by a malefic.',
+      glossEs:'Pérdida de bienes inmuebles. Los Comentarios de Raman reinterpretan el "12.º" de la Definición como el 12.º desde la 4.ª casa (es decir, el 3.º desde el Lagna), no el 12.º desde el Lagna: el señor de la 4.ª en la 3.ª desde el Lagna, aspectado por un maléfico.',
+      reasonLine: r => T(`4th lord in 3rd from Lagna: ${hf(r.in3rdFromLagna)}. Aspected by malefic: ${hf(r.maleficAspect)}.`, `Señor de la 4.ª en la 3.ª desde el Lagna: ${hf(r.in3rdFromLagna)}. Aspectado por maléfico: ${hf(r.maleficAspect)}.`) },
+    { result: grihanasaYogaB(birthPos, navPos, lagnaIdx), num: 192,
+      nameEn:'Grihanasa Yoga II', nameEs:'Yoga Grihanasa II',
+      glossEn:'The second path to losing house property: the lord of the Navamsa occupied by the 4th lord disposed in the 3rd from Lagna (same 12th-from-the-4th reading as the first combination).',
+      glossEs:'El segundo camino hacia la pérdida de bienes inmuebles: el señor del Navamsa ocupado por el señor de la 4.ª dispuesto en la 3.ª desde el Lagna (misma lectura de "12.º desde la 4.ª" que la primera combinación).',
+      reasonLine: r => T(`Navamsa lord of the 4th lord (${r.navLord}) in the 3rd from Lagna: ${hf(r.present)}.`, `Señor de Navamsa del señor de la 4.ª (${r.navLord}) en la 3.ª desde el Lagna: ${hf(r.present)}.`) },
+    { result: bandhuPujyaYogaA(birthPos, lagnaIdx), num: 193,
+      nameEn:'Bandhu Pujya Yoga I', nameEs:'Yoga Bandhu Pujya I',
+      glossEn:'Being respected by one\'s relatives. The benefic lord of the 4th (only possible for Mesha, Mithuna, Kataka, Dhanus or Meena Lagnas) aspected by another benefic, with Mercury in Lagna.',
+      glossEs:'Ser respetado por los propios parientes. El señor benéfico de la 4.ª (solo posible para Lagnas de Mesha, Mithuna, Kataka, Dhanus o Meena) aspectado por otro benéfico, con Mercurio en el Lagna.',
+      reasonLine: r => T(`4th lord is a natural benefic: ${hf(r.lord4IsBenefic)}. Aspected by another benefic: ${hf(r.aspectedByBenefic)}. Mercury in Lagna: ${hf(r.mercuryInLagna)}.`, `Señor de la 4.ª es benéfico natural: ${hf(r.lord4IsBenefic)}. Aspectado por otro benéfico: ${hf(r.aspectedByBenefic)}. Mercurio en el Lagna: ${hf(r.mercuryInLagna)}.`) },
+    { result: bandhuPujyaYogaB(birthPos, lagnaIdx), num: 194,
+      nameEn:'Bandhu Pujya Yoga II', nameEs:'Yoga Bandhu Pujya II',
+      glossEn:'Being loved by one\'s relatives (a broader, more general variant of the first combination). The 4th house or the 4th lord has the association or aspect of Jupiter.',
+      glossEs:'Ser amado por los propios parientes (una variante más general de la primera combinación). La 4.ª casa o el señor de la 4.ª tiene la asociación o el aspecto de Júpiter.',
+      reasonLine: r => T(`Jupiter in/aspecting the 4th house or joined/aspecting its lord: ${hf(r.present)}.`, `Júpiter en/aspectando la 4.ª casa o unido/aspectando a su señor: ${hf(r.present)}.`) },
+    { result: bandhubhisthyakthaYoga(birthPos, lagnaIdx), num: 195,
+      nameEn:'Bandhubhisthyaktha Yoga', nameEs:'Yoga Bandhubhisthyaktha',
+      glossEn:'Being deserted by one\'s relatives, "of a very general nature" per Raman\'s own caution. The 4th lord associated with malefics, or in an enemy/debilitation sign (a third OR-branch, an evil D60 Shashtiamsa, isn\'t computable in this app and is omitted).',
+      glossEs:'Ser abandonado por los propios parientes, "de naturaleza muy general" según la propia advertencia de Raman. El señor de la 4.ª asociado con maléficos, o en signo enemigo/de debilitación (una tercera rama disyuntiva, una Shashtiamsa D60 maligna, no es calculable en esta app y se omite).',
+      reasonLine: r => T(`4th lord associated with malefics: ${hf(r.assocMalefic)}. In an enemy/debilitation sign: ${hf(r.enemyOrDebilitated)}.`, `Señor de la 4.ª asociado con maléficos: ${hf(r.assocMalefic)}. En signo enemigo/de debilitación: ${hf(r.enemyOrDebilitated)}.`) },
+    { result: matrudeerghayurYogaA(birthPos, lagnaIdx), num: 196,
+      nameEn:'Matrudeerghayur Yoga I', nameEs:'Yoga Matrudeerghayur I',
+      glossEn:'Longevity of the mother. A benefic occupies the 4th, the 4th lord is exalted, and the Moon is strong (own/exalted/friend dignity).',
+      glossEs:'Longevidad de la madre. Un benéfico ocupa la 4.ª, el señor de la 4.ª está exaltado, y la Luna está fuerte (dignidad propia/exaltada/amiga).',
+      reasonLine: r => T(`Benefic in 4th: ${hf(r.beneficIn4th)}. 4th lord exalted: ${hf(r.lord4Exalted)}. Moon strong: ${hf(r.moonStrong)}.`, `Benéfico en la 4.ª: ${hf(r.beneficIn4th)}. Señor de la 4.ª exaltado: ${hf(r.lord4Exalted)}. Luna fuerte: ${hf(r.moonStrong)}.`) },
+    { result: matrudeerghayurYogaB(birthPos, navPos, lagnaIdx), num: 197,
+      nameEn:'Matrudeerghayur Yoga II', nameEs:'Yoga Matrudeerghayur II',
+      glossEn:'The second path to a long-lived mother: the lord of the Navamsa occupied by the 4th lord is strong, and stands in a kendra from both Lagna and Chandra Lagna.',
+      glossEs:'El segundo camino hacia una madre longeva: el señor del Navamsa ocupado por el señor de la 4.ª es fuerte, y está en kendra tanto desde el Lagna como desde el Lagna Lunar.',
+      reasonLine: r => T(`Navamsa lord of the 4th lord (${r.navLord}) strong: ${hf(r.navLordStrong)}, kendra from Lagna: ${hf(r.kendraFromLagna)}, kendra from Chandra Lagna: ${hf(r.kendraFromMoon)}.`, `Señor de Navamsa del señor de la 4.ª (${r.navLord}) fuerte: ${hf(r.navLordStrong)}, kendra desde el Lagna: ${hf(r.kendraFromLagna)}, kendra desde el Lagna Lunar: ${hf(r.kendraFromMoon)}.`) },
+    { result: matrunasaYogaA(birthPos), num: 198,
+      nameEn:'Matrunasa Yoga I', nameEs:'Yoga Matrunasa I',
+      glossEn:'A very early death of the mother. The Moon hemmed in between malefics (Papakartari), conjunct a malefic, or aspected by a malefic.',
+      glossEs:'Una muerte muy temprana de la madre. La Luna encerrada entre maléficos (Papakartari), conjunta a un maléfico, o aspectada por un maléfico.',
+      reasonLine: r => T(`Moon hemmed in by malefics: ${hf(r.hemmed)}. Conjunct malefic: ${hf(r.conjunctMalefic)}. Aspected by malefic: ${hf(r.aspectedByMalefic)}.`, `Luna encerrada por maléficos: ${hf(r.hemmed)}. Conjunta a maléfico: ${hf(r.conjunctMalefic)}. Aspectada por maléfico: ${hf(r.aspectedByMalefic)}.`) },
+    { result: matrunasaYogaB(birthPos, navPos, lagnaIdx), num: 199,
+      nameEn:'Matrunasa Yoga II', nameEs:'Yoga Matrunasa II',
+      glossEn:'The second, more roundabout path to the mother\'s early death — verified step-by-step against Raman\'s own two worked charts: following the 4th lord through its Navamsa lord, then that planet\'s own Navamsa lord in turn, lands in the 6th, 8th or 12th from Lagna.',
+      glossEs:'El segundo camino, más indirecto, hacia la muerte temprana de la madre — verificado paso a paso contra las dos cartas resueltas del propio Raman: siguiendo al señor de la 4.ª a través de su señor de Navamsa, y luego el propio señor de Navamsa de ese planeta a su vez, cae en la 6.ª, 8.ª o 12.ª desde el Lagna.',
+      reasonLine: r => T(`Chain resolves to ${r.navLord2} (via ${r.navLord1}), house from Lagna: ${r.navLord2House}. Present: ${hf(r.present)}.`, `La cadena resuelve en ${r.navLord2} (vía ${r.navLord1}), casa desde el Lagna: ${r.navLord2House}. Presente: ${hf(r.present)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9497,7 +9552,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184 and #186-188 of 300 (#11 and #174 both need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 needs a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have — all three deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184 y #186-188 de 300 (#11 y #174 necesitan ambas la posición zodiacal de un punto de la familia Gulika; #185 necesita una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene — las tres pospuestas). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184 and #186-199 of 300 (#11 and #174 both need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 needs a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have — all three deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184 y #186-199 de 300 (#11 y #174 necesitan ambas la posición zodiacal de un punto de la familia Gulika; #185 necesita una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene — las tres pospuestas). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -14049,6 +14104,150 @@ function vichitraSaudhaPrakaraYoga(pos, ascSignIdx){
   const marsSignIdx = Math.floor(norm360(pos.Mars.sidereal)/30);
   const withSaturnMars = lordsConjoined && saturnSignIdx===lord4SignIdx && marsSignIdx===lord4SignIdx;
   return { present: withSaturnMars, lordsConjoined, withSaturnMars };
+}
+// #189 (txt L7413-7414, Remarks L7425-7428): lords of Lagna and the 7th
+// conjoined together in Lagna or the 4th, aspected by a benefic. Chart
+// No.87 confirms both lords posited TOGETHER (conjunction), not each
+// independently placed. Kept the benefic-aspect clause as a strict AND per
+// the literal Definition -- Remarks explicitly treat its absence as a
+// weaker/different outcome ("some effort is necessary"), not as this yoga
+// still being present.
+function ayatnaGrihaPraptaYogaA(pos, ascSignIdx){
+  const lord1 = SIGN_LORD[SIGNS[ascSignIdx]];
+  const lord7 = lordOfHouse(7, ascSignIdx);
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const lord7SignIdx = Math.floor(norm360(pos[lord7].sidereal)/30);
+  const conjunct = lord1SignIdx===lord7SignIdx;
+  const houseOfLord1 = bsHouseFromAsc(pos[lord1].sidereal, ascSignIdx);
+  const inLagnaOr4th = conjunct && (houseOfLord1===1 || houseOfLord1===4);
+  const beneficAspect = RAMAN_BENEFICS.some(b=> b!==lord1 && b!==lord7 && aspectsSignWholeSign(b, Math.floor(norm360(pos[b].sidereal)/30), lord1SignIdx));
+  return { present: inLagnaOr4th && beneficAspect, conjunct, inLagnaOr4th, beneficAspect };
+}
+// #190 (txt L7415-7417): 9th lord in a kendra, and the 4th lord in
+// exaltation/Moolatrikona/own sign. Moolatrikona is a degree-narrower
+// subset of "own sign" for most grahas, so checking it separately from
+// "Own" is redundant in practice but kept for fidelity to Raman's own
+// three-way phrasing.
+function ayatnaGrihaPraptaYogaB(pos, ascSignIdx){
+  const lord9 = lordOfHouse(9, ascSignIdx);
+  const lord9Kendra = [1,4,7,10].includes(bsHouseFromAsc(pos[lord9].sidereal, ascSignIdx));
+  const lord4 = lordOfHouse(4, ascSignIdx);
+  const lord4SignIdx = Math.floor(norm360(pos[lord4].sidereal)/30);
+  const lord4Tier = dignityTierInSign(lord4, lord4SignIdx);
+  const lord4Strong = lord4Tier==='Exalted' || lord4Tier==='Own' || !!inMulatrikona(lord4, pos[lord4].sidereal);
+  return { present: lord9Kendra && lord4Strong, lord9Kendra, lord4Strong };
+}
+// #191-192, Grihanasa Yogas (txt L7466-7469, Remarks L7475-7480): Raman's
+// own Remarks explicitly reinterpret "the 12th" in both combinations as
+// the 12th FROM THE 4TH HOUSE (not from Lagna) -- i.e. the 3rd house from
+// Lagna. Kept #191's "aspected by a malefic" clause since the Remarks'
+// restatement addresses only which house "12th" means, not that clause;
+// #192's Definition never had an aspect requirement to begin with.
+function grihanasaYogaA(pos, ascSignIdx){
+  const lord4 = lordOfHouse(4, ascSignIdx);
+  const lord4House = bsHouseFromAsc(pos[lord4].sidereal, ascSignIdx);
+  const in3rdFromLagna = lord4House === 3;
+  const lord4SignIdx = Math.floor(norm360(pos[lord4].sidereal)/30);
+  const maleficAspect = MALEFIC_GRAHAS.some(m=> m!==lord4 && aspectsSignWholeSign(m, Math.floor(norm360(pos[m].sidereal)/30), lord4SignIdx));
+  return { present: in3rdFromLagna && maleficAspect, in3rdFromLagna, maleficAspect };
+}
+function grihanasaYogaB(pos, navPos, ascSignIdx){
+  const lord4 = lordOfHouse(4, ascSignIdx);
+  const lord4NavSignIdx = Math.floor(norm360(navPos[lord4].sidereal)/30);
+  const navLord = SIGN_LORD[SIGNS[lord4NavSignIdx]];
+  const navLordHouse = bsHouseFromAsc(pos[navLord].sidereal, ascSignIdx);
+  return { present: navLordHouse === 3, navLord, navLordHouse };
+}
+// #193-194, Bandhu Pujya Yogas (txt L7483-7487). Remarks confirm #193 only
+// fires for Lagnas whose 4th lord is a natural benefic (Mesha/Mithuna/
+// Kataka/Dhanus/Meena) -- no special-casing needed, `lord4IsBenefic`
+// already restricts to exactly those Lagnas automatically.
+function bandhuPujyaYogaA(pos, ascSignIdx){
+  const lord4 = lordOfHouse(4, ascSignIdx);
+  const lord4IsBenefic = RAMAN_BENEFICS.includes(lord4);
+  const lord4SignIdx = Math.floor(norm360(pos[lord4].sidereal)/30);
+  const aspectedByBenefic = RAMAN_BENEFICS.some(b=> b!==lord4 && aspectsSignWholeSign(b, Math.floor(norm360(pos[b].sidereal)/30), lord4SignIdx));
+  const mercuryInLagna = bsHouseFromAsc(pos.Mercury.sidereal, ascSignIdx) === 1;
+  return { present: lord4IsBenefic && aspectedByBenefic && mercuryInLagna, lord4IsBenefic, aspectedByBenefic, mercuryInLagna };
+}
+function bandhuPujyaYogaB(pos, ascSignIdx){
+  const lord4 = lordOfHouse(4, ascSignIdx);
+  const house4SignIdx = (ascSignIdx+3)%12;
+  const lord4SignIdx = Math.floor(norm360(pos[lord4].sidereal)/30);
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const jupInHouse4 = jupSignIdx === house4SignIdx;
+  const jupAspectsHouse4 = aspectsSignWholeSign('Jupiter', jupSignIdx, house4SignIdx);
+  const jupWithLord4 = lord4!=='Jupiter' && jupSignIdx === lord4SignIdx;
+  const jupAspectsLord4 = lord4!=='Jupiter' && aspectsSignWholeSign('Jupiter', jupSignIdx, lord4SignIdx);
+  const present = jupInHouse4 || jupAspectsHouse4 || jupWithLord4 || jupAspectsLord4;
+  return { present, jupInHouse4, jupAspectsHouse4, jupWithLord4, jupAspectsLord4 };
+}
+// #195, Bandhubhisthyaktha Yoga (txt L7548-7550): three OR'd conditions --
+// (a) evil Shashtiamsa (D60), (b) associated with malefics, (c) enemy/
+// debilitation sign. Same D60 cruel/benefic classification gap as #185 --
+// this app has no verified per-amsa table, so branch (a) is omitted
+// (never asserted true), matching the #158/#169 precedent for an
+// uncomputable OR-branch (as opposed to #185's all-AND structure, which
+// forced an outright skip).
+function bandhubhisthyakthaYoga(pos, ascSignIdx){
+  const lord4 = lordOfHouse(4, ascSignIdx);
+  const lord4SignIdx = Math.floor(norm360(pos[lord4].sidereal)/30);
+  const assocMalefic = MALEFIC_GRAHAS.some(m=> m!==lord4 && Math.floor(norm360(pos[m].sidereal)/30)===lord4SignIdx);
+  const tier = dignityTierInSign(lord4, lord4SignIdx);
+  const enemyOrDebilitated = tier==='Enemy' || tier==='Debilitated';
+  return { present: assocMalefic || enemyOrDebilitated, assocMalefic, enemyOrDebilitated };
+}
+// #196-197, Matrudeerghayur Yogas (txt L7567-7572). "Moon must be strong"/
+// "lord... should be strong" use this project's standing own/exalted/
+// friend convention.
+function matrudeerghayurYogaA(pos, ascSignIdx){
+  const house4SignIdx = (ascSignIdx+3)%12;
+  const beneficIn4th = RAMAN_BENEFICS.some(b=> Math.floor(norm360(pos[b].sidereal)/30)===house4SignIdx);
+  const lord4 = lordOfHouse(4, ascSignIdx);
+  const lord4SignIdx = Math.floor(norm360(pos[lord4].sidereal)/30);
+  const lord4Exalted = dignityTierInSign(lord4, lord4SignIdx)==='Exalted';
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const moonStrong = ['Own','Exalted','Friend'].includes(dignityTierInSign('Moon', moonSignIdx));
+  return { present: beneficIn4th && lord4Exalted && moonStrong, beneficIn4th, lord4Exalted, moonStrong };
+}
+function matrudeerghayurYogaB(pos, navPos, ascSignIdx){
+  const lord4 = lordOfHouse(4, ascSignIdx);
+  const lord4NavSignIdx = Math.floor(norm360(navPos[lord4].sidereal)/30);
+  const navLord = SIGN_LORD[SIGNS[lord4NavSignIdx]];
+  const navLordSignIdx = Math.floor(norm360(pos[navLord].sidereal)/30);
+  const navLordStrong = ['Own','Exalted','Friend'].includes(dignityTierInSign(navLord, navLordSignIdx));
+  const kendraFromLagna = [1,4,7,10].includes(bsHouseFromAsc(pos[navLord].sidereal, ascSignIdx));
+  const kendraFromMoon = isKendraFrom(pos.Moon.sidereal, pos[navLord].sidereal);
+  return { present: navLordStrong && kendraFromLagna && kendraFromMoon, navLord, navLordStrong, kendraFromLagna, kendraFromMoon };
+}
+// #198-199, Matrunasa Yogas (txt L7584-7590, worked Chart No.89-91,
+// txt L7607-7656). #199's dispositor chain verified step-by-step against
+// BOTH worked charts: 4th lord -> its Navamsa sign's lord (navLord1) ->
+// navLord1's OWN Navamsa sign's lord (navLord2) -> navLord2's Rasi house
+// from Lagna. Chart 89/90: lord4=Venus, Venus's Navamsa=Libra so
+// navLord1=Venus, Venus's own Navamsa=Libra again so navLord2=Venus,
+// Venus in the 12th from Lagna -- matches. Chart 91: lord4=Venus, Venus's
+// Navamsa=Aries so navLord1=Mars, Mars's own Navamsa=Leo so navLord2=Sun,
+// Sun in the 12th from Lagna -- matches.
+function matrunasaYogaA(pos){
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const ahead = (moonSignIdx+1)%12, behind = (moonSignIdx+11)%12;
+  const mAhead = MALEFIC_GRAHAS.some(g=> Math.floor(norm360(pos[g].sidereal)/30)===ahead);
+  const mBehind = MALEFIC_GRAHAS.some(g=> Math.floor(norm360(pos[g].sidereal)/30)===behind);
+  const hemmed = mAhead && mBehind;
+  const conjunctMalefic = MALEFIC_GRAHAS.some(g=> Math.floor(norm360(pos[g].sidereal)/30)===moonSignIdx);
+  const aspectedByMalefic = MALEFIC_GRAHAS.some(g=> Math.floor(norm360(pos[g].sidereal)/30)!==moonSignIdx && aspectsSignWholeSign(g, Math.floor(norm360(pos[g].sidereal)/30), moonSignIdx));
+  return { present: hemmed || conjunctMalefic || aspectedByMalefic, hemmed, conjunctMalefic, aspectedByMalefic };
+}
+function matrunasaYogaB(pos, navPos, ascSignIdx){
+  const lord4 = lordOfHouse(4, ascSignIdx);
+  const lord4NavSignIdx = Math.floor(norm360(navPos[lord4].sidereal)/30);
+  const navLord1 = SIGN_LORD[SIGNS[lord4NavSignIdx]];
+  const navLord1OwnNavSignIdx = Math.floor(norm360(navPos[navLord1].sidereal)/30);
+  const navLord2 = SIGN_LORD[SIGNS[navLord1OwnNavSignIdx]];
+  const navLord2House = bsHouseFromAsc(pos[navLord2].sidereal, ascSignIdx);
+  const present = [6,8,12].includes(navLord2House);
+  return { present, navLord1, navLord2, navLord2House };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
