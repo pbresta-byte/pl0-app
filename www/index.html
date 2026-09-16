@@ -9027,7 +9027,57 @@ function renderNatalPage(){
       nameEn:'Dhana Yoga (V)', nameEs:'Yoga Dhana (V)',
       glossEn:'The 5th house is Jupiter\'s own sign, with Jupiter in the 5th and Mars+the Moon in the 11th. Possible for Sagittarius or Pisces Lagnas — Raman notes the Scorpio-Lagna case is stronger, since Mars and the Moon then rule the 1st and 9th in the 11th.',
       glossEs:'La 5.ª casa es signo propio de Júpiter, con Júpiter en la 5.ª y Marte+la Luna en la 11.ª. Posible con Lagna Sagitario o Piscis — Raman señala que el caso de Lagna Escorpio es más fuerte, ya que Marte y la Luna gobiernan entonces la 1.ª y la 9.ª en la 11.ª.',
-      reasonLine: r => T(`5th is Jupiter's own sign: ${hf(r.fifthIsOwnSign)}. Jupiter in 5th: ${hf(r.grahaInFifth)}. Mars+Moon in 11th: ${hf(r.eleventhOk)}.`, `La 5.ª es signo propio de Júpiter: ${hf(r.fifthIsOwnSign)}. Júpiter en la 5.ª: ${hf(r.grahaInFifth)}. Marte+Luna en la 11.ª: ${hf(r.eleventhOk)}.`) }
+      reasonLine: r => T(`5th is Jupiter's own sign: ${hf(r.fifthIsOwnSign)}. Jupiter in 5th: ${hf(r.grahaInFifth)}. Mars+Moon in 11th: ${hf(r.eleventhOk)}.`, `La 5.ª es signo propio de Júpiter: ${hf(r.fifthIsOwnSign)}. Júpiter en la 5.ª: ${hf(r.grahaInFifth)}. Marte+Luna en la 11.ª: ${hf(r.eleventhOk)}.`) },
+    { result: dhanaYoga123(birthPos, lagnaIdx), num: 123,
+      nameEn:'Dhana Yoga (VI)', nameEs:'Yoga Dhana (VI)',
+      glossEn:'The Sun occupies the Lagna in its own sign (Leo Lagna), joined or aspected by both Mars and Jupiter. First of six Lagna-based wealth combinations (contrast with the #118-122 fifth-house family) — Raman notes each admits several planetary-placement variations that still satisfy the rule, and confirms this one with Chart No.70 (Leo Lagna, Sun with Mars, aspected by Jupiter).',
+      glossEs:'El Sol ocupa el Lagna en su signo propio (Lagna Leo), conjunto o aspectado por Marte y Júpiter. La primera de seis combinaciones de riqueza basadas en el Lagna (a diferencia de la familia de la 5.ª casa #118-122) — Raman señala que cada una admite varias variaciones de ubicación planetaria que igual satisfacen la regla, y confirma esta con la Carta N.º70 (Lagna Leo, Sol con Marte, aspectado por Júpiter).',
+      reasonLine: r => T(`Sun in Lagna (own sign Leo): ${hf(r.inOwnLagna)}. Joined/aspected by Mars: ${hf(r.hits.includes('Mars'))}. By Jupiter: ${hf(r.hits.includes('Jupiter'))}.`, `El Sol en el Lagna (signo propio Leo): ${hf(r.inOwnLagna)}. Conjunto/aspectado por Marte: ${hf(r.hits.includes('Mars'))}. Por Júpiter: ${hf(r.hits.includes('Jupiter'))}.`) },
+    { result: dhanaYoga124(birthPos, lagnaIdx), num: 124,
+      nameEn:'Dhana Yoga (VII)', nameEs:'Yoga Dhana (VII)',
+      glossEn:'The Moon occupies the Lagna in its own sign (Cancer Lagna), joined or aspected by both Jupiter and Mars — the lunar mirror of #123.',
+      glossEs:'La Luna ocupa el Lagna en su signo propio (Lagna Cáncer), conjunta o aspectada por Júpiter y Marte — el espejo lunar de la #123.',
+      reasonLine: r => T(`Moon in Lagna (own sign Cancer): ${hf(r.inOwnLagna)}. Joined/aspected by Jupiter: ${hf(r.hits.includes('Jupiter'))}. By Mars: ${hf(r.hits.includes('Mars'))}.`, `La Luna en el Lagna (signo propio Cáncer): ${hf(r.inOwnLagna)}. Conjunta/aspectada por Júpiter: ${hf(r.hits.includes('Jupiter'))}. Por Marte: ${hf(r.hits.includes('Mars'))}.`) },
+    { result: dhanaYoga125(birthPos, lagnaIdx), num: 125,
+      nameEn:'Dhana Yoga (VIII)', nameEs:'Yoga Dhana (VIII)',
+      glossEn:'Mars occupies the Lagna in its own sign (Aries or Scorpio Lagna), joined or aspected by ALL THREE of the Moon, Venus and Saturn — the only one of the six Lagna-Dhana variants that requires three co-signatories rather than two.',
+      glossEs:'Marte ocupa el Lagna en su signo propio (Lagna Aries o Escorpio), conjunto o aspectado por LOS TRES: Luna, Venus y Saturno — la única de las seis variantes Lagna-Dhana que exige tres co-signatarios en vez de dos.',
+      reasonLine: r => T(`Mars in Lagna (own sign): ${hf(r.inOwnLagna)}. Joined/aspected by Moon: ${hf(r.hits.includes('Moon'))}, Venus: ${hf(r.hits.includes('Venus'))}, Saturn: ${hf(r.hits.includes('Saturn'))}.`, `Marte en el Lagna (signo propio): ${hf(r.inOwnLagna)}. Conjunto/aspectado por Luna: ${hf(r.hits.includes('Moon'))}, Venus: ${hf(r.hits.includes('Venus'))}, Saturno: ${hf(r.hits.includes('Saturn'))}.`) },
+    { result: dhanaYoga126(birthPos, lagnaIdx), num: 126,
+      nameEn:'Dhana Yoga (IX)', nameEs:'Yoga Dhana (IX)',
+      glossEn:'Mercury occupies the Lagna in its own sign (Gemini or Virgo Lagna), joined or aspected by both Saturn and Venus.',
+      glossEs:'Mercurio ocupa el Lagna en su signo propio (Lagna Géminis o Virgo), conjunto o aspectado por Saturno y Venus.',
+      reasonLine: r => T(`Mercury in Lagna (own sign): ${hf(r.inOwnLagna)}. Joined/aspected by Saturn: ${hf(r.hits.includes('Saturn'))}. By Venus: ${hf(r.hits.includes('Venus'))}.`, `Mercurio en el Lagna (signo propio): ${hf(r.inOwnLagna)}. Conjunto/aspectado por Saturno: ${hf(r.hits.includes('Saturn'))}. Por Venus: ${hf(r.hits.includes('Venus'))}.`) },
+    { result: dhanaYoga127(birthPos, lagnaIdx), num: 127,
+      nameEn:'Dhana Yoga (X)', nameEs:'Yoga Dhana (X)',
+      glossEn:'Jupiter occupies the Lagna in its own sign (Sagittarius or Pisces Lagna), joined or aspected by both Mercury and Mars.',
+      glossEs:'Júpiter ocupa el Lagna en su signo propio (Lagna Sagitario o Piscis), conjunto o aspectado por Mercurio y Marte.',
+      reasonLine: r => T(`Jupiter in Lagna (own sign): ${hf(r.inOwnLagna)}. Joined/aspected by Mercury: ${hf(r.hits.includes('Mercury'))}. By Mars: ${hf(r.hits.includes('Mars'))}.`, `Júpiter en el Lagna (signo propio): ${hf(r.inOwnLagna)}. Conjunto/aspectado por Mercurio: ${hf(r.hits.includes('Mercury'))}. Por Marte: ${hf(r.hits.includes('Mars'))}.`) },
+    { result: dhanaYoga128(birthPos, lagnaIdx), num: 128,
+      nameEn:'Dhana Yoga (XI)', nameEs:'Yoga Dhana (XI)',
+      glossEn:'Venus occupies the Lagna in its own sign (Taurus or Libra Lagna), joined or aspected by both Saturn and Mercury — the last of the six Lagna-Dhana variants, confirmed by Chart No.69 (Taurus Lagna, Venus with Mercury, aspected by Saturn).',
+      glossEs:'Venus ocupa el Lagna en su signo propio (Lagna Tauro o Libra), conjunto o aspectado por Saturno y Mercurio — la última de las seis variantes Lagna-Dhana, confirmada por la Carta N.º69 (Lagna Tauro, Venus con Mercurio, aspectado por Saturno).',
+      reasonLine: r => T(`Venus in Lagna (own sign): ${hf(r.inOwnLagna)}. Joined/aspected by Saturn: ${hf(r.hits.includes('Saturn'))}. By Mercury: ${hf(r.hits.includes('Mercury'))}.`, `Venus en el Lagna (signo propio): ${hf(r.inOwnLagna)}. Conjunto/aspectado por Saturno: ${hf(r.hits.includes('Saturn'))}. Por Mercurio: ${hf(r.hits.includes('Mercury'))}.`) },
+    { result: bahudravyarjanaYoga(birthPos, lagnaIdx), num: 129,
+      nameEn:'Bahudravyarjana Yoga', nameEs:'Yoga Bahudravyarjana',
+      glossEn:'A closed three-way exchange: the Lagna lord in the 2nd, the 2nd lord in the 11th, and the 11th lord back in the Lagna. Raman confirms with Chart No.71 and notes the real magnitude still depends on the strength of the three lords involved.',
+      glossEs:'Un intercambio cerrado de tres vías: el señor del Lagna en la 2.ª, el señor de la 2.ª en la 11.ª, y el señor de la 11.ª de vuelta en el Lagna. Raman lo confirma con la Carta N.º71 y señala que la magnitud real aún depende de la fuerza de los tres señores implicados.',
+      reasonLine: r => T(`Lagna lord in 2nd: ${hf(r.cond1)}. 2nd lord in 11th: ${hf(r.cond2)}. 11th lord in Lagna: ${hf(r.cond3)}.`, `Señor del Lagna en la 2.ª: ${hf(r.cond1)}. Señor de la 2.ª en la 11.ª: ${hf(r.cond2)}. Señor de la 11.ª en el Lagna: ${hf(r.cond3)}.`) },
+    { result: swaveeryaddhanaYoga130(birthPos, navPos, lagnaIdx), num: 130,
+      nameEn:'Swaveeryaddhana Yoga (I)', nameEs:'Yoga Swaveeryaddhana (I)',
+      glossEn:'"Wealth by self exertion." The Lagna lord, being the strongest planet, occupies a kendra conjunct Jupiter, while the 2nd lord attains Vaiseshikamsa. Raman notes that inherited wealth (unlike this self-earned kind) is rarely well used or long-lasting.',
+      glossEs:'"Riqueza por esfuerzo propio." El señor del Lagna, siendo el planeta más fuerte, ocupa un kendra conjunto a Júpiter, mientras el señor de la 2.ª alcanza Vaiseshikamsa. Raman señala que la riqueza heredada (a diferencia de esta ganada por esfuerzo propio) rara vez se usa bien o dura.',
+      reasonLine: r => T(`Lagna lord strong: ${hf(r.lagnaLordStrong)}, in kendra: ${hf(r.inKendra)}, conjunct Jupiter: ${hf(r.conjJupiter)}. 2nd lord attains Vaiseshikamsa (Dashavarga count ${r.vamsaCount}): ${hf(r.vamsaCount>=2)}.`, `Señor del Lagna fuerte: ${hf(r.lagnaLordStrong)}, en kendra: ${hf(r.inKendra)}, conjunto a Júpiter: ${hf(r.conjJupiter)}. Señor de la 2.ª alcanza Vaiseshikamsa (cuenta Dashavarga ${r.vamsaCount}): ${hf(r.vamsaCount>=2)}.`) },
+    { result: swaveeryaddhanaYoga131(birthPos, navPos, lagnaIdx), num: 131,
+      nameEn:'Swaveeryaddhana Yoga (II)', nameEs:'Yoga Swaveeryaddhana (II)',
+      glossEn:'A four-step chain Raman himself calls "somewhat confusing": from the Navamsa sign of the Lagna lord, to that sign ruling lord, to the Rasi sign THAT graha occupies, to the ruler of THAT sign — who must either be strong and in a kendra/trikona from the 2nd lord, or be in own/exaltation sign outright. Walked through step by step with Chart No.72 in the Remarks.',
+      glossEs:'Una cadena de cuatro pasos que el propio Raman llama "algo confusa": desde el signo Navamsa del señor del Lagna, a su regente, al signo Rasi que ESE graha ocupa, al regente de ESE signo — quien debe ser fuerte y estar en kendra/trikona desde el señor de la 2.ª, o estar en signo propio/de exaltación directamente. Se recorre paso a paso con la Carta N.º72 en los Comentarios.',
+      reasonLine: r => T(`Chain resolves to ${r.finalLord}. Strong + kendra/trikona from 2nd lord: ${hf(r.condA)}. Or own/exaltation sign: ${hf(r.condB)}.`, `La cadena resuelve en ${r.finalLord}. Fuerte + kendra/trikona desde el señor de la 2.ª: ${hf(r.condA)}. O signo propio/de exaltación: ${hf(r.condB)}.`) },
+    { result: swaveeryaddhanaYoga132(birthPos, lagnaIdx), num: 132,
+      nameEn:'Swaveeryaddhana Yoga (III)', nameEs:'Yoga Swaveeryaddhana (III)',
+      glossEn:'"Quite simple" per Raman own description: the 2nd lord in a kendra/trikona from the Lagna lord, OR the 2nd lord is a benefic in deep exaltation or conjunct an exalted planet. Last of the three self-earned-wealth combinations.',
+      glossEs:'"Bastante simple" según la propia descripción de Raman: el señor de la 2.ª en kendra/trikona desde el señor del Lagna, O el señor de la 2.ª es un benéfico en exaltación profunda o conjunto a un planeta exaltado. La última de las tres combinaciones de riqueza autoganada.',
+      reasonLine: r => T(`2nd lord in kendra/trikona from Lagna lord: ${hf(r.condA)}. Or: benefic (${hf(r.lord2IsBenefic)}) + deep-exalted (${hf(r.deepExalted)}) or conjunct exalted graha (${hf(r.conjExalted)}): ${hf(r.condB)}.`, `Señor de la 2.ª en kendra/trikona desde el señor del Lagna: ${hf(r.condA)}. O: benéfico (${hf(r.lord2IsBenefic)}) + exaltado profundamente (${hf(r.deepExalted)}) o conjunto a graha exaltado (${hf(r.conjExalted)}): ${hf(r.condB)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9177,7 +9227,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-122 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-122 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-132 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-132 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -12610,6 +12660,152 @@ function dhanaYoga122(pos, ascSignIdx){
   // #122 (txt L5686-5688): 5th house = Jupiter's own sign, Jupiter in the
   // 5th, Mars+Moon in the 11th.
   return dhanaYogaFifth(pos, ascSignIdx, 'Jupiter', ['Mars','Moon']);
+}
+// #123-128 (txt L5871-5926): a second family of six Dhana Yogas, this time
+// built on the LAGNA itself rather than the 5th house -- a graha occupying
+// the Ascendant in its own sign, joined OR aspected by ALL of a named list
+// of other grahas (not any-one-of -- confirmed by Raman's own Remarks table
+// at L5900-5920, which lists the full "Conjunction or Aspect of" set per
+// planet, and by both worked examples: Chart No.70 for #123 has Mars
+// CONJUNCT the Sun and Jupiter ASPECTING it -- both present, not either;
+// Chart No.69 for #128 has Mercury conjunct Venus AND Saturn aspecting --
+// again both). Because Sun/Moon rule only one sign each and Mars/Mercury/
+// Jupiter/Venus rule two, "own sign identical with Lagna" is captured for
+// all six simply by requiring the Ascendant sign's ruling lord to equal the
+// graha in question while that graha also physically occupies the Lagna.
+function dhanaYogaLagnaOwn(pos, ascSignIdx, graha, aspectGrahas){
+  const lagnaSignName = SIGNS[ascSignIdx];
+  const grahaSignIdx = Math.floor(norm360(pos[graha].sidereal)/30);
+  const inOwnLagna = SIGN_LORD[lagnaSignName]===graha && grahaSignIdx===ascSignIdx;
+  const hits = aspectGrahas.filter(g=>{
+    const gSignIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    return gSignIdx===grahaSignIdx || aspectsSignWholeSign(g, gSignIdx, grahaSignIdx);
+  });
+  return { present: inOwnLagna && hits.length===aspectGrahas.length, inOwnLagna, hits, needed: aspectGrahas };
+}
+function dhanaYoga123(pos, ascSignIdx){
+  // #123 (txt L5872-5874, L5904-5905): Sun in Lagna = Leo, joined/aspected
+  // by both Mars and Jupiter.
+  return dhanaYogaLagnaOwn(pos, ascSignIdx, 'Sun', ['Mars','Jupiter']);
+}
+function dhanaYoga124(pos, ascSignIdx){
+  // #124 (txt L5875-5877, L5907-5908): Moon in Lagna = Cancer, joined/
+  // aspected by both Jupiter and Mars.
+  return dhanaYogaLagnaOwn(pos, ascSignIdx, 'Moon', ['Jupiter','Mars']);
+}
+function dhanaYoga125(pos, ascSignIdx){
+  // #125 (txt L5878-5880, L5910-5911): Mars in Lagna = Aries or Scorpio,
+  // joined/aspected by all three of the Moon, Venus and Saturn.
+  return dhanaYogaLagnaOwn(pos, ascSignIdx, 'Mars', ['Moon','Venus','Saturn']);
+}
+function dhanaYoga126(pos, ascSignIdx){
+  // #126 (txt L5881-5883, L5913-5914): Mercury in Lagna = Gemini or Virgo,
+  // joined/aspected by both Saturn and Venus.
+  return dhanaYogaLagnaOwn(pos, ascSignIdx, 'Mercury', ['Saturn','Venus']);
+}
+function dhanaYoga127(pos, ascSignIdx){
+  // #127 (txt L5884-5886, L5916-5917): Jupiter in Lagna = Sagittarius or
+  // Pisces, joined/aspected by both Mercury and Mars.
+  return dhanaYogaLagnaOwn(pos, ascSignIdx, 'Jupiter', ['Mercury','Mars']);
+}
+function dhanaYoga128(pos, ascSignIdx){
+  // #128 (txt L5887-5889, L5919-5920): Venus in Lagna = Taurus or Libra,
+  // joined/aspected by both Saturn and Mercury. Confirmed by Chart No.69
+  // (L5972-5974): Taurus Lagna, Venus in Lagna conjunct Mercury, aspected
+  // by Saturn.
+  return dhanaYogaLagnaOwn(pos, ascSignIdx, 'Venus', ['Saturn','Mercury']);
+}
+function bahudravyarjanaYoga(pos, ascSignIdx){
+  // #129 (txt L6005-6017): a closed 3-way lord exchange -- Lagna lord in the
+  // 2nd, 2nd lord in the 11th, and 11th lord in the Lagna. Confirmed by
+  // Chart No.71 (L6044-6047). Raman's Remarks note the real magnitude
+  // depends on the strength of the three lords, but that's a grading
+  // caveat, not a gating requirement he states numerically -- not gated
+  // here, consistent with how count-graded/strength-graded yogas elsewhere
+  // in this file (e.g. Sareera Soukhya #108) report presence independent of
+  // the ungated strength commentary.
+  const lord1 = lordOfHouse(1, ascSignIdx), lord2 = lordOfHouse(2, ascSignIdx), lord11 = lordOfHouse(11, ascSignIdx);
+  const cond1 = bsHouseFromAsc(pos[lord1].sidereal, ascSignIdx) === 2;
+  const cond2 = bsHouseFromAsc(pos[lord2].sidereal, ascSignIdx) === 11;
+  const cond3 = bsHouseFromAsc(pos[lord11].sidereal, ascSignIdx) === 1;
+  return { present: cond1 && cond2 && cond3, cond1, cond2, cond3 };
+}
+function swaveeryaddhanaYoga130(pos, navPos, ascSignIdx){
+  // #130 (txt L6049-6052, L6077-6080): the Lagna lord, "being the strongest
+  // planet," occupies a kendra in conjunction with Jupiter, and the 2nd lord
+  // attains Vaiseshikamsa. AMBIGUITY FLAG (x2): (1) "strongest planet" has
+  // no numeric citation anywhere in this entry -- operationalized the same
+  // way this file already handles undefined "powerful"/"strong" language
+  // elsewhere (own/exalted/friend dignity tier -- see e.g. kahalaYoga #15).
+  // (2) "join... Vaiseshikamsa" is read as attaining ANY named Vaiseshikamsa
+  // title (count >= 2, per the VAISESHIKAMSA_NAMES table where 0-1 carries
+  // no title) in the Dashavarga(10) set, since that's the set this file's
+  // Trikalagnana fix (see comment near TRIKALAGNANA_*) already treated as
+  // the default reference set for a bare "Vaiseshikamsa" mention. If the
+  // Lagna lord IS Jupiter, "in conjunction with Jupiter" is read as
+  // inapplicable (a planet cannot meaningfully conjoin itself) rather than
+  // vacuously true, so this specific yoga cannot form for Sagittarius/
+  // Pisces Lagnas -- a real, deliberate restriction, not an oversight.
+  const lagnaLord = lordOfHouse(1, ascSignIdx), lord2 = lordOfHouse(2, ascSignIdx);
+  const llSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const llHouse = bsHouseFromAsc(pos[lagnaLord].sidereal, ascSignIdx);
+  const inKendra = [1,4,7,10].includes(llHouse);
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const conjJupiter = lagnaLord!=='Jupiter' && jupSignIdx===llSignIdx;
+  const lagnaLordStrong = ['Own','Exalted','Friend'].includes(dignityTierInSign(lagnaLord, llSignIdx));
+  const vamsaCount = vaiseshikamsaCount(lord2, pos, navPos, 'dasa');
+  const lord2Vaiseshikamsa = vamsaCount >= 2;
+  return { present: inKendra && conjJupiter && lagnaLordStrong && lord2Vaiseshikamsa, inKendra, conjJupiter, lagnaLordStrong, vamsaCount };
+}
+function swaveeryaddhanaYoga131(pos, navPos, ascSignIdx){
+  // #131 (txt L6053-6057, "somewhat confusing" per Raman's own admission at
+  // L6081): a 4-step chain -- (1) the Navamsa sign occupied by the Lagna
+  // lord, (2) that Navamsa sign's ruling lord (a graha, call it X), (3) the
+  // Rasi (D1) sign X physically occupies, (4) that Rasi sign's ruling lord
+  // (call it Y). Y "should be strong, and join a kendra/trikona from the
+  // 2nd lord, OR should occupy his own/exaltation sign." AMBIGUITY FLAG:
+  // implemented as two OR'd branches -- condA = (Y strong per the file's
+  // usual dignity-tier reading) AND (Y in kendra/trikona from the 2nd
+  // lord); condB = Y in own/exaltation sign outright (not itself requiring
+  // the kendra/trikona test) -- matching the worked Chart No.72 walkthrough
+  // (L6114-6122: Lagna lord Saturn -> Mesha Navamsa -> Mars -> Mars in Leo
+  // (Rasi) -> Sun; "Its lord Sun is in a trine from Jupiter lord of the
+  // 2nd" satisfies condA's kendra/trikona clause).
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const lagnaLordNavSignIdx = Math.floor(norm360(navamsaSidereal(pos[lagnaLord].sidereal))/30);
+  const navSignLord = SIGN_LORD[SIGNS[lagnaLordNavSignIdx]]; // "X"
+  const xRasiSignIdx = Math.floor(norm360(pos[navSignLord].sidereal)/30);
+  const finalLord = SIGN_LORD[SIGNS[xRasiSignIdx]]; // "Y"
+  const ySignIdx = Math.floor(norm360(pos[finalLord].sidereal)/30);
+  const yStrong = ['Own','Exalted','Friend'].includes(dignityTierInSign(finalLord, ySignIdx));
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const kendraOrTrikonaFrom2nd = finalLord!==lord2 && (isKendraFrom(pos[lord2].sidereal, pos[finalLord].sidereal) || isTrikonaFrom(pos[lord2].sidereal, pos[finalLord].sidereal));
+  const condA = yStrong && kendraOrTrikonaFrom2nd;
+  const condB = isOwnOrExalt(finalLord, pos[finalLord].sidereal);
+  return { present: condA || condB, navSignLord, finalLord, condA, condB };
+}
+function swaveeryaddhanaYoga132(pos, ascSignIdx){
+  // #132 ("quite simple" per Raman, txt L6058-6061): EITHER (a) the 2nd
+  // lord occupies a kendra or trikona from the 1st (Lagna) lord, OR (b) the
+  // 2nd lord is a benefic AND is either in deep exaltation or conjunct an
+  // exalted planet. AMBIGUITY FLAG: "deep exaltation" (vs. plain
+  // exaltation) has no separate numeric-orb infrastructure anywhere in this
+  // file (EXALT[graha].deg records the classical exact degree, but no other
+  // yoga here tests proximity to it) -- operationalized as ordinary
+  // sign-level exaltation (dignityTierInSign===='Exalted'), same bar as
+  // "conjunct an exalted planet" uses for the other graha.
+  const lagnaLord = lordOfHouse(1, ascSignIdx), lord2 = lordOfHouse(2, ascSignIdx);
+  const condA = lord2!==lagnaLord && (isKendraFrom(pos[lagnaLord].sidereal, pos[lord2].sidereal) || isTrikonaFrom(pos[lagnaLord].sidereal, pos[lord2].sidereal));
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const lord2IsBenefic = RAMAN_BENEFICS.includes(lord2);
+  const deepExalted = dignityTierInSign(lord2, lord2SignIdx)==='Exalted';
+  const conjExalted = GRAHA_LIST.some(g=>{
+    if (g===lord2) return false;
+    const gSignIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    return gSignIdx===lord2SignIdx && dignityTierInSign(g, gSignIdx)==='Exalted';
+  });
+  const condB = lord2IsBenefic && (deepExalted || conjExalted);
+  return { present: condA || condB, condA, condB, lord2IsBenefic, deepExalted, conjExalted };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
