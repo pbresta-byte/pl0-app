@@ -8676,7 +8676,32 @@ function renderNatalPage(){
       nameEn:'Parijatha Yoga', nameEs:'Yoga Parijatha',
       glossEn:'A dispositor-chain combination starting from the Lagna lord\'s own sign-lord, checked two ways (via its own dispositor, or via its Navamsa dispositor) for landing in a kendra, trikona, or own/exaltation place. Raman treats this as equivalent to a powerful Raja Yoga.',
       glossEs:'Una combinación de cadena de dispositor que empieza desde el señor del signo del señor del Lagna, comprobada de dos formas (vía su propio dispositor, o vía su dispositor de Navamsa) para caer en un kendra, trikona, o lugar propio/de exaltación. Raman lo trata como equivalente a un Raja Yoga poderoso.',
-      reasonLine: r => T(`Chain from Lagna lord's sign-lord (${r.l2}) — via own dispositor (${r.branchACandidate}): ${hf(r.branchA)}; via Navamsa dispositor (${r.branchBCandidate}): ${hf(r.branchB)}.`, `Cadena desde el señor de signo (${r.l2}) del señor del Lagna — vía su propio dispositor (${r.branchACandidate}): ${hf(r.branchA)}; vía su dispositor de Navamsa (${r.branchBCandidate}): ${hf(r.branchB)}.`) }
+      reasonLine: r => T(`Chain from Lagna lord's sign-lord (${r.l2}) — via own dispositor (${r.branchACandidate}): ${hf(r.branchA)}; via Navamsa dispositor (${r.branchBCandidate}): ${hf(r.branchB)}.`, `Cadena desde el señor de signo (${r.l2}) del señor del Lagna — vía su propio dispositor (${r.branchACandidate}): ${hf(r.branchA)}; vía su dispositor de Navamsa (${r.branchBCandidate}): ${hf(r.branchB)}.`) },
+    { result: gajaYoga(birthPos, lagnaIdx), num: 48,
+      nameEn:'Gaja Yoga', nameEs:'Yoga Gaja',
+      glossEn:'The 7th lord (the 9th from the 11th) posted in the 11th house, conjunct the Moon, and aspected by the 11th lord. Command over cattle, elephants and horses — read in modern terms as wealth and gain, sustained happiness through life.',
+      glossEs:'El señor de la 7.ª (la 9.ª desde la 11.ª) situado en la 11.ª casa, conjunto a la Luna, y aspectado por el señor de la 11.ª. Mando sobre ganado, elefantes y caballos — leído en términos modernos como riqueza y ganancia, felicidad sostenida en la vida.',
+      reasonLine: r => T(`7th lord in the 11th: ${hf(r.inEleventh)}. Conjunct Moon: ${hf(r.conjunctMoon)}. Aspected by 11th lord: ${hf(r.aspectedByEleventhLord)}.`, `Señor de la 7.ª en la 11.ª: ${hf(r.inEleventh)}. Conjunto a la Luna: ${hf(r.conjunctMoon)}. Aspectado por el señor de la 11.ª: ${hf(r.aspectedByEleventhLord)}.`) },
+    { result: kalanidhiYoga(birthPos, lagnaIdx), num: 49,
+      nameEn:'Kalanidhi Yoga', nameEs:'Yoga Kalanidhi',
+      glossEn:'Jupiter, Mercury and Venus conjunct together in the 2nd, 5th, or 9th house — a "pucca Raja Yoga" per Raman, three benefics massed in a house of wealth or fortune. He notes it in practice through alternating periods of prosperity and adversity rather than uniform good fortune.',
+      glossEs:'Júpiter, Mercurio y Venus conjuntos juntos en la 2.ª, 5.ª o 9.ª casa — un "Raja Yoga genuino" según Raman, tres benéficos reunidos en una casa de riqueza o fortuna. Señala que en la práctica se manifiesta en periodos alternos de prosperidad y adversidad, no en buena fortuna uniforme.',
+      reasonLine: r => T(`Jupiter/Mercury/Venus all conjunct: ${hf(r.allConjunct)}, in house ${r.house} (needs 2nd, 5th or 9th).`, `Júpiter/Mercurio/Venus todos conjuntos: ${hf(r.allConjunct)}, en la casa ${r.house} (necesita 2.ª, 5.ª o 9.ª).`) },
+    { result: amsavataraYoga(birthPos, lagnaIdx), num: 50,
+      nameEn:'Amsavatara Yoga', nameEs:'Yoga Amsavatara',
+      glossEn:'Venus and Jupiter each in a kendra, a movable-sign Lagna, and Saturn exalted in a kendra. Raman stresses the "unsullied" nature of the reputation this gives — versatile learning and an authority on philosophy, incapable of real unscrupulousness.',
+      glossEs:'Venus y Júpiter cada uno en un kendra, un Lagna de signo móvil, y Saturno exaltado en un kendra. Raman resalta la naturaleza "intachable" de la reputación que esto da — aprendizaje versátil y una autoridad en filosofía, incapaz de verdadera falta de escrúpulos.',
+      reasonLine: r => T(`Venus in kendra: ${hf(r.venusInKendra)}. Jupiter in kendra: ${hf(r.jupInKendra)}. Lagna movable: ${hf(r.lagnaMovable)}. Saturn exalted in kendra: ${hf(r.satExaltedInKendra)}.`, `Venus en kendra: ${hf(r.venusInKendra)}. Júpiter en kendra: ${hf(r.jupInKendra)}. Lagna móvil: ${hf(r.lagnaMovable)}. Saturno exaltado en kendra: ${hf(r.satExaltedInKendra)}.`) },
+    { result: hariharaBrahmaYoga(birthPos, lagnaIdx), num: 51,
+      nameEn:'Harihara Brahma Yoga', nameEs:'Yoga Harihara Brahma',
+      glossEn:'Any of three paths centred on Lagna, the 2nd, and the 7th — the houses of creation, preservation and destruction in Raman\'s own framing (hence the name, after the Hindu Trinity). Eminent scholarship, truthfulness, and a life full of comfort.',
+      glossEs:'Cualquiera de tres vías centradas en el Lagna, la 2.ª y la 7.ª — las casas de creación, preservación y destrucción según el propio planteamiento de Raman (de ahí el nombre, por la Trinidad hindú). Erudición eminente, veracidad, y una vida llena de comodidad.',
+      reasonLine: r => T(`Path (a) benefics in 8th+12th from 2nd lord: ${hf(r.condA)}. Path (b) Jupiter/Moon/Mercury in 4th/9th/8th from 7th lord: ${hf(r.condB)}. Path (c) Sun/Venus/Mars in 4th/10th/11th from Lagna lord: ${hf(r.condC)}.`, `Vía (a) benéficos en 8.ª+12.ª desde el señor de la 2.ª: ${hf(r.condA)}. Vía (b) Júpiter/Luna/Mercurio en 4.ª/9.ª/8.ª desde el señor de la 7.ª: ${hf(r.condB)}. Vía (c) Sol/Venus/Marte en 4.ª/10.ª/11.ª desde el señor del Lagna: ${hf(r.condC)}.`) },
+    { result: kusumaYoga(birthPos, lagnaIdx), num: 52,
+      nameEn:'Kusuma Yoga', nameEs:'Yoga Kusuma',
+      glossEn:'Jupiter in the Lagna, the Moon in the 7th, and the Sun in the 8th from the Moon — Raman\'s own Remarks identify this as Gajakesari Yoga and a Vasi-family Sun placement fused into one combination. A founder or headman\'s profile: protector of kin, unsullied reputation.',
+      glossEs:'Júpiter en el Lagna, la Luna en la 7.ª, y el Sol en la 8.ª desde la Luna — los propios Comentarios de Raman identifican esto como el Yoga Gajakesari y una ubicación solar de la familia Vasi fusionados en una sola combinación. Un perfil de fundador o jefe: protector de los suyos, reputación intachable.',
+      reasonLine: r => T(`Jupiter in Lagna: ${hf(r.jupInLagna)}. Moon in 7th: ${hf(r.moonInSeventh)}. Sun in 8th from Moon: ${hf(r.sunInEighthFromMoon)}.`, `Júpiter en el Lagna: ${hf(r.jupInLagna)}. Luna en la 7.ª: ${hf(r.moonInSeventh)}. Sol en la 8.ª desde la Luna: ${hf(r.sunInEighthFromMoon)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -8826,7 +8851,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-47 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-47 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-52 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-52 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -11531,6 +11556,82 @@ function parijathaYoga(pos, navPos, ascSignIdx){
   const branchBCandidate = SIGN_LORD[SIGNS[l2NavSignIdx]];
   const branchB = checkCandidate(branchBCandidate);
   return { present: branchA || branchB, l2, branchACandidate, branchA, branchBCandidate, branchB };
+}
+function gajaYoga(pos, ascSignIdx){
+  // #48 (txt L3315-3318): the lord of the 9th-from-11th (= the 7th lord,
+  // per Raman's own clarification: "9th from 11th would be the 7th") should
+  // occupy the 11th house, be conjunct the Moon, and be aspected by the
+  // 11th lord. Raman's own worked example has the 7th lord BE the Moon
+  // itself, and explicitly states the conjunct-Moon condition is then
+  // moot/automatically satisfied ("the question of his association with
+  // the Moon does not arise at all") — handled as a trivial pass in that
+  // case, not a false negative from self-comparison.
+  const seventhLord = lordOfHouse(7, ascSignIdx), eleventhLord = lordOfHouse(11, ascSignIdx);
+  const seventhLordHouse = bsHouseFromAsc(pos[seventhLord].sidereal, ascSignIdx);
+  const inEleventh = seventhLordHouse === 11;
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const seventhLordSignIdx = Math.floor(norm360(pos[seventhLord].sidereal)/30);
+  const conjunctMoon = seventhLord==='Moon' || seventhLordSignIdx===moonSignIdx;
+  const eleventhLordSignIdx = Math.floor(norm360(pos[eleventhLord].sidereal)/30);
+  const aspectedByEleventhLord = eleventhLord!==seventhLord && aspectsSignWholeSign(eleventhLord, eleventhLordSignIdx, seventhLordSignIdx);
+  return { present: inEleventh && conjunctMoon && aspectedByEleventhLord, inEleventh, conjunctMoon, aspectedByEleventhLord };
+}
+function kalanidhiYoga(pos, ascSignIdx){
+  // #49 (txt L3372-3396): Raman's own Remarks explicitly favour a
+  // different, simpler reading than the literal Definition — conjunction
+  // of Jupiter, Mercury and Venus together in the 2nd, 5th, or (per his own
+  // stated extension) 9th house — implemented to his stated preference.
+  const houses = [2,5,9];
+  const jupHouse = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx);
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const mercSignIdx = Math.floor(norm360(pos.Mercury.sidereal)/30);
+  const venusSignIdx = Math.floor(norm360(pos.Venus.sidereal)/30);
+  const allConjunct = jupSignIdx===mercSignIdx && jupSignIdx===venusSignIdx;
+  return { present: allConjunct && houses.includes(jupHouse), house: jupHouse, allConjunct };
+}
+function amsavataraYoga(pos, ascSignIdx){
+  // #50 (txt L3442-3445): Venus and Jupiter each in a kendra from Lagna
+  // (independently), the Lagna in a movable sign, and Saturn exalted in a
+  // kendra.
+  const MOVABLE_SIGNS = ['Aries','Cancer','Libra','Capricorn'];
+  const venusInKendra = [1,4,7,10].includes(bsHouseFromAsc(pos.Venus.sidereal, ascSignIdx));
+  const jupInKendra = [1,4,7,10].includes(bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx));
+  const lagnaMovable = MOVABLE_SIGNS.includes(SIGNS[ascSignIdx]);
+  const satSignIdx = Math.floor(norm360(pos.Saturn.sidereal)/30);
+  const satHouse = bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx);
+  const satExaltedInKendra = [1,4,7,10].includes(satHouse) && dignityTierInSign('Saturn', satSignIdx)==='Exalted';
+  return { present: venusInKendra && jupInKendra && lagnaMovable && satExaltedInKendra, venusInKendra, jupInKendra, lagnaMovable, satExaltedInKendra };
+}
+function hariharaBrahmaYoga(pos, ascSignIdx){
+  // #51 (txt L3487-3493): three alternate paths, OR'd — (a) benefics in
+  // BOTH the 8th and 12th from the 2nd lord; (b) Jupiter/Moon/Mercury in
+  // the 4th/9th/8th (respectively) from the 7th lord; (c) Sun/Venus/Mars
+  // in the 4th/10th/11th (respectively) from the Lagna lord.
+  const secondLord = lordOfHouse(2, ascSignIdx);
+  const secondLordSignIdx = Math.floor(norm360(pos[secondLord].sidereal)/30);
+  const beneficsFromSecondLord = h => bsGrahasInHouses(pos, secondLordSignIdx, RAMAN_BENEFICS, [h]).length>0;
+  const condA = beneficsFromSecondLord(8) && beneficsFromSecondLord(12);
+  const seventhLord = lordOfHouse(7, ascSignIdx);
+  const seventhLordSignIdx = Math.floor(norm360(pos[seventhLord].sidereal)/30);
+  const houseFrom7th = g => bsHouseFromAsc(pos[g].sidereal, seventhLordSignIdx);
+  const condB = houseFrom7th('Jupiter')===4 && houseFrom7th('Moon')===9 && houseFrom7th('Mercury')===8;
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const houseFromLagnaLord = g => bsHouseFromAsc(pos[g].sidereal, lagnaLordSignIdx);
+  const condC = houseFromLagnaLord('Sun')===4 && houseFromLagnaLord('Venus')===10 && houseFromLagnaLord('Mars')===11;
+  return { present: condA || condB || condC, condA, condB, condC };
+}
+function kusumaYoga(pos, ascSignIdx){
+  // #52 (txt L3522-3525): Jupiter in the Lagna, the Moon in the 7th (from
+  // Lagna), and the Sun in the 8th from the Moon (Raman notes this is
+  // equivalent to the Sun being 2nd from the Moon). His own Remarks
+  // identify this as a fusion of Gajakesari Yoga (Moon 7th from Jupiter,
+  // when Jupiter is in Lagna) with a Vasi-family Sun placement.
+  const jupInLagna = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx) === 1;
+  const moonInSeventh = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx) === 7;
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const sunInEighthFromMoon = bsHouseFromAsc(pos.Sun.sidereal, moonSignIdx) === 8;
+  return { present: jupInLagna && moonInSeventh && sunInEighthFromMoon, jupInLagna, moonInSeventh, sunInEighthFromMoon };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
