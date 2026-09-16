@@ -8852,7 +8852,37 @@ function renderNatalPage(){
       nameEn:'Hala Yoga', nameEs:'Yoga Hala',
       glossEn:'All seven classical grahas confined to one of the other two trikona sets (2nd/6th/10th, or 3rd/7th/11th) rather than the Lagna trine. "Hala" means plough — an agriculturist\'s profile.',
       glossEs:'Los siete graha clásicos confinados a uno de los otros dos conjuntos trikona (2.ª/6.ª/10.ª, o 3.ª/7.ª/11.ª) en vez del trino del Lagna. "Hala" significa arado — un perfil de agricultor.',
-      reasonLine: r => T(`Variant 2/6/10: ${hf(r.variant1)}. Variant 3/7/11: ${hf(r.variant2)}.`, `Variante 2.ª/6.ª/10.ª: ${hf(r.variant1)}. Variante 3.ª/7.ª/11.ª: ${hf(r.variant2)}.`) }
+      reasonLine: r => T(`Variant 2/6/10: ${hf(r.variant1)}. Variant 3/7/11: ${hf(r.variant2)}.`, `Variante 2.ª/6.ª/10.ª: ${hf(r.variant1)}. Variante 3.ª/7.ª/11.ª: ${hf(r.variant2)}.`) },
+    { result: kamalaYoga(birthPos, lagnaIdx), num: 88,
+      nameEn:'Kamala Yoga', nameEs:'Yoga Kamala',
+      glossEn:'All seven classical grahas confined to the four kendras — Raman calls it "practically the same as Chatussagara [#8] though not synonymous": this one only needs no graha outside the kendras, not every kendra individually filled. Prestige, fame and virtue rather than raw wealth.',
+      glossEs:'Los siete graha clásicos confinados a los cuatro kendras — Raman lo llama "prácticamente lo mismo que Chatussagara [#8] aunque no sinónimo": este solo requiere que ningún graha quede fuera de los kendras, no que cada kendra esté individualmente ocupado. Prestigio, fama y virtud más que riqueza en bruto.',
+      reasonLine: r => T(`All 7 grahas confined to the 4 kendras: ${hf(r.present)}.`, `Los 7 graha confinados a los 4 kendras: ${hf(r.present)}.`) },
+    { result: vapeeYoga(birthPos, lagnaIdx), num: 89,
+      nameEn:'Vapee Yoga', nameEs:'Yoga Vapee',
+      glossEn:'All seven classical grahas confined exclusively to the four Panaparas, or exclusively to the four Apoklimas. "Vapee" means a well — a hoarder\'s profile, mean and always pining after wealth, the mirror-opposite of Kamala\'s prestige-over-money reading.',
+      glossEs:'Los siete graha clásicos confinados exclusivamente a los cuatro Panapara, o exclusivamente a los cuatro Apoklima. "Vapee" significa un pozo — un perfil acaparador, mezquino y siempre ansiando riqueza, la contraparte especular de la lectura de prestigio-sobre-dinero de Kamala.',
+      reasonLine: r => T(`All in Panaparas (2,5,8,11): ${hf(r.panapara)}. All in Apoklimas (3,6,9,12): ${hf(r.apoklima)}.`, `Todos en Panapara (2,5,8,11): ${hf(r.panapara)}. Todos en Apoklima (3,6,9,12): ${hf(r.apoklima)}.`) },
+    { result: samudraYoga(birthPos, lagnaIdx), num: 90,
+      nameEn:'Samudra Yoga', nameEs:'Yoga Samudra',
+      glossEn:'All seven classical grahas confined to the six even houses — the mirror-image of Chandra Yoga\'s odd-house confinement (#80). Raman calls this genuinely rare: a ruler\'s ease and freedom from worry.',
+      glossEs:'Los siete graha clásicos confinados a las seis casas pares — la imagen especular del confinamiento a casas impares del Yoga Chandra (#80). Raman lo llama genuinamente raro: la tranquilidad y ausencia de preocupación de un gobernante.',
+      reasonLine: r => T(`All 7 grahas confined to even houses: ${hf(r.present)}.`, `Los 7 graha confinados a casas pares: ${hf(r.present)}.`) },
+    { result: vallakiYoga(birthPos), num: 91,
+      nameEn:'Vallaki Yoga', nameEs:'Yoga Vallaki',
+      glossEn:'The first of the 7 Sankhya (numerical) Nabhasa Yogas — all seven classical grahas in seven DIFFERENT signs (no conjunctions at all). Also called Veena Yoga. Raman cautions that Sankhya Yogas should only be read on their own terms when no other, more specific Nabhasa Yoga already covers the same chart.',
+      glossEs:'El primero de los 7 Yoga Sankhya (numéricos) Nabhasa — los siete graha clásicos en siete signos DIFERENTES (sin conjunciones en absoluto). También llamado Yoga Veena. Raman advierte que los Yoga Sankhya solo deben leerse por sí mismos cuando ningún otro Yoga Nabhasa más específico ya cubre la misma carta.',
+      reasonLine: r => T(`Distinct signs occupied: ${r.distinctSigns}/7 (needs 7).`, `Signos distintos ocupados: ${r.distinctSigns}/7 (necesita 7).`) },
+    { result: daminiYoga(birthPos), num: 92,
+      nameEn:'Damini Yoga', nameEs:'Yoga Damini',
+      glossEn:'The seven classical grahas occupy exactly 6 distinct signs (one conjunction pair). Charity, helpfulness, and — per Raman\'s own comparative worked examples — a strength that varies considerably with the rest of the chart\'s disposition.',
+      glossEs:'Los siete graha clásicos ocupan exactamente 6 signos distintos (un par en conjunción). Caridad, disposición a ayudar, y — según los propios ejemplos comparativos de Raman — una fuerza que varía considerablemente según el resto de la disposición de la carta.',
+      reasonLine: r => T(`Distinct signs occupied: ${r.distinctSigns}/7 (needs 6).`, `Signos distintos ocupados: ${r.distinctSigns}/7 (necesita 6).`) },
+    { result: pasaYoga(birthPos), num: 93,
+      nameEn:'Pasa Yoga', nameEs:'Yoga Pasa',
+      glossEn:'The seven classical grahas occupy exactly 5 distinct signs. Wealth through right means, surrounded by friends and relatives — Raman explicitly rejects Saravali\'s claim that this alone indicates incarceration, noting other combinations must be present for that reading.',
+      glossEs:'Los siete graha clásicos ocupan exactamente 5 signos distintos. Riqueza por medios correctos, rodeado de amigos y parientes — Raman rechaza explícitamente la afirmación de Saravali de que esto por sí solo indica encarcelamiento, señalando que deben estar presentes otras combinaciones para esa lectura.',
+      reasonLine: r => T(`Distinct signs occupied: ${r.distinctSigns}/7 (needs 5).`, `Signos distintos ocupados: ${r.distinctSigns}/7 (necesita 5).`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9002,7 +9032,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-87 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-87 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-93 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-93 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -12139,6 +12169,56 @@ function halaYoga(pos, ascSignIdx){
   const variant1 = houses.every(h=>[2,6,10].includes(h));
   const variant2 = houses.every(h=>[3,7,11].includes(h));
   return { present: variant1 || variant2, variant1, variant2 };
+}
+function kamalaYoga(pos, ascSignIdx){
+  // #88 (txt L4819-4823): all seven classical grahas confined to the four
+  // kendras — Raman calls this "practically the same as Chatussagara
+  // [#8] though not synonymous": Chatussagara requires each of the 4
+  // kendras individually occupied, Kamala only requires no graha strays
+  // OUTSIDE the kendras (pure confinement, not full coverage) — that
+  // distinction is exactly what's implemented here.
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  const houses = sevenGrahas.map(g => bsHouseFromAsc(pos[g].sidereal, ascSignIdx));
+  return { present: houses.every(h=>[1,4,7,10].includes(h)) };
+}
+function vapeeYoga(pos, ascSignIdx){
+  // #89 (txt L4819-4823): all seven classical grahas confined exclusively
+  // to the four Panaparas (2/5/8/11) OR exclusively to the four Apoklimas
+  // (3/6/9/12).
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  const houses = sevenGrahas.map(g => bsHouseFromAsc(pos[g].sidereal, ascSignIdx));
+  const panapara = houses.every(h=>[2,5,8,11].includes(h));
+  const apoklima = houses.every(h=>[3,6,9,12].includes(h));
+  return { present: panapara || apoklima, panapara, apoklima };
+}
+function samudraYoga(pos, ascSignIdx){
+  // #90 (txt L4872-4874): all seven classical grahas confined to the six
+  // even houses (2/4/6/8/10/12) — the mirror-image counterpart to Chandra
+  // Yoga's odd-house confinement (#80). Raman calls this genuinely rare,
+  // since all seven planets have to share just six alternate signs.
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  const evenHouses = [2,4,6,8,10,12];
+  return { present: sevenGrahas.every(g => evenHouses.includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx))) };
+}
+function countDistinctSignsOccupied(pos){
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  return new Set(sevenGrahas.map(g => Math.floor(norm360(pos[g].sidereal)/30))).size;
+}
+function vallakiYoga(pos){
+  // #91 (txt L4913-4915): the first of the 7 "Sankhya" (numerical) Nabhasa
+  // Yogas — all seven classical grahas occupy 7 DIFFERENT signs (no two
+  // conjunct). Also known as Veena Yoga.
+  return { present: countDistinctSignsOccupied(pos) === 7, distinctSigns: countDistinctSignsOccupied(pos) };
+}
+function daminiYoga(pos){
+  // #92 (txt L4971-4973): the seven classical grahas occupy exactly 6
+  // distinct signs (one conjunction pair among them).
+  return { present: countDistinctSignsOccupied(pos) === 6, distinctSigns: countDistinctSignsOccupied(pos) };
+}
+function pasaYoga(pos){
+  // #93 (txt L5046-5048): the seven classical grahas occupy exactly 5
+  // distinct signs.
+  return { present: countDistinctSignsOccupied(pos) === 5, distinctSigns: countDistinctSignsOccupied(pos) };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
