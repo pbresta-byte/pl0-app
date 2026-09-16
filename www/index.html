@@ -8581,7 +8581,57 @@ function renderNatalPage(){
       nameEn:'Ubhayachari Yoga', nameEs:'Yoga Ubhayachari',
       glossEn:'Planets other than the Moon, Rahu and Ketu on BOTH sides of the Sun at once — Vesi and Vasi holding simultaneously. Reads as eloquence, a well-proportioned bearing, and broad likability. Raman notes one of these three Solar yogas (Vesi/Vasi/Ubhayachari) is present in almost every chart, since Mercury\'s limited elongation from the Sun makes at least one of them close to unavoidable.',
       glossEs:'Planetas distintos de la Luna, Rahu y Ketu a ambos lados del Sol a la vez — Vesi y Vasi vigentes simultáneamente. Se lee como elocuencia, un porte bien proporcionado y simpatía amplia. Raman señala que uno de estos tres yogas solares (Vesi/Vasi/Ubhayachari) está presente en casi toda carta, ya que la elongación limitada de Mercurio respecto al Sol hace casi inevitable al menos uno de ellos.',
-      reasonLine: r => T(`2nd-from-Sun: ${r.secondHouseGrahas.length?r.secondHouseGrahas.join(', '):'none'}. 12th-from-Sun: ${r.twelfthHouseGrahas.length?r.twelfthHouseGrahas.join(', '):'none'}. Both needed.`, `2.ª desde el Sol: ${r.secondHouseGrahas.length?r.secondHouseGrahas.join(', '):'ninguno'}. 12.ª desde el Sol: ${r.twelfthHouseGrahas.length?r.twelfthHouseGrahas.join(', '):'ninguno'}. Se necesitan ambas.`) }
+      reasonLine: r => T(`2nd-from-Sun: ${r.secondHouseGrahas.length?r.secondHouseGrahas.join(', '):'none'}. 12th-from-Sun: ${r.twelfthHouseGrahas.length?r.twelfthHouseGrahas.join(', '):'none'}. Both needed.`, `2.ª desde el Sol: ${r.secondHouseGrahas.length?r.secondHouseGrahas.join(', '):'ninguno'}. 12.ª desde el Sol: ${r.twelfthHouseGrahas.length?r.twelfthHouseGrahas.join(', '):'ninguno'}. Se necesitan ambas.`) },
+    { result: panchamahapurushaYoga('Jupiter', birthPos, lagnaIdx), num: 19,
+      nameEn:'Hamsa Yoga', nameEs:'Yoga Hamsa',
+      glossEn:`Jupiter in a kendra from the Lagna that is also his own sign (Sagittarius/Pisces) or exaltation (Cancer) — the first of the five Panchamahapurusha Yogas. ${MAHAPURUSHA_YOGA.Jupiter.desc} Raman notes fixed-sign Lagnas (Taurus/Leo/Scorpio/Aquarius) can never produce this yoga at all, since neither of Jupiter's qualifying signs can then fall in a kendra.`,
+      glossEs:`Júpiter en un kendra desde el Lagna que también es su signo propio (Sagitario/Piscis) o de exaltación (Cáncer) — el primero de los cinco Panchamahapurusha Yoga. ${MAHAPURUSHA_YOGA.Jupiter.descEs} Raman señala que los Lagnas de signo fijo (Tauro/Leo/Escorpio/Acuario) nunca pueden producir este yoga, ya que ninguno de los signos calificantes de Júpiter puede entonces caer en un kendra.`,
+      reasonLine: r => T(`Jupiter's house from Lagna: ${r.house} (kendra needed). Own/exalted sign: ${hf(r.ownOrExalt)}.`, `Casa de Júpiter desde el Lagna: ${r.house} (se necesita kendra). Signo propio/exaltado: ${hf(r.ownOrExalt)}.`) },
+    { result: panchamahapurushaYoga('Venus', birthPos, lagnaIdx), num: 20,
+      nameEn:'Malavya Yoga', nameEs:'Yoga Malavya',
+      glossEn:`Venus in a kendra from the Lagna that is also his own sign (Taurus/Libra) or exaltation (Pisces). ${MAHAPURUSHA_YOGA.Venus.desc} Raman contrasts this with Hamsa: both are Raja Yogas, but where Hamsa inclines toward the idealistic and selfless, Malavya inclines toward material pleasure and comfort.`,
+      glossEs:`Venus en un kendra desde el Lagna que también es su signo propio (Tauro/Libra) o de exaltación (Piscis). ${MAHAPURUSHA_YOGA.Venus.descEs} Raman lo contrasta con Hamsa: ambos son Raja Yoga, pero donde Hamsa inclina hacia lo idealista y desinteresado, Malavya inclina hacia el placer material y la comodidad.`,
+      reasonLine: r => T(`Venus's house from Lagna: ${r.house} (kendra needed). Own/exalted sign: ${hf(r.ownOrExalt)}.`, `Casa de Venus desde el Lagna: ${r.house} (se necesita kendra). Signo propio/exaltado: ${hf(r.ownOrExalt)}.`) },
+    { result: panchamahapurushaYoga('Saturn', birthPos, lagnaIdx), num: 21,
+      nameEn:'Sasa Yoga', nameEs:'Yoga Sasa',
+      glossEn:`Saturn in a kendra from the Lagna that is also his own sign (Capricorn/Aquarius) or exaltation (Libra). ${MAHAPURUSHA_YOGA.Saturn.desc} Raman is explicit this yoga carries real moral caution alongside the power — he ties the severity directly to whether the Moon is itself afflicted.`,
+      glossEs:`Saturno en un kendra desde el Lagna que también es su signo propio (Capricornio/Acuario) o de exaltación (Libra). ${MAHAPURUSHA_YOGA.Saturn.descEs} Raman es explícito en que este yoga conlleva una cautela moral real junto con el poder — vincula la severidad directamente a si la Luna misma está afligida.`,
+      reasonLine: r => T(`Saturn's house from Lagna: ${r.house} (kendra needed). Own/exalted sign: ${hf(r.ownOrExalt)}.`, `Casa de Saturno desde el Lagna: ${r.house} (se necesita kendra). Signo propio/exaltado: ${hf(r.ownOrExalt)}.`) },
+    { result: panchamahapurushaYoga('Mars', birthPos, lagnaIdx), num: 22,
+      nameEn:'Ruchaka Yoga', nameEs:'Yoga Ruchaka',
+      glossEn:`Mars in a kendra from the Lagna that is also his own sign (Aries/Scorpio) or exaltation (Capricorn). ${MAHAPURUSHA_YOGA.Mars.desc} Raman stresses all five Panchamahapurusha Yogas require the planet to be genuinely strong ("balishta"), not merely nominally placed — a weak or afflicted placement gives only the yoga's name, not its real force.`,
+      glossEs:`Marte en un kendra desde el Lagna que también es su signo propio (Aries/Escorpio) o de exaltación (Capricornio). ${MAHAPURUSHA_YOGA.Mars.descEs} Raman insiste en que los cinco Panchamahapurusha Yoga requieren que el planeta sea genuinamente fuerte ("balishta"), no solo nominalmente ubicado — una posición débil o afligida da solo el nombre del yoga, no su fuerza real.`,
+      reasonLine: r => T(`Mars's house from Lagna: ${r.house} (kendra needed). Own/exalted sign: ${hf(r.ownOrExalt)}.`, `Casa de Marte desde el Lagna: ${r.house} (se necesita kendra). Signo propio/exaltado: ${hf(r.ownOrExalt)}.`) },
+    { result: panchamahapurushaYoga('Mercury', birthPos, lagnaIdx), num: 23,
+      nameEn:'Bhadra Yoga', nameEs:'Yoga Bhadra',
+      glossEn:`Mercury in a kendra from the Lagna that is also his own sign (Gemini/Virgo) — Mercury's exaltation sign, Virgo, is already one of his own signs, so this condition is effectively "own sign in a kendra" for Mercury specifically. ${MAHAPURUSHA_YOGA.Mercury.desc}`,
+      glossEs:`Mercurio en un kendra desde el Lagna que también es su signo propio (Géminis/Virgo) — el signo de exaltación de Mercurio, Virgo, ya es uno de sus propios signos, así que esta condición equivale en la práctica a "signo propio en un kendra" específicamente para Mercurio. ${MAHAPURUSHA_YOGA.Mercury.descEs}`,
+      reasonLine: r => T(`Mercury's house from Lagna: ${r.house} (kendra needed). Own/exalted sign: ${hf(r.ownOrExalt)}.`, `Casa de Mercurio desde el Lagna: ${r.house} (se necesita kendra). Signo propio/exaltado: ${hf(r.ownOrExalt)}.`) },
+    { result: budhaAdityaYoga(birthPos), num: 24,
+      nameEn:'Budha-Aditya Yoga', nameEs:'Yoga Budha-Aditya',
+      glossEn:'Mercury conjunct the Sun. High intelligence, skill across many kinds of work, good reputation and comfort — Raman notes Mercury is the rare exception among planets that doesn\'t simply lose power near the Sun (combustion/Asta) the way others do.',
+      glossEs:'Mercurio conjunto al Sol. Gran inteligencia, habilidad en muchos tipos de trabajo, buena reputación y comodidad — Raman señala que Mercurio es la rara excepción entre los planetas que no simplemente pierde poder cerca del Sol (combustión/Asta) como los demás.',
+      reasonLine: r => T(`Mercury and Sun conjunct (same sign): ${hf(r.present)}.`, `Mercurio y Sol conjuntos (mismo signo): ${hf(r.present)}.`) },
+    { result: mahabhagyaYoga(birthPos, readDateTime("b")), num: 25,
+      nameEn:'Mahabhagya Yoga', nameEs:'Yoga Mahabhagya',
+      glossEn:'Mahabhagya means "great fortune." A gendered day/night combination: a man born by day needs the Sun, Moon and Lagna all in odd signs; a woman born by night needs all three in even signs. This app has no birth-gender field, so both the sign-parity fact and day/night fact are shown plainly rather than assuming which variant applies.',
+      glossEs:'Mahabhagya significa "gran fortuna." Una combinación de género y día/noche: un hombre nacido de día necesita el Sol, la Luna y el Lagna en signos impares; una mujer nacida de noche los necesita en signos pares. Esta app no tiene un campo de género de nacimiento, así que se muestran claramente tanto el hecho de paridad de signo como el de día/noche, sin asumir cuál variante aplica.',
+      reasonLine: r => T(`Sun/Moon/Lagna all odd: ${hf(r.allOdd)}. All even: ${hf(r.allEven)}. Birth was: ${r.isDaytime===null?'unknown (polar latitude)':r.isDaytime?'daytime':'nighttime'}.`, `Sol/Luna/Lagna todos impares: ${hf(r.allOdd)}. Todos pares: ${hf(r.allEven)}. El nacimiento fue: ${r.isDaytime===null?'desconocido (latitud polar)':r.isDaytime?'de día':'de noche'}.`) },
+    { result: pushkalaYoga(birthPos, lagnaIdx), num: 26,
+      nameEn:'Pushkala Yoga', nameEs:'Yoga Pushkala',
+      glossEn:'The Lagna lord conjunct the Moon, with the lord of the Moon\'s own sign in a kendra or friendly sign while aspecting the Lagna. Wealth, sweet speech and honour from those in power — Raman\'s own worked example treats this pairing as sufficient on its own, with a strong planet in the Lagna itself as a further (not required) enhancer.',
+      glossEs:'El señor del Lagna conjunto a la Luna, con el señor del signo de la Luna en un kendra o signo amistoso mientras aspecta al Lagna. Riqueza, habla dulce y honor de quienes tienen poder — el propio ejemplo de Raman trata esta pareja como suficiente por sí sola, con un planeta fuerte en el propio Lagna como potenciador adicional (no requerido).',
+      reasonLine: r => T(`Lagna lord (${r.lagnaLord}) conjunct Moon: ${hf(r.condA)}. Chandra Lagna lord (${r.chandraLagnaLord}) in kendra/friendly sign + aspecting Lagna: ${hf(r.condB)}. Bonus — strong planet in Lagna: ${hf(r.condC)}.`, `Señor del Lagna (${r.lagnaLord}) conjunto a la Luna: ${hf(r.condA)}. Señor del Lagna lunar (${r.chandraLagnaLord}) en kendra/signo amistoso + aspectando al Lagna: ${hf(r.condB)}. Bono — planeta fuerte en el Lagna: ${hf(r.condC)}.`) },
+    { result: lakshmiYoga(birthPos, lagnaIdx), num: 27,
+      nameEn:'Lakshmi Yoga', nameEs:'Yoga Lakshmi',
+      glossEn:'Any of three paths: the Lagna and 9th lords conjunct; the 9th lord strong (kendra/trikona or exalted) with a powerful Lagna lord; or the 9th lord and Venus both in own-or-exaltation signs that are also kendra/trikona houses (Raman\'s most powerful variant). A wealth combination graded by which path and how strongly.',
+      glossEs:'Cualquiera de tres vías: los señores del Lagna y de la 9.ª conjuntos; el señor de la 9.ª fuerte (kendra/trikona o exaltado) con un señor del Lagna poderoso; o el señor de la 9.ª y Venus ambos en signos propios o de exaltación que también son casas kendra/trikona (la variante más poderosa según Raman). Una combinación de riqueza graduada según la vía y su fuerza.',
+      reasonLine: r => T(`Path (a) Lagna+9th lords conjunct: ${hf(r.condA)}. Path (b) strong 9th lord + powerful Lagna lord: ${hf(r.condB)}. Path (c) 9th lord + Venus both own/exalted in kendra/trikona: ${hf(r.condC)}.`, `Vía (a) señores de Lagna+9.ª conjuntos: ${hf(r.condA)}. Vía (b) señor de la 9.ª fuerte + señor del Lagna poderoso: ${hf(r.condB)}. Vía (c) señor de la 9.ª + Venus ambos propios/exaltados en kendra/trikona: ${hf(r.condC)}.`) },
+    { result: gauriYoga(birthPos, navPos, lagnaIdx), num: 28,
+      nameEn:'Gauri Yoga', nameEs:'Yoga Gauri',
+      glossEn:'The lord of the Navamsa sign occupied by the 10th lord must itself be exalted in the 10th house and conjunct the Lagna lord — a dispositor-chain combination. Respectable family standing, property, and a charitable, well-regarded character.',
+      glossEs:'El señor del signo de Navamsa ocupado por el señor de la 10.ª debe estar exaltado en la 10.ª casa y conjunto al señor del Lagna — una combinación de cadena de dispositor. Posición familiar respetable, propiedades, y un carácter caritativo y bien considerado.',
+      reasonLine: r => T(`10th lord: ${r.tenthLord}. Its Navamsa-sign lord: ${r.navDispositor}. That lord exalted in the 10th: ${hf(r.inTenthExalted)}. Conjunct Lagna lord: ${hf(r.conjunctLagnaLord)}.`, `Señor de la 10.ª: ${r.tenthLord}. Señor de su signo de Navamsa: ${r.navDispositor}. Ese señor exaltado en la 10.ª: ${hf(r.inTenthExalted)}. Conjunto al señor del Lagna: ${hf(r.conjunctLagnaLord)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -8731,7 +8781,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-18 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-18 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-28 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-28 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -11180,6 +11230,125 @@ function ubhayachariYoga(pos){
   // implemented the same way here for the same textual reason.
   const v = vesiYoga(pos), a = vasiYoga(pos);
   return { present: v.present && a.present, secondHouseGrahas: v.grahas, twelfthHouseGrahas: a.grahas };
+}
+function panchamahapurushaYoga(graha, pos, ascSignIdx){
+  // #19-23 (txt L2297-2664): the five Panchamahapurusha Yogas — Jupiter/
+  // Venus/Saturn/Mars/Mercury each in a kendra (1st/4th/7th/10th) from the
+  // LAGNA specifically that is also that graha's own or exaltation sign.
+  // Lagna-only, not "or from the Moon" — confirmed by Raman's Remarks for
+  // Hamsa ("the assumption here is that Lagna is also a Kendra"; fixed-
+  // sign Lagnas are explicitly excluded because neither Jupiter's own nor
+  // exaltation sign can then land in a kendra from Lagna). Deliberately
+  // does NOT reuse the old, already-removed mahapurushaActiveInChart()
+  // logic (see Directive A cleanup, 2026-09-15), which checked kendra from
+  // Lagna OR Moon — a different, unsourced-here condition. Reuses the
+  // MAHAPURUSHA_YOGA data table (kept during that cleanup for exactly this
+  // purpose) for each yoga's name/description.
+  const sid = pos[graha].sidereal;
+  const house = bsHouseFromAsc(sid, ascSignIdx);
+  const inKendra = [1,4,7,10].includes(house);
+  const ownOrExalt = isOwnOrExalt(graha, sid);
+  return { present: inKendra && ownOrExalt, house, ownOrExalt };
+}
+function budhaAdityaYoga(pos){
+  // #24 (txt L2693-2696): Mercury conjunct (combined with) the Sun. Raman's
+  // own Remarks (L2700-2711) contain a garbled/self-contradictory sentence
+  // about a possible elongation cap ("Mercury should not be within 10° of
+  // the Sun to give rise to..." right after saying distance shouldn't be
+  // taken for granted as irrelevant) that reads as OCR corruption rather
+  // than a coherent added rule — implemented to the plain, unambiguous
+  // Definition (same-sign conjunction), the well-established mainstream
+  // reading of this yoga.
+  const sunSignIdx = Math.floor(norm360(pos.Sun.sidereal)/30);
+  const mercSignIdx = Math.floor(norm360(pos.Mercury.sidereal)/30);
+  return { present: sunSignIdx === mercSignIdx };
+}
+function mahabhagyaYoga(pos, dt){
+  // #25 (txt L2712-2717): gendered day/night condition — a male born by
+  // day needs Sun+Moon+Lagna all in ODD signs; a female born by night
+  // needs all three in EVEN signs. This app has no birth-gender input, so
+  // both branches are computed and reported as plain facts (which
+  // sign-parity holds, and whether the birth was day or night) rather than
+  // assuming the native's gender.
+  const isOdd = sid => ((Math.floor(norm360(sid)/30)+1) % 2) === 1;
+  const allOdd = isOdd(pos.Sun.sidereal) && isOdd(pos.Moon.sidereal) && isOdd(pos._ascSidereal);
+  const allEven = !isOdd(pos.Sun.sidereal) && !isOdd(pos.Moon.sidereal) && !isOdd(pos._ascSidereal);
+  const sun = sunriseSunsetLocal(dt.y, dt.mo, dt.da, dt.lat, dt.lon, dt.tz);
+  const clockHr = dt.hh + dt.mm/60;
+  const isDaytime = sun ? (clockHr>=sun.sunriseHr && clockHr<sun.sunsetHr) : null;
+  const maleDaytimeVariant = allOdd && isDaytime===true;
+  const femaleNighttimeVariant = allEven && isDaytime===false;
+  return { present: maleDaytimeVariant || femaleNighttimeVariant, allOdd, allEven, isDaytime, maleDaytimeVariant, femaleNighttimeVariant };
+}
+function pushkalaYoga(pos, ascSignIdx){
+  // #26 (txt L2763-2768): (a) Lagna lord conjunct the Moon; (b) the lord of
+  // the Moon's own sign (Chandra Lagna) in a kendra from Lagna OR in a
+  // friendly sign, AND aspecting the Lagna; (c) Lagna occupied by a
+  // "powerful" planet — AMBIGUITY FLAG: "powerful" isn't numerically
+  // defined here; operationalized as own/exalted/friendly dignity, same
+  // convention as Kahala Yoga's "strongly disposed" above. Raman's own
+  // worked Chart No.26 satisfies (a) and (b) but explicitly NOT (c)
+  // ("there is no planet in Lagna") and still calls Pushkala "present,
+  // subject to the absence of the third condition" — i.e. (a)+(b) together
+  // are what he treats as sufficient, with (c) an enhancer rather than a
+  // strict requirement; implemented as present = (a) AND (b), with (c)
+  // tracked and reported separately as a strength note, not gating.
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const condA = Math.floor(norm360(pos[lagnaLord].sidereal)/30) === moonSignIdx;
+  const chandraLagnaLord = SIGN_LORD[SIGNS[moonSignIdx]];
+  const cllSignIdx = Math.floor(norm360(pos[chandraLagnaLord].sidereal)/30);
+  const cllHouse = bsHouseFromAsc(pos[chandraLagnaLord].sidereal, ascSignIdx);
+  const cllInKendra = [1,4,7,10].includes(cllHouse);
+  const cllInFriendSign = GRAHA_SIGN_REL[chandraLagnaLord].friend.includes(cllSignIdx+1);
+  const cllAspectsLagna = aspectsSignWholeSign(chandraLagnaLord, cllSignIdx, ascSignIdx);
+  const condB = (cllInKendra || cllInFriendSign) && cllAspectsLagna;
+  const lagnaOccupants = bsGrahasInHouses(pos, ascSignIdx, GRAHA_LIST, [1]);
+  const condC = lagnaOccupants.some(g => ['Own','Exalted','Friend'].includes(dignityTierInSign(g, ascSignIdx)));
+  return { present: condA && condB, condA, condB, condC, lagnaLord, chandraLagnaLord };
+}
+function lakshmiYoga(pos, ascSignIdx){
+  // #27 (txt L2817-2834): three alternate definitions Raman gives, OR'd —
+  // (a) Lagna lord and 9th lord mutually associated (conjunct);
+  // (b) 9th lord in a kendra/trikona house or exalted, with the Lagna lord
+  // powerfully disposed; (c) the 9th lord AND Venus both in own-or-
+  // exaltation signs that also happen to be kendra/trikona houses from
+  // Lagna — Raman calls (c) the most powerful variant.
+  const lagnaLord = lordOfHouse(1, ascSignIdx), ninthLord = lordOfHouse(9, ascSignIdx);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const ninthLordSignIdx = Math.floor(norm360(pos[ninthLord].sidereal)/30);
+  const condA = lagnaLord!==ninthLord && lagnaLordSignIdx === ninthLordSignIdx;
+  const kendraTrikona = [1,4,5,7,9,10];
+  const ninthLordHouse = bsHouseFromAsc(pos[ninthLord].sidereal, ascSignIdx);
+  const ninthLordDignity = dignityTierInSign(ninthLord, ninthLordSignIdx);
+  const ninthLordStrong = kendraTrikona.includes(ninthLordHouse) || ninthLordDignity==='Exalted';
+  const lagnaLordDignity = dignityTierInSign(lagnaLord, lagnaLordSignIdx);
+  const lagnaLordPowerful = ['Own','Exalted','Friend'].includes(lagnaLordDignity);
+  const condB = ninthLordStrong && lagnaLordPowerful;
+  const venusSignIdx = Math.floor(norm360(pos.Venus.sidereal)/30);
+  const venusHouse = bsHouseFromAsc(pos.Venus.sidereal, ascSignIdx);
+  const ninthLordOwnOrExaltInKT = ['Own','Exalted'].includes(ninthLordDignity) && kendraTrikona.includes(ninthLordHouse);
+  const venusOwnOrExaltInKT = ['Own','Exalted'].includes(dignityTierInSign('Venus', venusSignIdx)) && kendraTrikona.includes(venusHouse);
+  const condC = ninthLordOwnOrExaltInKT && venusOwnOrExaltInKT;
+  return { present: condA || condB || condC, condA, condB, condC };
+}
+function gauriYoga(pos, navPos, ascSignIdx){
+  // #28 (txt L2921-2924): the lord of the Navamsa sign occupied by the
+  // 10th lord should itself be in the 10th house (from Lagna), exalted
+  // there, and conjunct the Lagna lord. Raman notes a rival definition
+  // exists (9th lord + Moon both in own/exaltation identical with a
+  // kendra/trikona) but explicitly rejects a folk age-restriction belief
+  // and sticks with the Navamsa-dispositor definition given here —
+  // implemented to his own stated choice, not the rival one.
+  const tenthLord = lordOfHouse(10, ascSignIdx);
+  const tenthLordNavSignIdx = Math.floor(norm360(navPos[tenthLord].sidereal)/30);
+  const navDispositor = SIGN_LORD[SIGNS[tenthLordNavSignIdx]];
+  const navDispositorSignIdx = Math.floor(norm360(pos[navDispositor].sidereal)/30);
+  const navDispositorHouse = bsHouseFromAsc(pos[navDispositor].sidereal, ascSignIdx);
+  const inTenthExalted = navDispositorHouse===10 && dignityTierInSign(navDispositor, navDispositorSignIdx)==='Exalted';
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const conjunctLagnaLord = navDispositor!==lagnaLord && Math.floor(norm360(pos[lagnaLord].sidereal)/30)===navDispositorSignIdx;
+  return { present: inTenthExalted && conjunctLagnaLord, tenthLord, navDispositor, inTenthExalted, conjunctLagnaLord };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
