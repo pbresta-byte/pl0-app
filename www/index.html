@@ -9177,7 +9177,7 @@ function renderNatalPage(){
       nameEn:'Yukthi Samanwithavagmi Yoga (II)', nameEs:'Yoga Yukthi Samanwithavagmi (II)',
       glossEn:'Second of the pair: the lord of speech (read here as Mercury, the karaka) occupies a kendra, attains paramochha (deep exaltation) and gains Parvatamsa (own-varga six times), while Jupiter or Venus attains Simhasanamsa (own-varga five times).',
       glossEs:'La segunda del par: el señor del habla (leído aquí como Mercurio, el karaka) ocupa un kendra, alcanza paramochha (exaltación profunda) y gana Parvatamsa (varga propio seis veces), mientras Júpiter o Venus alcanza Simhasanamsa (varga propio cinco veces).',
-      reasonLine: r => T(`Mercury in kendra: ${hf(r.inKendra)}, deep-exalted: ${hf(r.paramochha)}, Parvatamsa (count ${r.parvatamsaCount}): ${hf(r.parvatamsaCount===6)}. Jupiter/Venus Simhasanamsa: ${hf(r.simhasanamsa)}.`, `Mercurio en kendra: ${hf(r.inKendra)}, exaltado profundamente: ${hf(r.paramochha)}, Parvatamsa (cuenta ${r.parvatamsaCount}): ${hf(r.parvatamsaCount===6)}. Simhasanamsa de Júpiter/Venus: ${hf(r.simhasanamsa)}.`) },
+      reasonLine: r => T(`Mercury in kendra: ${hf(r.inKendra)}, deep-exalted: ${hf(r.paramochha)}, Parvatamsa (count ${r.parvatamsaCount}): ${hf(r.parvatamsaCount>=6)}. Jupiter/Venus Simhasanamsa: ${hf(r.simhasanamsa)}.`, `Mercurio en kendra: ${hf(r.inKendra)}, exaltado profundamente: ${hf(r.paramochha)}, Parvatamsa (cuenta ${r.parvatamsaCount}): ${hf(r.parvatamsaCount>=6)}. Simhasanamsa de Júpiter/Venus: ${hf(r.simhasanamsa)}.`) },
     { result: parihasakaYoga(birthPos, navPos, lagnaIdx), num: 156,
       nameEn:'Parihasaka Yoga', nameEs:'Yoga Parihasaka',
       glossEn:'A humorous, witty speaker — "the spice of life," per Raman, that not everyone can claim with equal facility. The lord of the Navamsa sign occupied by the Sun attains Vaiseshikamsa and joins the 2nd house.',
@@ -9237,7 +9237,7 @@ function renderNatalPage(){
       nameEn:'Sumukha Yoga (II)', nameEs:'Yoga Sumukha (II)',
       glossEn:'Second of the pair: the 2nd lord posited in a kendra that is its own exaltation, own, or friendly sign, and the lord of that kendra sign attains Gopuramsa (own-varga four times).',
       glossEs:'La segunda del par: el señor de la 2.ª ubicado en un kendra que es su exaltación, signo propio, o amigo, y el señor de ese signo kendra alcanza Gopuramsa (varga propio cuatro veces).',
-      reasonLine: r => T(`2nd lord in kendra: ${hf(r.inKendra)}, good dignity: ${hf(r.dignityOk)}. Kendra lord (${r.kendraLord}) Gopuramsa (count ${r.gopuramsaCount}): ${hf(r.gopuramsaCount===4)}.`, `Señor de la 2.ª en kendra: ${hf(r.inKendra)}, buena dignidad: ${hf(r.dignityOk)}. Señor del kendra (${r.kendraLord}) Gopuramsa (cuenta ${r.gopuramsaCount}): ${hf(r.gopuramsaCount===4)}.`) },
+      reasonLine: r => T(`2nd lord in kendra: ${hf(r.inKendra)}, good dignity: ${hf(r.dignityOk)}. Kendra lord (${r.kendraLord}) Gopuramsa (count ${r.gopuramsaCount}): ${hf(r.gopuramsaCount>=4)}.`, `Señor de la 2.ª en kendra: ${hf(r.inKendra)}, buena dignidad: ${hf(r.dignityOk)}. Señor del kendra (${r.kendraLord}) Gopuramsa (cuenta ${r.gopuramsaCount}): ${hf(r.gopuramsaCount>=4)}.`) },
     { result: durmukhaYoga168(birthPos, lagnaIdx), num: 168,
       nameEn:'Durmukha Yoga (I)', nameEs:'Yoga Durmukha (I)',
       glossEn:'An ugly, repulsive face and an angry, irritable temper — first of two combinations. Malefics occupy the 2nd house, and its lord joins an evil planet or is debilitated.',
@@ -12402,14 +12402,30 @@ function checkRajYoga(lordships, birthPos){
 //    hold there with no aspect requirement stated, so the old AND-everything
 //    structure could fail this exact textbook case depending on transient
 //    aspect state, which the primary source never asks for.
-// 2. Gopuramsa varga set: Raman's own text defines Gopuramsa narrowly as
-//    "occupies its own varga FOUR TIMES" — specifically Rasi (D1) + Drekkana
-//    (D3) + Chaturthamsa (D4) + Sapthamsa (D7) all own-sign simultaneously
-//    (his own worked example: Jupiter 1st degree of Dhanus). The old code
-//    instead reused vaiseshikamsaCount('dasa') — count>=4 across a
-//    DIFFERENT, unrelated 10-varga set (D1/D2/D3/D7/D9/D10/D12/D16/D30/D60)
-//    that happens to share the name "Gopura" as the 4th rung of that
-//    general dignity ladder, but tests a completely different condition.
+// 2. Gopuramsa varga set (corrected again 2026-09-16): Raman's text says "A
+//    planet is said to attain Gopuramsa if he occupies his own varga four
+//    times. SUPPOSE Jupiter is in the first degree of Dhanus..." — the
+//    "suppose" introduces ONE illustrative example (Rasi+Drekkana+
+//    Chaturthamsa+Sapthamsa all own at that exact degree), not an exhaustive
+//    list restricting Gopuramsa to only those four vargas. "Gopura" is
+//    already this app's own JHora-verified name for the 4th rung of the
+//    general Vaiseshikamsa dignity ladder in the Dasavarga set (see
+//    VAISESHIKAMSA_NAMES.dasa) — Raman is invoking that same general,
+//    well-known system, not a bespoke narrow one. A prior pass (2026-09-15)
+//    reasoned the opposite way and hardcoded the D1/D3/D4/D7-only reading;
+//    re-examined 2026-09-16 after a real chart's own count of 5 (Simhasana,
+//    the rung ABOVE Gopura) was flagged as a false negative under that
+//    narrow reading.
+// 3. Exact-vs-threshold match (the actual bug): named Vaiseshikamsa tiers
+//    form a CUMULATIVE dignity ladder — reaching a higher-numbered rung
+//    necessarily means every lower rung's bar was already cleared (a graha
+//    at Simhasana(5) has, by construction, already achieved Gopura(4)'s
+//    threshold on the way up). "Attains Gopuramsa" therefore means
+//    count>=4, not count===4 exactly — treating it as an exact match wrongly
+//    excludes every graha that did even better than the named threshold.
+//    This same fix applies to every other yoga in this engine that checks a
+//    SPECIFIC named Vaiseshikamsa tier — audited and corrected together with
+//    this fix, see each yoga's own comment below for what changed.
 //
 // navamsaSidereal() for own-navamsa and aspectsSignWholeSign() for the
 // benefic-aspect condition are unchanged, already-verified primitives.
@@ -12417,7 +12433,6 @@ function checkRajYoga(lordships, birthPos){
 // even) was already correct — verified against Chart No. 108 (Jupiter
 // 9.2667° in Thula → ordinal 19, threshold 19 for the odd sign → matches).
 const TRIKALAGNANA_OWN_NAVAMSA_SIGNS = ['Sagittarius','Pisces'];
-const TRIKALAGNANA_GOPURAMSA_VARGAS = ['D1','D3','D4','D7'];
 function mridvamshaOrdinal(sidereal){
   const signIdx = Math.floor(norm360(sidereal)/30);
   const degInSign = norm360(sidereal) - signIdx*30;
@@ -12431,10 +12446,11 @@ function trikalagnanaYoga(pos, navPos){
   const jupNavSign = SIGNS[Math.floor(norm360(navamsaSidereal(jupSid))/30)];
   const ownNavamsa = TRIKALAGNANA_OWN_NAVAMSA_SIGNS.includes(jupNavSign);
   const mrid = mridvamshaOrdinal(jupSid);
-  const isGopuramsha = TRIKALAGNANA_GOPURAMSA_VARGAS.every(vk=>{
-    const signIdx = vimshopakaVargaSignIdx(vk, 'Jupiter', pos, navPos);
-    return dignityTierInSign('Jupiter', signIdx) === 'Own';
-  });
+  // Gopuramsa = the general Vaiseshikamsa dignity ladder's "Gopura" rung
+  // (Dasavarga set, count 4) -- reached at count>=4 since the ladder is
+  // cumulative (see the fix note above this function).
+  const gopuramshaCount = vaiseshikamsaCount('Jupiter', pos, navPos, 'dasa');
+  const isGopuramsha = gopuramshaCount >= 4;
   const jupSignIdx = Math.floor(norm360(jupSid)/30);
   const beneficAspect = ['Venus','Mercury','Moon'].some(b=>{
     if (!pos[b]) return false;
@@ -12449,7 +12465,7 @@ function trikalagnanaYoga(pos, navPos){
     reasons: {
       ownNavamsa: { pass: ownNavamsa, navamsaSign: jupNavSign },
       mridvamsha: { pass: mrid.isMridvamsha, ordinal: mrid.ordinal, threshold: mrid.threshold },
-      gopuramsha: { pass: isGopuramsha },
+      gopuramsha: { pass: isGopuramsha, count: gopuramshaCount },
       beneficAspect: { pass: beneficAspect },
       conditionA: { pass: conditionA },
       conditionB: { pass: conditionB }
@@ -14183,11 +14199,15 @@ function yukthiSamanwithavagmiYoga155(pos, navPos, ascSignIdx){
   const inKendra = [1,4,7,10].includes(house);
   const signIdx = Math.floor(norm360(pos[speechLord].sidereal)/30);
   const paramochha = dignityTierInSign(speechLord, signIdx)==='Exalted';
+  // Named Vaiseshikamsa tiers are a CUMULATIVE dignity ladder (2026-09-16
+  // fix, see the Trikalagnana note above): a graha at a higher rung has
+  // already cleared every lower rung's bar, so "attains Parvatamsa (6)" and
+  // "attains Simhasanamsa (5)" mean count>=6 and count>=5, not exact matches.
   const parvatamsaCount = vaiseshikamsaCount(speechLord, pos, navPos, 'dasa');
-  const parvatamsa = parvatamsaCount===6;
+  const parvatamsa = parvatamsaCount>=6;
   const jupCount = vaiseshikamsaCount('Jupiter', pos, navPos, 'dasa');
   const venCount = vaiseshikamsaCount('Venus', pos, navPos, 'dasa');
-  const simhasanamsa = jupCount===5 || venCount===5;
+  const simhasanamsa = jupCount>=5 || venCount>=5;
   return { present: inKendra && paramochha && parvatamsa && simhasanamsa, inKendra, paramochha, parvatamsaCount, jupCount, venCount, simhasanamsa };
 }
 function parihasakaYoga(pos, navPos, ascSignIdx){
@@ -14401,7 +14421,9 @@ function sumukhaYoga167(pos, navPos, ascSignIdx){
   const dignityOk = ['Own','Exalted','Friend'].includes(dignityTierInSign(lord2, lord2SignIdx));
   const kendraLord = SIGN_LORD[SIGNS[lord2SignIdx]];
   const gopuramsaCount = vaiseshikamsaCount(kendraLord, pos, navPos, 'dasa');
-  const gopuramsa = gopuramsaCount===4;
+  // Cumulative ladder fix (2026-09-16, see Trikalagnana note above):
+  // "attains Gopuramsa" means reaching AT LEAST count 4, not exactly 4.
+  const gopuramsa = gopuramsaCount>=4;
   return { present: inKendra && dignityOk && gopuramsa, inKendra, dignityOk, kendraLord, gopuramsaCount };
 }
 function durmukhaYoga168(pos, ascSignIdx){
@@ -15004,7 +15026,11 @@ function nishkapataYogaB(pos, navPos, ascSignIdx){
   const inFourth = lord1SignIdx===house4SignIdx;
   const beneficTouch = RAMAN_BENEFICS.some(b=> b!==lord1 && (Math.floor(norm360(pos[b].sidereal)/30)===house4SignIdx || aspectsSignWholeSign(b, Math.floor(norm360(pos[b].sidereal)/30), house4SignIdx)));
   const count = vaiseshikamsaCount(lord1, pos, navPos, 'dasa');
-  const namedTier = count===3 || count===6;
+  // Cumulative ladder fix (2026-09-16, see Trikalagnana note above):
+  // "attains Uttamamsa(3) or Parvata(6)" means reaching AT LEAST the lower
+  // of the two named thresholds -- count>=6 already implies count>=3, so
+  // this reduces to a single >=3 check rather than two exact matches.
+  const namedTier = count>=3;
   return { present: inFourth && (beneficTouch || namedTier), inFourth, beneficTouch, namedTier };
 }
 // #207, Matru Satrutwa Yoga (txt L7860-7862): Mercury as lord of BOTH
@@ -15700,7 +15726,9 @@ function rajaYoga256(pos, navPos, ascSignIdx){
   const in9th = bsHouseFromAsc(pos[lord10].sidereal, ascSignIdx)===9;
   const lord10NavSignIdx = Math.floor(norm360(navPos[lord10].sidereal)/30);
   const navFavourable = ['Exalted','Friend'].includes(dignityTierInSign(lord10, lord10NavSignIdx));
-  const hasUttamamsa = vaiseshikamsaCount(lord10, pos, navPos, 'dasa')===3;
+  // Cumulative ladder fix (2026-09-16, see Trikalagnana note above):
+  // "attained Uttamamsa" means reaching AT LEAST count 3, not exactly 3.
+  const hasUttamamsa = vaiseshikamsaCount(lord10, pos, navPos, 'dasa')>=3;
   return { present: in9th && navFavourable && hasUttamamsa, in9th, navFavourable, hasUttamamsa };
 }
 // #257 (txt L9982-9984): Jupiter in the 5th from Lagna, in a kendra from
