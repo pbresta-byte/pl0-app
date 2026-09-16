@@ -9822,7 +9822,52 @@ function renderNatalPage(){
       nameEn:'Vatharoga Yoga', nameEs:'Yoga Vatharoga',
       glossEn:'Windy/rheumatic complaints (per Ayurveda\'s Vata dosha). Jupiter in Lagna and Saturn in the 7th house.',
       glossEs:'Molestias de viento/reumáticas (según el dosha Vata del Ayurveda). Júpiter en el Lagna y Saturno en la 7.ª casa.',
-      reasonLine: r => T(`Jupiter in Lagna: ${hf(r.jupInLagna)}. Saturn in 7th: ${hf(r.saturnIn7th)}.`, `Júpiter en el Lagna: ${hf(r.jupInLagna)}. Saturno en la 7.ª: ${hf(r.saturnIn7th)}.`) }
+      reasonLine: r => T(`Jupiter in Lagna: ${hf(r.jupInLagna)}. Saturn in 7th: ${hf(r.saturnIn7th)}.`, `Júpiter en el Lagna: ${hf(r.jupInLagna)}. Saturno en la 7.ª: ${hf(r.saturnIn7th)}.`) },
+    { result: matibhramanaYogaA(birthPos, lagnaIdx), num: 291,
+      nameEn:'Matibhramana Yoga I', nameEs:'Yoga Matibhramana I',
+      glossEn:'Insanity. Jupiter in Lagna and Mars in the 7th.',
+      glossEs:'Locura. Júpiter en el Lagna y Marte en la 7.ª.',
+      reasonLine: r => T(`Jupiter in Lagna: ${hf(r.jupInLagna)}. Mars in 7th: ${hf(r.marsIn7th)}.`, `Júpiter en el Lagna: ${hf(r.jupInLagna)}. Marte en la 7.ª: ${hf(r.marsIn7th)}.`) },
+    { result: matibhramanaYogaB(birthPos, lagnaIdx), num: 292,
+      nameEn:'Matibhramana Yoga II', nameEs:'Yoga Matibhramana II',
+      glossEn:'Insanity. Saturn in Lagna and Mars in the 9th, 5th or 7th.',
+      glossEs:'Locura. Saturno en el Lagna y Marte en la 9.ª, la 5.ª o la 7.ª.',
+      reasonLine: r => T(`Saturn in Lagna: ${hf(r.saturnInLagna)}. Mars in 5th/7th/9th: ${hf(r.marsIn579)}.`, `Saturno en el Lagna: ${hf(r.saturnInLagna)}. Marte en la 5.ª/7.ª/9.ª: ${hf(r.marsIn579)}.`) },
+    { result: matibhramanaYogaC(birthPos, lagnaIdx), num: 293,
+      nameEn:'Matibhramana Yoga III', nameEs:'Yoga Matibhramana III',
+      glossEn:'Insanity. Saturn in the 12th with a waning Moon.',
+      glossEs:'Locura. Saturno en la 12.ª con una Luna menguante.',
+      reasonLine: r => T(`Saturn in 12th with waning Moon: ${hf(r.saturnIn12th && r.moonWithSaturn && r.moonWaning)}.`, `Saturno en la 12.ª con Luna menguante: ${hf(r.saturnIn12th && r.moonWithSaturn && r.moonWaning)}.`) },
+    { result: matibhramanaYogaD(birthPos, lagnaIdx), num: 294,
+      nameEn:'Matibhramana Yoga IV', nameEs:'Yoga Matibhramana IV',
+      glossEn:'Insanity. The Moon and Mercury together in a kendra, aspected by or conjoined with any other planet.',
+      glossEs:'Locura. La Luna y Mercurio juntos en un kendra, aspectados por o conjuntos a cualquier otro planeta.',
+      reasonLine: r => T(`Moon+Mercury in kendra: ${hf(r.inKendra && r.together)}. With another planet: ${hf(r.anyOtherPlanetAssoc)}.`, `Luna+Mercurio en kendra: ${hf(r.inKendra && r.together)}. Con otro planeta: ${hf(r.anyOtherPlanetAssoc)}.`) },
+    { result: khalwataYoga(birthPos, lagnaIdx), num: 295,
+      nameEn:'Khalwata Yoga', nameEs:'Yoga Khalwata',
+      glossEn:'Baldness. The ascendant is a malefic sign, Sagittarius or Taurus, aspected by malefic planets.',
+      glossEs:'Calvicie. El ascendente es un signo maléfico, Sagitario o Tauro, aspectado por planetas maléficos.',
+      reasonLine: r => T(`Qualifying Lagna sign: ${hf(r.maleficOrListedSign)}. Aspected by malefic: ${hf(r.lagnaAspectedByMalefic)}.`, `Signo del Lagna calificado: ${hf(r.maleficOrListedSign)}. Aspectado por maléfico: ${hf(r.lagnaAspectedByMalefic)}.`) },
+    { result: nishturabhashiYoga(birthPos), num: 296,
+      nameEn:'Nishturabhashi Yoga', nameEs:'Yoga Nishturabhashi',
+      glossEn:'Harsh speech. The Moon conjunct Saturn (neutralized if aspected by Jupiter, worsened into sarcasm if aspected by Mars).',
+      glossEs:'Habla áspera. La Luna conjunta a Saturno (se neutraliza si es aspectada por Júpiter, empeora hacia el sarcasmo si es aspectada por Marte).',
+      reasonLine: r => T(`Moon with Saturn: ${hf(r.moonWithSaturn)}. Neutralized by Jupiter: ${hf(r.neutralizedByJupiter)}. Worsened by Mars: ${hf(r.worsenedByMars)}.`, `Luna con Saturno: ${hf(r.moonWithSaturn)}. Neutralizado por Júpiter: ${hf(r.neutralizedByJupiter)}. Empeorado por Marte: ${hf(r.worsenedByMars)}.`) },
+    { result: rajaYogaBhangaA(birthPos, navPos, lagnaIdx), num: 298,
+      nameEn:'Raja Yoga Bhanga I', nameEs:'Yoga Raja Yoga Bhanga I',
+      glossEn:'A Raja Yoga rendered infructuous. Only possible for Simha (Leo) Lagna, per Raman\'s own Remarks. Saturn exalted (Libra), in a debilitated Navamsa or aspected by benefics.',
+      glossEs:'Un Raja Yoga vuelto inoperante. Solo posible para Lagna de Simha (Leo), según los propios Comentarios de Raman. Saturno exaltado (Libra), en un Navamsa debilitado o aspectado por benéficos.',
+      reasonLine: r => T(`Leo Lagna: ${hf(r.lagnaIsLeo)}. Saturn exalted: ${hf(r.saturnExalted)}. Debilitated Navamsa: ${hf(r.saturnDebilitatedNavamsa)}. Aspected by benefic: ${hf(r.saturnAspectedByBenefic)}.`, `Lagna Leo: ${hf(r.lagnaIsLeo)}. Saturno exaltado: ${hf(r.saturnExalted)}. Navamsa debilitado: ${hf(r.saturnDebilitatedNavamsa)}. Aspectado por benéfico: ${hf(r.saturnAspectedByBenefic)}.`) },
+    { result: rajaYogaBhangaB(birthPos), num: 299,
+      nameEn:'Raja Yoga Bhanga II', nameEs:'Yoga Raja Yoga Bhanga II',
+      glossEn:'A Raja Yoga rendered infructuous. The Sun in the exact 10th degree of Libra (deep debilitation).',
+      glossEs:'Un Raja Yoga vuelto inoperante. El Sol en el grado 10 exacto de Libra (debilitación profunda).',
+      reasonLine: r => T(`Sun in 10th degree of Libra: ${hf(r.sunInLibra10thDeg)}.`, `Sol en el grado 10 de Libra: ${hf(r.sunInLibra10thDeg)}.`) },
+    { result: gohantaYoga(birthPos, lagnaIdx), num: 300,
+      nameEn:'Gohanta Yoga', nameEs:'Yoga Gohanta',
+      glossEn:'The final entry of Raman\'s 300 -- becoming a butcher (Raman himself notes he could not adequately test this one). A malefic devoid of benefic aspect in a kendra, with Jupiter in the 8th.',
+      glossEs:'La entrada final de las 300 de Raman -- convertirse en carnicero (el propio Raman señala que no pudo probarla adecuadamente). Un maléfico sin aspecto benéfico en un kendra, con Júpiter en la 8.ª.',
+      reasonLine: r => T(`Jupiter in 8th: ${hf(r.jupIn8th)}. Unaspected malefic in kendra: ${hf(r.maleficInKendraUnaspected)}.`, `Júpiter en la 8.ª: ${hf(r.jupIn8th)}. Maléfico sin aspectar en kendra: ${hf(r.maleficInKendraUnaspected)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9972,7 +10017,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-233, #235-263, #265-269, #271-272 and #274-290 of 300 (#11, #174, #204, #264 and #270 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 and #273 need a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have; #276-277 need an unnamed "evil sub-division/amsa" classical system too vague in the source to operationalize; #234 Thrikalagnana is already implemented separately, in the Jñāna Yoga panel above — every gap accounted for elsewhere or deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-233, #235-263, #265-269, #271-272 y #274-290 de 300 (#11, #174, #204, #264 y #270 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 y #273 necesitan una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene; #276-277 necesitan un sistema clásico de "sub-división/amsa maligna" sin nombrar, demasiado vago en la fuente para operacionalizar; #234 Thrikalagnana ya está implementado por separado, en el panel de Yoga Jñāna de arriba — cada vacío contabilizado en otro lugar o pospuesto). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. This is the complete book — all 300 of B.V. Raman\'s combinations accounted for. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-233, #235-263, #265-269, #271-272, #274-296 and #298-300 of 300 (#11, #174, #204, #264 and #270 all need a Gulika-family point\'s zodiacal position, not computed anywhere in this app; #185 and #273 need a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have; #276-277 need an unnamed "evil sub-division/amsa" classical system too vague in the source to operationalize; #297 needs a real Aroodha Dwadasa calculation plus a reliable Aroodha Lagna -- this app\'s only existing Arudha function looks like a pre-existing bug, flagged separately, not fixed here; #234 Thrikalagnana is implemented separately, in the Jñāna Yoga panel above — every gap accounted for, none silently skipped). Complete as of 2026-09-16.','Este es el libro completo — las 300 combinaciones de B.V. Raman contabilizadas en su totalidad. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-233, #235-263, #265-269, #271-272, #274-296 y #298-300 de 300 (#11, #174, #204, #264 y #270 necesitan todos la posición zodiacal de un punto de la familia Gulika, no calculado en ningún lugar de esta app; #185 y #273 necesitan una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene; #276-277 necesitan un sistema clásico de "sub-división/amsa maligna" sin nombrar, demasiado vago en la fuente para operacionalizar; #297 necesita un cálculo real de Aroodha Dwadasa además de un Aroodha Lagna fiable -- la única función de Arudha existente en esta app parece tener un error preexistente, señalado por separado, no corregido aquí; #234 Thrikalagnana está implementado por separado, en el panel de Yoga Jñāna de arriba — cada vacío contabilizado, ninguno omitido en silencio). Completo a partir de 2026-09-16.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -15809,6 +15854,100 @@ function vatharogaYoga(pos, ascSignIdx){
   const jupInLagna = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx)===1;
   const saturnIn7th = bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx)===7;
   return { present: jupInLagna && saturnIn7th, jupInLagna, saturnIn7th };
+}
+// #291-294, Matibhramana Yogas (txt L11589-11597): four independent
+// combinations for insanity.
+function matibhramanaYogaA(pos, ascSignIdx){ // 291
+  const jupInLagna = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx)===1;
+  const marsIn7th = bsHouseFromAsc(pos.Mars.sidereal, ascSignIdx)===7;
+  return { present: jupInLagna && marsIn7th, jupInLagna, marsIn7th };
+}
+function matibhramanaYogaB(pos, ascSignIdx){ // 292
+  const saturnInLagna = bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx)===1;
+  const marsIn579 = [5,7,9].includes(bsHouseFromAsc(pos.Mars.sidereal, ascSignIdx));
+  return { present: saturnInLagna && marsIn579, saturnInLagna, marsIn579 };
+}
+function matibhramanaYogaC(pos, ascSignIdx){ // 293
+  const saturnIn12th = bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx)===12;
+  const moonWithSaturn = Math.floor(norm360(pos.Moon.sidereal)/30)===Math.floor(norm360(pos.Saturn.sidereal)/30);
+  const moonWaning = norm360(pos.Moon.sidereal - pos.Sun.sidereal) >= 180;
+  return { present: saturnIn12th && moonWithSaturn && moonWaning, saturnIn12th, moonWithSaturn, moonWaning };
+}
+function matibhramanaYogaD(pos, ascSignIdx){ // 294
+  const moonHouse = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx);
+  const mercuryHouse = bsHouseFromAsc(pos.Mercury.sidereal, ascSignIdx);
+  const inKendra = [1,4,7,10].includes(moonHouse);
+  const together = moonHouse===mercuryHouse;
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const anyOtherPlanetAssoc = GRAHA_LIST.some(g=>{
+    if (['Moon','Mercury'].includes(g)) return false;
+    const gSignIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    return gSignIdx===moonSignIdx || aspectsSignWholeSign(g, gSignIdx, moonSignIdx);
+  });
+  return { present: inKendra && together && anyOtherPlanetAssoc, inKendra, together, anyOtherPlanetAssoc };
+}
+// #295, Khalwata Yoga (txt L11838-11841): the ascendant is a malefic sign
+// (Aries/Leo/Scorpio/Capricorn/Aquarius) or Sagittarius or Taurus, aspected
+// by malefic planets.
+function khalwataYoga(pos, ascSignIdx){
+  const maleficOrListedSign = [0,4,7,9,10,1,8].includes(ascSignIdx); // Aries,Leo,Scorpio,Cap,Aqu,Taurus,Sagittarius
+  const lagnaAspectedByMalefic = MALEFIC_GRAHAS.some(m=>aspectsSignWholeSign(m, Math.floor(norm360(pos[m].sidereal)/30), ascSignIdx));
+  return { present: maleficOrListedSign && lagnaAspectedByMalefic, maleficOrListedSign, lagnaAspectedByMalefic };
+}
+// #296, Nishturabhashi Yoga (txt L11857-11860): the Moon conjunct Saturn.
+// Raman's Remarks add that Jupiter's aspect neutralizes the yoga and Mars's
+// aspect worsens it -- tracked as secondary info, not folded into the core
+// boolean (same treatment as #172's escalation-vs-base-result split).
+function nishturabhashiYoga(pos){
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const moonWithSaturn = Math.floor(norm360(pos.Saturn.sidereal)/30)===moonSignIdx;
+  const neutralizedByJupiter = moonWithSaturn && aspectsSignWholeSign('Jupiter', Math.floor(norm360(pos.Jupiter.sidereal)/30), moonSignIdx);
+  const worsenedByMars = moonWithSaturn && aspectsSignWholeSign('Mars', Math.floor(norm360(pos.Mars.sidereal)/30), moonSignIdx);
+  return { present: moonWithSaturn, moonWithSaturn, neutralizedByJupiter, worsenedByMars };
+}
+// #297, Rajabhrashta Yoga: SKIPPED. Needs Aroodha Lagna (A1) AND Aroodha
+// Dwadasa (A12, arudha of the 12th house) in conjunction. Checked this
+// app's only existing Arudha function, computeArudhaLagna() (used by the
+// House Nature page) -- it does NOT implement the classical formula Raman
+// himself states two paragraphs above this entry ("counting as many signs
+// from Lagnadhipathi as the Lagnadhipathi is removed from Lagna"): the
+// function takes only the Ascendant's own degree, never the Lagna lord's
+// position, so it structurally cannot be computing a real Arudha Lagna.
+// This looks like a pre-existing bug in that House Nature feature,
+// independent of this yoga-engine work -- flagged for separate
+// investigation, not fixed here. No Arudha Dwadasa (A12) exists anywhere
+// in this app. Both gaps make #297 unsafe to implement right now.
+
+// #298 & #299, Raja Yoga Bhangas (txt L11897-11902, confirmed by worked
+// Chart No.143): two independent combinations that break/nullify a Raja
+// Yoga.
+function rajaYogaBhangaA(pos, navPos, ascSignIdx){ // 298
+  const lagnaIsLeo = ascSignIdx===4;
+  const saturnSignIdx = Math.floor(norm360(pos.Saturn.sidereal)/30);
+  const saturnExalted = dignityTierInSign('Saturn', saturnSignIdx)==='Exalted';
+  const saturnNavSignIdx = Math.floor(norm360(navPos.Saturn.sidereal)/30);
+  const saturnDebilitatedNavamsa = dignityTierInSign('Saturn', saturnNavSignIdx)==='Debilitated';
+  const saturnAspectedByBenefic = RAMAN_BENEFICS.some(b=>aspectsSignWholeSign(b, Math.floor(norm360(pos[b].sidereal)/30), saturnSignIdx));
+  return { present: lagnaIsLeo && saturnExalted && (saturnDebilitatedNavamsa || saturnAspectedByBenefic), lagnaIsLeo, saturnExalted, saturnDebilitatedNavamsa, saturnAspectedByBenefic };
+}
+function rajaYogaBhangaB(pos){ // 299: the Sun in the exact 10th degree of Libra (9°-10°)
+  const sunSignIdx = Math.floor(norm360(pos.Sun.sidereal)/30);
+  const sunDeg = norm360(pos.Sun.sidereal)%30;
+  const sunInLibra10thDeg = sunSignIdx===6 && sunDeg>=9 && sunDeg<10;
+  return { present: sunInLibra10thDeg, sunInLibra10thDeg };
+}
+// #300, Gohanta Yoga (txt L11949-11952) -- the FINAL entry of Raman's 300,
+// immediately followed by his own "Summary" chapter closing the book: a
+// malefic devoid of benefic aspect in a kendra, with Jupiter in the 8th.
+function gohantaYoga(pos, ascSignIdx){
+  const jupIn8th = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx)===8;
+  const maleficInKendraUnaspected = MALEFIC_GRAHAS.some(m=>{
+    const mHouse = bsHouseFromAsc(pos[m].sidereal, ascSignIdx);
+    if (![1,4,7,10].includes(mHouse)) return false;
+    const mSignIdx = Math.floor(norm360(pos[m].sidereal)/30);
+    return !RAMAN_BENEFICS.some(b=>b!==m && aspectsSignWholeSign(b, Math.floor(norm360(pos[b].sidereal)/30), mSignIdx));
+  });
+  return { present: jupIn8th && maleficInKendraUnaspected, jupIn8th, maleficInKendraUnaspected };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
