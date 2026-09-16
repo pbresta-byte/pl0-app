@@ -9132,7 +9132,57 @@ function renderNatalPage(){
       nameEn:'Ayatnadhanalabha Yoga', nameEs:'Yoga Ayatnadhanalabha',
       glossEn:'Wealth earned without much effort — Raman attributes this popularly to "luck," but reframes it as the fruit of good past Karma. A straightforward Parivartana (mutual exchange) between the Lagna lord and the 2nd lord.',
       glossEs:'Riqueza ganada sin mucho esfuerzo — Raman lo atribuye popularmente a la "suerte," pero lo replantea como el fruto de un buen Karma pasado. Una Parivartana (intercambio mutuo) directa entre el señor del Lagna y el señor de la 2.ª.',
-      reasonLine: r => T(`Lagna lord / 2nd lord Parivartana: ${hf(r.exchange)}.`, `Parivartana señor del Lagna / señor de la 2.ª: ${hf(r.exchange)}.`) }
+      reasonLine: r => T(`Lagna lord / 2nd lord Parivartana: ${hf(r.exchange)}.`, `Parivartana señor del Lagna / señor de la 2.ª: ${hf(r.exchange)}.`) },
+    { result: daridraYoga144(birthPos, lagnaIdx), num: 144,
+      nameEn:'Daridra Yoga (I)', nameEs:'Yoga Daridra (I)',
+      glossEn:'First of ten poverty (Daridra) combinations — the negative mirror of the wealth yogas just covered. Raman’s Remarks explicitly clarify that "maraka lords," used loosely across all ten Definitions, means specifically the 2nd and 7th lords here. The 12th and Lagna lords exchange positions (Parivartana), linked to the 7th lord.',
+      glossEs:'La primera de diez combinaciones de pobreza (Daridra) — el espejo negativo de los yogas de riqueza recién vistos. Los Comentarios de Raman aclaran explícitamente que "señores maraka," usado de forma general en las diez Definiciones, significa aquí específicamente los señores de la 2.ª y la 7.ª. Los señores de la 12.ª y del Lagna intercambian posiciones (Parivartana), vinculados al señor de la 7.ª.',
+      reasonLine: r => T(`12th/Lagna lord Parivartana: ${hf(r.exchange)}. Linked to 7th lord (maraka): ${hf(r.linkedTo7th)}.`, `Parivartana señor de la 12.ª/Lagna: ${hf(r.exchange)}. Vinculado al señor de la 7.ª (maraka): ${hf(r.linkedTo7th)}.`) },
+    { result: daridraYoga145(birthPos, lagnaIdx), num: 145,
+      nameEn:'Daridra Yoga (II)', nameEs:'Yoga Daridra (II)',
+      glossEn:'The 6th and Lagna lords exchange positions (Parivartana — normally itself a difficult combination for other reasons), and the Moon is aspected by a maraka (2nd or 7th) lord.',
+      glossEs:'Los señores de la 6.ª y del Lagna intercambian posiciones (Parivartana — de por sí una combinación difícil por otras razones), y la Luna es aspectada por un señor maraka (2.ª o 7.ª).',
+      reasonLine: r => T(`6th/Lagna lord Parivartana: ${hf(r.exchange)}. Moon aspected by a maraka lord: ${hf(r.moonAspected)}.`, `Parivartana señor de la 6.ª/Lagna: ${hf(r.exchange)}. Luna aspectada por un señor maraka: ${hf(r.moonAspected)}.`) },
+    { result: daridraYoga146(birthPos, lagnaIdx), num: 146,
+      nameEn:'Daridra Yoga (III)', nameEs:'Yoga Daridra (III)',
+      glossEn:'The simplest of the ten: Ketu and the Moon both occupying the Lagna together.',
+      glossEs:'La más simple de las diez: Ketu y la Luna ocupando juntos el Lagna.',
+      reasonLine: r => T(`Ketu in Lagna: ${hf(r.ketuHouse===1)}. Moon in Lagna: ${hf(r.moonHouse===1)}.`, `Ketu en el Lagna: ${hf(r.ketuHouse===1)}. Luna en el Lagna: ${hf(r.moonHouse===1)}.`) },
+    { result: daridraYoga147(birthPos, lagnaIdx), num: 147,
+      nameEn:'Daridra Yoga (IV)', nameEs:'Yoga Daridra (IV)',
+      glossEn:'The Lagna lord in the 8th house, aspected by or conjunct a maraka (2nd or 7th) lord.',
+      glossEs:'El señor del Lagna en la 8.ª casa, aspectado por o conjunto a un señor maraka (2.ª o 7.ª).',
+      reasonLine: r => T(`Lagna lord in 8th: ${hf(r.inEighth)}. Linked to a maraka lord: ${hf(r.linked)}.`, `Señor del Lagna en la 8.ª: ${hf(r.inEighth)}. Vinculado a un señor maraka: ${hf(r.linked)}.`) },
+    { result: daridraYoga148(birthPos, lagnaIdx), num: 148,
+      nameEn:'Daridra Yoga (V)', nameEs:'Yoga Daridra (V)',
+      glossEn:'The Lagna lord occupies the 6th, 8th or 12th house conjunct a malefic, and is linked to a maraka (2nd or 7th) lord — distinct from the next entry, which is about conjunction with a Dusthana LORD rather than physical placement in a Dusthana house.',
+      glossEs:'El señor del Lagna ocupa la 6.ª, 8.ª o 12.ª casa conjunto a un maléfico, y está vinculado a un señor maraka (2.ª o 7.ª) — distinto de la siguiente entrada, que trata de la conjunción con un señor de Dusthana en vez de la ubicación física en una casa Dusthana.',
+      reasonLine: r => T(`Lagna lord in 6th/8th/12th: ${hf(r.inDusthana)}, with a malefic: ${hf(r.withMalefic)}, linked to a maraka lord: ${hf(r.linked)}.`, `Señor del Lagna en 6.ª/8.ª/12.ª: ${hf(r.inDusthana)}, con un maléfico: ${hf(r.withMalefic)}, vinculado a un señor maraka: ${hf(r.linked)}.`) },
+    { result: daridraYoga149(birthPos, lagnaIdx), num: 149,
+      nameEn:'Daridra Yoga (VI)', nameEs:'Yoga Daridra (VI)',
+      glossEn:'The Lagna lord associated (conjunct) with the LORD of the 6th, 8th or 12th house — regardless of where that lord physically sits — and subjected to a malefic aspect.',
+      glossEs:'El señor del Lagna asociado (conjunto) con el SEÑOR de la 6.ª, 8.ª o 12.ª casa — sin importar dónde se ubique físicamente ese señor — y sujeto a un aspecto maléfico.',
+      reasonLine: r => T(`Lagna lord conjunct a 6th/8th/12th lord: ${hf(r.associated)}. Subjected to malefic aspect: ${hf(r.maleficAspect)}.`, `Señor del Lagna conjunto a un señor de la 6.ª/8.ª/12.ª: ${hf(r.associated)}. Sujeto a aspecto maléfico: ${hf(r.maleficAspect)}.`) },
+    { result: daridraYoga150(birthPos, lagnaIdx), num: 150,
+      nameEn:'Daridra Yoga (VII)', nameEs:'Yoga Daridra (VII)',
+      glossEn:'The 5th lord joins the lord of the 6th, 8th or 12th house, with NO benefic aspect or conjunction reaching it at all — the absence of relief is the whole point of this one.',
+      glossEs:'El señor de la 5.ª se une al señor de la 6.ª, 8.ª o 12.ª casa, SIN que ningún aspecto o conjunción benéfica lo alcance — la ausencia de alivio es todo el punto de esta combinación.',
+      reasonLine: r => T(`5th lord joins a 6th/8th/12th lord: ${hf(r.joinsDusthanaLord)}. No benefic touch at all: ${hf(r.noBeneficTouch)}.`, `Señor de la 5.ª se une a un señor de la 6.ª/8.ª/12.ª: ${hf(r.joinsDusthanaLord)}. Sin ningún toque benéfico: ${hf(r.noBeneficTouch)}.`) },
+    { result: daridraYoga151(birthPos, lagnaIdx), num: 151,
+      nameEn:'Daridra Yoga (VIII)', nameEs:'Yoga Daridra (VIII)',
+      glossEn:'The 5th lord in the 6th or 10th house, aspected by at least one of the lords of the 2nd, 6th, 7th, 8th or 12th houses.',
+      glossEs:'El señor de la 5.ª en la 6.ª o 10.ª casa, aspectado por al menos uno de los señores de las casas 2.ª, 6.ª, 7.ª, 8.ª o 12.ª.',
+      reasonLine: r => T(`5th lord in 6th/10th: ${hf(r.inSixOrTen)}. Aspected by a 2nd/6th/7th/8th/12th lord: ${hf(r.aspected)}.`, `Señor de la 5.ª en 6.ª/10.ª: ${hf(r.inSixOrTen)}. Aspectado por un señor de 2.ª/6.ª/7.ª/8.ª/12.ª: ${hf(r.aspected)}.`) },
+    { result: daridraYoga152(birthPos, lagnaIdx), num: 152,
+      nameEn:'Daridra Yoga (IX)', nameEs:'Yoga Daridra (IX)',
+      glossEn:'Natural malefics that do NOT own the 9th or 10th house occupy the Lagna, and associate with or are aspected by a maraka (2nd or 7th) lord.',
+      glossEs:'Maléficos naturales que NO rigen la 9.ª ni la 10.ª casa ocupan el Lagna, y se asocian con o son aspectados por un señor maraka (2.ª o 7.ª).',
+      reasonLine: r => T(`Eligible malefics in Lagna (${r.inLagna.join(', ')||'none'}): ${hf(r.inLagna.length>0)}. Linked to a maraka lord: ${hf(r.linked)}.`, `Maléficos elegibles en el Lagna (${r.inLagna.join(', ')||'ninguno'}): ${hf(r.inLagna.length>0)}. Vinculados a un señor maraka: ${hf(r.linked)}.`) },
+    { result: daridraYoga153(birthPos, lagnaIdx), num: 153,
+      nameEn:'Daridra Yoga (X)', nameEs:'Yoga Daridra (X)',
+      glossEn:'Last of the ten: the lords of BOTH the Rasi Lagna and the Navamsa Lagna occupy the 6th, 8th or 12th house (from the Rasi Lagna), with a maraka (2nd or 7th) lord’s aspect or conjunction reaching either one.',
+      glossEs:'La última de las diez: los señores del Lagna de Rasi Y del Lagna de Navamsa ocupan la 6.ª, 8.ª o 12.ª casa (desde el Lagna de Rasi), con el aspecto o conjunción de un señor maraka (2.ª o 7.ª) alcanzando a cualquiera de los dos.',
+      reasonLine: r => T(`Both Rasi-Lagna lord and Navamsa-Lagna lord (${r.navLagnaLord}) in 6th/8th/12th: ${hf(r.bothInDusthana)}. Maraka link: ${hf(r.linked)}.`, `Ambos, señor del Lagna de Rasi y señor del Lagna de Navamsa (${r.navLagnaLord}), en 6.ª/8.ª/12.ª: ${hf(r.bothInDusthana)}. Vínculo maraka: ${hf(r.linked)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9282,7 +9332,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-143 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-143 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-153 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-153 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -13051,6 +13101,158 @@ function ayatnadhanalabhaYoga(pos, ascSignIdx){
   const lord2House = bsHouseFromAsc(pos[lord2].sidereal, ascSignIdx);
   const exchange = lord1House===2 && lord2House===1;
   return { present: exchange, exchange };
+}
+// #144-153 (txt L6346-6401): ten Daridra ("poverty") Yogas -- the negative
+// mirror of the wealth combinations just covered. Raman's own Remarks
+// (L6396-6401) explicitly resolve a term used loosely throughout the
+// Definitions: "the maraka lords are the 2nd and 7th lords" (he notes some
+// other authors also fold in the 6th/8th/12th, but is explicit that HIS
+// usage here means just 2nd/7th) -- used as such below wherever "maraka
+// lord(s)" appears. No individual worked chart examples are given for any
+// of these ten, unlike many surrounding entries.
+function daridraYoga144(pos, ascSignIdx){
+  // #144 (txt L6347-6349): the 12th and Lagna lords exchange positions
+  // (Parivartana), and are aspected by or conjoined with the 7th lord (a
+  // maraka).
+  const lord1 = lordOfHouse(1, ascSignIdx), lord12 = lordOfHouse(12, ascSignIdx), lord7 = lordOfHouse(7, ascSignIdx);
+  if (lord1===lord12) return { present:false, exchange:false, linkedTo7th:false };
+  const exchange = bsHouseFromAsc(pos[lord1].sidereal, ascSignIdx)===12 && bsHouseFromAsc(pos[lord12].sidereal, ascSignIdx)===1;
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const lord7SignIdx = Math.floor(norm360(pos[lord7].sidereal)/30);
+  const linkedTo7th = lord7===lord1 || lord1SignIdx===lord7SignIdx || aspectsSignWholeSign(lord7, lord7SignIdx, lord1SignIdx);
+  return { present: exchange && linkedTo7th, exchange, linkedTo7th };
+}
+function daridraYoga145(pos, ascSignIdx){
+  // #145 (txt L6350-6352): the 6th and Lagna lords exchange positions
+  // (Parivartana), and the Moon is aspected by the 2nd OR 7th lord (a
+  // maraka).
+  const lord1 = lordOfHouse(1, ascSignIdx), lord6 = lordOfHouse(6, ascSignIdx), lord2 = lordOfHouse(2, ascSignIdx), lord7 = lordOfHouse(7, ascSignIdx);
+  if (lord1===lord6) return { present:false, exchange:false, moonAspected:false };
+  const exchange = bsHouseFromAsc(pos[lord1].sidereal, ascSignIdx)===6 && bsHouseFromAsc(pos[lord6].sidereal, ascSignIdx)===1;
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const moonAspected = [lord2, lord7].some(l=>{
+    if (l==='Moon') return false;
+    const lSignIdx = Math.floor(norm360(pos[l].sidereal)/30);
+    return aspectsSignWholeSign(l, lSignIdx, moonSignIdx);
+  });
+  return { present: exchange && moonAspected, exchange, moonAspected };
+}
+function daridraYoga146(pos, ascSignIdx){
+  // #146 (txt L6353): Ketu and the Moon both in the Lagna.
+  const ketuHouse = bsHouseFromAsc(pos.Ketu.sidereal, ascSignIdx);
+  const moonHouse = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx);
+  return { present: ketuHouse===1 && moonHouse===1, ketuHouse, moonHouse };
+}
+function daridraYoga147(pos, ascSignIdx){
+  // #147 (txt L6354-6355): the Lagna lord in the 8th, aspected by or
+  // conjunct the 2nd or 7th lord (maraka).
+  const lord1 = lordOfHouse(1, ascSignIdx), lord2 = lordOfHouse(2, ascSignIdx), lord7 = lordOfHouse(7, ascSignIdx);
+  const inEighth = bsHouseFromAsc(pos[lord1].sidereal, ascSignIdx)===8;
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const linked = [lord2, lord7].some(l=>{
+    const lSignIdx = Math.floor(norm360(pos[l].sidereal)/30);
+    return l===lord1 || lSignIdx===lord1SignIdx || aspectsSignWholeSign(l, lSignIdx, lord1SignIdx);
+  });
+  return { present: inEighth && linked, inEighth, linked };
+}
+function daridraYoga148(pos, ascSignIdx){
+  // #148 (txt L6356-6358): the Lagna lord occupies the 6th, 8th or 12th
+  // WITH (conjunct) a malefic, and is aspected by or combined with the 2nd
+  // or 7th lord (maraka). Distinct from #149 below, which is about
+  // conjunction with the LORD of a Dusthana rather than physical placement
+  // in one.
+  const lord1 = lordOfHouse(1, ascSignIdx), lord2 = lordOfHouse(2, ascSignIdx), lord7 = lordOfHouse(7, ascSignIdx);
+  const lord1House = bsHouseFromAsc(pos[lord1].sidereal, ascSignIdx);
+  const inDusthana = [6,8,12].includes(lord1House);
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const withMalefic = inDusthana && MALEFIC_GRAHAS.some(m=> m!==lord1 && Math.floor(norm360(pos[m].sidereal)/30)===lord1SignIdx);
+  const linked = [lord2, lord7].some(l=>{
+    const lSignIdx = Math.floor(norm360(pos[l].sidereal)/30);
+    return l===lord1 || lSignIdx===lord1SignIdx || aspectsSignWholeSign(l, lSignIdx, lord1SignIdx);
+  });
+  return { present: inDusthana && withMalefic && linked, inDusthana, withMalefic, linked };
+}
+function daridraYoga149(pos, ascSignIdx){
+  // #149 (txt L6359-6360): the Lagna lord associated (conjunct) with the
+  // LORD of the 6th, 8th or 12th (regardless of house placement), and
+  // subjected to a malefic's aspect.
+  const lord1 = lordOfHouse(1, ascSignIdx);
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const dusthanaLords = [lordOfHouse(6,ascSignIdx), lordOfHouse(8,ascSignIdx), lordOfHouse(12,ascSignIdx)];
+  const associated = dusthanaLords.some(l=> l===lord1 || Math.floor(norm360(pos[l].sidereal)/30)===lord1SignIdx);
+  const maleficAspect = MALEFIC_GRAHAS.some(m=>{
+    if (m===lord1) return false;
+    const mSignIdx = Math.floor(norm360(pos[m].sidereal)/30);
+    return aspectsSignWholeSign(m, mSignIdx, lord1SignIdx);
+  });
+  return { present: associated && maleficAspect, associated, maleficAspect };
+}
+function daridraYoga150(pos, ascSignIdx){
+  // #150 (txt L6361-6363): the 5th lord joins the lord of the 6th, 8th or
+  // 12th WITHOUT any benefic aspect or conjunction reaching it.
+  const lord5 = lordOfHouse(5, ascSignIdx);
+  const lord5SignIdx = Math.floor(norm360(pos[lord5].sidereal)/30);
+  const dusthanaLords = [lordOfHouse(6,ascSignIdx), lordOfHouse(8,ascSignIdx), lordOfHouse(12,ascSignIdx)];
+  const joinsDusthanaLord = dusthanaLords.some(l=> l===lord5 || Math.floor(norm360(pos[l].sidereal)/30)===lord5SignIdx);
+  const noBeneficTouch = !RAMAN_BENEFICS.some(b=>{
+    if (b===lord5) return false;
+    const bSignIdx = Math.floor(norm360(pos[b].sidereal)/30);
+    return bSignIdx===lord5SignIdx || aspectsSignWholeSign(b, bSignIdx, lord5SignIdx);
+  });
+  return { present: joinsDusthanaLord && noBeneficTouch, joinsDusthanaLord, noBeneficTouch };
+}
+function daridraYoga151(pos, ascSignIdx){
+  // #151 (txt L6364-6365): the 5th lord in the 6th or 10th house, aspected
+  // by at least one of the lords of the 2nd, 6th, 7th, 8th or 12th.
+  const lord5 = lordOfHouse(5, ascSignIdx);
+  const lord5House = bsHouseFromAsc(pos[lord5].sidereal, ascSignIdx);
+  const inSixOrTen = [6,10].includes(lord5House);
+  const lord5SignIdx = Math.floor(norm360(pos[lord5].sidereal)/30);
+  const aspectingLords = [2,6,7,8,12].map(h=>lordOfHouse(h,ascSignIdx));
+  const aspected = aspectingLords.some(l=>{
+    if (l===lord5) return false;
+    const lSignIdx = Math.floor(norm360(pos[l].sidereal)/30);
+    return aspectsSignWholeSign(l, lSignIdx, lord5SignIdx);
+  });
+  return { present: inSixOrTen && aspected, inSixOrTen, aspected };
+}
+function daridraYoga152(pos, ascSignIdx){
+  // #152 (txt L6366-6368): natural malefics that do NOT own the 9th or
+  // 10th house occupy the Lagna, and associate with or are aspected by a
+  // maraka (2nd or 7th) lord.
+  const lord9 = lordOfHouse(9, ascSignIdx), lord10 = lordOfHouse(10, ascSignIdx);
+  const lord2 = lordOfHouse(2, ascSignIdx), lord7 = lordOfHouse(7, ascSignIdx);
+  const eligibleMalefics = MALEFIC_GRAHAS.filter(m=> m!==lord9 && m!==lord10);
+  const inLagna = eligibleMalefics.filter(m=> bsHouseFromAsc(pos[m].sidereal, ascSignIdx)===1);
+  const linked = inLagna.some(m=>{
+    const mSignIdx = Math.floor(norm360(pos[m].sidereal)/30);
+    return [lord2, lord7].some(l=>{
+      const lSignIdx = Math.floor(norm360(pos[l].sidereal)/30);
+      return l===m || lSignIdx===mSignIdx || aspectsSignWholeSign(l, lSignIdx, mSignIdx);
+    });
+  });
+  return { present: inLagna.length>0 && linked, inLagna, linked };
+}
+function daridraYoga153(pos, ascSignIdx){
+  // #153 (txt L6369-6372): the lords of BOTH the (Rasi) Lagna and the
+  // Navamsa Lagna occupy the 6th, 8th or 12th (from the Rasi Lagna), with
+  // aspect or conjunction of the 2nd or 7th lord reaching either one.
+  const lord1 = lordOfHouse(1, ascSignIdx);
+  const navLagnaSignIdx = Math.floor(norm360(navamsaSidereal(pos._ascSidereal))/30);
+  const navLagnaLord = SIGN_LORD[SIGNS[navLagnaSignIdx]];
+  const lord1House = bsHouseFromAsc(pos[lord1].sidereal, ascSignIdx);
+  const navLagnaLordHouse = bsHouseFromAsc(pos[navLagnaLord].sidereal, ascSignIdx);
+  const bothInDusthana = [6,8,12].includes(lord1House) && [6,8,12].includes(navLagnaLordHouse);
+  const lord2 = lordOfHouse(2, ascSignIdx), lord7 = lordOfHouse(7, ascSignIdx);
+  const linkedTo = g=>{
+    const gSignIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    return [lord2, lord7].some(l=>{
+      const lSignIdx = Math.floor(norm360(pos[l].sidereal)/30);
+      return l===g || lSignIdx===gSignIdx || aspectsSignWholeSign(l, lSignIdx, gSignIdx);
+    });
+  };
+  const linked = linkedTo(lord1) || linkedTo(navLagnaLord);
+  return { present: bothInDusthana && linked, navLagnaLord, bothInDusthana, linked };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
