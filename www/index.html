@@ -8531,7 +8531,27 @@ function renderNatalPage(){
       nameEn:'Adhi Yoga', nameEs:'Yoga Adhi',
       glossEn:'Mercury, Jupiter and/or Venus in the 6th, 7th or 8th from the Moon — Raman is explicit this does NOT require all three houses occupied at once, just at least one of the three benefics present. One of the most important classical combinations, close to a Raja Yoga in its own right: 1 benefic present reads as a leader, 2 as a minister, 3 as an eminent station in life.',
       glossEs:'Mercurio, Júpiter y/o Venus en la 6.ª, 7.ª u 8.ª desde la Luna — Raman es explícito en que esto NO requiere las tres casas ocupadas a la vez, solo al menos uno de los tres benéficos presente. Una de las combinaciones clásicas más importantes, cercana a un Raja Yoga por derecho propio: 1 benéfico presente se lee como líder, 2 como ministro, 3 como una posición eminente en la vida.',
-      reasonLine: r => T(`Benefics in 6th/7th/8th from the Moon: ${r.grahas.length?r.grahas.join(', '):'none'} (${r.count}/3${r.tier?', tier: '+r.tier:''}).`, `Benéficos en 6.ª/7.ª/8.ª desde la Luna: ${r.grahas.length?r.grahas.join(', '):'ninguno'} (${r.count}/3${r.tier?', nivel: '+r.tier:''}).`) }
+      reasonLine: r => T(`Benefics in 6th/7th/8th from the Moon: ${r.grahas.length?r.grahas.join(', '):'none'} (${r.count}/3${r.tier?', tier: '+r.tier:''}).`, `Benéficos en 6.ª/7.ª/8.ª desde la Luna: ${r.grahas.length?r.grahas.join(', '):'ninguno'} (${r.count}/3${r.tier?', nivel: '+r.tier:''}).`) },
+    { result: chatussagaraYoga(birthPos, lagnaIdx), num: 8,
+      nameEn:'Chatussagara Yoga', nameEs:'Yoga Chatussagara',
+      glossEn:'All four kendras (1st/4th/7th/10th from the Lagna) occupied by at least one planet each — "the four walls of a building." Reads as good reputation, prosperity, and a name that travels far, regardless of whether the native holds any formal rank.',
+      glossEs:'Los cuatro kendras (1.ª/4.ª/7.ª/10.ª desde el Lagna) ocupados cada uno por al menos un planeta — "las cuatro paredes de un edificio." Se lee como buena reputación, prosperidad y un nombre que viaja lejos, sin importar si el nativo ostenta algún rango formal.',
+      reasonLine: r => T(`Kendras occupied: ${r.occupiedKendras.length?r.occupiedKendras.join(', '):'none'} (needs all of 1,4,7,10).`, `Kendras ocupados: ${r.occupiedKendras.length?r.occupiedKendras.join(', '):'ninguno'} (necesita los 4: 1,4,7,10).`) },
+    { result: vasumathiYoga(birthPos, lagnaIdx), num: 9,
+      nameEn:'Vasumathi Yoga', nameEs:'Yoga Vasumathi',
+      glossEn:'A benefic (Jupiter/Venus/Mercury) in an upachaya house (3rd/6th/10th/11th) from the Lagna or from the Moon. A wealth-and-independence combination — Raman notes it\'s graded by count (more benefics placed this way, more wealth) and that a full house-by-house sweep is rare, especially counted from the Moon.',
+      glossEs:'Un benéfico (Júpiter/Venus/Mercurio) en una casa upachaya (3.ª/6.ª/10.ª/11.ª) desde el Lagna o desde la Luna. Una combinación de riqueza e independencia — Raman señala que se gradúa por cantidad (más benéficos así ubicados, más riqueza) y que un barrido completo de todas las casas es raro, sobre todo contado desde la Luna.',
+      reasonLine: r => T(`From Lagna: ${r.fromLagna.length?r.fromLagna.join(', '):'none'}. From Moon: ${r.fromMoon.length?r.fromMoon.join(', '):'none'}.`, `Desde el Lagna: ${r.fromLagna.length?r.fromLagna.join(', '):'ninguno'}. Desde la Luna: ${r.fromMoon.length?r.fromMoon.join(', '):'ninguno'}.`) },
+    { result: rajalakshanaYoga(birthPos, lagnaIdx), num: 10,
+      nameEn:'Rajalakshana Yoga', nameEs:'Yoga Rajalakshana',
+      glossEn:'Jupiter, Venus, Mercury and the Moon each individually placed in a kendra (1st/4th/7th/10th) from the Lagna — not necessarily the same one. Reads as an attractive bearing and the personal luck to command respect and dignity, though Raman cautions a weak Moon or badly-associated Mercury can blunt the physical-appearance side of it.',
+      glossEs:'Júpiter, Venus, Mercurio y la Luna, cada uno individualmente en un kendra (1.ª/4.ª/7.ª/10.ª) desde el Lagna — no necesariamente el mismo. Se lee como un porte atractivo y la suerte personal de infundir respeto y dignidad, aunque Raman advierte que una Luna débil o un Mercurio mal asociado pueden atenuar el lado de la apariencia física.',
+      reasonLine: r => T(`In kendra — Jupiter: ${hf(r.perGraha.Jupiter)}, Venus: ${hf(r.perGraha.Venus)}, Mercury: ${hf(r.perGraha.Mercury)}, Moon: ${hf(r.perGraha.Moon)}.`, `En kendra — Júpiter: ${hf(r.perGraha.Jupiter)}, Venus: ${hf(r.perGraha.Venus)}, Mercurio: ${hf(r.perGraha.Mercury)}, Luna: ${hf(r.perGraha.Moon)}.`) },
+    { result: sakataYoga(birthPos), num: 12,
+      nameEn:'Sakata Yoga', nameEs:'Yoga Sakata',
+      glossEn:'The Moon in the 6th, 8th or 12th from Jupiter — Raman\'s own adopted definition, chosen over the older Parashara/Varahamihira "planets in the 1st and 7th" version. A classically difficult combination (loss of fortune, hardship), though Raman notes from his own case review that real-world severity is usually nominal rather than the full traditional reading, and that its effects concentrate specifically around Moon transits of the 6th/8th/12th from natal Jupiter.',
+      glossEs:'La Luna en la 6.ª, 8.ª o 12.ª desde Júpiter — la definición que el propio Raman adopta, en vez de la versión más antigua de Parashara/Varahamihira ("planetas en la 1.ª y la 7.ª"). Una combinación clásicamente difícil (pérdida de fortuna, dificultad), aunque Raman señala por su propia revisión de casos que la severidad real suele ser nominal en vez de la lectura tradicional completa, y que sus efectos se concentran específicamente en los tránsitos de la Luna por la 6.ª/8.ª/12.ª desde el Júpiter natal.',
+      reasonLine: r => T(`Moon's house from Jupiter: ${r.moonHouseFromJupiter} (needs 6th, 8th or 12th).`, `Casa de la Luna desde Júpiter: ${r.moonHouseFromJupiter} (necesita 6.ª, 8.ª o 12.ª).`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -8681,7 +8701,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: the first 7 of 300, all Chandra (Moon)-relative. Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: las primeras 7 de 300, todas relativas a Chandra (la Luna). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -10992,6 +11012,52 @@ function adhiYoga(pos){
   const hits = bsGrahasInHouses(pos, moonSignIdx, benefics, [6,7,8]);
   const tier = hits.length===1 ? 'leader' : hits.length===2 ? 'minister' : hits.length===3 ? 'eminent' : null;
   return { present: hits.length>0, grahas: hits, count: hits.length, tier };
+}
+function chatussagaraYoga(pos, ascSignIdx){
+  // #8 (txt L1753-1755): ALL FOUR kendras (1st/4th/7th/10th) from the
+  // Lagna occupied by at least one planet each — every one of GRAHA_LIST,
+  // no exclusions stated in the source (unlike the Chandra-relative yogas
+  // above, which explicitly exclude the Sun).
+  const kendraHouses = [1,4,7,10];
+  const occupied = kendraHouses.filter(h => bsGrahasInHouses(pos, ascSignIdx, GRAHA_LIST, [h]).length>0);
+  return { present: occupied.length===4, occupiedKendras: occupied };
+}
+function vasumathiYoga(pos, ascSignIdx){
+  // #9 (txt L1807-1811): benefics (Jupiter/Venus/Mercury) in the upachayas
+  // (3rd/6th/10th/11th) from the Lagna, or the same from the Moon —
+  // Raman's Remarks (L1821-1828, L1838-1840) make clear this is graded by
+  // COUNT, not an all-4-required threshold ("two benefics will give less
+  // wealth while only one benefic will give ordinary wealth"), and that a
+  // full 4-of-4 is essentially impossible from the Moon (only 3 classical
+  // benefics exist, and the Moon itself can't count as its own benefic).
+  const upachayaHouses = [3,6,10,11];
+  const benefics = ['Jupiter','Venus','Mercury'];
+  const fromLagna = bsGrahasInHouses(pos, ascSignIdx, benefics, upachayaHouses);
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const fromMoon = bsGrahasInHouses(pos, moonSignIdx, benefics, upachayaHouses);
+  return {
+    present: fromLagna.length>0 || fromMoon.length>0,
+    fromLagna, fromMoon
+  };
+}
+function rajalakshanaYoga(pos, ascSignIdx){
+  // #10 (txt L1882-1885): Jupiter, Venus, Mercury AND the Moon each
+  // individually in a kendra (1st/4th/7th/10th) from the Lagna — verified
+  // against Raman's own cross-reference to Chart No.1 ("Jupiter, Venus,
+  // Mercury and the Moon are all in kendras", not all in the SAME kendra).
+  const grahas = ['Jupiter','Venus','Mercury','Moon'];
+  const inKendra = g => [1,4,7,10].includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx));
+  const results = Object.fromEntries(grahas.map(g=>[g, inKendra(g)]));
+  return { present: grahas.every(inKendra), perGraha: results };
+}
+function sakataYoga(pos){
+  // #12 (txt L1983-1985): the Moon in the 6th, 8th or 12th from Jupiter —
+  // this is Raman's own adopted Definition (his Remarks, L1993-2005,
+  // explicitly discuss and set aside the older Parashara/Varahamihira
+  // "planets in 1st and 7th" definition in favour of this one).
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const moonHouse = bsHouseFromAsc(pos.Moon.sidereal, jupSignIdx);
+  return { present: [6,8,12].includes(moonHouse), moonHouseFromJupiter: moonHouse };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
