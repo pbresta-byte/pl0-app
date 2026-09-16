@@ -9077,7 +9077,62 @@ function renderNatalPage(){
       nameEn:'Swaveeryaddhana Yoga (III)', nameEs:'Yoga Swaveeryaddhana (III)',
       glossEn:'"Quite simple" per Raman own description: the 2nd lord in a kendra/trikona from the Lagna lord, OR the 2nd lord is a benefic in deep exaltation or conjunct an exalted planet. Last of the three self-earned-wealth combinations.',
       glossEs:'"Bastante simple" según la propia descripción de Raman: el señor de la 2.ª en kendra/trikona desde el señor del Lagna, O el señor de la 2.ª es un benéfico en exaltación profunda o conjunto a un planeta exaltado. La última de las tres combinaciones de riqueza autoganada.',
-      reasonLine: r => T(`2nd lord in kendra/trikona from Lagna lord: ${hf(r.condA)}. Or: benefic (${hf(r.lord2IsBenefic)}) + deep-exalted (${hf(r.deepExalted)}) or conjunct exalted graha (${hf(r.conjExalted)}): ${hf(r.condB)}.`, `Señor de la 2.ª en kendra/trikona desde el señor del Lagna: ${hf(r.condA)}. O: benéfico (${hf(r.lord2IsBenefic)}) + exaltado profundamente (${hf(r.deepExalted)}) o conjunto a graha exaltado (${hf(r.conjExalted)}): ${hf(r.condB)}.`) }
+      reasonLine: r => T(`2nd lord in kendra/trikona from Lagna lord: ${hf(r.condA)}. Or: benefic (${hf(r.lord2IsBenefic)}) + deep-exalted (${hf(r.deepExalted)}) or conjunct exalted graha (${hf(r.conjExalted)}): ${hf(r.condB)}.`, `Señor de la 2.ª en kendra/trikona desde el señor del Lagna: ${hf(r.condA)}. O: benéfico (${hf(r.lord2IsBenefic)}) + exaltado profundamente (${hf(r.deepExalted)}) o conjunto a graha exaltado (${hf(r.conjExalted)}): ${hf(r.condB)}.`) },
+    { result: madhyaVayasiDhanaYoga(birthPos, lagnaIdx), num: 133,
+      nameEn:'Madhya Vayasi Dhana Yoga', nameEs:'Yoga Madhya Vayasi Dhana',
+      glossEn:'Wealth arriving in the middle part of life. The 2nd lord, possessing Kalabala (temporal strength), joins both the Lagna lord and the 11th lord together in a kendra or trikona, aspected by a benefic.',
+      glossEs:'Riqueza que llega en la parte media de la vida. El señor de la 2.ª, con Kalabala (fuerza temporal), se une al señor del Lagna y al señor de la 11.ª juntos en un kendra o trikona, aspectado por un benéfico.',
+      reasonLine: r => T(`2nd lord strong: ${hf(r.lord2Strong)}, in kendra/trikona: ${hf(r.inKendraTrikona)}, joined by Lagna lord: ${hf(r.joinsLagnaLord)} and 11th lord: ${hf(r.joinsEleventhLord)}, benefic aspect: ${hf(r.beneficAspect)}.`, `Señor de la 2.ª fuerte: ${hf(r.lord2Strong)}, en kendra/trikona: ${hf(r.inKendraTrikona)}, junto al señor del Lagna: ${hf(r.joinsLagnaLord)} y al de la 11.ª: ${hf(r.joinsEleventhLord)}, aspecto benéfico: ${hf(r.beneficAspect)}.`) },
+    { result: anthyaVayasiDhanaYoga(birthPos, lagnaIdx), num: 134,
+      nameEn:'Anthya Vayasi Dhana Yoga', nameEs:'Yoga Anthya Vayasi Dhana',
+      glossEn:'Wealth arriving at the very end of life — Raman notes some people live in near-misery for decades before fortune dawns "at the fag end." The Lagna lord, 2nd lord and a natural benefic all conjoin in one sign, whose dispositor must itself occupy the Lagna and be strongly disposed.',
+      glossEs:'Riqueza que llega al final mismo de la vida — Raman señala que algunas personas viven casi en la miseria durante décadas antes de que la fortuna llegue "al final del trayecto." El señor del Lagna, el señor de la 2.ª y un benéfico natural se conjuntan en un signo, cuyo dispositor debe ocupar el Lagna y estar fuertemente dispuesto.',
+      reasonLine: r => T(`Lagna lord + 2nd lord + a benefic together: ${hf(r.together && r.beneficThere)}. Dispositor (${r.dispositor||'—'}) in Lagna and strong: ${hf(r.dispositorInLagna && r.dispositorStrong)}.`, `Señor del Lagna + señor de la 2.ª + un benéfico juntos: ${hf(r.together && r.beneficThere)}. Dispositor (${r.dispositor||'—'}) en el Lagna y fuerte: ${hf(r.dispositorInLagna && r.dispositorStrong)}.`) },
+    { result: balyaDhanaYoga(birthPos, navPos, lagnaIdx), num: 135,
+      nameEn:'Balya Dhana Yoga', nameEs:'Yoga Balya Dhana',
+      glossEn:'Immense riches in the early part of life. Raman calls it "a round about one," needing three separate conditions at once: the 2nd and 10th lords conjoined, occupying a kendra from the Lagna, and aspected by whichever graha owns the Navamsa sign the Lagna lord occupies.',
+      glossEs:'Riquezas inmensas en la primera parte de la vida. Raman lo llama "un tanto indirecto," pues exige tres condiciones separadas a la vez: los señores de la 2.ª y la 10.ª conjuntos, ocupando un kendra desde el Lagna, y aspectados por el graha que rige el signo de Navamsa que ocupa el señor del Lagna.',
+      reasonLine: r => T(`2nd/10th lords conjoined: ${hf(r.conjoined)}, in kendra: ${hf(r.inKendra)}. Aspected by Navamsa-dispositor ${r.navLord}: ${hf(r.aspected)}.`, `Señores de la 2.ª/10.ª conjuntos: ${hf(r.conjoined)}, en kendra: ${hf(r.inKendra)}. Aspectados por el dispositor de Navamsa ${r.navLord}: ${hf(r.aspected)}.`) },
+    { result: bhratrumooladdhanaYoga136(birthPos, lagnaIdx), num: 136,
+      nameEn:'Bhratrumooladdhana Yoga (I)', nameEs:'Yoga Bhratrumooladdhana (I)',
+      glossEn:'Money through brothers and relatives. The Lagna lord and 2nd lord both join the 3rd house, aspected by benefics. First of two combinations Raman groups together as a hint at how the 2nd/3rd lords can point to this income source.',
+      glossEs:'Dinero a través de hermanos y parientes. El señor del Lagna y el señor de la 2.ª se unen ambos en la 3.ª casa, aspectados por benéficos. La primera de dos combinaciones que Raman agrupa como pista de cómo los señores de la 2.ª/3.ª pueden señalar esta fuente de ingresos.',
+      reasonLine: r => T(`Lagna lord in 3rd: ${hf(r.lord1In3rd)}. 2nd lord in 3rd: ${hf(r.lord2In3rd)}. Benefic aspect on 3rd: ${hf(r.beneficAspect)}.`, `Señor del Lagna en la 3.ª: ${hf(r.lord1In3rd)}. Señor de la 2.ª en la 3.ª: ${hf(r.lord2In3rd)}. Aspecto benéfico sobre la 3.ª: ${hf(r.beneficAspect)}.`) },
+    { result: bhratrumooladdhanaYoga137(birthPos, navPos, lagnaIdx), num: 137,
+      nameEn:'Bhratrumooladdhana Yoga (II)', nameEs:'Yoga Bhratrumooladdhana (II)',
+      glossEn:'Second of the two brothers-and-relatives wealth combinations: the 3rd lord in the 2nd house with Jupiter, aspected by or conjoined with the Lagna lord — who must himself have attained Vaiseshikamsa.',
+      glossEs:'La segunda de las dos combinaciones de riqueza por hermanos y parientes: el señor de la 3.ª en la 2.ª casa con Júpiter, aspectado o conjunto al señor del Lagna — quien debe haber alcanzado Vaiseshikamsa.',
+      reasonLine: r => T(`3rd lord in 2nd: ${hf(r.lord3House===2)}, with Jupiter: ${hf(r.withJupiter)}, linked to Lagna lord: ${hf(r.lord1Link)}. Lagna lord Vaiseshikamsa (count ${r.vamsaCount}): ${hf(r.vamsaCount>=2)}.`, `Señor de la 3.ª en la 2.ª: ${hf(r.lord3House===2)}, con Júpiter: ${hf(r.withJupiter)}, vinculado al señor del Lagna: ${hf(r.lord1Link)}. Vaiseshikamsa del señor del Lagna (cuenta ${r.vamsaCount}): ${hf(r.vamsaCount>=2)}.`) },
+    { result: matrumooladdhanaYoga(birthPos, lagnaIdx), num: 138,
+      nameEn:'Matrumooladdhana Yoga', nameEs:'Yoga Matrumooladdhana',
+      glossEn:'Money earned with the help of one’s mother. The 2nd lord joins the 4th lord, or is aspected by him. Raman adds a nice interpretive hook: the actual source can vary by the 4th lord’s own nature — agriculture, for instance, if the 4th lord is Mars.',
+      glossEs:'Dinero ganado con la ayuda de la madre. El señor de la 2.ª se une al señor de la 4.ª, o es aspectado por él. Raman añade una pista interpretativa: la fuente real puede variar según la naturaleza del señor de la 4.ª — agricultura, por ejemplo, si el señor de la 4.ª es Marte.',
+      reasonLine: r => T(`2nd lord conjunct 4th lord (${r.lord4}): ${hf(r.conjunct)}. Or aspected by 4th lord: ${hf(r.aspected)}.`, `Señor de la 2.ª conjunto al señor de la 4.ª (${r.lord4}): ${hf(r.conjunct)}. O aspectado por el señor de la 4.ª: ${hf(r.aspected)}.`) },
+    { result: putramooladdhanaYoga(birthPos, navPos, lagnaIdx), num: 139,
+      nameEn:'Putramooladdhana Yoga', nameEs:'Yoga Putramooladdhana',
+      glossEn:'Wealth through one’s sons — sometimes read as the son bringing literal financial help, sometimes as invisible luck that arrives after a son is born. The strong 2nd lord conjoins the 5th lord or Jupiter, with the Lagna lord in Vaiseshikamsa OR strong — Raman’s own worked Chart No.74 explicitly substitutes plain strength for Vaiseshikamsa.',
+      glossEs:'Riqueza a través de los hijos — a veces leída como ayuda financiera literal del hijo, a veces como suerte invisible que llega tras su nacimiento. El señor de la 2.ª, fuerte, se conjunta con el señor de la 5.ª o Júpiter, con el señor del Lagna en Vaiseshikamsa O fuerte — la propia Carta N.º74 de Raman sustituye explícitamente Vaiseshikamsa por fuerza simple.',
+      reasonLine: r => T(`2nd lord strong: ${hf(r.lord2Strong)}, with 5th lord or Jupiter: ${hf(r.withFifthOrJupiter)}. Lagna lord Vaiseshikamsa (${r.vamsaCount}) or strong: ${hf(r.lord1InVaiseshikamsa || r.lord1Strong)}.`, `Señor de la 2.ª fuerte: ${hf(r.lord2Strong)}, con señor de la 5.ª o Júpiter: ${hf(r.withFifthOrJupiter)}. Señor del Lagna en Vaiseshikamsa (${r.vamsaCount}) o fuerte: ${hf(r.lord1InVaiseshikamsa || r.lord1Strong)}.`) },
+    { result: satrumooladdhanaYoga(birthPos, navPos, lagnaIdx), num: 140,
+      nameEn:'Satrumooladdhana Yoga', nameEs:'Yoga Satrumooladdhana',
+      glossEn:'Money earned through one’s enemies. The strong 2nd lord joins the 6th lord or Mars, and the powerful Lagna lord is in Vaiseshikamsa. Unlike #139, Raman’s Remarks here explicitly reaffirm the Vaiseshikamsa requirement rather than relaxing it.',
+      glossEs:'Dinero ganado a través de los enemigos. El señor de la 2.ª, fuerte, se une al señor de la 6.ª o a Marte, y el poderoso señor del Lagna está en Vaiseshikamsa. A diferencia de la #139, los Comentarios de Raman aquí reafirman explícitamente el requisito de Vaiseshikamsa en vez de relajarlo.',
+      reasonLine: r => T(`2nd lord strong: ${hf(r.lord2Strong)}, with 6th lord: ${hf(r.with6thLord)} or Mars: ${hf(r.withMars)}. Lagna lord Vaiseshikamsa (${r.vamsaCount}): ${hf(r.vamsaCount>=2)}.`, `Señor de la 2.ª fuerte: ${hf(r.lord2Strong)}, con señor de la 6.ª: ${hf(r.with6thLord)} o Marte: ${hf(r.withMars)}. Vaiseshikamsa del señor del Lagna (${r.vamsaCount}): ${hf(r.vamsaCount>=2)}.`) },
+    { result: kalatramooladdhanaYoga(birthPos, lagnaIdx), num: 141,
+      nameEn:'Kalatramooladdhana Yoga', nameEs:'Yoga Kalatramooladdhana',
+      glossEn:'Wealth earned through one’s spouse. The strong 2nd lord joins or is aspected by both the 7th lord and Venus, with a powerful Lagna lord.',
+      glossEs:'Riqueza ganada a través del cónyuge. El señor de la 2.ª, fuerte, se une o es aspectado por el señor de la 7.ª y por Venus, con un señor del Lagna poderoso.',
+      reasonLine: r => T(`2nd lord strong: ${hf(r.lord2Strong)}, linked to 7th lord: ${hf(r.with7thLord)} and Venus: ${hf(r.withVenus)}. Lagna lord powerful: ${hf(r.lord1Powerful)}.`, `Señor de la 2.ª fuerte: ${hf(r.lord2Strong)}, vinculado al señor de la 7.ª: ${hf(r.with7thLord)} y a Venus: ${hf(r.withVenus)}. Señor del Lagna poderoso: ${hf(r.lord1Powerful)}.`) },
+    { result: amaranathaDhanaYoga(birthPos, lagnaIdx), num: 142,
+      nameEn:'Amaranantha Dhana Yoga', nameEs:'Yoga Amaranantha Dhana',
+      glossEn:'Wealth enjoyed throughout life, not just during a favourable Dasa — Raman contrasts a horoscope inherently strong in a Bhava (permanent results) against mere Yogakarakas (Dasa-bound results). Two or more grahas occupy the 2nd house, with the 2nd lord and Jupiter both strongly disposed.',
+      glossEs:'Riqueza disfrutada durante toda la vida, no solo en una Dasa favorable — Raman contrasta un horóscopo inherentemente fuerte en un Bhava (resultados permanentes) frente a meros Yogakarakas (resultados ligados a la Dasa). Dos o más grahas ocupan la 2.ª casa, con el señor de la 2.ª y Júpiter fuertemente dispuestos.',
+      reasonLine: r => T(`2+ grahas in 2nd (${r.occupants.join(', ')||'none'}): ${hf(r.multiplePlanets)}. 2nd lord strong: ${hf(r.lord2Strong)}. Jupiter strong: ${hf(r.jupiterStrong)}.`, `2+ grahas en la 2.ª (${r.occupants.join(', ')||'ninguno'}): ${hf(r.multiplePlanets)}. Señor de la 2.ª fuerte: ${hf(r.lord2Strong)}. Júpiter fuerte: ${hf(r.jupiterStrong)}.`) },
+    { result: ayatnadhanalabhaYoga(birthPos, lagnaIdx), num: 143,
+      nameEn:'Ayatnadhanalabha Yoga', nameEs:'Yoga Ayatnadhanalabha',
+      glossEn:'Wealth earned without much effort — Raman attributes this popularly to "luck," but reframes it as the fruit of good past Karma. A straightforward Parivartana (mutual exchange) between the Lagna lord and the 2nd lord.',
+      glossEs:'Riqueza ganada sin mucho esfuerzo — Raman lo atribuye popularmente a la "suerte," pero lo replantea como el fruto de un buen Karma pasado. Una Parivartana (intercambio mutuo) directa entre el señor del Lagna y el señor de la 2.ª.',
+      reasonLine: r => T(`Lagna lord / 2nd lord Parivartana: ${hf(r.exchange)}.`, `Parivartana señor del Lagna / señor de la 2.ª: ${hf(r.exchange)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9227,7 +9282,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-132 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-132 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-143 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-143 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -12806,6 +12861,196 @@ function swaveeryaddhanaYoga132(pos, ascSignIdx){
   });
   const condB = lord2IsBenefic && (deepExalted || conjExalted);
   return { present: condA || condB, condA, condB, lord2IsBenefic, deepExalted, conjExalted };
+}
+function madhyaVayasiDhanaYoga(pos, ascSignIdx){
+  // #133 (txt L6124-6145): the 2nd lord, "possessing Kalabala," joins
+  // (conjoins) BOTH the Lagna lord and the 11th lord, all three placed
+  // together in a kendra or trikona from the Lagna, and the 2nd lord is
+  // aspected by a benefic. AMBIGUITY FLAG: "possessing Kalabala" (temporal
+  // strength -- one of the six BPHS Shadbala components; Raman's own
+  // Remarks sketch it as night-strong Moon/Mars/Saturn vs. day-strong Sun/
+  // Jupiter/Venus, Mercury always strong, etc.) is not literally computed
+  // here -- this app has a standalone Shadbala module (see repo history,
+  // "Add standalone Shadbala... module") deliberately NOT wired into this
+  // file, so -- consistent with how Rogagrastha #111 already handles a
+  // Shadbala-flavored term it cannot literally compute -- "possessing
+  // Kalabala" is read via this file's standing own/exalted/friend
+  // dignity-tier proxy for "strong," not literal Kalabala.
+  const lord2 = lordOfHouse(2, ascSignIdx), lord1 = lordOfHouse(1, ascSignIdx), lord11 = lordOfHouse(11, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const lord2Strong = ['Own','Exalted','Friend'].includes(dignityTierInSign(lord2, lord2SignIdx));
+  const sameSignAsLord2 = g => g===lord2 || Math.floor(norm360(pos[g].sidereal)/30)===lord2SignIdx;
+  const joinsLagnaLord = sameSignAsLord2(lord1);
+  const joinsEleventhLord = sameSignAsLord2(lord11);
+  const houseOfLord2 = bsHouseFromAsc(pos[lord2].sidereal, ascSignIdx);
+  const inKendraTrikona = [1,4,5,7,9,10].includes(houseOfLord2);
+  const beneficAspect = RAMAN_BENEFICS.some(b=>{
+    if (b===lord2) return false;
+    const bSignIdx = Math.floor(norm360(pos[b].sidereal)/30);
+    return aspectsSignWholeSign(b, bSignIdx, lord2SignIdx);
+  });
+  return { present: lord2Strong && joinsLagnaLord && joinsEleventhLord && inKendraTrikona && beneficAspect, lord2Strong, joinsLagnaLord, joinsEleventhLord, inKendraTrikona, beneficAspect };
+}
+function anthyaVayasiDhanaYoga(pos, ascSignIdx){
+  // #134 (txt L6155-6169): the Lagna lord, 2nd lord, and a natural benefic
+  // (Jupiter/Venus/Mercury) all conjunct in the same sign; the DISPOSITOR
+  // of that sign must then itself occupy the Lagna and be strongly
+  // disposed. "Strongly disposed" via this file's usual own/exalted/friend
+  // dignity-tier reading (no numeric threshold given in the source).
+  const lord1 = lordOfHouse(1, ascSignIdx), lord2 = lordOfHouse(2, ascSignIdx);
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const together = lord1SignIdx === lord2SignIdx;
+  const beneficThere = together && RAMAN_BENEFICS.some(b=> Math.floor(norm360(pos[b].sidereal)/30)===lord1SignIdx);
+  const dispositor = together ? SIGN_LORD[SIGNS[lord1SignIdx]] : null;
+  const dispositorSignIdx = dispositor ? Math.floor(norm360(pos[dispositor].sidereal)/30) : -1;
+  const dispositorInLagna = !!dispositor && bsHouseFromAsc(pos[dispositor].sidereal, ascSignIdx)===1;
+  const dispositorStrong = !!dispositor && ['Own','Exalted','Friend'].includes(dignityTierInSign(dispositor, dispositorSignIdx));
+  return { present: together && beneficThere && dispositorInLagna && dispositorStrong, together, beneficThere, dispositor, dispositorInLagna, dispositorStrong };
+}
+function balyaDhanaYoga(pos, navPos, ascSignIdx){
+  // #135 (txt L6170-6184): three conjoined conditions per Raman's own
+  // Remarks breakdown -- (a) the 2nd and 10th lords in conjunction, (b)
+  // occupying a kendra from the Lagna, (c) aspected by the graha who owns
+  // the Navamsa sign occupied by the Lagna lord. Chart No.73 illustrates
+  // it without further textual walkthrough.
+  const lord2 = lordOfHouse(2, ascSignIdx), lord10 = lordOfHouse(10, ascSignIdx), lord1 = lordOfHouse(1, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const lord10SignIdx = Math.floor(norm360(pos[lord10].sidereal)/30);
+  const conjoined = lord2===lord10 || lord2SignIdx===lord10SignIdx;
+  const houseOf2 = bsHouseFromAsc(pos[lord2].sidereal, ascSignIdx);
+  const inKendra = conjoined && [1,4,7,10].includes(houseOf2);
+  const lagnaLordNavSignIdx = Math.floor(norm360(navamsaSidereal(pos[lord1].sidereal))/30);
+  const navLord = SIGN_LORD[SIGNS[lagnaLordNavSignIdx]];
+  const navLordSignIdx = Math.floor(norm360(pos[navLord].sidereal)/30);
+  const aspected = navLord!==lord2 && aspectsSignWholeSign(navLord, navLordSignIdx, lord2SignIdx);
+  return { present: inKendra && aspected, conjoined, inKendra, navLord, aspected };
+}
+function bhratrumooladdhanaYoga136(pos, ascSignIdx){
+  // #136 (txt L6214-6215): the Lagna lord AND the 2nd lord both join the
+  // 3rd house, aspected by benefics.
+  const lord1 = lordOfHouse(1, ascSignIdx), lord2 = lordOfHouse(2, ascSignIdx);
+  const lord1In3rd = bsHouseFromAsc(pos[lord1].sidereal, ascSignIdx)===3;
+  const lord2In3rd = bsHouseFromAsc(pos[lord2].sidereal, ascSignIdx)===3;
+  const thirdSignIdx = (ascSignIdx+2)%12;
+  const beneficAspect = RAMAN_BENEFICS.some(b=>{
+    const bSignIdx = Math.floor(norm360(pos[b].sidereal)/30);
+    return aspectsSignWholeSign(b, bSignIdx, thirdSignIdx);
+  });
+  return { present: lord1In3rd && lord2In3rd && beneficAspect, lord1In3rd, lord2In3rd, beneficAspect };
+}
+function bhratrumooladdhanaYoga137(pos, navPos, ascSignIdx){
+  // #137 (txt L6216-6219): the 3rd lord in the 2nd house, conjunct Jupiter,
+  // aspected by or conjoined with the Lagna lord, who must himself have
+  // attained Vaiseshikamsa.
+  const lord3 = lordOfHouse(3, ascSignIdx), lord1 = lordOfHouse(1, ascSignIdx);
+  const lord3House = bsHouseFromAsc(pos[lord3].sidereal, ascSignIdx);
+  const lord3SignIdx = Math.floor(norm360(pos[lord3].sidereal)/30);
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const withJupiter = lord3!=='Jupiter' && jupSignIdx===lord3SignIdx;
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const lord1Link = lord3===lord1 || lord1SignIdx===lord3SignIdx || aspectsSignWholeSign(lord1, lord1SignIdx, lord3SignIdx);
+  const vamsaCount = vaiseshikamsaCount(lord1, pos, navPos, 'dasa');
+  const lord1Vaiseshikamsa = vamsaCount>=2;
+  return { present: lord3House===2 && withJupiter && lord1Link && lord1Vaiseshikamsa, lord3House, withJupiter, lord1Link, vamsaCount };
+}
+function matrumooladdhanaYoga(pos, ascSignIdx){
+  // #138 (txt L6231-6233): the 2nd lord joins the 4th lord, or is aspected
+  // by him. Remarks add a nice reading hook: the source of the earning can
+  // vary by the 4th lord's nature (e.g. agriculture if the 4th lord is
+  // Mars) -- included in reasonLine only as context, not gating presence.
+  const lord2 = lordOfHouse(2, ascSignIdx), lord4 = lordOfHouse(4, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const lord4SignIdx = Math.floor(norm360(pos[lord4].sidereal)/30);
+  const conjunct = lord2===lord4 || lord2SignIdx===lord4SignIdx;
+  const aspected = lord4!==lord2 && aspectsSignWholeSign(lord4, lord4SignIdx, lord2SignIdx);
+  return { present: conjunct || aspected, conjunct, aspected, lord4 };
+}
+function putramooladdhanaYoga(pos, navPos, ascSignIdx){
+  // #139 (txt L6241-6244, Chart No.74 walkthrough at L6257-6263): Definition
+  // literally requires the strong 2nd lord conjunct the 5th lord or
+  // Jupiter, AND the Lagna lord in Vaiseshikamsa. BUT Raman's own worked
+  // Chart No.74 explicitly states "The Lagna lord is not in Vaiseshikamsa
+  // but he is decidedly strong" while still presenting the chart as an
+  // illustration of this very yoga (delayed manifestation past age 50) --
+  // i.e. Raman's own practice broadens the strict-Vaiseshikamsa clause to
+  // an OR against plain strong dignity. This is exactly the kind of
+  // Definition-vs-worked-example divergence this project's discipline
+  // exists to catch (cf. Adhi Yoga, Matsya Yoga) -- implemented as an OR,
+  // not a strict AND, to match what Raman actually did with his own chart.
+  const lord2 = lordOfHouse(2, ascSignIdx), lord5 = lordOfHouse(5, ascSignIdx), lord1 = lordOfHouse(1, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const lord2Strong = ['Own','Exalted','Friend'].includes(dignityTierInSign(lord2, lord2SignIdx));
+  const lord5SignIdx = Math.floor(norm360(pos[lord5].sidereal)/30);
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const withFifthOrJupiter = (lord2===lord5 || lord2SignIdx===lord5SignIdx) || (lord2!=='Jupiter' && lord2SignIdx===jupSignIdx);
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const vamsaCount = vaiseshikamsaCount(lord1, pos, navPos, 'dasa');
+  const lord1InVaiseshikamsa = vamsaCount>=2;
+  const lord1Strong = ['Own','Exalted','Friend'].includes(dignityTierInSign(lord1, lord1SignIdx));
+  const lagnaLordOk = lord1InVaiseshikamsa || lord1Strong;
+  return { present: lord2Strong && withFifthOrJupiter && lagnaLordOk, lord2Strong, withFifthOrJupiter, vamsaCount, lord1InVaiseshikamsa, lord1Strong };
+}
+function satrumooladdhanaYoga(pos, navPos, ascSignIdx){
+  // #140 (txt L6290-6296, Remarks at L6296-6301): the strong 2nd lord joins
+  // the 6th lord or Mars, and the powerful Lagna lord is in Vaiseshikamsa.
+  // The Remarks immediately following #140 (L6296-6301) explicitly
+  // REAFFIRM the Vaiseshikamsa requirement for this whole run of yogas
+  // ("stress is evidently laid on... the powerful disposition of
+  // Lagnadhipathi in Vaiseshikamsa"), unlike #139 where the worked example
+  // itself broadened the rule -- so unlike #139, this one keeps
+  // Vaiseshikamsa as a strict AND, not an OR against plain dignity.
+  const lord2 = lordOfHouse(2, ascSignIdx), lord6 = lordOfHouse(6, ascSignIdx), lord1 = lordOfHouse(1, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const lord2Strong = ['Own','Exalted','Friend'].includes(dignityTierInSign(lord2, lord2SignIdx));
+  const lord6SignIdx = Math.floor(norm360(pos[lord6].sidereal)/30);
+  const marsSignIdx = Math.floor(norm360(pos.Mars.sidereal)/30);
+  const with6thLord = lord2===lord6 || lord2SignIdx===lord6SignIdx || aspectsSignWholeSign(lord6, lord6SignIdx, lord2SignIdx);
+  const withMars = lord2==='Mars' || lord2SignIdx===marsSignIdx || aspectsSignWholeSign('Mars', marsSignIdx, lord2SignIdx);
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const vamsaCount = vaiseshikamsaCount(lord1, pos, navPos, 'dasa');
+  const lord1Vaiseshikamsa = vamsaCount>=2;
+  return { present: lord2Strong && (with6thLord||withMars) && lord1Vaiseshikamsa, lord2Strong, with6thLord, withMars, vamsaCount };
+}
+function kalatramooladdhanaYoga(pos, ascSignIdx){
+  // #141 (txt L6302-6305): the strong 2nd lord joins or is aspected by BOTH
+  // the 7th lord and Venus, and the Lagna lord must be powerful.
+  const lord2 = lordOfHouse(2, ascSignIdx), lord7 = lordOfHouse(7, ascSignIdx), lord1 = lordOfHouse(1, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const lord2Strong = ['Own','Exalted','Friend'].includes(dignityTierInSign(lord2, lord2SignIdx));
+  const linked = g=>{
+    const gSignIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    return lord2===g || lord2SignIdx===gSignIdx || aspectsSignWholeSign(g, gSignIdx, lord2SignIdx) || aspectsSignWholeSign(lord2, lord2SignIdx, gSignIdx);
+  };
+  const with7thLord = linked(lord7);
+  const withVenus = linked('Venus');
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const lord1Powerful = ['Own','Exalted','Friend'].includes(dignityTierInSign(lord1, lord1SignIdx));
+  return { present: lord2Strong && with7thLord && withVenus && lord1Powerful, lord2Strong, with7thLord, withVenus, lord1Powerful };
+}
+function amaranathaDhanaYoga(pos, ascSignIdx){
+  // #142 (txt L6312-6330): a number (2+) of grahas occupying the 2nd
+  // house, with the 2nd lord AND Jupiter (the wealth-giving significators
+  // Raman names explicitly in the Remarks) strongly disposed.
+  const secondSignIdx = (ascSignIdx+1)%12;
+  const occupants = GRAHA_LIST.filter(g=> Math.floor(norm360(pos[g].sidereal)/30)===secondSignIdx);
+  const multiplePlanets = occupants.length>=2;
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const lord2Strong = ['Own','Exalted','Friend'].includes(dignityTierInSign(lord2, lord2SignIdx));
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const jupiterStrong = ['Own','Exalted','Friend'].includes(dignityTierInSign('Jupiter', jupSignIdx));
+  return { present: multiplePlanets && lord2Strong && jupiterStrong, occupants, multiplePlanets, lord2Strong, jupiterStrong };
+}
+function ayatnadhanalabhaYoga(pos, ascSignIdx){
+  // #143 (txt L6332-6335): a straightforward Parivartana (mutual exchange)
+  // between the Lagna lord and the 2nd lord.
+  const lord1 = lordOfHouse(1, ascSignIdx), lord2 = lordOfHouse(2, ascSignIdx);
+  if (lord1===lord2) return { present: false, exchange: false };
+  const lord1House = bsHouseFromAsc(pos[lord1].sidereal, ascSignIdx);
+  const lord2House = bsHouseFromAsc(pos[lord2].sidereal, ascSignIdx);
+  const exchange = lord1House===2 && lord2House===1;
+  return { present: exchange, exchange };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
