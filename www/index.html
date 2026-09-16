@@ -8952,7 +8952,82 @@ function renderNatalPage(){
       nameEn:'Vimala Yoga', nameEs:'Yoga Vimala',
       glossEn:'The 12th lord occupying the 12th house itself. Frugality, happiness, independence, and ennobling qualities — completing the Harsha/Sarala/Vimala trio of Dusthana-lord-in-own-house combinations.',
       glossEs:'El señor de la 12.ª ocupando la 12.ª casa misma. Frugalidad, felicidad, independencia, y cualidades enaltecedoras — completando el trío Harsha/Sarala/Vimala de combinaciones de señor-de-Dusthana-en-su-propia-casa.',
-      reasonLine: r => T(`12th lord in the 12th: ${hf(r.present)}.`, `Señor de la 12.ª en la 12.ª: ${hf(r.present)}.`) }
+      reasonLine: r => T(`12th lord in the 12th: ${hf(r.present)}.`, `Señor de la 12.ª en la 12.ª: ${hf(r.present)}.`) },
+    { result: sareeraSoukhyaYoga(birthPos, lagnaIdx), num: 108,
+      nameEn:'Sareera Soukhya Yoga', nameEs:'Yoga Sareera Soukhya',
+      glossEn:'The Lagna lord, Jupiter, or Venus in a kendra — graded by count, with all three in kendras giving the fully powerful form. Raman notes this is fairly common but rarely remarked upon. Long life, wealth, and political favour.',
+      glossEs:'El señor del Lagna, Júpiter, o Venus en un kendra — graduado por cantidad, con los tres en kendras dando la forma plenamente poderosa. Raman señala que es bastante común pero rara vez se comenta. Larga vida, riqueza, y favor político.',
+      reasonLine: r => T(`In kendra: ${r.hits.length?r.hits.join(', '):'none'} (${r.count}/3).`, `En kendra: ${r.hits.length?r.hits.join(', '):'ninguno'} (${r.count}/3).`) },
+    { result: dehapushtiYoga(birthPos, lagnaIdx), num: 109,
+      nameEn:'Dehapushti Yoga', nameEs:'Yoga Dehapushti',
+      glossEn:'The Lagna lord in a movable sign, aspected by a benefic. A well-developed body and material comfort — Raman distinguishes this from mere happiness, since some people neglect bodily care regardless of means.',
+      glossEs:'El señor del Lagna en un signo móvil, aspectado por un benéfico. Un cuerpo bien desarrollado y comodidad material — Raman distingue esto de la mera felicidad, ya que algunas personas descuidan el cuidado corporal sin importar los medios.',
+      reasonLine: r => T(`Lagna lord in movable sign: ${hf(r.inMovable)}. Benefic aspect: ${hf(r.beneficAspect)}.`, `Señor del Lagna en signo móvil: ${hf(r.inMovable)}. Aspecto benéfico: ${hf(r.beneficAspect)}.`) },
+    { result: dehakashtaYoga(birthPos, lagnaIdx), num: 110,
+      nameEn:'Dehakashta Yoga', nameEs:'Yoga Dehakashta',
+      glossEn:'The Lagna lord conjunct a malefic, or in the 8th house. "Dehakashta" means bodily hardship — Raman notes it\'s neutralized if a benefic aspects the Lagna lord instead (tracked separately below, not gating presence here).',
+      glossEs:'El señor del Lagna conjunto a un maléfico, o en la 8.ª casa. "Dehakashta" significa dificultad corporal — Raman señala que se neutraliza si un benéfico aspecta al señor del Lagna en su lugar (rastreado por separado abajo, sin condicionar la presencia aquí).',
+      reasonLine: r => T(`Conjunct malefic: ${hf(r.conjunctMalefic)}. In 8th: ${hf(r.inEighth)}. (Benefic aspect would cancel: ${hf(r.beneficAspectCancels)}.)`, `Conjunto a maléfico: ${hf(r.conjunctMalefic)}. En la 8.ª: ${hf(r.inEighth)}. (Un aspecto benéfico lo cancelaría: ${hf(r.beneficAspectCancels)}.)`) },
+    { result: rogagrasthaYoga(birthPos, lagnaIdx), num: 111,
+      nameEn:'Rogagrastha Yoga', nameEs:'Yoga Rogagrastha',
+      glossEn:'Either the Lagna lord in the Lagna conjunct a 6th/8th/12th lord, or a weak Lagna lord in a trine or kendra. A frail constitution and susceptibility to illness — Raman notes real strength assessment (Shadbala) matters more here than the placement alone.',
+      glossEs:'O el señor del Lagna en el Lagna conjunto a un señor de la 6.ª/8.ª/12.ª, o un señor del Lagna débil en un trino o kendra. Una constitución frágil y susceptibilidad a la enfermedad — Raman señala que la evaluación real de fuerza (Shadbala) importa aquí más que la sola ubicación.',
+      reasonLine: r => T(`Path (a) Lagna lord in Lagna + conjunct Dusthana lord: ${hf(r.condA)}. Path (b) weak Lagna lord in trine/kendra: ${hf(r.condB)}.`, `Vía (a) señor del Lagna en el Lagna + conjunto a señor de Dusthana: ${hf(r.condA)}. Vía (b) señor del Lagna débil en trino/kendra: ${hf(r.condB)}.`) },
+    { result: krisangaYoga112(birthPos, lagnaIdx), num: 112,
+      nameEn:'Krisanga Yoga (I)', nameEs:'Yoga Krisanga (I)',
+      glossEn:'The Lagna lord in a dry sign (Aries/Taurus/Gemini/Leo/Virgo/Sagittarius) or in a sign owned by a dry planet (Sun/Mars/Saturn/Mercury). An emaciated, lean physique.',
+      glossEs:'El señor del Lagna en un signo seco (Aries/Tauro/Géminis/Leo/Virgo/Sagitario) o en un signo regido por un planeta seco (Sol/Marte/Saturno/Mercurio). Un físico enjuto y delgado.',
+      reasonLine: r => T(`In dry sign: ${hf(r.inDrySign)}. Sign's lord is a dry planet: ${hf(r.signLordIsDry)}.`, `En signo seco: ${hf(r.inDrySign)}. El señor del signo es un planeta seco: ${hf(r.signLordIsDry)}.`) },
+    { result: krisangaYoga113(birthPos, lagnaIdx), num: 113,
+      nameEn:'Krisanga Yoga (II)', nameEs:'Yoga Krisanga (II)',
+      glossEn:'The Navamsa Lagna owned by a dry planet, with malefics conjunct the Rasi Lagna. The second of the two Krisanga (lean-body) combinations.',
+      glossEs:'El Lagna de Navamsa regido por un planeta seco, con maléficos conjuntos al Lagna de Rasi. La segunda de las dos combinaciones Krisanga (cuerpo delgado).',
+      reasonLine: r => T(`Navamsa Lagna lord is dry: ${hf(r.navLagnaLordDry)}. Malefic(s) in Lagna: ${hf(r.maleficInLagna)}.`, `Señor del Lagna de Navamsa es seco: ${hf(r.navLagnaLordDry)}. Maléfico(s) en el Lagna: ${hf(r.maleficInLagna)}.`) },
+    { result: dehasthoulyaYoga114(birthPos, navPos, lagnaIdx), num: 114,
+      nameEn:'Dehasthoulya Yoga (I)', nameEs:'Yoga Dehasthoulya (I)',
+      glossEn:'The Lagna lord AND the lord of the Navamsa sign it occupies, both in watery signs. "Dehasthoulya" means bodily stoutness — distinct from strength or good build.',
+      glossEs:'El señor del Lagna Y el señor del signo de Navamsa que ocupa, ambos en signos acuosos. "Dehasthoulya" significa corpulencia corporal — distinto de fuerza o buena constitución.',
+      reasonLine: r => T(`Lagna lord in watery sign: ${hf(r.lagnaLordWatery)}. Its Navamsa-dispositor in watery sign: ${hf(r.navDispositorWatery)}.`, `Señor del Lagna en signo acuoso: ${hf(r.lagnaLordWatery)}. Su dispositor de Navamsa en signo acuoso: ${hf(r.navDispositorWatery)}.`) },
+    { result: dehasthoulyaYoga115(birthPos, lagnaIdx), num: 115,
+      nameEn:'Dehasthoulya Yoga (II)', nameEs:'Yoga Dehasthoulya (II)',
+      glossEn:'Jupiter occupies the Lagna, or aspects it from a watery sign. The second of the three stoutness combinations.',
+      glossEs:'Júpiter ocupa el Lagna, o lo aspecta desde un signo acuoso. La segunda de las tres combinaciones de corpulencia.',
+      reasonLine: r => T(`Jupiter in Lagna: ${hf(r.jupInLagna)}. Jupiter aspects Lagna from watery sign: ${hf(r.jupAspectsFromWatery)}.`, `Júpiter en el Lagna: ${hf(r.jupInLagna)}. Júpiter aspecta al Lagna desde signo acuoso: ${hf(r.jupAspectsFromWatery)}.`) },
+    { result: dehasthoulyaYoga116(birthPos, lagnaIdx), num: 116,
+      nameEn:'Dehasthoulya Yoga (III)', nameEs:'Yoga Dehasthoulya (III)',
+      glossEn:'The Ascendant itself in a watery sign conjunct benefics, or the Lagna lord is a watery planet (Moon or Venus). The third and last of the stoutness combinations.',
+      glossEs:'El propio Ascendente en un signo acuoso conjunto a benéficos, o el señor del Lagna es un planeta acuoso (Luna o Venus). La tercera y última de las combinaciones de corpulencia.',
+      reasonLine: r => T(`Lagna watery + benefics present: ${hf(r.lagnaWatery && r.beneficsInLagna)}. Lagna lord is watery planet: ${hf(r.lagnaLordWaterPlanet)}.`, `Lagna acuoso + benéficos presentes: ${hf(r.lagnaWatery && r.beneficsInLagna)}. Señor del Lagna es planeta acuoso: ${hf(r.lagnaLordWaterPlanet)}.`) },
+    { result: sadaSancharaYoga(birthPos, lagnaIdx), num: 117,
+      nameEn:'Sada Sanchara Yoga', nameEs:'Yoga Sada Sanchara',
+      glossEn:'The Lagna lord\'s current sign is movable, or the dispositor of that sign is itself in a movable sign. A perpetual wanderer\'s profile — common among travelling agents and diplomats, per Raman.',
+      glossEs:'El signo actual del señor del Lagna es móvil, o el dispositor de ese signo está a su vez en un signo móvil. El perfil de un vagabundo perpetuo — común entre agentes viajeros y diplomáticos, según Raman.',
+      reasonLine: r => T(`Lagna lord in movable sign: ${hf(r.branchA)}. Its dispositor in movable sign: ${hf(r.branchB)}.`, `Señor del Lagna en signo móvil: ${hf(r.branchA)}. Su dispositor en signo móvil: ${hf(r.branchB)}.`) },
+    { result: dhanaYoga118(birthPos, lagnaIdx), num: 118,
+      nameEn:'Dhana Yoga (I)', nameEs:'Yoga Dhana (I)',
+      glossEn:'The 5th house is Venus\'s own sign, with Venus in the 5th and Saturn in the 11th. First of five wealth combinations all built on fortifying the 5th and 11th houses together — only possible for Capricorn or Gemini Lagnas.',
+      glossEs:'La 5.ª casa es signo propio de Venus, con Venus en la 5.ª y Saturno en la 11.ª. La primera de cinco combinaciones de riqueza construidas sobre fortificar juntas la 5.ª y la 11.ª — solo posible con Lagna Capricornio o Géminis.',
+      reasonLine: r => T(`5th is Venus's own sign: ${hf(r.fifthIsOwnSign)}. Venus in 5th: ${hf(r.grahaInFifth)}. Saturn in 11th: ${hf(r.eleventhOk)}.`, `La 5.ª es signo propio de Venus: ${hf(r.fifthIsOwnSign)}. Venus en la 5.ª: ${hf(r.grahaInFifth)}. Saturno en la 11.ª: ${hf(r.eleventhOk)}.`) },
+    { result: dhanaYoga119(birthPos, lagnaIdx), num: 119,
+      nameEn:'Dhana Yoga (II)', nameEs:'Yoga Dhana (II)',
+      glossEn:'The 5th house is Mercury\'s own sign, with Mercury in the 5th and the Moon+Mars in the 11th. Only possible for Aquarius or Taurus Lagnas.',
+      glossEs:'La 5.ª casa es signo propio de Mercurio, con Mercurio en la 5.ª y la Luna+Marte en la 11.ª. Solo posible con Lagna Acuario o Tauro.',
+      reasonLine: r => T(`5th is Mercury's own sign: ${hf(r.fifthIsOwnSign)}. Mercury in 5th: ${hf(r.grahaInFifth)}. Moon+Mars in 11th: ${hf(r.eleventhOk)}.`, `La 5.ª es signo propio de Mercurio: ${hf(r.fifthIsOwnSign)}. Mercurio en la 5.ª: ${hf(r.grahaInFifth)}. Luna+Marte en la 11.ª: ${hf(r.eleventhOk)}.`) },
+    { result: dhanaYoga120(birthPos, lagnaIdx), num: 120,
+      nameEn:'Dhana Yoga (III)', nameEs:'Yoga Dhana (III)',
+      glossEn:'The 5th house is Saturn\'s own sign, with Saturn in the 5th and Mercury+Mars in the 11th. Only possible for Virgo or Libra Lagnas.',
+      glossEs:'La 5.ª casa es signo propio de Saturno, con Saturno en la 5.ª y Mercurio+Marte en la 11.ª. Solo posible con Lagna Virgo o Libra.',
+      reasonLine: r => T(`5th is Saturn's own sign: ${hf(r.fifthIsOwnSign)}. Saturn in 5th: ${hf(r.grahaInFifth)}. Mercury+Mars in 11th: ${hf(r.eleventhOk)}.`, `La 5.ª es signo propio de Saturno: ${hf(r.fifthIsOwnSign)}. Saturno en la 5.ª: ${hf(r.grahaInFifth)}. Mercurio+Marte en la 11.ª: ${hf(r.eleventhOk)}.`) },
+    { result: dhanaYoga121(birthPos, lagnaIdx), num: 121,
+      nameEn:'Dhana Yoga (IV)', nameEs:'Yoga Dhana (IV)',
+      glossEn:'The 5th house is the Sun\'s own sign, with the Sun in the 5th and Jupiter+the Moon in the 11th. Only possible for Aries Lagna — Raman calls this the most powerful of the five, since it also doubles as Gajakesari Yoga.',
+      glossEs:'La 5.ª casa es signo propio del Sol, con el Sol en la 5.ª y Júpiter+la Luna en la 11.ª. Solo posible con Lagna Aries — Raman lo llama el más poderoso de los cinco, ya que también equivale al Yoga Gajakesari.',
+      reasonLine: r => T(`5th is Sun's own sign: ${hf(r.fifthIsOwnSign)}. Sun in 5th: ${hf(r.grahaInFifth)}. Jupiter+Moon in 11th: ${hf(r.eleventhOk)}.`, `La 5.ª es signo propio del Sol: ${hf(r.fifthIsOwnSign)}. Sol en la 5.ª: ${hf(r.grahaInFifth)}. Júpiter+Luna en la 11.ª: ${hf(r.eleventhOk)}.`) },
+    { result: dhanaYoga122(birthPos, lagnaIdx), num: 122,
+      nameEn:'Dhana Yoga (V)', nameEs:'Yoga Dhana (V)',
+      glossEn:'The 5th house is Jupiter\'s own sign, with Jupiter in the 5th and Mars+the Moon in the 11th. Possible for Sagittarius or Pisces Lagnas — Raman notes the Scorpio-Lagna case is stronger, since Mars and the Moon then rule the 1st and 9th in the 11th.',
+      glossEs:'La 5.ª casa es signo propio de Júpiter, con Júpiter en la 5.ª y Marte+la Luna en la 11.ª. Posible con Lagna Sagitario o Piscis — Raman señala que el caso de Lagna Escorpio es más fuerte, ya que Marte y la Luna gobiernan entonces la 1.ª y la 9.ª en la 11.ª.',
+      reasonLine: r => T(`5th is Jupiter's own sign: ${hf(r.fifthIsOwnSign)}. Jupiter in 5th: ${hf(r.grahaInFifth)}. Mars+Moon in 11th: ${hf(r.eleventhOk)}.`, `La 5.ª es signo propio de Júpiter: ${hf(r.fifthIsOwnSign)}. Júpiter en la 5.ª: ${hf(r.grahaInFifth)}. Marte+Luna en la 11.ª: ${hf(r.eleventhOk)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9102,7 +9177,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-107 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-107 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-122 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-122 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -12376,6 +12451,165 @@ function vimalaYoga(pos, ascSignIdx){
   // #107: the 12th lord occupying the 12th house itself.
   const twelfthLord = lordOfHouse(12, ascSignIdx);
   return { present: bsHouseFromAsc(pos[twelfthLord].sidereal, ascSignIdx) === 12 };
+}
+function sareeraSoukhyaYoga(pos, ascSignIdx){
+  // #108 (txt L5490-5492): the Lagna lord, Jupiter, or Venus in a kendra —
+  // graded by count per Raman's own remarks ("if all three... highly
+  // powerful").
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const inKendra = g => [1,4,7,10].includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx));
+  const candidates = [lagnaLord, 'Jupiter', 'Venus'].filter((g,i,arr)=>arr.indexOf(g)===i);
+  const hits = candidates.filter(inKendra);
+  return { present: hits.length>0, count: hits.length, hits };
+}
+function dehapushtiYoga(pos, ascSignIdx){
+  // #109 (txt L5501-5503): the Lagna lord in a movable sign, aspected by a
+  // benefic.
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const inMovable = MOVABLE_SIGNS_NABHASA.includes(SIGNS[lagnaLordSignIdx]);
+  const beneficAspect = RAMAN_BENEFICS.some(b=>{
+    if (b===lagnaLord) return false;
+    const bSignIdx = Math.floor(norm360(pos[b].sidereal)/30);
+    return aspectsSignWholeSign(b, bSignIdx, lagnaLordSignIdx);
+  });
+  return { present: inMovable && beneficAspect, inMovable, beneficAspect };
+}
+function dehakashtaYoga(pos, ascSignIdx){
+  // #110 (txt L5517-5519): the Lagna lord conjunct a malefic, or in the
+  // 8th house. Raman's Remarks note the yoga is "defunct" if a benefic
+  // aspects the Lagna lord — tracked as an informational flag, not gating
+  // the core Definition-stated present/absent.
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const malefics = ['Sun','Mars','Saturn'];
+  const conjunctMalefic = malefics.some(m=>Math.floor(norm360(pos[m].sidereal)/30)===lagnaLordSignIdx);
+  const inEighth = bsHouseFromAsc(pos[lagnaLord].sidereal, ascSignIdx) === 8;
+  const beneficAspectCancels = RAMAN_BENEFICS.some(b=>{
+    if (b===lagnaLord) return false;
+    const bSignIdx = Math.floor(norm360(pos[b].sidereal)/30);
+    return aspectsSignWholeSign(b, bSignIdx, lagnaLordSignIdx);
+  });
+  return { present: conjunctMalefic || inEighth, conjunctMalefic, inEighth, beneficAspectCancels };
+}
+function rogagrasthaYoga(pos, ascSignIdx){
+  // #111 (txt L5527-5531): (a) the Lagna lord in the Lagna itself,
+  // conjunct the 6th/8th/12th lord; or (b) a WEAK Lagna lord in a trine or
+  // kendra. "Weak" per Raman means shadbalapinda falling short — this
+  // app's Shadbala is a standalone module not wired in here (see
+  // shadbala.js); operationalized instead as enemy-or-debilitated
+  // dignity, the same convention used throughout this section.
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const lagnaLordHouse = bsHouseFromAsc(pos[lagnaLord].sidereal, ascSignIdx);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const dusthanaLords = [6,8,12].map(h=>lordOfHouse(h, ascSignIdx));
+  const condA = lagnaLordHouse===1 && dusthanaLords.some(dl=>dl!==lagnaLord && Math.floor(norm360(pos[dl].sidereal)/30)===lagnaLordSignIdx);
+  const weak = ['Enemy','Debilitated'].includes(dignityTierInSign(lagnaLord, lagnaLordSignIdx));
+  const condB = weak && [1,4,5,7,9,10].includes(lagnaLordHouse);
+  return { present: condA || condB, condA, condB };
+}
+const DRY_SIGNS = ['Aries','Taurus','Gemini','Leo','Virgo','Sagittarius'];
+const DRY_PLANETS = ['Sun','Mars','Saturn','Mercury'];
+function krisangaYoga112(pos, ascSignIdx){
+  // #112 (txt L5556-5558): the Lagna lord in a dry sign, or in a sign
+  // owned by a dry planet.
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const sign = SIGNS[lagnaLordSignIdx];
+  const inDrySign = DRY_SIGNS.includes(sign);
+  const signLordIsDry = DRY_PLANETS.includes(SIGN_LORD[sign]);
+  return { present: inDrySign || signLordIsDry, inDrySign, signLordIsDry };
+}
+function krisangaYoga113(pos, ascSignIdx){
+  // #113: the Navamsa Lagna owned by a dry planet, AND malefics joining
+  // (conjunct) the (Rasi) Lagna.
+  const navLagnaSignIdx = Math.floor(norm360(navamsaSidereal(pos._ascSidereal))/30);
+  const navLagnaLordDry = DRY_PLANETS.includes(SIGN_LORD[SIGNS[navLagnaSignIdx]]);
+  const malefics = ['Sun','Mars','Saturn'];
+  const maleficInLagna = bsGrahasInHouses(pos, ascSignIdx, malefics, [1]).length>0;
+  return { present: navLagnaLordDry && maleficInLagna, navLagnaLordDry, maleficInLagna };
+}
+const WATERY_SIGNS = ['Cancer','Aquarius','Capricorn','Pisces','Scorpio','Libra'];
+const WATERY_PLANETS = ['Moon','Venus'];
+function dehasthoulyaYoga114(pos, navPos, ascSignIdx){
+  // #114 (txt L5602-5605): the Lagna lord AND the lord of the Navamsa sign
+  // the Lagna lord occupies, both in watery signs.
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const lagnaLordWatery = WATERY_SIGNS.includes(SIGNS[lagnaLordSignIdx]);
+  const lagnaLordNavSignIdx = Math.floor(norm360(navPos[lagnaLord].sidereal)/30);
+  const navDispositor = SIGN_LORD[SIGNS[lagnaLordNavSignIdx]];
+  const navDispositorSignIdx = Math.floor(norm360(pos[navDispositor].sidereal)/30);
+  const navDispositorWatery = WATERY_SIGNS.includes(SIGNS[navDispositorSignIdx]);
+  return { present: lagnaLordWatery && navDispositorWatery, lagnaLordWatery, navDispositorWatery };
+}
+function dehasthoulyaYoga115(pos, ascSignIdx){
+  // #115: Jupiter occupies the Lagna, or aspects the Lagna from a watery
+  // sign.
+  const jupInLagna = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx) === 1;
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const jupAspectsFromWatery = WATERY_SIGNS.includes(SIGNS[jupSignIdx]) && aspectsSignWholeSign('Jupiter', jupSignIdx, ascSignIdx);
+  return { present: jupInLagna || jupAspectsFromWatery, jupInLagna, jupAspectsFromWatery };
+}
+function dehasthoulyaYoga116(pos, ascSignIdx){
+  // #116 (txt L5608-5610): the Ascendant itself in a watery sign conjunct
+  // benefics, or the Lagna lord is a watery planet (Moon/Venus).
+  const lagnaWatery = WATERY_SIGNS.includes(SIGNS[ascSignIdx]);
+  const beneficsInLagna = bsGrahasInHouses(pos, ascSignIdx, RAMAN_BENEFICS, [1]).length>0;
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const lagnaLordWaterPlanet = WATERY_PLANETS.includes(lagnaLord);
+  return { present: (lagnaWatery && beneficsInLagna) || lagnaLordWaterPlanet, lagnaWatery, beneficsInLagna, lagnaLordWaterPlanet };
+}
+function sadaSancharaYoga(pos, ascSignIdx){
+  // #117 (txt L5658-5660): the Lagna lord's own current sign is movable,
+  // OR the dispositor of that sign is itself in a movable sign. AMBIGUITY
+  // FLAG: Raman's own Remarks describe a differently-worded test ("if
+  // BOTH the Lagna and the Navamsa Lagna are in movable signs") that
+  // doesn't literally match this Definition — implemented to the literal
+  // Definition text, since the two appear to genuinely diverge rather
+  // than the Remarks merely clarifying.
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const branchA = MOVABLE_SIGNS_NABHASA.includes(SIGNS[lagnaLordSignIdx]);
+  const dispositor = SIGN_LORD[SIGNS[lagnaLordSignIdx]];
+  const dispositorSignIdx = Math.floor(norm360(pos[dispositor].sidereal)/30);
+  const branchB = dispositor!==lagnaLord && MOVABLE_SIGNS_NABHASA.includes(SIGNS[dispositorSignIdx]);
+  return { present: branchA || branchB, branchA, branchB };
+}
+function dhanaYogaFifth(pos, ascSignIdx, fifthLordGraha, eleventhGrahas){
+  // Shared shape for #118-122: the 5th house is a specific graha's own
+  // sign, that graha sits in the 5th, and two other specific grahas sit in
+  // the 11th.
+  const fifthSignIdx = (ascSignIdx + 4) % 12;
+  const fifthIsOwnSign = SIGN_LORD[SIGNS[fifthSignIdx]] === fifthLordGraha;
+  const grahaInFifth = bsHouseFromAsc(pos[fifthLordGraha].sidereal, ascSignIdx) === 5;
+  const eleventhOk = eleventhGrahas.every(g => bsHouseFromAsc(pos[g].sidereal, ascSignIdx) === 11);
+  return { present: fifthIsOwnSign && grahaInFifth && eleventhOk, fifthIsOwnSign, grahaInFifth, eleventhOk };
+}
+function dhanaYoga118(pos, ascSignIdx){
+  // #118 (txt L5670-5673): 5th house = Venus's own sign, Venus in the 5th,
+  // Saturn in the 11th.
+  return dhanaYogaFifth(pos, ascSignIdx, 'Venus', ['Saturn']);
+}
+function dhanaYoga119(pos, ascSignIdx){
+  // #119 (txt L5674-5676): 5th house = Mercury's own sign, Mercury in the
+  // 5th, Moon+Mars in the 11th.
+  return dhanaYogaFifth(pos, ascSignIdx, 'Mercury', ['Moon','Mars']);
+}
+function dhanaYoga120(pos, ascSignIdx){
+  // #120 (txt L5677-5679): 5th house = Saturn's own sign, Saturn in the
+  // 5th, Mercury+Mars in the 11th.
+  return dhanaYogaFifth(pos, ascSignIdx, 'Saturn', ['Mercury','Mars']);
+}
+function dhanaYoga121(pos, ascSignIdx){
+  // #121 (txt L5680-5682): 5th house = the Sun's own sign, the Sun in the
+  // 5th, Jupiter+Moon in the 11th.
+  return dhanaYogaFifth(pos, ascSignIdx, 'Sun', ['Jupiter','Moon']);
+}
+function dhanaYoga122(pos, ascSignIdx){
+  // #122 (txt L5686-5688): 5th house = Jupiter's own sign, Jupiter in the
+  // 5th, Mars+Moon in the 11th.
+  return dhanaYogaFifth(pos, ascSignIdx, 'Jupiter', ['Mars','Moon']);
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
