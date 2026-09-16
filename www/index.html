@@ -8882,7 +8882,77 @@ function renderNatalPage(){
       nameEn:'Pasa Yoga', nameEs:'Yoga Pasa',
       glossEn:'The seven classical grahas occupy exactly 5 distinct signs. Wealth through right means, surrounded by friends and relatives — Raman explicitly rejects Saravali\'s claim that this alone indicates incarceration, noting other combinations must be present for that reading.',
       glossEs:'Los siete graha clásicos ocupan exactamente 5 signos distintos. Riqueza por medios correctos, rodeado de amigos y parientes — Raman rechaza explícitamente la afirmación de Saravali de que esto por sí solo indica encarcelamiento, señalando que deben estar presentes otras combinaciones para esa lectura.',
-      reasonLine: r => T(`Distinct signs occupied: ${r.distinctSigns}/7 (needs 5).`, `Signos distintos ocupados: ${r.distinctSigns}/7 (necesita 5).`) }
+      reasonLine: r => T(`Distinct signs occupied: ${r.distinctSigns}/7 (needs 5).`, `Signos distintos ocupados: ${r.distinctSigns}/7 (necesita 5).`) },
+    { result: kedaraYoga(birthPos), num: 94,
+      nameEn:'Kedara Yoga', nameEs:'Yoga Kedara',
+      glossEn:'Exactly 4 distinct signs occupied by the seven classical grahas. An agriculturist\'s combination, per Raman — like Hala Yoga above, though Saravali adds it also tends toward a plainer, less comprehensive intellect.',
+      glossEs:'Exactamente 4 signos distintos ocupados por los siete graha clásicos. Una combinación de agricultor, según Raman — como el Yoga Hala anterior, aunque Saravali añade que también tiende hacia un intelecto más simple y menos abarcador.',
+      reasonLine: r => T(`Distinct signs occupied: ${r.distinctSigns}/7 (needs 4).`, `Signos distintos ocupados: ${r.distinctSigns}/7 (necesita 4).`) },
+    { result: sulaYoga(birthPos), num: 95,
+      nameEn:'Sula Yoga', nameEs:'Yoga Sula',
+      glossEn:'Exactly 3 distinct signs. Poverty and cruelty in the classical reading, but Raman\'s own worked example (an Air Force Commander) shows the result softened considerably by the rest of the chart\'s strength.',
+      glossEs:'Exactamente 3 signos distintos. Pobreza y crueldad en la lectura clásica, pero el propio ejemplo de Raman (un Comandante de las Fuerzas Aéreas) muestra el resultado considerablemente suavizado por la fuerza del resto de la carta.',
+      reasonLine: r => T(`Distinct signs occupied: ${r.distinctSigns}/7 (needs 3).`, `Signos distintos ocupados: ${r.distinctSigns}/7 (necesita 3).`) },
+    { result: yugaYoga(birthPos), num: 96,
+      nameEn:'Yuga Yoga', nameEs:'Yoga Yuga',
+      glossEn:'Exactly 2 distinct signs — all seven grahas packed into just two signs. Poverty and social ostracism in the classical reading.',
+      glossEs:'Exactamente 2 signos distintos — los siete graha comprimidos en solo dos signos. Pobreza y ostracismo social en la lectura clásica.',
+      reasonLine: r => T(`Distinct signs occupied: ${r.distinctSigns}/7 (needs 2).`, `Signos distintos ocupados: ${r.distinctSigns}/7 (necesita 2).`) },
+    { result: golaYogaNabhasa(birthPos), num: 97,
+      nameEn:'Gola Yoga (Nabhasa)', nameEs:'Yoga Gola (Nabhasa)',
+      glossEn:'All seven classical grahas in a single sign — Raman calls this "indeed a rare combination." Distinct from the earlier, unrelated yoga #68 also named "Gola Yoga" in this book (a genuine naming collision in the source).',
+      glossEs:'Los siete graha clásicos en un solo signo — Raman lo llama "en efecto una combinación rara." Distinto del yoga anterior no relacionado #68 también llamado "Yoga Gola" en este libro (una colisión de nombres genuina en la fuente).',
+      reasonLine: r => T(`Distinct signs occupied: ${r.distinctSigns}/7 (needs 1).`, `Signos distintos ocupados: ${r.distinctSigns}/7 (necesita 1).`) },
+    { result: rajjuYoga(birthPos), num: 98,
+      nameEn:'Rajju Yoga', nameEs:'Yoga Rajju',
+      glossEn:'All seven classical grahas exclusively in movable signs — the first of the three Asraya (modality) Nabhasa Yogas. A restless, travelling profile, searching for wealth abroad.',
+      glossEs:'Los siete graha clásicos exclusivamente en signos móviles — el primero de los tres Yoga Asraya (de modalidad) Nabhasa. Un perfil inquieto y viajero, buscando riqueza en el extranjero.',
+      reasonLine: r => T(`All 7 grahas in movable signs: ${hf(r.present)}.`, `Los 7 graha en signos móviles: ${hf(r.present)}.`) },
+    { result: musalaYoga(birthPos), num: 99,
+      nameEn:'Musala Yoga', nameEs:'Yoga Musala',
+      glossEn:'All seven classical grahas exclusively in fixed signs. Self-respect, wealth, a steady mind, and pride — Raman reads the fixed-sign confinement as producing a fixed determination in the native.',
+      glossEs:'Los siete graha clásicos exclusivamente en signos fijos. Autoestima, riqueza, mente firme, y orgullo — Raman lee el confinamiento a signos fijos como productor de una determinación firme en el nativo.',
+      reasonLine: r => T(`All 7 grahas in fixed signs: ${hf(r.present)}.`, `Los 7 graha en signos fijos: ${hf(r.present)}.`) },
+    { result: nalaYoga(birthPos), num: 100,
+      nameEn:'Nala Yoga', nameEs:'Yoga Nala',
+      glossEn:'All seven classical grahas exclusively in dual (common) signs. Deformity and shrewdness in the classical reading — Raman reads common-sign confinement as producing depression and disappointment generally.',
+      glossEs:'Los siete graha clásicos exclusivamente en signos duales (comunes). Deformidad y astucia en la lectura clásica — Raman lee el confinamiento a signos comunes como productor de depresión y decepción en general.',
+      reasonLine: r => T(`All 7 grahas in dual signs: ${hf(r.present)}.`, `Los 7 graha en signos duales: ${hf(r.present)}.`) },
+    { result: srikYoga(birthPos, lagnaIdx), num: 101,
+      nameEn:'Srik Yoga', nameEs:'Yoga Srik',
+      glossEn:'All three classical benefics (Jupiter/Venus/Mercury — the Moon is explicitly excluded from this specific yoga per Raman) in kendras, with no malefic in any kendra. Also known as Mala Yoga. Comfort, conveyances, and many enjoyments — one of the two Dala Yogas from Parasara.',
+      glossEs:'Los tres benéficos clásicos (Júpiter/Venus/Mercurio — la Luna queda explícitamente excluida de este yoga específico según Raman) en kendras, sin ningún maléfico en ningún kendra. También llamado Yoga Mala. Comodidad, medios de transporte, y muchos placeres — uno de los dos Yoga Dala de Parasara.',
+      reasonLine: r => T(`All 3 benefics in kendras: ${hf(r.allBeneficsInKendra)}. No malefic in any kendra: ${hf(r.noMaleficInKendra)}.`, `Los 3 benéficos en kendras: ${hf(r.allBeneficsInKendra)}. Ningún maléfico en ningún kendra: ${hf(r.noMaleficInKendra)}.`) },
+    { result: sarpaYoga(birthPos, lagnaIdx), num: 102,
+      nameEn:'Sarpa Yoga', nameEs:'Yoga Sarpa',
+      glossEn:'The reverse of Srik: all three classical malefics (Sun/Mars/Saturn) in kendras, with no benefic in any kendra. Misery, cruelty, and poor judgement — the second of the two Dala Yogas, closing out the full 32-entry Nabhasa Yoga group from Varaha Mihira.',
+      glossEs:'Lo inverso de Srik: los tres maléficos clásicos (Sol/Marte/Saturno) en kendras, sin ningún benéfico en ningún kendra. Miseria, crueldad, y mal juicio — el segundo de los dos Yoga Dala, con el que se cierra el grupo completo de 32 Yoga Nabhasa de Varaha Mihira.',
+      reasonLine: r => T(`All 3 malefics in kendras: ${hf(r.allMaleficsInKendra)}. No benefic in any kendra: ${hf(r.noBeneficInKendra)}.`, `Los 3 maléficos en kendras: ${hf(r.allMaleficsInKendra)}. Ningún benéfico en ningún kendra: ${hf(r.noBeneficInKendra)}.`) },
+    { result: duryoga(birthPos, lagnaIdx), num: 103,
+      nameEn:'Duryoga', nameEs:'Duryoga',
+      glossEn:'The 10th lord in the 6th, 8th or 12th (a Dusthana). Raman reads this as a loss of vitality in the house of career and public standing — the native doesn\'t reap the rewards of their own effort, earning a livelihood by manual labour instead.',
+      glossEs:'El señor de la 10.ª en la 6.ª, 8.ª o 12.ª (una Dusthana). Raman lo lee como una pérdida de vitalidad en la casa de la carrera y la posición pública — el nativo no cosecha las recompensas de su propio esfuerzo, ganándose la vida por trabajo manual en su lugar.',
+      reasonLine: r => T(`10th lord's house: ${r.house} (needs 6th, 8th or 12th).`, `Casa del señor de la 10.ª: ${r.house} (necesita 6.ª, 8.ª o 12.ª).`) },
+    { result: daridraYoga(birthPos, lagnaIdx), num: 104,
+      nameEn:'Daridra Yoga', nameEs:'Yoga Daridra',
+      glossEn:'The 11th lord in the 6th, 8th or 12th. Raman cautions this is genuinely common and shouldn\'t be over-read: a strong Lagna alongside it means "poverty" nominally rather than literally, though a mean or sinfully-inclined character can still show through.',
+      glossEs:'El señor de la 11.ª en la 6.ª, 8.ª o 12.ª. Raman advierte que esto es genuinamente común y no debe sobreinterpretarse: un Lagna fuerte junto a esto significa "pobreza" nominal más que literal, aunque un carácter mezquino o proclive a lo pecaminoso puede seguir asomando.',
+      reasonLine: r => T(`11th lord's house: ${r.house} (needs 6th, 8th or 12th).`, `Casa del señor de la 11.ª: ${r.house} (necesita 6.ª, 8.ª o 12.ª).`) },
+    { result: harshaYoga(birthPos, lagnaIdx), num: 105,
+      nameEn:'Harsha Yoga', nameEs:'Yoga Harsha',
+      glossEn:'The 6th lord occupying the 6th house itself — a Dusthana lord returning home, read as neutralizing much of its own difficulty. Fortune, invincibility, physical strength and wealth.',
+      glossEs:'El señor de la 6.ª ocupando la 6.ª casa misma — un señor de Dusthana que regresa a su propia casa, leído como una neutralización de gran parte de su propia dificultad. Fortuna, invencibilidad, fuerza física y riqueza.',
+      reasonLine: r => T(`6th lord in the 6th: ${hf(r.present)}.`, `Señor de la 6.ª en la 6.ª: ${hf(r.present)}.`) },
+    { result: saralaYoga(birthPos, lagnaIdx), num: 106,
+      nameEn:'Sarala Yoga', nameEs:'Yoga Sarala',
+      glossEn:'The 8th lord occupying the 8th house itself. Longevity, fearlessness, learning, and standing as a terror to one\'s enemies.',
+      glossEs:'El señor de la 8.ª ocupando la 8.ª casa misma. Longevidad, ausencia de temor, aprendizaje, y una posición de terror para los enemigos propios.',
+      reasonLine: r => T(`8th lord in the 8th: ${hf(r.present)}.`, `Señor de la 8.ª en la 8.ª: ${hf(r.present)}.`) },
+    { result: vimalaYoga(birthPos, lagnaIdx), num: 107,
+      nameEn:'Vimala Yoga', nameEs:'Yoga Vimala',
+      glossEn:'The 12th lord occupying the 12th house itself. Frugality, happiness, independence, and ennobling qualities — completing the Harsha/Sarala/Vimala trio of Dusthana-lord-in-own-house combinations.',
+      glossEs:'El señor de la 12.ª ocupando la 12.ª casa misma. Frugalidad, felicidad, independencia, y cualidades enaltecedoras — completando el trío Harsha/Sarala/Vimala de combinaciones de señor-de-Dusthana-en-su-propia-casa.',
+      reasonLine: r => T(`12th lord in the 12th: ${hf(r.present)}.`, `Señor de la 12.ª en la 12.ª: ${hf(r.present)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9032,7 +9102,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-93 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-93 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-107 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-107 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -12219,6 +12289,93 @@ function pasaYoga(pos){
   // #93 (txt L5046-5048): the seven classical grahas occupy exactly 5
   // distinct signs.
   return { present: countDistinctSignsOccupied(pos) === 5, distinctSigns: countDistinctSignsOccupied(pos) };
+}
+function kedaraYoga(pos){
+  // #94 (txt L5141-5143): the seven classical grahas occupy exactly 4
+  // distinct signs.
+  return { present: countDistinctSignsOccupied(pos) === 4, distinctSigns: countDistinctSignsOccupied(pos) };
+}
+function sulaYoga(pos){
+  // #95 (txt L5158-5163): exactly 3 distinct signs.
+  return { present: countDistinctSignsOccupied(pos) === 3, distinctSigns: countDistinctSignsOccupied(pos) };
+}
+function yugaYoga(pos){
+  // #96: exactly 2 distinct signs.
+  return { present: countDistinctSignsOccupied(pos) === 2, distinctSigns: countDistinctSignsOccupied(pos) };
+}
+function golaYogaNabhasa(pos){
+  // #97: exactly 1 distinct sign (all seven grahas conjunct together) —
+  // distinct from the earlier, unrelated yoga #68 also named "Gola Yoga"
+  // (a genuine naming collision in Raman's own book, disambiguated by
+  // entry number in the UI).
+  return { present: countDistinctSignsOccupied(pos) === 1, distinctSigns: countDistinctSignsOccupied(pos) };
+}
+const MOVABLE_SIGNS_NABHASA = ['Aries','Cancer','Libra','Capricorn'];
+const FIXED_SIGNS_NABHASA = ['Taurus','Leo','Scorpio','Aquarius'];
+const DUAL_SIGNS_NABHASA = ['Gemini','Virgo','Sagittarius','Pisces'];
+function rajjuYoga(pos){
+  // #98 (txt L5260-5265, Asraya group): all seven classical grahas
+  // exclusively in movable signs.
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  return { present: sevenGrahas.every(g => MOVABLE_SIGNS_NABHASA.includes(SIGNS[Math.floor(norm360(pos[g].sidereal)/30)])) };
+}
+function musalaYoga(pos){
+  // #99: all seven classical grahas exclusively in fixed signs.
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  return { present: sevenGrahas.every(g => FIXED_SIGNS_NABHASA.includes(SIGNS[Math.floor(norm360(pos[g].sidereal)/30)])) };
+}
+function nalaYoga(pos){
+  // #100: all seven classical grahas exclusively in dual (common) signs.
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  return { present: sevenGrahas.every(g => DUAL_SIGNS_NABHASA.includes(SIGNS[Math.floor(norm360(pos[g].sidereal)/30)])) };
+}
+function srikYoga(pos, ascSignIdx){
+  // #101 (txt L5329-5333, Dala group — also known as Mala Yoga): all
+  // three classical benefics (Moon explicitly excluded per Raman's own
+  // note — "the Moon is completely left out of account so there remain
+  // only three benefics and three malefics") in kendras, with no malefic
+  // occupying any kendra.
+  const kendraHouses = [1,4,7,10];
+  const allBeneficsInKendra = RAMAN_BENEFICS.every(g => kendraHouses.includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx)));
+  const malefics = ['Sun','Mars','Saturn'];
+  const noMaleficInKendra = !malefics.some(g => kendraHouses.includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx)));
+  return { present: allBeneficsInKendra && noMaleficInKendra, allBeneficsInKendra, noMaleficInKendra };
+}
+function sarpaYoga(pos, ascSignIdx){
+  // #102: the reverse of Srik — all three classical malefics (Sun/Mars/
+  // Saturn) in kendras, with no benefic occupying any kendra.
+  const kendraHouses = [1,4,7,10];
+  const malefics = ['Sun','Mars','Saturn'];
+  const allMaleficsInKendra = malefics.every(g => kendraHouses.includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx)));
+  const noBeneficInKendra = !RAMAN_BENEFICS.some(g => kendraHouses.includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx)));
+  return { present: allMaleficsInKendra && noBeneficInKendra, allMaleficsInKendra, noBeneficInKendra };
+}
+function duryoga(pos, ascSignIdx){
+  // #103 (txt L5405-5407): the 10th lord in the 6th, 8th or 12th.
+  const tenthLord = lordOfHouse(10, ascSignIdx);
+  const house = bsHouseFromAsc(pos[tenthLord].sidereal, ascSignIdx);
+  return { present: [6,8,12].includes(house), house };
+}
+function daridraYoga(pos, ascSignIdx){
+  // #104 (txt L5432-5433): the 11th lord in the 6th, 8th or 12th.
+  const eleventhLord = lordOfHouse(11, ascSignIdx);
+  const house = bsHouseFromAsc(pos[eleventhLord].sidereal, ascSignIdx);
+  return { present: [6,8,12].includes(house), house };
+}
+function harshaYoga(pos, ascSignIdx){
+  // #105 (txt L5456-5458): the 6th lord occupying the 6th house itself.
+  const sixthLord = lordOfHouse(6, ascSignIdx);
+  return { present: bsHouseFromAsc(pos[sixthLord].sidereal, ascSignIdx) === 6 };
+}
+function saralaYoga(pos, ascSignIdx){
+  // #106: the 8th lord occupying the 8th house itself.
+  const eighthLord = lordOfHouse(8, ascSignIdx);
+  return { present: bsHouseFromAsc(pos[eighthLord].sidereal, ascSignIdx) === 8 };
+}
+function vimalaYoga(pos, ascSignIdx){
+  // #107: the 12th lord occupying the 12th house itself.
+  const twelfthLord = lordOfHouse(12, ascSignIdx);
+  return { present: bsHouseFromAsc(pos[twelfthLord].sidereal, ascSignIdx) === 12 };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
