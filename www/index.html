@@ -9517,7 +9517,77 @@ function renderNatalPage(){
       nameEn:'Dattaputra Yoga II', nameEs:'Yoga Dattaputra II',
       glossEn:'Having an adopted child (Raman\'s second typical combination). The 7th lord in the 11th house, the 5th lord joining a benefic, and the 5th house occupied by Mars or Saturn (either one).',
       glossEs:'Tener un hijo adoptado (segunda combinación típica de Raman). El señor de la 7.ª en la 11.ª casa, el señor de la 5.ª uniéndose a un benéfico, y la 5.ª casa ocupada por Marte o Saturno (cualquiera de los dos).',
-      reasonLine: r => T(`7th lord in 11th: ${hf(r.lord7In11th)}. 5th lord with benefic: ${hf(r.lord5WithBenefic)}. Mars or Saturn in 5th: ${hf(r.marsOrSaturnIn5th)}.`, `Señor de la 7.ª en la 11.ª: ${hf(r.lord7In11th)}. Señor de la 5.ª con benéfico: ${hf(r.lord5WithBenefic)}. Marte o Saturno en la 5.ª: ${hf(r.marsOrSaturnIn5th)}.`) }
+      reasonLine: r => T(`7th lord in 11th: ${hf(r.lord7In11th)}. 5th lord with benefic: ${hf(r.lord5WithBenefic)}. Mars or Saturn in 5th: ${hf(r.marsOrSaturnIn5th)}.`, `Señor de la 7.ª en la 11.ª: ${hf(r.lord7In11th)}. Señor de la 5.ª con benéfico: ${hf(r.lord5WithBenefic)}. Marte o Saturno en la 5.ª: ${hf(r.marsOrSaturnIn5th)}.`) },
+    { result: aputraYoga(birthPos, lagnaIdx), num: 224,
+      nameEn:'Aputra Yoga', nameEs:'Yoga Aputra',
+      glossEn:'A general combination for having no issues at all. The 5th lord in a dusthana (6th, 8th or 12th house).',
+      glossEs:'Combinación general para no tener descendencia. El señor de la 5.ª en un dusthana (casa 6.ª, 8.ª o 12.ª).',
+      reasonLine: r => T(`5th lord in dusthana: ${hf(r.lord5InDusthana)}.`, `Señor de la 5.ª en dusthana: ${hf(r.lord5InDusthana)}.`) },
+    { result: ekaputraYoga(birthPos, lagnaIdx), num: 225,
+      nameEn:'Ekaputra Yoga', nameEs:'Yoga Ekaputra',
+      glossEn:'Having only one son. The 5th lord in a kendra or trikona (houses 1, 4, 5, 7, 9 or 10).',
+      glossEs:'Tener un solo hijo. El señor de la 5.ª en un kendra o trikona (casas 1, 4, 5, 7, 9 o 10).',
+      reasonLine: r => T(`5th lord in kendra/trikona: ${hf(r.inKendraOrTrikona)}.`, `Señor de la 5.ª en kendra/trikona: ${hf(r.inKendraOrTrikona)}.`) },
+    { result: suputraYoga(birthPos, lagnaIdx), num: 226,
+      nameEn:'Suputra Yoga', nameEs:'Yoga Suputra',
+      glossEn:'A worthy son. Jupiter as lord of the 5th house (only possible for Simha/Vrischika Lagnas per Raman\'s own Remarks) with the Sun favourably disposed.',
+      glossEs:'Un hijo digno. Júpiter como señor de la 5.ª casa (solo posible para Lagnas de Simha/Vrischika según los propios Comentarios de Raman) con el Sol favorablemente dispuesto.',
+      reasonLine: r => T(`Jupiter is 5th lord: ${hf(r.jupIsLord5)}. Sun favourable: ${hf(r.sunFavourable)}.`, `Júpiter es señor de la 5.ª: ${hf(r.jupIsLord5)}. Sol favorable: ${hf(r.sunFavourable)}.`) },
+    { result: kalanirdesatPutraYogaA(birthPos, lagnaIdx), num: 227,
+      nameEn:'Kalanirdesat Putra Yoga I', nameEs:'Yoga Kalanirdesat Putra I',
+      glossEn:'A son is born in the 32nd or 33rd year. Jupiter in the 5th house, with the 5th lord joining Venus.',
+      glossEs:'Nace un hijo en el año 32 o 33. Júpiter en la 5.ª casa, con el señor de la 5.ª uniéndose a Venus.',
+      reasonLine: r => T(`Jupiter in 5th: ${hf(r.jupIn5th)}. 5th lord with Venus: ${hf(r.lord5WithVenus)}.`, `Júpiter en la 5.ª: ${hf(r.jupIn5th)}. Señor de la 5.ª con Venus: ${hf(r.lord5WithVenus)}.`) },
+    { result: kalanirdesatPutraYogaB(birthPos, lagnaIdx), num: 228,
+      nameEn:'Kalanirdesat Putra Yoga II', nameEs:'Yoga Kalanirdesat Putra II',
+      glossEn:'A son is born in the 40th year (Raman notes this is equivalent to Venus being in the 5th from Lagna). Jupiter in the 9th from Lagna, Venus in the 9th from Jupiter, and Venus joining the Lagna lord.',
+      glossEs:'Nace un hijo en el año 40 (Raman señala que equivale a que Venus esté en la 5.ª desde el Lagna). Júpiter en la 9.ª desde el Lagna, Venus en la 9.ª desde Júpiter, y Venus uniéndose al señor del Lagna.',
+      reasonLine: r => T(`Jupiter 9th from Lagna: ${hf(r.jupIn9th)}. Venus 9th from Jupiter: ${hf(r.venusIn9thFromJup)}. Venus with Lagna lord: ${hf(r.venusWithLord1)}.`, `Júpiter 9.ª desde el Lagna: ${hf(r.jupIn9th)}. Venus 9.ª desde Júpiter: ${hf(r.venusIn9thFromJup)}. Venus con el señor del Lagna: ${hf(r.venusWithLord1)}.`) },
+    { result: kalanirdesatPutranasaYogaA(birthPos, lagnaIdx), num: 229,
+      nameEn:'Kalanirdesat Putranasa Yoga I', nameEs:'Yoga Kalanirdesat Putranasa I',
+      glossEn:'Loss of an issue in the 32nd year. Rahu in the 5th house, the 5th lord in conjunction with a malefic, and Jupiter debilitated.',
+      glossEs:'Pérdida de un hijo en el año 32. Rahu en la 5.ª casa, el señor de la 5.ª en conjunción con un maléfico, y Júpiter debilitado.',
+      reasonLine: r => T(`Rahu in 5th: ${hf(r.rahuIn5th)}. 5th lord with malefic: ${hf(r.lord5WithMalefic)}. Jupiter debilitated: ${hf(r.jupDebilitated)}.`, `Rahu en la 5.ª: ${hf(r.rahuIn5th)}. Señor de la 5.ª con maléfico: ${hf(r.lord5WithMalefic)}. Júpiter debilitado: ${hf(r.jupDebilitated)}.`) },
+    { result: kalanirdesatPutranasaYogaB(birthPos, lagnaIdx), num: 230,
+      nameEn:'Kalanirdesat Putranasa Yoga II', nameEs:'Yoga Kalanirdesat Putranasa II',
+      glossEn:'Loss of an issue in the 32nd or 40th year, a more general combination. A malefic disposed in the 5th from Jupiter, and a malefic disposed in the 5th from Lagna.',
+      glossEs:'Pérdida de un hijo en el año 32 o 40, una combinación más general. Un maléfico dispuesto en la 5.ª desde Júpiter, y un maléfico dispuesto en la 5.ª desde el Lagna.',
+      reasonLine: r => T(`Malefic in 5th from Jupiter: ${hf(r.maleficIn5thFromJup)}. Malefic in 5th from Lagna: ${hf(r.maleficIn5thFromLagna)}.`, `Maléfico en la 5.ª desde Júpiter: ${hf(r.maleficIn5thFromJup)}. Maléfico en la 5.ª desde el Lagna: ${hf(r.maleficIn5thFromLagna)}.`) },
+    { result: buddhimaturyaYoga(birthPos, lagnaIdx), num: 231,
+      nameEn:'Buddhimaturya Yoga', nameEs:'Yoga Buddhimaturya',
+      glossEn:'Great intelligence and character. Raman\'s own Remarks call the literal Definition "preposterous" (it would exclude 5 whole Lagnas from ever producing intelligent natives) and substitute: the 5th house occupied by a benefic, with the 5th lord in association with a benefic — implemented per the Remarks.',
+      glossEs:'Gran inteligencia y carácter. Los propios Comentarios de Raman llaman "descabellada" a la Definición literal (excluiría a 5 Lagnas enteros de producir nunca nativos inteligentes) y la sustituyen por: la 5.ª casa ocupada por un benéfico, con el señor de la 5.ª en asociación con un benéfico — implementado según los Comentarios.',
+      reasonLine: r => T(`5th house has benefic: ${hf(r.house5HasBenefic)}. 5th lord with benefic: ${hf(r.lord5WithBenefic)}.`, `La 5.ª casa tiene benéfico: ${hf(r.house5HasBenefic)}. Señor de la 5.ª con benéfico: ${hf(r.lord5WithBenefic)}.`) },
+    { result: theevrabuddhiYoga(birthPos, navPos, lagnaIdx), num: 232,
+      nameEn:'Theevrabuddhi Yoga', nameEs:'Yoga Theevrabuddhi',
+      glossEn:'Precocious intelligence. Raman\'s Remarks call the Definition\'s "5th lord must be a benefic" clause "not warranted" and drop it, broadening "aspected by a benefic" to include conjunction — implemented as: the lord of the 5th lord\'s own Navamsa, conjunct or aspected by a benefic.',
+      glossEs:'Inteligencia precoz. Los Comentarios de Raman llaman "no justificada" a la cláusula de la Definición "el señor de la 5.ª debe ser benéfico" y la eliminan, ampliando "aspectado por un benéfico" para incluir la conjunción — implementado como: el señor del propio Navamsa del señor de la 5.ª, conjunto o aspectado por un benéfico.',
+      reasonLine: r => T(`Navamsa lord with benefic: ${hf(r.navLordWithBenefic)}. Navamsa lord aspected by benefic: ${hf(r.navLordAspectedByBenefic)}.`, `Señor del Navamsa con benéfico: ${hf(r.navLordWithBenefic)}. Señor del Navamsa aspectado por benéfico: ${hf(r.navLordAspectedByBenefic)}.`) },
+    { result: buddhiJadaYoga(birthPos, lagnaIdx), num: 233,
+      nameEn:'Buddhi Jada Yoga', nameEs:'Yoga Buddhi Jada',
+      glossEn:'Dullness of intellect. The Lagna lord conjunct or aspected by a malefic, Saturn in the 5th house, and the Lagna lord specifically aspected by Saturn.',
+      glossEs:'Torpeza intelectual. El señor del Lagna conjunto o aspectado por un maléfico, Saturno en la 5.ª casa, y el señor del Lagna aspectado específicamente por Saturno.',
+      reasonLine: r => T(`Lagna lord with/aspected by malefic: ${hf(r.lord1WithMalefic || r.lord1AspectedByMalefic)}. Saturn in 5th: ${hf(r.saturnIn5th)}. Lagna lord aspected by Saturn: ${hf(r.lord1AspectedBySaturn)}.`, `Señor del Lagna con/aspectado por maléfico: ${hf(r.lord1WithMalefic || r.lord1AspectedByMalefic)}. Saturno en la 5.ª: ${hf(r.saturnIn5th)}. Señor del Lagna aspectado por Saturno: ${hf(r.lord1AspectedBySaturn)}.`) },
+    { result: putraSukhaYoga(birthPos, lagnaIdx), num: 235,
+      nameEn:'Putra Sukha Yoga', nameEs:'Yoga Putra Sukha',
+      glossEn:'Happiness through children. Three OR\'d paths: Jupiter and Venus both in the 5th house, OR Mercury in the 5th house, OR the 5th being a benefic\'s own sign AND occupied by a benefic.',
+      glossEs:'Felicidad por los hijos. Tres vías disyuntivas: Júpiter y Venus juntos en la 5.ª casa, O Mercurio en la 5.ª casa, O la 5.ª siendo signo propio de un benéfico Y ocupada por un benéfico.',
+      reasonLine: r => T(`Jupiter+Venus in 5th: ${hf(r.branchA)}. Mercury in 5th: ${hf(r.mercuryIn5th)}. Benefic sign+benefic occupant: ${hf(r.branchC)}.`, `Júpiter+Venus en la 5.ª: ${hf(r.branchA)}. Mercurio en la 5.ª: ${hf(r.mercuryIn5th)}. Signo benéfico+ocupante benéfico: ${hf(r.branchC)}.`) },
+    { result: jaraYoga(birthPos, lagnaIdx), num: 236,
+      nameEn:'Jara Yoga', nameEs:'Yoga Jara',
+      glossEn:'Extra-marital relations with a number of women. The lords of the 10th, 2nd and 7th houses all together in the 10th house.',
+      glossEs:'Relaciones extramatrimoniales con varias mujeres. Los señores de las casas 10.ª, 2.ª y 7.ª todos juntos en la 10.ª casa.',
+      reasonLine: r => T(`10th/2nd/7th lords all in 10th: ${hf(r.allThreeIn10th)}.`, `Señores de 10.ª/2.ª/7.ª todos en la 10.ª: ${hf(r.allThreeIn10th)}.`) },
+    { result: jarajaputraYoga(birthPos, lagnaIdx), num: 237,
+      nameEn:'Jarajaputra Yoga', nameEs:'Yoga Jarajaputra',
+      glossEn:'The husband lacks the power of procreation but his wife has a son by another man. Powerful (own/exalted/friend) lords of the 5th and 7th both joining the 6th lord, aspected by benefics.',
+      glossEs:'El esposo carece de capacidad de procreación pero su esposa tiene un hijo de otro hombre. Señores poderosos (propio/exaltado/amigo) de la 5.ª y la 7.ª uniéndose ambos al señor de la 6.ª, aspectados por benéficos.',
+      reasonLine: r => T(`5th lord with 6th lord: ${hf(r.lord5WithLord6)}. 7th lord with 6th lord: ${hf(r.lord7WithLord6)}. Both powerful: ${hf(r.lord5Powerful && r.lord7Powerful)}. Aspected by benefic: ${hf(r.aspectedByBenefic)}.`, `Señor de la 5.ª con señor de la 6.ª: ${hf(r.lord5WithLord6)}. Señor de la 7.ª con señor de la 6.ª: ${hf(r.lord7WithLord6)}. Ambos poderosos: ${hf(r.lord5Powerful && r.lord7Powerful)}. Aspectado por benéfico: ${hf(r.aspectedByBenefic)}.`) },
+    { result: bahuStreeYoga(birthPos, lagnaIdx), num: 238,
+      nameEn:'Bahu Stree Yoga', nameEs:'Yoga Bahu Stree',
+      glossEn:'Any number of wives/women. The lords of Lagna and the 7th in conjunction or mutual aspect.',
+      glossEs:'Cualquier número de esposas/mujeres. Los señores del Lagna y la 7.ª en conjunción o aspecto mutuo.',
+      reasonLine: r => T(`Conjunct: ${hf(r.conjunct)}. Aspect: ${hf(r.aspect)}.`, `Conjunción: ${hf(r.conjunct)}. Aspecto: ${hf(r.aspect)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9667,7 +9737,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-219 and #220-223 of 300 (#11, #174 and #204 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 needs a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have — all four deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-219 y #220-223 de 300 (#11, #174 y #204 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 necesita una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene — las cuatro pospuestas). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-233 and #235-238 of 300 (#11, #174 and #204 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 needs a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have; #234 Thrikalagnana is already implemented separately, in the Jñāna Yoga panel above — all four accounted for elsewhere or deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-233 y #235-238 de 300 (#11, #174 y #204 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 necesita una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene; #234 Thrikalagnana ya está implementado por separado, en el panel de Yoga Jñāna de arriba — las cuatro contabilizadas en otro lugar o pospuestas). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -14723,6 +14793,183 @@ function dattaputraYogaB(pos, ascSignIdx){
   const house5SignIdx = (ascSignIdx+4)%12;
   const marsOrSaturnIn5th = Math.floor(norm360(pos.Mars.sidereal)/30)===house5SignIdx || Math.floor(norm360(pos.Saturn.sidereal)/30)===house5SignIdx;
   return { present: lord7In11th && lord5WithBenefic && marsOrSaturnIn5th, lord7In11th, lord5WithBenefic, marsOrSaturnIn5th };
+}
+
+// #224, Aputra Yoga (txt L8562-8564): the 5th lord in a dusthana (6th, 8th
+// or 12th).
+function aputraYoga(pos, ascSignIdx){
+  const lord5 = lordOfHouse(5, ascSignIdx);
+  const lord5House = bsHouseFromAsc(pos[lord5].sidereal, ascSignIdx);
+  const lord5InDusthana = [6,8,12].includes(lord5House);
+  return { present: lord5InDusthana, lord5InDusthana };
+}
+// #225, Ekaputra Yoga (txt L8608-8610): the 5th lord in a kendra or trikona
+// (houses 1, 4, 5, 7, 9 or 10 -- Lagna counts as both).
+function ekaputraYoga(pos, ascSignIdx){
+  const lord5 = lordOfHouse(5, ascSignIdx);
+  const lord5House = bsHouseFromAsc(pos[lord5].sidereal, ascSignIdx);
+  const inKendraOrTrikona = [1,4,5,7,9,10].includes(lord5House);
+  return { present: inKendraOrTrikona, lord5House, inKendraOrTrikona };
+}
+// #226, Suputra Yoga (txt L8627-8630): Jupiter as lord of the 5th house
+// (only possible for Simha/Vrischika Lagnas, per Raman's own Remarks) AND
+// the Sun in a favourable position (this project's standing own/exalted/
+// friend dignity-tier proxy for "favourable").
+function suputraYoga(pos, ascSignIdx){
+  const lord5 = lordOfHouse(5, ascSignIdx);
+  const jupIsLord5 = lord5 === 'Jupiter';
+  const sunSignIdx = Math.floor(norm360(pos.Sun.sidereal)/30);
+  const sunFavourable = ['Own','Exalted','Friend'].includes(dignityTierInSign('Sun', sunSignIdx));
+  return { present: jupIsLord5 && sunFavourable, jupIsLord5, sunFavourable };
+}
+// #227 & #228, Kalanirdesat Putra Yogas (txt L8649-8654): two independent
+// combinations, each predicting a son at a specific age.
+function kalanirdesatPutraYogaA(pos, ascSignIdx){ // 227: son in 32nd/33rd year
+  const house5SignIdx = (ascSignIdx+4)%12;
+  const jupIn5th = Math.floor(norm360(pos.Jupiter.sidereal)/30)===house5SignIdx;
+  const lord5 = lordOfHouse(5, ascSignIdx);
+  const lord5SignIdx = Math.floor(norm360(pos[lord5].sidereal)/30);
+  const venusSignIdx = Math.floor(norm360(pos.Venus.sidereal)/30);
+  const lord5WithVenus = lord5SignIdx===venusSignIdx;
+  return { present: jupIn5th && lord5WithVenus, jupIn5th, lord5WithVenus };
+}
+function kalanirdesatPutraYogaB(pos, ascSignIdx){ // 228: son in 40th year
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const jupIn9th = housesCountFrom(ascSignIdx, jupSignIdx)===9;
+  const venusSignIdx = Math.floor(norm360(pos.Venus.sidereal)/30);
+  const venusIn9thFromJup = housesCountFrom(jupSignIdx, venusSignIdx)===9;
+  const lord1 = SIGN_LORD[SIGNS[ascSignIdx]];
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const venusWithLord1 = venusSignIdx===lord1SignIdx;
+  return { present: jupIn9th && venusIn9thFromJup && venusWithLord1, jupIn9th, venusIn9thFromJup, venusWithLord1 };
+}
+// #229 & #230, Kalanirdesat Putranasa Yogas (txt L8670-8678): two
+// independent combinations, each predicting loss of an issue at a specific
+// age.
+function kalanirdesatPutranasaYogaA(pos, ascSignIdx){ // 229: loss in 32nd year
+  const house5SignIdx = (ascSignIdx+4)%12;
+  const rahuIn5th = Math.floor(norm360(pos.Rahu.sidereal)/30)===house5SignIdx;
+  const lord5 = lordOfHouse(5, ascSignIdx);
+  const lord5SignIdx = Math.floor(norm360(pos[lord5].sidereal)/30);
+  const lord5WithMalefic = MALEFIC_GRAHAS.some(m=>m!==lord5 && Math.floor(norm360(pos[m].sidereal)/30)===lord5SignIdx);
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const jupDebilitated = dignityTierInSign('Jupiter', jupSignIdx)==='Debilitated';
+  return { present: rahuIn5th && lord5WithMalefic && jupDebilitated, rahuIn5th, lord5WithMalefic, jupDebilitated };
+}
+function kalanirdesatPutranasaYogaB(pos, ascSignIdx){ // 230: loss in 32nd/40th year
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const house5FromJupSignIdx = (jupSignIdx+4)%12;
+  const maleficIn5thFromJup = MALEFIC_GRAHAS.some(m=>Math.floor(norm360(pos[m].sidereal)/30)===house5FromJupSignIdx);
+  const house5SignIdx = (ascSignIdx+4)%12;
+  const maleficIn5thFromLagna = MALEFIC_GRAHAS.some(m=>Math.floor(norm360(pos[m].sidereal)/30)===house5SignIdx);
+  return { present: maleficIn5thFromJup && maleficIn5thFromLagna, maleficIn5thFromJup, maleficIn5thFromLagna };
+}
+// #231, Buddhimaturya Yoga (txt L8741-8765): Raman's own Remarks explicitly
+// REJECT the literal Definition ("preposterous" -- it would exclude 5 whole
+// Lagnas from ever having intelligent natives) and give an operationalized
+// substitute: the 5th house occupied by a benefic AND the 5th lord in
+// association with a benefic -- implemented per the Remarks, not the
+// Definition, same treatment as #180's precedent for an explicitly
+// self-revised combination.
+function buddhimaturyaYoga(pos, ascSignIdx){
+  const house5SignIdx = (ascSignIdx+4)%12;
+  const house5HasBenefic = RAMAN_BENEFICS.some(b=>Math.floor(norm360(pos[b].sidereal)/30)===house5SignIdx);
+  const lord5 = lordOfHouse(5, ascSignIdx);
+  const lord5SignIdx = Math.floor(norm360(pos[lord5].sidereal)/30);
+  const lord5WithBenefic = RAMAN_BENEFICS.some(b=>b!==lord5 && Math.floor(norm360(pos[b].sidereal)/30)===lord5SignIdx);
+  return { present: house5HasBenefic && lord5WithBenefic, house5HasBenefic, lord5WithBenefic };
+}
+// #232, Theevrabuddhi Yoga (txt L8843-8860): the Definition's own 2nd clause
+// ("5th lord must be a benefic") is explicitly called "not warranted" in
+// Raman's Remarks, which also broaden "aspected by a benefic" to include
+// conjunction ("even if the said Navamsa lord is in conjunction with a
+// natural benefic"). Implemented per the Remarks: the Navamsa lord of the
+// 5th lord's own Navamsa placement, conjunct OR aspected by a benefic --
+// the Definition's "5th lord must itself be benefic" clause is dropped.
+function theevrabuddhiYoga(pos, navPos, ascSignIdx){
+  const lord5 = lordOfHouse(5, ascSignIdx);
+  const lord5NavSignIdx = Math.floor(norm360(navPos[lord5].sidereal)/30);
+  const navLord = SIGN_LORD[SIGNS[lord5NavSignIdx]];
+  const navLordSignIdx = Math.floor(norm360(pos[navLord].sidereal)/30);
+  const navLordWithBenefic = RAMAN_BENEFICS.some(b=>b!==navLord && Math.floor(norm360(pos[b].sidereal)/30)===navLordSignIdx);
+  const navLordAspectedByBenefic = RAMAN_BENEFICS.some(b=>{
+    if (b===navLord) return false;
+    return aspectsSignWholeSign(b, Math.floor(norm360(pos[b].sidereal)/30), navLordSignIdx);
+  });
+  return { present: navLordWithBenefic || navLordAspectedByBenefic, navLordWithBenefic, navLordAspectedByBenefic };
+}
+// #233, Buddhi Jada Yoga (txt L8900-8903): the Lagna lord conjunct or
+// aspected by a malefic, Saturn in the 5th, AND the Lagna lord specifically
+// aspected by Saturn (the Definition names this third clause separately
+// from the first general one, so both are kept even though they can
+// overlap when Saturn itself is the malefic in clause 1).
+function buddhiJadaYoga(pos, ascSignIdx){
+  const lord1 = SIGN_LORD[SIGNS[ascSignIdx]];
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const lord1WithMalefic = MALEFIC_GRAHAS.some(m=>m!==lord1 && Math.floor(norm360(pos[m].sidereal)/30)===lord1SignIdx);
+  const lord1AspectedByMalefic = MALEFIC_GRAHAS.some(m=>{
+    if (m===lord1) return false;
+    return aspectsSignWholeSign(m, Math.floor(norm360(pos[m].sidereal)/30), lord1SignIdx);
+  });
+  const house5SignIdx = (ascSignIdx+4)%12;
+  const saturnIn5th = Math.floor(norm360(pos.Saturn.sidereal)/30)===house5SignIdx;
+  const saturnSignIdx = Math.floor(norm360(pos.Saturn.sidereal)/30);
+  const lord1AspectedBySaturn = aspectsSignWholeSign('Saturn', saturnSignIdx, lord1SignIdx);
+  return { present: (lord1WithMalefic||lord1AspectedByMalefic) && saturnIn5th && lord1AspectedBySaturn, lord1WithMalefic, lord1AspectedByMalefic, saturnIn5th, lord1AspectedBySaturn };
+}
+// #235, Putra Sukha Yoga (txt L9036-9040): three OR'd paths to happiness
+// through children -- Jupiter+Venus both in the 5th, OR Mercury in the 5th,
+// OR the 5th being a benefic's own sign AND occupied by a benefic.
+function putraSukhaYoga(pos, ascSignIdx){
+  const house5SignIdx = (ascSignIdx+4)%12;
+  const jupIn5th = Math.floor(norm360(pos.Jupiter.sidereal)/30)===house5SignIdx;
+  const venusIn5th = Math.floor(norm360(pos.Venus.sidereal)/30)===house5SignIdx;
+  const branchA = jupIn5th && venusIn5th;
+  const mercuryIn5th = Math.floor(norm360(pos.Mercury.sidereal)/30)===house5SignIdx;
+  const house5Lord = SIGN_LORD[SIGNS[house5SignIdx]];
+  const house5IsBeneficSign = RAMAN_BENEFICS.includes(house5Lord);
+  const house5HasBenefic = RAMAN_BENEFICS.some(b=>Math.floor(norm360(pos[b].sidereal)/30)===house5SignIdx);
+  const branchC = house5IsBeneficSign && house5HasBenefic;
+  return { present: branchA || mercuryIn5th || branchC, branchA, mercuryIn5th, branchC };
+}
+// #236, Jara Yoga (txt L9054-9056): the lords of the 10th, 2nd AND 7th
+// houses all together in the 10th house.
+function jaraYoga(pos, ascSignIdx){
+  const lord10 = lordOfHouse(10, ascSignIdx), lord2 = lordOfHouse(2, ascSignIdx), lord7 = lordOfHouse(7, ascSignIdx);
+  const house10SignIdx = (ascSignIdx+9)%12;
+  const allThreeIn10th = [lord10,lord2,lord7].every(l=>Math.floor(norm360(pos[l].sidereal)/30)===house10SignIdx);
+  return { present: allThreeIn10th, allThreeIn10th };
+}
+// #237, Jarajaputra Yoga (txt L9110-9113): powerful (own/exalted/friend
+// dignity) lords of the 5th and 7th BOTH joining the 6th lord, aspected by
+// benefics. Guards against the 5th/6th or 7th/6th lord coinciding
+// (Capricorn/Aquarius share Saturn, a reachable adjacency in this scheme).
+function jarajaputraYoga(pos, ascSignIdx){
+  const lord5 = lordOfHouse(5, ascSignIdx), lord7 = lordOfHouse(7, ascSignIdx), lord6 = lordOfHouse(6, ascSignIdx);
+  const lord6SignIdx = Math.floor(norm360(pos[lord6].sidereal)/30);
+  const lord5WithLord6 = lord5===lord6 ? false : Math.floor(norm360(pos[lord5].sidereal)/30)===lord6SignIdx;
+  const lord7WithLord6 = lord7===lord6 ? false : Math.floor(norm360(pos[lord7].sidereal)/30)===lord6SignIdx;
+  const lord5Powerful = ['Own','Exalted','Friend'].includes(dignityTierInSign(lord5, Math.floor(norm360(pos[lord5].sidereal)/30)));
+  const lord7Powerful = ['Own','Exalted','Friend'].includes(dignityTierInSign(lord7, Math.floor(norm360(pos[lord7].sidereal)/30)));
+  const aspectedByBenefic = RAMAN_BENEFICS.some(b=>{
+    const bSignIdx = Math.floor(norm360(pos[b].sidereal)/30);
+    if (bSignIdx===lord6SignIdx) return false; // conjunction already counted above
+    return aspectsSignWholeSign(b, bSignIdx, lord6SignIdx);
+  });
+  return { present: lord5WithLord6 && lord7WithLord6 && lord5Powerful && lord7Powerful && aspectedByBenefic, lord5WithLord6, lord7WithLord6, lord5Powerful, lord7Powerful, aspectedByBenefic };
+}
+// #238, Bahu Stree Yoga (txt L9128-9131): the lords of Lagna and the 7th in
+// conjunction or mutual aspect. (Lagna and 7th are always opposite signs in
+// this rasi scheme, whose rulers never coincide, so no same-lord guard is
+// needed here unlike #237.)
+function bahuStreeYoga(pos, ascSignIdx){
+  const lord1 = SIGN_LORD[SIGNS[ascSignIdx]];
+  const lord7 = lordOfHouse(7, ascSignIdx);
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const lord7SignIdx = Math.floor(norm360(pos[lord7].sidereal)/30);
+  const conjunct = lord1SignIdx===lord7SignIdx;
+  const aspect = aspectsSignWholeSign(lord1, lord1SignIdx, lord7SignIdx) || aspectsSignWholeSign(lord7, lord7SignIdx, lord1SignIdx);
+  return { present: conjunct || aspect, conjunct, aspect };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
