@@ -2901,6 +2901,73 @@ function sarvaTier(n){
   return {rank:0, tag:"bad", label:T("Weak","Débil")};
 }
 
+// --- Ashtakavarga Śodhana (Trikoṇa + Ekādhipatya reduction) -------------
+// Source: C. S. Patel, Ashtakavarga System of Prediction (1957 ed.), ch. III,
+// Slokas 1-9, pp. 37-44 -- see domains/ashtakavarga-shodhana.md for the full
+// transcribed verses and citations this implementation follows verbatim.
+// Both passes are subtractive-only and reduce to one elegant rule each once
+// worked through Patel's own case tables:
+//   Trikona:     every sign in a triad loses the triad's own minimum bindu
+//                count (this alone reproduces all of Patel's stated cases --
+//                one sign at 0 forces min=0, i.e. no change; all three equal
+//                forces the whole triad to 0 -- no special-casing needed).
+//   Ekadhipatya: applied only to the five outer-planet ownership pairs
+//                (Mesha/Vrischika, Vrishabha/Tula, Mithuna/Kanya,
+//                Dhanus/Meena, Makara/Kumbha); Simha (Sun) and Kataka (Moon)
+//                are single-owned signs and are never touched. Within a
+//                pair: both signs occupied by a natal graha -> no change;
+//                both unoccupied -> each loses the pair's own minimum (same
+//                shape as Trikona); exactly one occupied -> that occupied
+//                sign is fully protected and the unoccupied sign alone drops
+//                by the occupied sign's bindu count, floored at 0. This
+//                single formula reproduces all eight of Patel's worked cases.
+const TRIKONA_TRIADS = [[0,4,8],[1,5,9],[2,6,10],[3,7,11]]; // Ar/Le/Sg, Ta/Vi/Cp, Ge/Li/Aq, Cn/Sc/Pi
+const EKADHIPATYA_PAIRS = [[0,7],[1,6],[2,5],[8,11],[9,10]]; // Mars, Venus, Mercury, Jupiter, Saturn
+function trikonaSodhana(bindus){
+  const out = bindus.slice();
+  TRIKONA_TRIADS.forEach(triad=>{
+    const min = Math.min(...triad.map(i=>bindus[i]));
+    triad.forEach(i=>{ out[i] = bindus[i] - min; });
+  });
+  return out;
+}
+function ekadhipatyaSodhana(bindus, occupiedSigns){
+  const out = bindus.slice();
+  EKADHIPATYA_PAIRS.forEach(([i,j])=>{
+    const iOcc = occupiedSigns[i], jOcc = occupiedSigns[j];
+    if (iOcc && jOcc) return; // both occupied: untouched
+    if (!iOcc && !jOcc){
+      const min = Math.min(bindus[i], bindus[j]);
+      out[i] = bindus[i] - min; out[j] = bindus[j] - min;
+    } else if (iOcc){ // i protected, j reduced by i's count
+      out[j] = Math.max(0, bindus[j] - bindus[i]);
+    } else { // j protected, i reduced by j's count
+      out[i] = Math.max(0, bindus[i] - bindus[j]);
+    }
+  });
+  return out;
+}
+// Full Rāśi Ashtakavarga: each of the 7 grahas' Bhinnāṣṭakavarga run through
+// both reduction passes, then summed sign-by-sign -- the reduced counterpart
+// to computeSarvashtakavarga(). Reductions are per-Bhinna only, never
+// re-applied to the summed total (Patel's own worked example, ch. III p.42-43
+// and ch. XIV; see domains/ashtakavarga-shodhana.md §5 for the South
+// Indian/KP variant that does re-apply them directly to the Sarva chart --
+// not what this function does).
+function computeRashiAshtakavarga(pos){
+  const occupiedSigns = new Array(12).fill(false);
+  ASHTAK_GRAHAS.forEach(g=>{ occupiedSigns[Math.floor(norm360(pos[g].sidereal)/30)] = true; });
+  const perGraha = {};
+  const rashiSarva = new Array(12).fill(0);
+  ASHTAK_GRAHAS.forEach(g=>{
+    const raw = computeBhinnashtakavarga(g, pos);
+    const reduced = ekadhipatyaSodhana(trikonaSodhana(raw), occupiedSigns);
+    perGraha[g] = reduced;
+    reduced.forEach((v,i)=>{ rashiSarva[i]+=v; });
+  });
+  return { perGraha, rashiSarva };
+}
+
 /* =========================================================================
    VIMŚOTTARI DAŚĀ — the standard 120-year, 9-graha Parāśarī timing system
    (birth Moon's Nakṣatra fixes the starting lord and the balance of the
@@ -10972,6 +11039,14 @@ function renderAshtakavargaPage(){
     return `<tr><td class="wide">${s}</td><td style="font-variant-numeric:tabular-nums;">${val}</td><td><span class="tag ${tier.tag}">${tier.label}</span></td></tr>`;
   }).join('');
 
+  const rashiResult = computeRashiAshtakavarga(birthPos);
+  const rashiTotal = rashiResult.rashiSarva.reduce((a,b)=>a+b,0);
+  const rashiSignRows = SIGNS.map((s,i)=>{
+    const raw = natalSarva[i];
+    const reduced = rashiResult.rashiSarva[i];
+    return `<tr><td class="wide">${s}</td><td style="font-variant-numeric:tabular-nums; color:var(--slate);">${raw}</td><td style="font-variant-numeric:tabular-nums;">${reduced}</td><td style="font-variant-numeric:tabular-nums; color:${reduced<raw?'var(--vermilion)':'var(--ink-dim)'};">-${raw-reduced}</td></tr>`;
+  }).join('');
+
   container.innerHTML = `
     <div class="panel">
       <div class="hd"><h2>${T('Ashtakavarga — Transit Strength','Ashtakavarga — Fuerza de Tránsito')}</h2></div>
@@ -10981,7 +11056,7 @@ function renderAshtakavargaPage(){
       <div class="bd">
         <div class="hint" style="line-height:1.7;">${T('Ashtakavarga is a point-scoring system layered on top of the birth chart, separate from dignity or house-lordship. For each of the seven classical grahas (Sun through Saturn — Rāhu/Ketu are excluded from this system entirely), eight reference points — the graha itself, the other six grahas, and the Lagna — each look out from their own natal position and award one benefic "bindu" (point) to specific signs, following a fixed classical table of rules unique to each reference point. Add up all eight reference points\' contributions for one graha across the twelve signs and you get that graha\'s own <b>Bhinnāṣṭakavarga</b> — a personal 0–8 strength map, sign by sign, of where that specific graha tends to perform well versus poorly. Add all seven grahas\' Bhinnāṣṭakavarga tables together, sign by sign, and you get the <b>Sarvāṣṭakavarga</b> — one combined number per sign (337 points spread across the zodiac, 28/sign on average) describing that sign\'s general vitality regardless of which graha happens to be sitting or transiting there.','Ashtakavarga es un sistema de puntuación superpuesto a la carta natal, independiente de la dignidad o el señorío de casas. Para cada uno de los siete graha clásicos (del Sol a Saturno — Rāhu/Ketu quedan totalmente fuera de este sistema), ocho puntos de referencia — el propio graha, los otros seis graha, y el Lagna — miran cada uno desde su propia posición natal y otorgan un "bindu" (punto) benéfico a signos específicos, siguiendo una tabla clásica fija de reglas propia de cada punto de referencia. Sumando las contribuciones de los ocho puntos de referencia para un graha en los doce signos se obtiene el <b>Bhinnāṣṭakavarga</b> de ese graha — un mapa personal de fuerza 0–8, signo por signo, de dónde tiende a rendir bien o mal ese graha en particular. Sumando las tablas de Bhinnāṣṭakavarga de los siete graha, signo por signo, se obtiene el <b>Sarvāṣṭakavarga</b> — un número combinado por signo (337 puntos repartidos por el zodíaco, 28/signo en promedio) que describe la vitalidad general de ese signo sin importar qué graha esté allí.')}</div>
         <div class="hint" style="line-height:1.7; margin-top:10px;">${T('What a bindu count means in practice: a HIGH Bhinnāṣṭakavarga count (5–8) for a given graha in a given sign means that when that specific graha occupies or transits that sign, whatever it governs — its natural kāraka significations and the house it happens to rule from the Lagna — tends to find support, cooperation, and favourable timing. A LOW count (0–3) means the opposite: that same graha in that same sign tends toward strain, delay, or under-performance for what it governs, regardless of the graha\'s own dignity by sign lordship. A count of exactly 0 is the classical system\'s single most severe reading for that placement. Sarvāṣṭakavarga works the same way but at the level of the SIGN itself rather than one graha: a sign with a high combined total (above 28, "very good" above 30) tends to support whatever transits through it or whatever house it represents, while a low total (below 25) marks that sign as a generally weaker stage for events — read this independently of, not merged with, Bhinnāṣṭakavarga\'s graha-specific answer.','Qué significa en la práctica un conteo de bindus: un conteo ALTO de Bhinnāṣṭakavarga (5–8) para un graha dado en un signo dado significa que, cuando ese graha específico ocupa o transita ese signo, lo que gobierna — sus significaciones kāraka naturales y la casa que gobierna desde el Lagna — tiende a encontrar apoyo, cooperación y buen momento. Un conteo BAJO (0–3) significa lo contrario: ese mismo graha en ese mismo signo tiende a la tensión, la demora o el bajo rendimiento en lo que gobierna, sin importar la dignidad propia del graha por señorío de signo. Un conteo de exactamente 0 es la lectura más severa del sistema clásico para esa posición. El Sarvāṣṭakavarga funciona igual pero a nivel del SIGNO en sí, no de un graha: un signo con un total combinado alto (por encima de 28, "muy bueno" por encima de 30) tiende a apoyar lo que transite por él o la casa que representa, mientras que un total bajo (por debajo de 25) marca ese signo como un escenario generalmente más débil para los eventos — léase de forma independiente de, no combinado con, la respuesta específica por graha del Bhinnāṣṭakavarga.')}</div>
-        <div class="hint" style="line-height:1.7; margin-top:10px; border-left:2px solid var(--gold); padding-left:10px;">${T('Not yet included: the classical "Rāśi" reduction of Sarvāṣṭakavarga — Trikoṇa Śodhana and Ekādhipatya Śodhana, two further sign-by-sign adjustment passes some traditions apply before reading Sarvāṣṭakavarga for transit-result predictions specifically (as opposed to the general strength reading shown below). This app has not yet ingested a primary source it trusts for that reduction\'s exact rule set, so it is not computed here rather than guessed at — see menu → Yoga/Combinations-style sourcing discipline applied consistently across this app.','Aún no incluido: la reducción "Rāśi" clásica del Sarvāṣṭakavarga — Trikoṇa Śodhana y Ekādhipatya Śodhana, dos pasadas adicionales de ajuste signo por signo que algunas tradiciones aplican antes de leer el Sarvāṣṭakavarga para predicciones de resultados de tránsito específicamente (a diferencia de la lectura general de fuerza que se muestra abajo). Esta app aún no ha incorporado una fuente primaria de confianza para el conjunto exacto de reglas de esa reducción, así que no se calcula aquí en vez de adivinarla — se aplica la misma disciplina de fuentes que en el resto de la app.')}</div>
+        <div class="hint" style="line-height:1.7; margin-top:10px; border-left:2px solid var(--gold); padding-left:10px;">${T('Also included below: the classical "Rāśi Ashtakavarga" — Sarvāṣṭakavarga after two further sign-by-sign reduction passes, Trikoṇa Śodhana and Ekādhipatya Śodhana, that some traditions apply before reading the chart for transit-result predictions specifically. See the dedicated panel further down for what these reductions do and why the numbers differ from the raw Sarvāṣṭakavarga above.','También incluido más abajo: el "Rāśi Ashtakavarga" clásico — el Sarvāṣṭakavarga después de dos pasadas adicionales de reducción signo por signo, Trikoṇa Śodhana y Ekādhipatya Śodhana, que algunas tradiciones aplican antes de leer la carta para predicciones de resultados de tránsito específicamente. Ver el panel dedicado más abajo para qué hacen estas reducciones y por qué los números difieren del Sarvāṣṭakavarga sin reducir de arriba.')}</div>
       </div>
     </div>
 
@@ -10996,6 +11071,13 @@ function renderAshtakavargaPage(){
     <div class="panel"><div class="hd"><h2>${T('Natal Sarvāṣṭakavarga by sign','Sarvāṣṭakavarga natal por signo')}</h2><span class="note">${T('total 337, average 28/sign','total 337, promedio 28/signo')}</span></div>
       <div class="bd">
         <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Bindus','Bindus')}</th><th>${T('Strength','Fuerza')}</th></tr></thead><tbody>${sarvaSignRows}</tbody></table></div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Rāśi Ashtakavarga — Trikoṇa + Ekādhipatya reduced','Rāśi Ashtakavarga — reducido por Trikoṇa + Ekādhipatya')}</h2><span class="note">${T('total','total')} ${rashiTotal}</span></div>
+      <div class="bd">
+        <div class="hint" style="line-height:1.7; margin-bottom:10px;">${T('Some traditions read Sarvāṣṭakavarga for transit-result prediction only after passing each graha\'s own Bhinnāṣṭakavarga through two subtractive reduction passes, applied per-graha before summing: first <b>Trikoṇa Śodhana</b> (each of the four sign-trines loses its own lowest bindu count, all three signs at once), then <b>Ekādhipatya Śodhana</b> (the five sign-pairs sharing one planetary lord — Mars, Venus, Mercury, Jupiter, Saturn — get reduced against each other, protecting whichever sign of a pair is natally occupied by a planet; the Sun\'s and Moon\'s single-owned signs are never touched). The result is always ≤ the raw Sarvāṣṭakavarga shown above, sign by sign — reduction only removes points, never adds them. Source: C. S. Patel, <i>Ashtakavarga System of Prediction</i> (1957 ed.), ch. III, verbatim rules and citations in domains/ashtakavarga-shodhana.md. Patel notes a South Indian/KP variant applies these same two passes directly to the Sarva total instead of per-graha — this app follows the primary BPHS-derived text\'s own per-graha-then-sum order.','Algunas tradiciones leen el Sarvāṣṭakavarga para predicción de resultados de tránsito solo después de pasar el propio Bhinnāṣṭakavarga de cada graha por dos pasadas de reducción sustractivas, aplicadas por graha antes de sumar: primero <b>Trikoṇa Śodhana</b> (cada uno de los cuatro trinos de signos pierde su propio bindu mínimo, los tres signos a la vez), luego <b>Ekādhipatya Śodhana</b> (los cinco pares de signos que comparten un mismo señor planetario — Marte, Venus, Mercurio, Júpiter, Saturno — se reducen entre sí, protegiendo el signo del par que esté ocupado natalmente por un planeta; los signos de señorío único del Sol y la Luna nunca se tocan). El resultado siempre es ≤ el Sarvāṣṭakavarga sin reducir de arriba, signo por signo — la reducción solo quita puntos, nunca añade. Fuente: C. S. Patel, <i>Ashtakavarga System of Prediction</i> (ed. 1957), cap. III, reglas y citas textuales en domains/ashtakavarga-shodhana.md. Patel señala que una variante del sur de la India/KP aplica estas mismas dos pasadas directamente al total Sarva en vez de por graha — esta app sigue el orden propio del texto primario derivado de BPHS: por graha y luego sumar.')}</div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Raw Sarva','Sarva sin reducir')}</th><th>${T('Rāśi (reduced)','Rāśi (reducido)')}</th><th>${T('Removed','Quitado')}</th></tr></thead><tbody>${rashiSignRows}</tbody></table></div>
       </div>
     </div>
 
