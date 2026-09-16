@@ -9587,7 +9587,37 @@ function renderNatalPage(){
       nameEn:'Bahu Stree Yoga', nameEs:'Yoga Bahu Stree',
       glossEn:'Any number of wives/women. The lords of Lagna and the 7th in conjunction or mutual aspect.',
       glossEs:'Cualquier número de esposas/mujeres. Los señores del Lagna y la 7.ª en conjunción o aspecto mutuo.',
-      reasonLine: r => T(`Conjunct: ${hf(r.conjunct)}. Aspect: ${hf(r.aspect)}.`, `Conjunción: ${hf(r.conjunct)}. Aspecto: ${hf(r.aspect)}.`) }
+      reasonLine: r => T(`Conjunct: ${hf(r.conjunct)}. Aspect: ${hf(r.aspect)}.`, `Conjunción: ${hf(r.conjunct)}. Aspecto: ${hf(r.aspect)}.`) },
+    { result: satkalatraYoga(birthPos, lagnaIdx), num: 239,
+      nameEn:'Satkalatra Yoga', nameEs:'Yoga Satkalatra',
+      glossEn:'The native\'s wife will be noble and virtuous. The 7th lord or Venus joins or is aspected by Jupiter or Mercury.',
+      glossEs:'La esposa del nativo será noble y virtuosa. El señor de la 7.ª o Venus se une o es aspectado por Júpiter o Mercurio.',
+      reasonLine: r => T(`7th lord qualifies: ${hf(r.lord7Qualifies)}. Venus qualifies: ${hf(r.venusQualifies)}.`, `Señor de la 7.ª califica: ${hf(r.lord7Qualifies)}. Venus califica: ${hf(r.venusQualifies)}.`) },
+    { result: bhagaChumbanaYoga(birthPos, lagnaIdx), num: 240,
+      nameEn:'Bhaga Chumbana Yoga', nameEs:'Yoga Bhaga Chumbana',
+      glossEn:'A specific sexual-behavior combination. The 7th lord in the 4th house, in conjunction with Venus.',
+      glossEs:'Una combinación sexual específica. El señor de la 7.ª en la 4.ª casa, en conjunción con Venus.',
+      reasonLine: r => T(`7th lord in 4th: ${hf(r.lord7In4th)}. Venus in 4th: ${hf(r.venusIn4th)}.`, `Señor de la 7.ª en la 4.ª: ${hf(r.lord7In4th)}. Venus en la 4.ª: ${hf(r.venusIn4th)}.`) },
+    { result: bhagyaYoga(birthPos, lagnaIdx), num: 241,
+      nameEn:'Bhagya Yoga', nameEs:'Yoga Bhagya',
+      glossEn:'Extreme fortune, pleasure-loving and rich. A strong (own/exalted/friend) natural benefic in Lagna, the 3rd or the 5th, simultaneously aspecting the 9th.',
+      glossEs:'Fortuna extrema, amante del placer y rico. Un benéfico natural fuerte (propio/exaltado/amigo) en el Lagna, la 3.ª o la 5.ª, aspectando simultáneamente a la 9.ª.',
+      reasonLine: r => T(`Strong benefic in Lagna/3rd/5th aspecting 9th: ${hf(r.matched)}.`, `Benéfico fuerte en Lagna/3.ª/5.ª aspectando la 9.ª: ${hf(r.matched)}.`) },
+    { result: jananatpurvamPitruMaranaYoga(birthPos, lagnaIdx), num: 242,
+      nameEn:'Jananatpurvam Pitru Marana Yoga', nameEs:'Yoga Jananatpurvam Pitru Marana',
+      glossEn:'The subject is a posthumous child. The Sun in a dusthana (6th/8th/12th), the 8th lord in the 9th, the 12th lord in Lagna, and the 6th lord in the 5th.',
+      glossEs:'El sujeto es un hijo póstumo. El Sol en un dusthana (6.ª/8.ª/12.ª), el señor de la 8.ª en la 9.ª, el señor de la 12.ª en el Lagna, y el señor de la 6.ª en la 5.ª.',
+      reasonLine: r => T(`Sun in dusthana: ${hf(r.sunInDusthana)}. 8th lord in 9th: ${hf(r.lord8In9th)}. 12th lord in Lagna: ${hf(r.lord12InLagna)}. 6th lord in 5th: ${hf(r.lord6In5th)}.`, `Sol en dusthana: ${hf(r.sunInDusthana)}. Señor de la 8.ª en la 9.ª: ${hf(r.lord8In9th)}. Señor de la 12.ª en el Lagna: ${hf(r.lord12InLagna)}. Señor de la 6.ª en la 5.ª: ${hf(r.lord6In5th)}.`) },
+    { result: dhatrutwaYoga(birthPos, lagnaIdx), num: 243,
+      nameEn:'Dhatrutwa Yoga', nameEs:'Yoga Dhatrutwa',
+      glossEn:'An embodiment of generosity. The 9th lord exalted and aspected by a benefic, with the 9th house itself occupied by a benefic.',
+      glossEs:'Una encarnación de la generosidad. El señor de la 9.ª exaltado y aspectado por un benéfico, con la 9.ª casa misma ocupada por un benéfico.',
+      reasonLine: r => T(`9th lord exalted: ${hf(r.lord9Exalted)}. 9th lord aspected by benefic: ${hf(r.lord9AspectedByBenefic)}. 9th house has benefic: ${hf(r.house9HasBenefic)}.`, `Señor de la 9.ª exaltado: ${hf(r.lord9Exalted)}. Señor de la 9.ª aspectado por benéfico: ${hf(r.lord9AspectedByBenefic)}. La 9.ª casa tiene benéfico: ${hf(r.house9HasBenefic)}.`) },
+    { result: apakeertiYoga(birthPos, navPos, lagnaIdx), num: 244,
+      nameEn:'Apakeerti Yoga', nameEs:'Yoga Apakeerti',
+      glossEn:'A bad reputation. The Sun and Saturn together in the 10th house, with either in a malefic-owned Navamsa or the 10th aspected by another malefic.',
+      glossEs:'Mala reputación. El Sol y Saturno juntos en la 10.ª casa, con alguno de ellos en un Navamsa regido por un maléfico o la 10.ª aspectada por otro maléfico.',
+      reasonLine: r => T(`Sun+Saturn in 10th: ${hf(r.sunIn10th && r.saturnIn10th)}. Malefic Navamsa: ${hf(r.sunMaleficNavamsa || r.saturnMaleficNavamsa)}. Aspected by malefic: ${hf(r.aspectedByMalefic)}.`, `Sol+Saturno en la 10.ª: ${hf(r.sunIn10th && r.saturnIn10th)}. Navamsa maléfico: ${hf(r.sunMaleficNavamsa || r.saturnMaleficNavamsa)}. Aspectado por maléfico: ${hf(r.aspectedByMalefic)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9737,7 +9767,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-233 and #235-238 of 300 (#11, #174 and #204 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 needs a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have; #234 Thrikalagnana is already implemented separately, in the Jñāna Yoga panel above — all four accounted for elsewhere or deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-233 y #235-238 de 300 (#11, #174 y #204 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 necesita una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene; #234 Thrikalagnana ya está implementado por separado, en el panel de Yoga Jñāna de arriba — las cuatro contabilizadas en otro lugar o pospuestas). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-233 and #235-244 of 300 (#11, #174 and #204 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 needs a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have; #234 Thrikalagnana is already implemented separately, in the Jñāna Yoga panel above — all four accounted for elsewhere or deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-233 y #235-244 de 300 (#11, #174 y #204 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 necesita una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene; #234 Thrikalagnana ya está implementado por separado, en el panel de Yoga Jñāna de arriba — las cuatro contabilizadas en otro lugar o pospuestas). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -14970,6 +15000,96 @@ function bahuStreeYoga(pos, ascSignIdx){
   const conjunct = lord1SignIdx===lord7SignIdx;
   const aspect = aspectsSignWholeSign(lord1, lord1SignIdx, lord7SignIdx) || aspectsSignWholeSign(lord7, lord7SignIdx, lord1SignIdx);
   return { present: conjunct || aspect, conjunct, aspect };
+}
+// #239, Satkalatra Yoga (txt L9190-9192): the 7th lord OR Venus joins or is
+// aspected by Jupiter or Mercury. The Remarks' looser alternate reading
+// (9th lord in 7th, 7th lord in 4th, Lagna/11th lord in a kendra) has no
+// worked example behind it and is left out, matching this project's
+// standing practice for unverified Remarks-only alternates (see #218).
+function satkalatraYoga(pos, ascSignIdx){
+  const lord7 = lordOfHouse(7, ascSignIdx);
+  const checkOne = (g) => {
+    const gSignIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    return ['Jupiter','Mercury'].some(b=>{
+      if (b===g) return false;
+      const bSignIdx = Math.floor(norm360(pos[b].sidereal)/30);
+      return bSignIdx===gSignIdx || aspectsSignWholeSign(b, bSignIdx, gSignIdx);
+    });
+  };
+  const lord7Qualifies = checkOne(lord7);
+  const venusQualifies = lord7==='Venus' ? lord7Qualifies : checkOne('Venus');
+  return { present: lord7Qualifies || venusQualifies, lord7Qualifies, venusQualifies };
+}
+// #240, Bhaga Chumbana Yoga (txt L9270-9272): the 7th lord in the 4th house,
+// in conjunction with Venus.
+function bhagaChumbanaYoga(pos, ascSignIdx){
+  const lord7 = lordOfHouse(7, ascSignIdx);
+  const house4SignIdx = (ascSignIdx+3)%12;
+  const lord7In4th = Math.floor(norm360(pos[lord7].sidereal)/30)===house4SignIdx;
+  const venusIn4th = Math.floor(norm360(pos.Venus.sidereal)/30)===house4SignIdx;
+  return { present: lord7In4th && venusIn4th, lord7In4th, venusIn4th };
+}
+// #241, Bhagya Yoga (txt L9278-9280): a strong (own/exalted/friend) natural
+// benefic in Lagna, the 3rd or the 5th, simultaneously aspecting the 9th.
+function bhagyaYoga(pos, ascSignIdx){
+  const house9SignIdx = (ascSignIdx+8)%12;
+  const matched = RAMAN_BENEFICS.some(b=>{
+    const bSignIdx = Math.floor(norm360(pos[b].sidereal)/30);
+    const bHouse = bsHouseFromAsc(pos[b].sidereal, ascSignIdx);
+    if (![1,3,5].includes(bHouse)) return false;
+    if (!['Own','Exalted','Friend'].includes(dignityTierInSign(b, bSignIdx))) return false;
+    return aspectsSignWholeSign(b, bSignIdx, house9SignIdx);
+  });
+  return { present: matched };
+}
+// #242, Jananatpurvam Pitru Marana Yoga (txt L9307-9310): the Sun in a
+// dusthana (6th, 8th or 12th), the 8th lord in the 9th, the 12th lord in
+// Lagna, and the 6th lord in the 5th -- verified against Raman's own
+// worked Chart No.113 ("present in toto").
+function jananatpurvamPitruMaranaYoga(pos, ascSignIdx){
+  const sunInDusthana = [6,8,12].includes(bsHouseFromAsc(pos.Sun.sidereal, ascSignIdx));
+  const lord8 = lordOfHouse(8, ascSignIdx);
+  const lord8In9th = bsHouseFromAsc(pos[lord8].sidereal, ascSignIdx)===9;
+  const lord12 = lordOfHouse(12, ascSignIdx);
+  const lord12InLagna = bsHouseFromAsc(pos[lord12].sidereal, ascSignIdx)===1;
+  const lord6 = lordOfHouse(6, ascSignIdx);
+  const lord6In5th = bsHouseFromAsc(pos[lord6].sidereal, ascSignIdx)===5;
+  return { present: sunInDusthana && lord8In9th && lord12InLagna && lord6In5th, sunInDusthana, lord8In9th, lord12InLagna, lord6In5th };
+}
+// #243, Dhatrutwa Yoga (txt L9354-9356): the 9th lord exalted and aspected
+// by a benefic, with the 9th house itself occupied by a benefic. Raman's
+// Remarks offer two further alternate paths (a)/(b) with no worked example
+// behind either -- left out per the same standing practice as #239/#218.
+function dhatrutwaYoga(pos, ascSignIdx){
+  const lord9 = lordOfHouse(9, ascSignIdx);
+  const lord9SignIdx = Math.floor(norm360(pos[lord9].sidereal)/30);
+  const lord9Exalted = dignityTierInSign(lord9, lord9SignIdx)==='Exalted';
+  const lord9AspectedByBenefic = RAMAN_BENEFICS.some(b=>{
+    if (b===lord9) return false;
+    return aspectsSignWholeSign(b, Math.floor(norm360(pos[b].sidereal)/30), lord9SignIdx);
+  });
+  const house9SignIdx = (ascSignIdx+8)%12;
+  const house9HasBenefic = RAMAN_BENEFICS.some(b=>Math.floor(norm360(pos[b].sidereal)/30)===house9SignIdx);
+  return { present: lord9Exalted && lord9AspectedByBenefic && house9HasBenefic, lord9Exalted, lord9AspectedByBenefic, house9HasBenefic };
+}
+// #244, Apakeerti Yoga (txt L9440-9443): the Sun AND Saturn together in the
+// 10th house, with EITHER of them in a malefic-owned Navamsa OR the 10th
+// aspected by an (other) malefic. "Malefic navamsa" is operationalized as
+// the Navamsa sign being owned by one of the five naisargika malefics, no
+// more specific classical rule given in the source.
+function apakeertiYoga(pos, navPos, ascSignIdx){
+  const house10SignIdx = (ascSignIdx+9)%12;
+  const sunIn10th = Math.floor(norm360(pos.Sun.sidereal)/30)===house10SignIdx;
+  const saturnIn10th = Math.floor(norm360(pos.Saturn.sidereal)/30)===house10SignIdx;
+  const sunNavSignIdx = Math.floor(norm360(navPos.Sun.sidereal)/30);
+  const saturnNavSignIdx = Math.floor(norm360(navPos.Saturn.sidereal)/30);
+  const sunMaleficNavamsa = MALEFIC_GRAHAS.includes(SIGN_LORD[SIGNS[sunNavSignIdx]]);
+  const saturnMaleficNavamsa = MALEFIC_GRAHAS.includes(SIGN_LORD[SIGNS[saturnNavSignIdx]]);
+  const aspectedByMalefic = MALEFIC_GRAHAS.some(m=>{
+    if (['Sun','Saturn'].includes(m)) return false;
+    return aspectsSignWholeSign(m, Math.floor(norm360(pos[m].sidereal)/30), house10SignIdx);
+  });
+  return { present: sunIn10th && saturnIn10th && (sunMaleficNavamsa||saturnMaleficNavamsa||aspectedByMalefic), sunIn10th, saturnIn10th, sunMaleficNavamsa, saturnMaleficNavamsa, aspectedByMalefic };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
