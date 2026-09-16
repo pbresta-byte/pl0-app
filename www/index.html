@@ -8731,7 +8731,42 @@ function renderNatalPage(){
       nameEn:'Jaya Yoga', nameEs:'Yoga Jaya',
       glossEn:'The 6th lord debilitated, with the 10th lord exalted. "Jaya" means victory — success in undertakings and triumph over enemies, since the 6th house\'s usual troubles (debts, disease, enemies) are themselves weakened by their own lord\'s debility.',
       glossEs:'El señor de la 6.ª debilitado, con el señor de la 10.ª exaltado. "Jaya" significa victoria — éxito en las empresas y triunfo sobre los enemigos, ya que los problemas habituales de la casa 6 (deudas, enfermedad, enemigos) quedan ellos mismos debilitados por la debilidad de su propio señor.',
-      reasonLine: r => T(`6th lord debilitated: ${hf(r.sixthDebilitated)}. 10th lord exalted: ${hf(r.tenthExalted)}.`, `Señor de la 6.ª debilitado: ${hf(r.sixthDebilitated)}. Señor de la 10.ª exaltado: ${hf(r.tenthExalted)}.`) }
+      reasonLine: r => T(`6th lord debilitated: ${hf(r.sixthDebilitated)}. 10th lord exalted: ${hf(r.tenthExalted)}.`, `Señor de la 6.ª debilitado: ${hf(r.sixthDebilitated)}. Señor de la 10.ª exaltado: ${hf(r.tenthExalted)}.`) },
+    { result: vidyutYoga(birthPos, lagnaIdx), num: 59,
+      nameEn:'Vidyut Yoga', nameEs:'Yoga Vidyut',
+      glossEn:'The 11th lord deeply exalted and conjunct Venus, in a kendra from the Lagna lord. A treasurer or controller of wealth\'s profile — Venus governs pleasure and comfort, the 11th lord governs gains, and a strong Lagna behind both makes for real material command.',
+      glossEs:'El señor de la 11.ª profundamente exaltado y conjunto a Venus, en un kendra desde el señor del Lagna. Un perfil de tesorero o controlador de riqueza — Venus gobierna el placer y la comodidad, el señor de la 11.ª gobierna las ganancias, y un Lagna fuerte detrás de ambos da mando material real.',
+      reasonLine: r => T(`11th lord exalted: ${hf(r.exalted)}. Conjunct Venus: ${hf(r.conjunctVenus)}. In kendra from Lagna lord: ${hf(r.inKendraFromLagnaLord)}.`, `Señor de la 11.ª exaltado: ${hf(r.exalted)}. Conjunto a Venus: ${hf(r.conjunctVenus)}. En kendra desde el señor del Lagna: ${hf(r.inKendraFromLagnaLord)}.`) },
+    { result: gandharvaYoga(birthPos, lagnaIdx), num: 60,
+      nameEn:'Gandharva Yoga', nameEs:'Yoga Gandharva',
+      glossEn:'The 10th lord in the Kama Thrikona (3rd/7th/11th — the trines counted from the 7th) conjunct Jupiter, with an exalted Sun and the Moon in the 9th. Named for the Gandharvas, the celestial musicians — unparalleled skill in music, dance, and the fine arts.',
+      glossEs:'El señor de la 10.ª en el Kama Thrikona (3.ª/7.ª/11.ª — los trinos contados desde la 7.ª) conjunto a Júpiter, con un Sol exaltado y la Luna en la 9.ª. Nombrado por los Gandharvas, los músicos celestiales — habilidad sin igual en música, danza y las bellas artes.',
+      reasonLine: r => T(`10th lord in Kama Thrikona: ${hf(r.inKamaThrikona)}. Conjunct Jupiter: ${hf(r.conjunctJupiter)}. Sun exalted: ${hf(r.sunExalted)}. Moon in 9th: ${hf(r.moonInNinth)}.`, `Señor de la 10.ª en Kama Thrikona: ${hf(r.inKamaThrikona)}. Conjunto a Júpiter: ${hf(r.conjunctJupiter)}. Sol exaltado: ${hf(r.sunExalted)}. Luna en la 9.ª: ${hf(r.moonInNinth)}.`) },
+    { result: sivaYoga(birthPos, lagnaIdx), num: 61,
+      nameEn:'Siva Yoga', nameEs:'Yoga Siva',
+      glossEn:'The 5th lord in the 9th, the 9th lord in the 10th, and the 10th lord in the 5th — a three-way rotation binding the two great trikonas and the strongest kendra together. A trader-conqueror\'s profile, though Raman cautions the strength depends heavily on whether the three lords are naturally friendly to each other, not just on the rotation itself.',
+      glossEs:'El señor de la 5.ª en la 9.ª, el señor de la 9.ª en la 10.ª, y el señor de la 10.ª en la 5.ª — una rotación de tres vías que une los dos grandes trikona y el kendra más fuerte. Un perfil de comerciante-conquistador, aunque Raman advierte que la fuerza depende en gran medida de si los tres señores son naturalmente amistosos entre sí, no solo de la rotación en sí.',
+      reasonLine: r => T(`5th lord in 9th: ${hf(r.fifthIn9th)}. 9th lord in 10th: ${hf(r.ninthIn10th)}. 10th lord in 5th: ${hf(r.tenthIn5th)}.`, `Señor de la 5.ª en la 9.ª: ${hf(r.fifthIn9th)}. Señor de la 9.ª en la 10.ª: ${hf(r.ninthIn10th)}. Señor de la 10.ª en la 5.ª: ${hf(r.tenthIn5th)}.`) },
+    { result: vishnuYoga(birthPos, navPos, lagnaIdx), num: 62,
+      nameEn:'Vishnu Yoga', nameEs:'Yoga Vishnu',
+      glossEn:'The 9th lord, the lord of its own Navamsa sign, and the 10th lord all conjunct in the 2nd house — a blend of Raja Yoga (9th+10th lords together) and Dhana Yoga (landing in the house of wealth). Raman notes this genuinely requires the 2nd house to hold at least three planets, so it\'s not a frequent occurrence.',
+      glossEs:'El señor de la 9.ª, el señor de su propio signo de Navamsa, y el señor de la 10.ª, todos conjuntos en la 2.ª casa — una mezcla de Raja Yoga (señores de 9.ª+10.ª juntos) y Dhana Yoga (cayendo en la casa de la riqueza). Raman señala que esto genuinamente requiere que la 2.ª casa tenga al menos tres planetas, así que no es algo frecuente.',
+      reasonLine: r => T(`9th lord in 2nd: ${hf(r.ninthLordInSecond)}. Its Navamsa-dispositor (${r.navDispositor}) in 2nd: ${hf(r.navDispositorInSecond)}. 10th lord in 2nd: ${hf(r.tenthLordInSecond)}.`, `Señor de la 9.ª en la 2.ª: ${hf(r.ninthLordInSecond)}. Su dispositor de Navamsa (${r.navDispositor}) en la 2.ª: ${hf(r.navDispositorInSecond)}. Señor de la 10.ª en la 2.ª: ${hf(r.tenthLordInSecond)}.`) },
+    { result: brahmaYoga(birthPos, lagnaIdx), num: 63,
+      nameEn:'Brahma Yoga', nameEs:'Yoga Brahma',
+      glossEn:'Jupiter in a kendra from the 9th lord, Venus in a kendra from the 11th lord, and Mercury in a kendra from either the Lagna lord or the 10th lord — all three natural benefics involved at once. Raman notes this can never form in full for Aries/Cancer/Virgo Lagnas, where the lordship overlaps rule one condition out definitionally.',
+      glossEs:'Júpiter en un kendra desde el señor de la 9.ª, Venus en un kendra desde el señor de la 11.ª, y Mercurio en un kendra desde el señor del Lagna o el de la 10.ª — los tres benéficos naturales involucrados a la vez. Raman señala que esto nunca puede formarse por completo para Lagnas Aries/Cáncer/Virgo, donde las superposiciones de señorío descartan una condición por definición.',
+      reasonLine: r => T(`Jupiter in kendra from 9th lord: ${hf(r.jupInKendraFrom9th)}. Venus in kendra from 11th lord: ${hf(r.venusInKendraFrom11th)}. Mercury in kendra from Lagna-lord-or-10th-lord: ${hf(r.mercCond)}.`, `Júpiter en kendra desde el señor de la 9.ª: ${hf(r.jupInKendraFrom9th)}. Venus en kendra desde el señor de la 11.ª: ${hf(r.venusInKendraFrom11th)}. Mercurio en kendra desde el señor del Lagna o de la 10.ª: ${hf(r.mercCond)}.`) },
+    { result: indraYoga(birthPos, lagnaIdx), num: 64,
+      nameEn:'Indra Yoga', nameEs:'Yoga Indra',
+      glossEn:'The 5th and 11th lords in mutual exchange (Parivartana), with the Moon in the 5th. Raman himself expresses doubt about the classical results attributed here (a King of Kings, but living only to 36) — he cites Christ, Shankara and Alexander as examples of short life paired with lasting fame.',
+      glossEs:'Los señores de la 5.ª y la 11.ª en intercambio mutuo (Parivartana), con la Luna en la 5.ª. El propio Raman expresa dudas sobre los resultados clásicos atribuidos aquí (un Rey de Reyes, pero viviendo solo hasta los 36) — cita a Cristo, Shankara y Alejandro como ejemplos de vida corta emparejada con fama duradera.',
+      reasonLine: r => T(`5th/11th lords exchanged: ${hf(r.exchanged)}. Moon in 5th: ${hf(r.moonInFifth)}.`, `Señores de 5.ª/11.ª intercambiados: ${hf(r.exchanged)}. Luna en la 5.ª: ${hf(r.moonInFifth)}.`) },
+    { result: raviYoga(birthPos, lagnaIdx), num: 65,
+      nameEn:'Ravi Yoga', nameEs:'Yoga Ravi',
+      glossEn:'The Sun in the 10th, with the 10th lord in the 3rd conjunct Saturn. Respect from rulers and expertise in the sciences, though the fame is described as arriving specifically after the 15th year rather than from birth.',
+      glossEs:'El Sol en la 10.ª, con el señor de la 10.ª en la 3.ª conjunto a Saturno. Respeto de los gobernantes y pericia en las ciencias, aunque la fama se describe como llegando específicamente después del año 15 en vez de desde el nacimiento.',
+      reasonLine: r => T(`Sun in 10th: ${hf(r.sunInTenth)}. 10th lord in 3rd: ${hf(r.tenthLordInThird)}. Conjunct Saturn: ${hf(r.conjunctSaturn)}.`, `Sol en la 10.ª: ${hf(r.sunInTenth)}. Señor de la 10.ª en la 3.ª: ${hf(r.tenthLordInThird)}. Conjunto a Saturno: ${hf(r.conjunctSaturn)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -8881,7 +8916,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-58 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-58 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-65 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-65 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -11744,6 +11779,97 @@ function jayaYoga(pos, ascSignIdx){
   const sixthDebilitated = dignityTierInSign(sixthLord, sixthLordSignIdx) === 'Debilitated';
   const tenthExalted = dignityTierInSign(tenthLord, tenthLordSignIdx) === 'Exalted';
   return { present: sixthDebilitated && tenthExalted, sixthDebilitated, tenthExalted };
+}
+function vidyutYoga(pos, ascSignIdx){
+  // #59 (txt L3881-3884): the 11th lord deeply exalted and conjunct Venus,
+  // with that conjunction sign in a kendra counted from the Lagna lord's
+  // own position.
+  const eleventhLord = lordOfHouse(11, ascSignIdx);
+  const eleventhLordSignIdx = Math.floor(norm360(pos[eleventhLord].sidereal)/30);
+  const exalted = dignityTierInSign(eleventhLord, eleventhLordSignIdx) === 'Exalted';
+  const venusSignIdx = Math.floor(norm360(pos.Venus.sidereal)/30);
+  const conjunctVenus = eleventhLord==='Venus' || eleventhLordSignIdx===venusSignIdx;
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const inKendraFromLagnaLord = isKendraFrom(pos[lagnaLord].sidereal, pos[eleventhLord].sidereal);
+  return { present: exalted && conjunctVenus && inKendraFromLagnaLord, exalted, conjunctVenus, inKendraFromLagnaLord };
+}
+function gandharvaYoga(pos, ascSignIdx){
+  // #60 (txt L3902-3906): the 10th lord in the "Kama Thrikona" (trine from
+  // the 7th — houses 7/11/3), conjunct Jupiter; the Sun exalted; the Moon
+  // in the 9th.
+  const tenthLord = lordOfHouse(10, ascSignIdx);
+  const tenthLordHouse = bsHouseFromAsc(pos[tenthLord].sidereal, ascSignIdx);
+  const inKamaThrikona = [3,7,11].includes(tenthLordHouse);
+  const tenthLordSignIdx = Math.floor(norm360(pos[tenthLord].sidereal)/30);
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const conjunctJupiter = tenthLord==='Jupiter' || tenthLordSignIdx===jupSignIdx;
+  const sunSignIdx = Math.floor(norm360(pos.Sun.sidereal)/30);
+  const sunExalted = dignityTierInSign('Sun', sunSignIdx) === 'Exalted';
+  const moonInNinth = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx) === 9;
+  return { present: inKamaThrikona && conjunctJupiter && sunExalted && moonInNinth, inKamaThrikona, conjunctJupiter, sunExalted, moonInNinth };
+}
+function sivaYoga(pos, ascSignIdx){
+  // #61 (txt L3925-3927): the 5th lord in the 9th, the 9th lord in the
+  // 10th, and the 10th lord in the 5th — a three-way cyclic house rotation.
+  const fifthLord = lordOfHouse(5, ascSignIdx), ninthLord = lordOfHouse(9, ascSignIdx), tenthLord = lordOfHouse(10, ascSignIdx);
+  const fifthIn9th = bsHouseFromAsc(pos[fifthLord].sidereal, ascSignIdx) === 9;
+  const ninthIn10th = bsHouseFromAsc(pos[ninthLord].sidereal, ascSignIdx) === 10;
+  const tenthIn5th = bsHouseFromAsc(pos[tenthLord].sidereal, ascSignIdx) === 5;
+  return { present: fifthIn9th && ninthIn10th && tenthIn5th, fifthIn9th, ninthIn10th, tenthIn5th };
+}
+function vishnuYoga(pos, navPos, ascSignIdx){
+  // #62 (txt L3963-3967): the 9th lord, the lord of the Navamsa sign the
+  // 9th lord occupies, and the 10th lord should all be conjunct in the 2nd
+  // house. Raman's own worked Chart No.42 has the 9th lord (Venus) be its
+  // own Navamsa-dispositor, collapsing that pair to one planet — handled
+  // naturally here since checking "is the dispositor in the 2nd" already
+  // covers the self-dispositor case.
+  const ninthLord = lordOfHouse(9, ascSignIdx);
+  const ninthLordInSecond = bsHouseFromAsc(pos[ninthLord].sidereal, ascSignIdx) === 2;
+  const ninthLordNavSignIdx = Math.floor(norm360(navPos[ninthLord].sidereal)/30);
+  const navDispositor = SIGN_LORD[SIGNS[ninthLordNavSignIdx]];
+  const navDispositorInSecond = bsHouseFromAsc(pos[navDispositor].sidereal, ascSignIdx) === 2;
+  const tenthLord = lordOfHouse(10, ascSignIdx);
+  const tenthLordInSecond = bsHouseFromAsc(pos[tenthLord].sidereal, ascSignIdx) === 2;
+  return { present: ninthLordInSecond && navDispositorInSecond && tenthLordInSecond, ninthLordInSecond, navDispositor, navDispositorInSecond, tenthLordInSecond };
+}
+function brahmaYoga(pos, ascSignIdx){
+  // #63 (txt L4071-4075): Jupiter in a kendra from the 9th lord, Venus in a
+  // kendra from the 11th lord, and Mercury in a kendra from either the
+  // Lagna lord or the 10th lord. Raman notes this can never be formed in
+  // full for Aries/Cancer/Virgo Lagnas (lordship overlaps make one
+  // condition definitionally impossible there) — not special-cased, since
+  // the direct computation simply and correctly never satisfies that
+  // condition for those Lagnas on its own.
+  const ninthLord = lordOfHouse(9, ascSignIdx), eleventhLord = lordOfHouse(11, ascSignIdx);
+  const lagnaLord = lordOfHouse(1, ascSignIdx), tenthLord = lordOfHouse(10, ascSignIdx);
+  const jupInKendraFrom9th = isKendraFrom(pos[ninthLord].sidereal, pos.Jupiter.sidereal);
+  const venusInKendraFrom11th = isKendraFrom(pos[eleventhLord].sidereal, pos.Venus.sidereal);
+  const mercInKendraFromLagnaLord = isKendraFrom(pos[lagnaLord].sidereal, pos.Mercury.sidereal);
+  const mercInKendraFrom10th = isKendraFrom(pos[tenthLord].sidereal, pos.Mercury.sidereal);
+  const mercCond = mercInKendraFromLagnaLord || mercInKendraFrom10th;
+  return { present: jupInKendraFrom9th && venusInKendraFrom11th && mercCond, jupInKendraFrom9th, venusInKendraFrom11th, mercCond };
+}
+function indraYoga(pos, ascSignIdx){
+  // #64 (txt L4153-4156): the 5th and 11th lords exchange houses
+  // (Parivartana), and the Moon is in the 5th.
+  const fifthLord = lordOfHouse(5, ascSignIdx), eleventhLord = lordOfHouse(11, ascSignIdx);
+  const fifthSignIdx = Math.floor(norm360(pos[fifthLord].sidereal)/30);
+  const eleventhSignIdx = Math.floor(norm360(pos[eleventhLord].sidereal)/30);
+  const exchanged = fifthLord!==eleventhLord && SIGN_LORD[SIGNS[fifthSignIdx]]===eleventhLord && SIGN_LORD[SIGNS[eleventhSignIdx]]===fifthLord;
+  const moonInFifth = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx) === 5;
+  return { present: exchanged && moonInFifth, exchanged, moonInFifth };
+}
+function raviYoga(pos, ascSignIdx){
+  // #65 (txt L4169-4172): the Sun in the 10th, and the 10th lord in the
+  // 3rd conjunct Saturn.
+  const sunInTenth = bsHouseFromAsc(pos.Sun.sidereal, ascSignIdx) === 10;
+  const tenthLord = lordOfHouse(10, ascSignIdx);
+  const tenthLordInThird = bsHouseFromAsc(pos[tenthLord].sidereal, ascSignIdx) === 3;
+  const tenthLordSignIdx = Math.floor(norm360(pos[tenthLord].sidereal)/30);
+  const satSignIdx = Math.floor(norm360(pos.Saturn.sidereal)/30);
+  const conjunctSaturn = tenthLord==='Saturn' || tenthLordSignIdx===satSignIdx;
+  return { present: sunInTenth && tenthLordInThird && conjunctSaturn, sunInTenth, tenthLordInThird, conjunctSaturn };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
