@@ -8799,7 +8799,60 @@ function renderNatalPage(){
         glossEn:`#${71+i} of Varaha Mihira's 32 Nabhasa Yogas, as cited by Raman (txt L4400-4470) — one of the four "Akriti" shape-yogas formed when all seven classical grahas occupy four contiguous houses starting from a kendra (this one: the ${startHouse===1?'Lagna':startHouse+'th house'}). Raman treats these as clues to livelihood and life-shape rather than major fortune/misfortune indicators.`,
         glossEs:`#${71+i} de los 32 Yoga Nabhasa de Varaha Mihira, citados por Raman (txt L4400-4470) — uno de los cuatro Yoga Akriti (de forma) que se forman cuando los siete graha clásicos ocupan cuatro casas contiguas a partir de un kendra (este: la ${startHouse===1?'Lagna':'casa '+startHouse}). Raman los trata como pistas de sustento y forma de vida más que como indicadores mayores de fortuna o infortunio.`,
         reasonLine: rr => T(`Houses ${rr.houses.join(', ')} — occupied: ${rr.occupantsPerHouse.map(l=>l.length>0).filter(Boolean).length}/4.`, `Casas ${rr.houses.join(', ')} — ocupadas: ${rr.occupantsPerHouse.map(l=>l.length>0).filter(Boolean).length}/4.`) };
-    })
+    }),
+    ...[1,4,7,10].map((startHouse,i)=>{
+      const r = nabhasaSevenFoldYoga(startHouse, lagnaIdx, birthPos);
+      return { result: r, num: 75+i,
+        nameEn:`${r.name} Yoga`, nameEs:`Yoga ${r.name}`,
+        glossEn:`#${75+i} of Varaha Mihira's Nabhasa Yogas (txt L4531-4572) — all seven classical grahas across seven contiguous houses starting from a kendra (this one: the ${startHouse===1?'Lagna':startHouse+'th house'}). ${75+i===78?'Note: Raman reuses the name "Chapa Yoga" for this AND an unrelated earlier yoga (#30) — a genuine naming collision in the source, disambiguated here only by the entry number.':''}`,
+        glossEs:`#${75+i} de los Yoga Nabhasa de Varaha Mihira (txt L4531-4572) — los siete graha clásicos en siete casas contiguas a partir de un kendra (este: la ${startHouse===1?'Lagna':'casa '+startHouse}). ${75+i===78?'Nota: Raman reutiliza el nombre "Yoga Chapa" para este Y un yoga anterior no relacionado (#30) — una colisión de nombres genuina en la fuente, distinguida aquí solo por el número de entrada.':''}`,
+        reasonLine: rr => T(`Houses ${rr.houses.join(', ')} — occupied: ${rr.occupantsPerHouse.map(l=>l.length>0).filter(Boolean).length}/7.`, `Casas ${rr.houses.join(', ')} — ocupadas: ${rr.occupantsPerHouse.map(l=>l.length>0).filter(Boolean).length}/7.`) };
+    }),
+    { result: ardhaChandraYoga(birthPos, lagnaIdx), num: 79,
+      nameEn:'Ardha Chandra Yoga', nameEs:'Yoga Ardha Chandra',
+      glossEn:'All seven classical grahas across seven contiguous houses starting from any Panapara (2nd/5th/8th/11th) or Apoklima (3rd/6th/9th/12th) house — 8 possible variants in all. "Ardha Chandra" means half-moon; a fair-featured, life-long-happy profile.',
+      glossEs:'Los siete graha clásicos en siete casas contiguas a partir de cualquier casa Panapara (2.ª/5.ª/8.ª/11.ª) o Apoklima (3.ª/6.ª/9.ª/12.ª) — 8 variantes posibles en total. "Ardha Chandra" significa media luna; un perfil de rasgos agraciados y felicidad de por vida.',
+      reasonLine: r => T(`Passing start-houses: ${r.passingStarts.length?r.passingStarts.join(', '):'none'} (of 8 possible: 2,3,5,6,8,9,11,12).`, `Casas de inicio que cumplen: ${r.passingStarts.length?r.passingStarts.join(', '):'ninguna'} (de 8 posibles: 2,3,5,6,8,9,11,12).`) },
+    { result: chandraYogaNabhasa(birthPos, lagnaIdx), num: 80,
+      nameEn:'Chandra Yoga (Nabhasa)', nameEs:'Yoga Chandra (Nabhasa)',
+      glossEn:'All seven classical grahas confined to the odd houses (1st/3rd/5th/7th/9th/11th) — the mirror-image counterpart to Samudra Yoga\'s even-house confinement. Not rare, per Raman, but a genuine marker of standing among one\'s own people.',
+      glossEs:'Los siete graha clásicos confinados a las casas impares (1.ª/3.ª/5.ª/7.ª/9.ª/11.ª) — la contraparte especular del confinamiento a casas pares del Yoga Samudra. No es raro, según Raman, pero sí un marcador genuino de posición entre los suyos.',
+      reasonLine: r => T(`All 7 grahas confined to odd houses: ${hf(r.present)}.`, `Los 7 graha confinados a casas impares: ${hf(r.present)}.`) },
+    { result: gadaYoga(birthPos, lagnaIdx), num: 81,
+      nameEn:'Gada Yoga', nameEs:'Yoga Gada',
+      glossEn:'All seven classical grahas confined to two ADJACENT kendras (any of 1st+4th, 4th+7th, 7th+10th, 10th+1st — the Yavana tradition names these four sub-varieties Gada/Sanaha/Vibhuka/Dhuriya). Highly religious and wealthy, per Raman — one of several Nabhasa yogas built on square (90°) aspects, which Hindu astrology reads favourably here despite the Western association of squares with difficulty.',
+      glossEs:'Los siete graha clásicos confinados a dos kendras ADYACENTES (cualquiera de 1.ª+4.ª, 4.ª+7.ª, 7.ª+10.ª, 10.ª+1.ª — la tradición Yavana nombra estas cuatro subvariantes Gada/Sanaha/Vibhuka/Dhuriya). Muy religioso y rico, según Raman — uno de varios yoga Nabhasa construidos sobre aspectos cuadrados (90°), que la astrología hindú lee favorablemente aquí pese a la asociación occidental de los cuadrados con la dificultad.',
+      reasonLine: r => T(`Passing adjacent-kendra pairs: ${r.passingPairs.length?r.passingPairs.map(p=>p.join('+')).join(', '):'none'}.`, `Pares de kendras adyacentes que cumplen: ${r.passingPairs.length?r.passingPairs.map(p=>p.join('+')).join(', '):'ninguno'}.`) },
+    { result: sakataYogaNabhasa(birthPos, lagnaIdx), num: 82,
+      nameEn:'Sakata Yoga (Nabhasa)', nameEs:'Yoga Sakata (Nabhasa)',
+      glossEn:'All seven classical grahas confined to the Lagna and the 7th house. Distinct from the earlier, unrelated yoga #12 (also "Sakata Yoga" in Raman\'s own book — a genuine naming collision, not a bug). Reads as difficulty tied to body and marriage: manual labour, sickliness, a quarrelsome spouse.',
+      glossEs:'Los siete graha clásicos confinados al Lagna y a la 7.ª casa. Distinto del yoga anterior no relacionado #12 (también "Yoga Sakata" en el propio libro de Raman — una colisión de nombres genuina, no un error). Se lee como dificultad ligada al cuerpo y al matrimonio: trabajo manual, mala salud, un cónyuge pendenciero.',
+      reasonLine: r => T(`All 7 grahas confined to Lagna+7th: ${hf(r.present)}.`, `Los 7 graha confinados a Lagna+7.ª: ${hf(r.present)}.`) },
+    { result: vihagaYoga(birthPos, lagnaIdx), num: 83,
+      nameEn:'Vihaga Yoga', nameEs:'Yoga Vihaga',
+      glossEn:'All seven classical grahas confined to the 4th and 10th houses. "Vihaga" means bird — a vagrant, constantly-moving profile; Raman notes this fits travelling agents or train guards in modern terms.',
+      glossEs:'Los siete graha clásicos confinados a la 4.ª y la 10.ª casa. "Vihaga" significa pájaro — un perfil vagabundo, en movimiento constante; Raman señala que esto encaja con agentes viajeros o guardias de tren en términos modernos.',
+      reasonLine: r => T(`All 7 grahas confined to 4th+10th: ${hf(r.present)}.`, `Los 7 graha confinados a 4.ª+10.ª: ${hf(r.present)}.`) },
+    { result: vajraYoga(birthPos, lagnaIdx), num: 84,
+      nameEn:'Vajra Yoga', nameEs:'Yoga Vajra',
+      glossEn:'Benefics in the Lagna and 7th, malefics in the 4th and 10th. "Vajra" means thunderbolt/diamond — a fair, brave and happy profile, with the difficult malefic energy channelled into the angular action-houses rather than the self/partnership axis.',
+      glossEs:'Benéficos en el Lagna y la 7.ª, maléficos en la 4.ª y la 10.ª. "Vajra" significa rayo/diamante — un perfil agraciado, valiente y feliz, con la energía maléfica difícil canalizada hacia las casas angulares de acción en vez del eje de uno mismo/asociación.',
+      reasonLine: r => T(`Present: ${hf(r.present)}.`, `Presente: ${hf(r.present)}.`) },
+    { result: yavaYoga(birthPos, lagnaIdx), num: 85,
+      nameEn:'Yava Yoga', nameEs:'Yoga Yava',
+      glossEn:'The reverse of Vajra: malefics in the Lagna and 7th, benefics in the 4th and 10th. Raman notes the difference between the two yogas is "very thin" mechanically, but Yava is harder on the body and marriage since the malefic pressure lands directly on the self/partnership axis.',
+      glossEs:'Lo inverso de Vajra: maléficos en el Lagna y la 7.ª, benéficos en la 4.ª y la 10.ª. Raman señala que la diferencia entre ambos yoga es "muy fina" mecánicamente, pero Yava es más duro para el cuerpo y el matrimonio ya que la presión maléfica cae directamente sobre el eje de uno mismo/asociación.',
+      reasonLine: r => T(`Present: ${hf(r.present)}.`, `Presente: ${hf(r.present)}.`) },
+    { result: sringhatakaYoga(birthPos, lagnaIdx), num: 86,
+      nameEn:'Sringhataka Yoga', nameEs:'Yoga Sringhataka',
+      glossEn:'All seven classical grahas confined to the Lagna and its trines (1st/5th/9th — body, progeny, fortune). Raman notes which of the three trines carries the most benefics determines WHEN in life the promised happiness lands: early if Lagna-heavy, middle if 5th-heavy, late if 9th-heavy.',
+      glossEs:'Los siete graha clásicos confinados al Lagna y sus trinos (1.ª/5.ª/9.ª — cuerpo, progenie, fortuna). Raman señala que cuál de los tres trinos concentra más benéficos determina CUÁNDO en la vida llega la felicidad prometida: temprano si predomina el Lagna, medio si predomina la 5.ª, tarde si predomina la 9.ª.',
+      reasonLine: r => T(`All 7 grahas confined to 1st/5th/9th: ${hf(r.present)}.`, `Los 7 graha confinados a 1.ª/5.ª/9.ª: ${hf(r.present)}.`) },
+    { result: halaYoga(birthPos, lagnaIdx), num: 87,
+      nameEn:'Hala Yoga', nameEs:'Yoga Hala',
+      glossEn:'All seven classical grahas confined to one of the other two trikona sets (2nd/6th/10th, or 3rd/7th/11th) rather than the Lagna trine. "Hala" means plough — an agriculturist\'s profile.',
+      glossEs:'Los siete graha clásicos confinados a uno de los otros dos conjuntos trikona (2.ª/6.ª/10.ª, o 3.ª/7.ª/11.ª) en vez del trino del Lagna. "Hala" significa arado — un perfil de agricultor.',
+      reasonLine: r => T(`Variant 2/6/10: ${hf(r.variant1)}. Variant 3/7/11: ${hf(r.variant2)}.`, `Variante 2.ª/6.ª/10.ª: ${hf(r.variant1)}. Variante 3.ª/7.ª/11.ª: ${hf(r.variant2)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -8949,7 +9002,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-74 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-74 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-87 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-87 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -11987,6 +12040,105 @@ function nabhasaFourFoldYoga(startHouse, ascSignIdx, pos){
   const occupantsPerHouse = houses.map(h => bsGrahasInHouses(pos, ascSignIdx, sevenGrahas, [h]));
   const present = occupantsPerHouse.every(list => list.length>0);
   return { present, houses, occupantsPerHouse, name: NABHASA_FOURFOLD_NAMES[startHouse] };
+}
+const NABHASA_SEVENFOLD_NAMES = { 1:'Nav', 4:'Kuta', 7:'Chhatra', 10:'Chapa' };
+function nabhasaSevenFoldYoga(startHouse, ascSignIdx, pos){
+  // #75-78 (txt L4531-4572): all seven classical grahas occupying seven
+  // contiguous houses starting from each of the four kendras — same
+  // pattern as the earlier 12-way Malika Yogas, restricted here to only
+  // the four kendra starting points and under Raman's own Nabhasa naming
+  // (Nav/Kuta/Chhatra/Chapa) rather than the bhava-based Malika names.
+  // NOTE: Raman's own book reuses the name "Chapa Yoga" for BOTH this
+  // entry (#78) and an unrelated earlier yoga (#30, Lagna lord exalted +
+  // 4th/10th exchange) — a genuine naming collision in the source text,
+  // not a bug here; the UI's "#78"/"#30" number prefix disambiguates.
+  const r = malikaYoga(startHouse, ascSignIdx, pos);
+  return { ...r, name: NABHASA_SEVENFOLD_NAMES[startHouse] };
+}
+function ardhaChandraYoga(pos, ascSignIdx){
+  // #79 (txt L4573-4587): all seven classical grahas occupying seven
+  // contiguous houses starting from ANY Panapara (2/5/8/11) or Apoklima
+  // (3/6/9/12) house — Raman lists 8 concrete variants (2-8, 3-9, 5-11,
+  // 6-12, 8-2, 9-3, 11-5, 12-6); present if any one of the 8 holds.
+  const starts = [2,3,5,6,8,9,11,12];
+  const passing = starts.filter(s => malikaYoga(s, ascSignIdx, pos).present);
+  return { present: passing.length>0, passingStarts: passing };
+}
+function chandraYogaNabhasa(pos, ascSignIdx){
+  // #80 (txt L4588-4590): all seven classical grahas confined to the odd
+  // houses (1st/3rd/5th/7th/9th/11th) — no requirement that every one of
+  // the six be individually occupied, just that no graha strays into an
+  // even house. Unrelated to the Moon specifically despite the name —
+  // kept as its own function to avoid confusion with actual Moon-yogas.
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  const oddHouses = [1,3,5,7,9,11];
+  return { present: sevenGrahas.every(g => oddHouses.includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx))) };
+}
+function twoHouseConfinementYoga(pos, ascSignIdx, houseA, houseB){
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  const houses = sevenGrahas.map(g => bsHouseFromAsc(pos[g].sidereal, ascSignIdx));
+  const confined = houses.every(h => h===houseA || h===houseB);
+  const bothUsed = houses.includes(houseA) && houses.includes(houseB);
+  return { present: confined && bothUsed };
+}
+function gadaYoga(pos, ascSignIdx){
+  // #81 (txt L4602-4628): all seven classical grahas confined to two
+  // ADJACENT kendras — Raman cites four Yavana-named sub-varieties
+  // (1st+4th, 4th+7th, 7th+10th, 10th+1st); present if any one holds.
+  const pairs = [[1,4],[4,7],[7,10],[10,1]];
+  const passing = pairs.filter(([a,b])=>twoHouseConfinementYoga(pos, ascSignIdx, a, b).present);
+  return { present: passing.length>0, passingPairs: passing };
+}
+function sakataYogaNabhasa(pos, ascSignIdx){
+  // #82 (txt L4636-4643): all seven classical grahas confined to the Lagna
+  // and the 7th (an axis, not adjacent kendras) — distinct from the
+  // earlier, unrelated yoga #12 also named "Sakata Yoga" in this same book
+  // (a genuine naming collision in the source; the UI's number prefix
+  // disambiguates).
+  return twoHouseConfinementYoga(pos, ascSignIdx, 1, 7);
+}
+function vihagaYoga(pos, ascSignIdx){
+  // #83 (txt L4647-4654): all seven classical grahas confined to the 4th
+  // and 10th houses.
+  return twoHouseConfinementYoga(pos, ascSignIdx, 4, 10);
+}
+function vajraYoga(pos, ascSignIdx){
+  // #84 (txt L4693-4696): benefics in the Lagna and 7th, malefics in the
+  // 4th and 10th.
+  const beneficInLagna = bsGrahasInHouses(pos, ascSignIdx, RAMAN_BENEFICS, [1]).length>0;
+  const beneficInSeventh = bsGrahasInHouses(pos, ascSignIdx, RAMAN_BENEFICS, [7]).length>0;
+  const malefics = GRAHA_LIST.filter(g=>!RAMAN_BENEFICS.includes(g) && g!=='Moon');
+  const maleficInFourth = bsGrahasInHouses(pos, ascSignIdx, malefics, [4]).length>0;
+  const maleficInTenth = bsGrahasInHouses(pos, ascSignIdx, malefics, [10]).length>0;
+  return { present: beneficInLagna && beneficInSeventh && maleficInFourth && maleficInTenth };
+}
+function yavaYoga(pos, ascSignIdx){
+  // #85 (txt L4693-4696): the reverse of Vajra — malefics in the Lagna and
+  // 7th, benefics in the 4th and 10th.
+  const malefics = GRAHA_LIST.filter(g=>!RAMAN_BENEFICS.includes(g) && g!=='Moon');
+  const maleficInLagna = bsGrahasInHouses(pos, ascSignIdx, malefics, [1]).length>0;
+  const maleficInSeventh = bsGrahasInHouses(pos, ascSignIdx, malefics, [7]).length>0;
+  const beneficInFourth = bsGrahasInHouses(pos, ascSignIdx, RAMAN_BENEFICS, [4]).length>0;
+  const beneficInTenth = bsGrahasInHouses(pos, ascSignIdx, RAMAN_BENEFICS, [10]).length>0;
+  return { present: maleficInLagna && maleficInSeventh && beneficInFourth && beneficInTenth };
+}
+function sringhatakaYoga(pos, ascSignIdx){
+  // #86 (txt L4752-4764): all seven classical grahas confined to the Lagna
+  // and its trines (1st/5th/9th).
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  const houses = sevenGrahas.map(g => bsHouseFromAsc(pos[g].sidereal, ascSignIdx));
+  return { present: houses.every(h=>[1,5,9].includes(h)) };
+}
+function halaYoga(pos, ascSignIdx){
+  // #87 (txt L4753-4756): all seven classical grahas confined to one of
+  // the OTHER two trikona sets (2nd/6th/10th, or 3rd/7th/11th) — not the
+  // Lagna trine (that's Sringhataka above); the 4th/8th/12th trikona isn't
+  // cited by Raman as a Hala variant in this entry, so not included here.
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  const houses = sevenGrahas.map(g => bsHouseFromAsc(pos[g].sidereal, ascSignIdx));
+  const variant1 = houses.every(h=>[2,6,10].includes(h));
+  const variant2 = houses.every(h=>[3,7,11].includes(h));
+  return { present: variant1 || variant2, variant1, variant2 };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
