@@ -8358,34 +8358,8 @@ function renderNatalPage(){
   // Plain-English gloss for the houses Raja Yoga cares about, so the panel
   // below can explain a hit by what it actually governs rather than by
   // house number + Sanskrit term alone.
-  const HOUSE_PLAIN = {
-    1:{en:'self',es:'uno mismo'}, 4:{en:'home & roots',es:'hogar y raíces'},
-    5:{en:'creative intelligence',es:'inteligencia creativa'}, 7:{en:'partnerships',es:'asociaciones'},
-    9:{en:'fortune & dharma',es:'fortuna y dharma'}, 10:{en:'career & status',es:'carrera y estatus'}
-  };
-  const houseTag = h => `${h}${ordinalSuffix(h)} <span style="color:var(--slate);">(${T(HOUSE_PLAIN[h].en,HOUSE_PLAIN[h].es)})</span>`;
-
   const rajYoga = checkRajYoga(lordships, birthPos);
-  let rajYogaHtml;
-  if (rajYoga.pairs.length || rajYoga.dualRulers.length){
-    const parts = [];
-    rajYoga.dualRulers.forEach(g=>{
-      const kh = lordships[g].find(h=>[1,4,7,10].includes(h));
-      const th = lordships[g].find(h=>[5,9].includes(h));
-      parts.push(`<div class="li" style="margin-bottom:7px;"><span class="tag good">${gNameNatal(g)}</span> ${T('rules both','gobierna tanto')} ${houseTag(kh)} ${T('and','como')} ${houseTag(th)} <span style="color:var(--slate);">— ${T('one planet holding an angle and a fortune house at once is the strongest single-planet form of this combination.','un solo planeta que sostiene a la vez un ángulo y una casa de fortuna es la forma más fuerte de esta combinación.')}</span></div>`);
-    });
-    rajYoga.pairs.forEach(p=>{
-      const kh = lordships[p.a].find(h=>[1,4,7,10].includes(h));
-      const th = lordships[p.b].find(h=>[5,9].includes(h));
-      const kindPlain = p.kind==='conj'
-        ? T('sit together in the same sign','están juntos en el mismo signo')
-        : T('sit in each other\'s signs — a mutual exchange','están cada uno en el signo del otro — un intercambio mutuo');
-      parts.push(`<div class="li" style="margin-bottom:7px;"><span class="tag good">${gNameNatal(p.a)}</span> (${houseTag(kh)}) ${T('and','y')} <span class="tag good">${gNameNatal(p.b)}</span> (${houseTag(th)}) ${kindPlain} — <span style="color:var(--slate);">${T('an angle-ruler and a fortune-ruler joining forces.','un regente de ángulo y un regente de fortuna uniendo fuerzas.')}</span></div>`);
-    });
-    rajYogaHtml = parts.join('');
-  } else {
-    rajYogaHtml = `<div class="hint">${T('No angle-ruler and fortune-ruler are conjunct, exchanged, or held by the same planet from this Lagna.','Ningún regente de ángulo y regente de fortuna están en conjunción, intercambiados, o en manos del mismo planeta desde este Lagna.')}</div>`;
-  }
+  const rajYogaEntries = buildRajaYogaEntries(rajYoga, lordships);
 
   // Nine classical yoga-formation rules beyond Raja Yoga itself — six from
   // the Jñāna Yoga series parts 1-3 (Parashara bhāva-phala verses plus
@@ -8451,9 +8425,10 @@ function renderNatalPage(){
       reasonLine: r => T(`Condition A (own navāṁśa + Mṛdvāṁśa, no aspect needed): ${hf(r.conditionA.pass)} — navāṁśa sign ${r.ownNavamsa.navamsaSign} (needs Sagittarius/Pisces): ${hf(r.ownNavamsa.pass)}; Mṛdvāṁśa ordinal ${r.mridvamsha.ordinal}/60 (needs ${r.mridvamsha.threshold}): ${hf(r.mridvamsha.pass)}. Condition B (Gopurāṁśa + benefic aspect): ${hf(r.conditionB.pass)} — own sign in D1+D3+D4+D7 together: ${hf(r.gopuramsha.pass)}; benefic aspect to Jupiter: ${hf(r.beneficAspect.pass)}.`,
         `Condición A (navāṁśa propio + Mṛdvāṁśa, sin aspecto necesario): ${hf(r.conditionA.pass)} — signo navāṁśa ${r.ownNavamsa.navamsaSign} (necesita Sagitario/Piscis): ${hf(r.ownNavamsa.pass)}; ordinal Mṛdvāṁśa ${r.mridvamsha.ordinal}/60 (necesita ${r.mridvamsha.threshold}): ${hf(r.mridvamsha.pass)}. Condición B (Gopurāṁśa + aspecto benéfico): ${hf(r.conditionB.pass)} — signo propio en D1+D3+D4+D7 a la vez: ${hf(r.gopuramsha.pass)}; aspecto benéfico a Júpiter: ${hf(r.beneficAspect.pass)}.`) }
   ];
-  const jnanaYogaActiveCount = JNANA_YOGAS.filter(y=>y.result.present).length;
+  const allYogaEntries = JNANA_YOGAS.concat(rajYogaEntries);
+  const jnanaYogaActiveCount = allYogaEntries.filter(y=>y.result.present).length;
   const jnanaYogaHtml = (() => {
-    const filtered = JNANA_YOGAS.filter(y=>y.result.present);
+    const filtered = allYogaEntries.filter(y=>y.result.present);
     const groups = { positive: [], negative: [], mixed: [] };
     filtered.forEach(y => {
       const p = y.polarity;
@@ -10047,11 +10022,7 @@ const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
 
     <div class="panel"><div class="hd"><h2>${T('Yoga combinations','Combinaciones de yoga')}</h2><span class="note">${rajYoga.pairs.length+rajYoga.dualRulers.length+jnanaYogaActiveCount} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('Ten classical yoga-formation rules checked against this birth chart: Raja Yoga (power/status, below) plus nine knowledge-and-insight yogas from the Jñāna Yoga series and one more (Trikālagnāna). Each is a distinct, independently-sourced classical condition — none of these overlap with the 28 Chara Yogas (a separate, daily-panchāṅga system). Full technical reasoning per yoga: menu → Yoga/Combinations.','Diez reglas clásicas de formación de yoga evaluadas contra esta carta natal: Raja Yoga (poder/estatus, abajo) más nueve yogas de conocimiento y perspicacia de la serie Jñāna Yoga y uno más (Trikālagnāna). Cada uno es una condición clásica distinta y de fuente independiente — ninguno se superpone con los 28 Chara Yogas (un sistema separado de panchāṅga diario). Razonamiento técnico completo por yoga: menú → Yoga/Combinaciones.')}</div>
-        <div style="font-size:13px; font-weight:600; color:var(--gold); margin-bottom:6px;">${T('Raja Yoga — power combinations','Raja Yoga — combinaciones de poder')}</div>
-        <div class="hint" style="margin-bottom:10px;">${T('This chart\'s angle-houses (self, home, partnerships, career) and fortune-houses (creative intelligence, dharma) are checked for shared rulers — a classical marker of elevated status or success.','Se revisa si las casas angulares de esta carta (uno mismo, hogar, asociaciones, carrera) y las de fortuna (inteligencia creativa, dharma) comparten regente — un marcador clásico de estatus o éxito elevado.')}</div>
-        ${rajYogaHtml}
-        <div style="font-size:13px; font-weight:600; color:var(--gold); margin:14px 0 6px;">${T('Jñāna Yoga series — knowledge & insight combinations','Serie Jñāna Yoga — combinaciones de conocimiento y perspicacia')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('Ten classical yoga-formation rules checked against this birth chart — Raja Yoga (power/status), nine knowledge-and-insight yogas, and Trikālagnāna — shown together below, grouped by whether each active one is auspicious or cautionary. Each is a distinct, independently-sourced classical condition — none of these overlap with the 28 Chara Yogas (a separate, daily-panchāṅga system). Full technical reasoning per yoga: menu → Yoga/Combinations.','Diez reglas clásicas de formación de yoga evaluadas contra esta carta natal — Raja Yoga (poder/estatus), nueve yogas de conocimiento y perspicacia, y Trikālagnāna — mostradas juntas abajo, agrupadas según si cada una activa es auspiciosa o cautelar. Cada uno es una condición clásica distinta y de fuente independiente — ninguno se superpone con los 28 Chara Yogas (un sistema separado de panchāṅga diario). Razonamiento técnico completo por yoga: menú → Yoga/Combinaciones.')}</div>
         ${jnanaYogaHtml}
       </div>
     </div>
@@ -12379,6 +12350,55 @@ function checkRajYoga(lordships, birthPos){
     });
   });
   return { pairs, dualRulers };
+}
+
+// Build JNANA_YOGAS-shaped entries from checkRajYoga output so Raja Yoga
+// feeds the same combined filter/group/render path. Each pair becomes one
+// entry (graha a and b, conjunct or exchange, one rules a kendra one rules
+// a trikona); each dualRuler becomes one entry (single graha ruling both).
+function buildRajaYogaEntries(rajYoga, lordships){
+  const kH = [1,4,7,10], tH = [5,9];
+  const khOf = g => lordships[g].find(h=>kH.includes(h));
+  const thOf = g => lordships[g].find(h=>tH.includes(h));
+  // Language-aware helpers (2026-09-16 fix: the first version of this
+  // function baked English-only house names and untranslated graha names
+  // into the Spanish strings too, since it called plain template literals
+  // instead of the T()/GRAHA_ES pattern the rest of this file uses).
+  const gN = g => T(g, GRAHA_ES[g]);
+  // English ordinal suffix ("7th") has no direct Spanish equivalent -- this
+  // codebase's own established convention elsewhere is "casa N" in Spanish
+  // rather than a translated ordinal (see the "Rules (from Lagna)" column
+  // pattern: T(h+ordinalSuffix(h), 'casa '+h)).
+  const hName = h => h ? T(`${h}${ordinalSuffix(h)} (${HOUSE_SIGNIF[h].en})`, `casa ${h} (${HOUSE_SIGNIF[h].es})`) : T('?','?');
+  const kindWord = kind => kind==='conj' ? T('conjunct','conjuntos') : T('in mutual exchange','en intercambio mutuo');
+  const entries = [];
+  rajYoga.pairs.forEach(p=>{
+    const kh = khOf(p.a), th = thOf(p.b);
+    entries.push({
+      result: { present: true },
+      polarity: 'positive',
+      nameEn: `Raja Yoga — ${gNameNatal(p.a)} & ${gNameNatal(p.b)}`,
+      nameEs: `Raja Yoga — ${gN(p.a)} y ${gN(p.b)}`,
+      glossEn: `${gNameNatal(p.a)} rules the ${hName(kh)} and ${gNameNatal(p.b)} rules the ${hName(th)}; they are ${kindWord(p.kind)}. A kendra-trikona lord connection is a classical marker of power and elevated status — a foundational principle found across BPHS, Phaladeepika, and Saravali (not a single named verse).`,
+      glossEs: `${gN(p.a)} gobierna la ${hName(kh)} y ${gN(p.b)} gobierna la ${hName(th)}; están ${kindWord(p.kind)}. Una conexión de regente de kendra-trikona es un marcador clásico de poder y estatus elevado — un principio fundamental que se encuentra en BPHS, Phaladeepika y Saravali (no un verso único con nombre).`,
+      reasonLine: r => T(`${gNameNatal(p.a)} rules ${hName(kh)}; ${gNameNatal(p.b)} rules ${hName(th)}; ${kindWord(p.kind)}.`,
+        `${gN(p.a)} gobierna ${hName(kh)}; ${gN(p.b)} gobierna ${hName(th)}; ${kindWord(p.kind)}.`)
+    });
+  });
+  rajYoga.dualRulers.forEach(g=>{
+    const kh = khOf(g), th = thOf(g);
+    entries.push({
+      result: { present: true },
+      polarity: 'positive',
+      nameEn: `Raja Yoga — ${gNameNatal(g)} (dual ruler)`,
+      nameEs: `Raja Yoga — ${gN(g)} (regente dual)`,
+      glossEn: `${gNameNatal(g)} rules both the ${hName(kh)} and the ${hName(th)}. One planet holding an angle and a fortune house at once is the strongest single-planet form of this combination — a foundational principle found across BPHS, Phaladeepika, and Saravali (not a single named verse).`,
+      glossEs: `${gN(g)} gobierna tanto la ${hName(kh)} como la ${hName(th)}. Un solo planeta que sostiene a la vez un ángulo y una casa de fortuna es la forma más fuerte de esta combinación — un principio fundamental que se encuentra en BPHS, Phaladeepika y Saravali (no un verso único con nombre).`,
+      reasonLine: r => T(`${gNameNatal(g)} rules ${hName(kh)}; ${gNameNatal(g)} rules ${hName(th)}.`,
+        `${gN(g)} gobierna ${hName(kh)}; ${gN(g)} gobierna ${hName(th)}.`)
+    });
+  });
+  return entries;
 }
 
 // --- Trikalagnana Yoga -------------------------------------------------
