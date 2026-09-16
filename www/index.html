@@ -8766,7 +8766,40 @@ function renderNatalPage(){
       nameEn:'Ravi Yoga', nameEs:'Yoga Ravi',
       glossEn:'The Sun in the 10th, with the 10th lord in the 3rd conjunct Saturn. Respect from rulers and expertise in the sciences, though the fame is described as arriving specifically after the 15th year rather than from birth.',
       glossEs:'El Sol en la 10.ª, con el señor de la 10.ª en la 3.ª conjunto a Saturno. Respeto de los gobernantes y pericia en las ciencias, aunque la fama se describe como llegando específicamente después del año 15 en vez de desde el nacimiento.',
-      reasonLine: r => T(`Sun in 10th: ${hf(r.sunInTenth)}. 10th lord in 3rd: ${hf(r.tenthLordInThird)}. Conjunct Saturn: ${hf(r.conjunctSaturn)}.`, `Sol en la 10.ª: ${hf(r.sunInTenth)}. Señor de la 10.ª en la 3.ª: ${hf(r.tenthLordInThird)}. Conjunto a Saturno: ${hf(r.conjunctSaturn)}.`) }
+      reasonLine: r => T(`Sun in 10th: ${hf(r.sunInTenth)}. 10th lord in 3rd: ${hf(r.tenthLordInThird)}. Conjunct Saturn: ${hf(r.conjunctSaturn)}.`, `Sol en la 10.ª: ${hf(r.sunInTenth)}. Señor de la 10.ª en la 3.ª: ${hf(r.tenthLordInThird)}. Conjunto a Saturno: ${hf(r.conjunctSaturn)}.`) },
+    { result: garudaYoga(birthPos, navPos, readDateTime("b")), num: 66,
+      nameEn:'Garuda Yoga', nameEs:'Yoga Garuda',
+      glossEn:'The lord of the Moon\'s own Navamsa sign exalted, born by day with a waxing Moon. Polished speech and respect from the pious — Raman is candid that the yoga\'s specific "danger from poison in the 34th year" clause is not something he can explain, just transmit.',
+      glossEs:'El señor del propio signo de Navamsa de la Luna exaltado, nacido de día con Luna creciente. Habla pulida y respeto de los piadosos — Raman es franco en que la cláusula específica de "peligro de veneno en el año 34" no es algo que pueda explicar, solo transmitir.',
+      reasonLine: r => T(`Moon's Navamsa-dispositor (${r.navDispositor}) exalted: ${hf(r.navDispositorExalted)}. Born daytime: ${r.isDaytime===null?'unknown':hf(r.isDaytime)}. Moon waxing: ${hf(r.moonWaxing)}.`, `Dispositor de Navamsa de la Luna (${r.navDispositor}) exaltado: ${hf(r.navDispositorExalted)}. Nacido de día: ${r.isDaytime===null?'desconocido':hf(r.isDaytime)}. Luna creciente: ${hf(r.moonWaxing)}.`) },
+    { result: goYoga(birthPos, lagnaIdx), num: 67,
+      nameEn:'Go Yoga', nameEs:'Yoga Go',
+      glossEn:'Jupiter in his Moolatrikona (Sagittarius, specifically the first 13 degrees per Raman) conjunct the 2nd lord, with the Lagna lord exalted. Raman notes this yoga is unusually time-bound — unlike Gajakesari, Vasi or Vesi, it can only occur while Jupiter transits that specific narrow arc.',
+      glossEs:'Júpiter en su Moolatrikona (Sagitario, específicamente los primeros 13 grados según Raman) conjunto al señor de la 2.ª, con el señor del Lagna exaltado. Raman señala que este yoga está inusualmente ligado al tiempo — a diferencia de Gajakesari, Vasi o Vesi, solo puede darse mientras Júpiter transita ese arco estrecho específico.',
+      reasonLine: r => T(`Jupiter in Moolatrikona (Sagittarius 0-13°): ${hf(r.jupInMoolatrikona)}. Conjunct 2nd lord: ${hf(r.conjunctSecondLord)}. Lagna lord exalted: ${hf(r.lagnaLordExalted)}.`, `Júpiter en Moolatrikona (Sagitario 0-13°): ${hf(r.jupInMoolatrikona)}. Conjunto al señor de la 2.ª: ${hf(r.conjunctSecondLord)}. Señor del Lagna exaltado: ${hf(r.lagnaLordExalted)}.`) },
+    { result: golaYoga(birthPos, navPos, lagnaIdx), num: 68,
+      nameEn:'Gola Yoga', nameEs:'Yoga Gola',
+      glossEn:'A full Moon in the 9th conjunct both Jupiter and Venus, with Mercury in the Navamsa Lagna. Raman notes Gajakesari Yoga is effectively absorbed into this one, since a Moon-Jupiter conjunction is automatically a mutual kendra.',
+      glossEs:'Una Luna llena en la 9.ª conjunta a Júpiter y Venus a la vez, con Mercurio en el Lagna de Navamsa. Raman señala que el Yoga Gajakesari queda efectivamente absorbido en este, ya que una conjunción Luna-Júpiter es automáticamente un kendra mutuo.',
+      reasonLine: r => T(`Moon in 9th: ${hf(r.moonInNinth)}. Full Moon: ${hf(r.isFullMoon)}. Conjunct Jupiter+Venus: ${hf(r.conjunctBoth)}. Mercury in Navamsa Lagna: ${hf(r.mercInNavLagna)}.`, `Luna en la 9.ª: ${hf(r.moonInNinth)}. Luna llena: ${hf(r.isFullMoon)}. Conjunta a Júpiter+Venus: ${hf(r.conjunctBoth)}. Mercurio en Lagna de Navamsa: ${hf(r.mercInNavLagna)}.`) },
+    { result: thrilochanaYoga(birthPos), num: 69,
+      nameEn:'Thrilochana Yoga', nameEs:'Yoga Thrilochana',
+      glossEn:'The Sun, Moon and Mars all in mutual trine. A smooth, favourable career overall — Raman notes any mutual-trine disposition among planets is generally read this way, this yoga just names the specific Sun-Moon-Mars case.',
+      glossEs:'El Sol, la Luna y Marte, todos en trino mutuo. Una carrera generalmente fluida y favorable — Raman señala que cualquier disposición de trino mutuo entre planetas se lee así en general, este yoga solo nombra el caso específico Sol-Luna-Marte.',
+      reasonLine: r => T(`Sun/Moon/Mars all in mutual trine: ${hf(r.present)}.`, `Sol/Luna/Marte todos en trino mutuo: ${hf(r.present)}.`) },
+    { result: kutuvardhanaYoga(birthPos, lagnaIdx), num: 70,
+      nameEn:'Kutuvardhana Yoga', nameEs:'Yoga Kutuvardhana',
+      glossEn:'All seven classical grahas in the 5th house counted from the Lagna, the Sun, AND the Moon at once — an exacting combination (it can only hold if Lagna, Sun and Moon are themselves all in the same sign) matching the name\'s promise of an unbroken family line.',
+      glossEs:'Los siete graha clásicos en la 5.ª casa contada desde el Lagna, el Sol Y la Luna a la vez — una combinación exigente (solo puede darse si el Lagna, el Sol y la Luna están los tres en el mismo signo) que corresponde a la promesa del nombre de una línea familiar ininterrumpida.',
+      reasonLine: r => T(`All 7 grahas in 5th from Lagna: ${hf(r.fromLagna)}. From Sun: ${hf(r.fromSun)}. From Moon: ${hf(r.fromMoon)}.`, `Los 7 graha en la 5.ª desde el Lagna: ${hf(r.fromLagna)}. Desde el Sol: ${hf(r.fromSun)}. Desde la Luna: ${hf(r.fromMoon)}.`) },
+    ...[1,4,7,10].map((startHouse,i)=>{
+      const r = nabhasaFourFoldYoga(startHouse, lagnaIdx, birthPos);
+      return { result: r, num: 71+i,
+        nameEn:`${r.name} Yoga`, nameEs:`Yoga ${r.name}`,
+        glossEn:`#${71+i} of Varaha Mihira's 32 Nabhasa Yogas, as cited by Raman (txt L4400-4470) — one of the four "Akriti" shape-yogas formed when all seven classical grahas occupy four contiguous houses starting from a kendra (this one: the ${startHouse===1?'Lagna':startHouse+'th house'}). Raman treats these as clues to livelihood and life-shape rather than major fortune/misfortune indicators.`,
+        glossEs:`#${71+i} de los 32 Yoga Nabhasa de Varaha Mihira, citados por Raman (txt L4400-4470) — uno de los cuatro Yoga Akriti (de forma) que se forman cuando los siete graha clásicos ocupan cuatro casas contiguas a partir de un kendra (este: la ${startHouse===1?'Lagna':'casa '+startHouse}). Raman los trata como pistas de sustento y forma de vida más que como indicadores mayores de fortuna o infortunio.`,
+        reasonLine: rr => T(`Houses ${rr.houses.join(', ')} — occupied: ${rr.occupantsPerHouse.map(l=>l.length>0).filter(Boolean).length}/4.`, `Casas ${rr.houses.join(', ')} — ocupadas: ${rr.occupantsPerHouse.map(l=>l.length>0).filter(Boolean).length}/4.`) };
+    })
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -8916,7 +8949,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-65 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-65 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-74 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-74 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -11870,6 +11903,90 @@ function raviYoga(pos, ascSignIdx){
   const satSignIdx = Math.floor(norm360(pos.Saturn.sidereal)/30);
   const conjunctSaturn = tenthLord==='Saturn' || tenthLordSignIdx===satSignIdx;
   return { present: sunInTenth && tenthLordInThird && conjunctSaturn, sunInTenth, tenthLordInThird, conjunctSaturn };
+}
+function garudaYoga(pos, navPos, dt){
+  // #66 (txt L4235-4238): the lord of the Navamsa sign occupied by the
+  // Moon should be exalted, AND birth occurred during daytime while the
+  // Moon was waxing.
+  const moonNavSignIdx = Math.floor(norm360(navPos.Moon.sidereal)/30);
+  const navDispositor = SIGN_LORD[SIGNS[moonNavSignIdx]];
+  const navDispositorSignIdx = Math.floor(norm360(pos[navDispositor].sidereal)/30);
+  const navDispositorExalted = dignityTierInSign(navDispositor, navDispositorSignIdx) === 'Exalted';
+  const sun = sunriseSunsetLocal(dt.y, dt.mo, dt.da, dt.lat, dt.lon, dt.tz);
+  const clockHr = dt.hh + dt.mm/60;
+  const isDaytime = sun ? (clockHr>=sun.sunriseHr && clockHr<sun.sunsetHr) : null;
+  const elongation = norm360(pos.Moon.sidereal - pos.Sun.sidereal);
+  const moonWaxing = elongation < 180;
+  return { present: navDispositorExalted && isDaytime===true && moonWaxing, navDispositor, navDispositorExalted, isDaytime, moonWaxing };
+}
+function goYoga(pos, ascSignIdx){
+  // #67 (txt L4296-4298, degree range from L4312-4313): Jupiter (strong) in
+  // his Moolatrikona — Raman specifically states this yoga's window as
+  // Sagittarius 0-13 degrees — conjunct the 2nd lord, with the Lagna lord
+  // exalted.
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const jupDegInSign = norm360(pos.Jupiter.sidereal) - jupSignIdx*30;
+  const jupInMoolatrikona = SIGNS[jupSignIdx]==='Sagittarius' && jupDegInSign < 13;
+  const secondLord = lordOfHouse(2, ascSignIdx);
+  const secondLordSignIdx = Math.floor(norm360(pos[secondLord].sidereal)/30);
+  const conjunctSecondLord = secondLord==='Jupiter' || secondLordSignIdx===jupSignIdx;
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const lagnaLordExalted = dignityTierInSign(lagnaLord, lagnaLordSignIdx) === 'Exalted';
+  return { present: jupInMoolatrikona && conjunctSecondLord && lagnaLordExalted, jupInMoolatrikona, conjunctSecondLord, lagnaLordExalted };
+}
+function golaYoga(pos, navPos, ascSignIdx){
+  // #68 (txt L4356-4359): a full Moon in the 9th house, conjunct both
+  // Jupiter and Venus, with Mercury in the Navamsa Lagna (Mercury's
+  // Navamsa sign equals the Ascendant's Navamsa sign).
+  const moonInNinth = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx) === 9;
+  const elongation = norm360(pos.Moon.sidereal - pos.Sun.sidereal);
+  const isFullMoon = Math.abs(elongation-180) < 12; // within ~1 tithi of exact opposition
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const venusSignIdx = Math.floor(norm360(pos.Venus.sidereal)/30);
+  const conjunctBoth = moonSignIdx===jupSignIdx && moonSignIdx===venusSignIdx;
+  const navLagnaSignIdx = Math.floor(norm360(navamsaSidereal(pos._ascSidereal))/30);
+  const mercNavSignIdx = Math.floor(norm360(navPos.Mercury.sidereal)/30);
+  const mercInNavLagna = mercNavSignIdx === navLagnaSignIdx;
+  return { present: moonInNinth && isFullMoon && conjunctBoth && mercInNavLagna, moonInNinth, isFullMoon, conjunctBoth, mercInNavLagna };
+}
+function isTrikonaFrom(refSid, testSid){
+  const refSign = Math.floor(norm360(refSid)/30);
+  const testSign = Math.floor(norm360(testSid)/30);
+  const diff = ((testSign - refSign) % 12 + 12) % 12;
+  return [0,4,8].includes(diff);
+}
+function thrilochanaYoga(pos){
+  // #69 (txt L4373-4375): the Sun, Moon and Mars in mutual trine.
+  const pairs = [['Sun','Moon'],['Sun','Mars'],['Moon','Mars']];
+  return { present: pairs.every(([a,b])=>isTrikonaFrom(pos[a].sidereal, pos[b].sidereal)) };
+}
+function kutuvardhanaYoga(pos, ascSignIdx){
+  // #70 (txt L4384-4386): all seven classical grahas in the 5th house
+  // counted from the Lagna, the Sun, AND the Moon simultaneously — an
+  // exacting condition that (given a fixed house-membership per planet)
+  // can only hold if Lagna, Sun and Moon are themselves all in the same
+  // sign, matching the rarity the name implies.
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  const sunSignIdx = Math.floor(norm360(pos.Sun.sidereal)/30);
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const allInFifthFrom = refSignIdx => sevenGrahas.every(g => bsHouseFromAsc(pos[g].sidereal, refSignIdx) === 5);
+  const fromLagna = allInFifthFrom(ascSignIdx), fromSun = allInFifthFrom(sunSignIdx), fromMoon = allInFifthFrom(moonSignIdx);
+  return { present: fromLagna && fromSun && fromMoon, fromLagna, fromSun, fromMoon };
+}
+const NABHASA_FOURFOLD_NAMES = { 1:'Yupa', 4:'Ishu', 7:'Sakti', 10:'Danda' };
+function nabhasaFourFoldYoga(startHouse, ascSignIdx, pos){
+  // #71-74 (txt L4420-4442): all seven classical grahas occupying four
+  // contiguous houses starting from each of the four kendras (Lagna=Yupa,
+  // 4th=Ishu, 7th=Sakti, 10th=Danda) — the first four of Varaha Mihira's
+  // 20 "Akriti" Nabhasa Yogas (see domains/raman-300-combinations.md for
+  // the full 32-entry Nabhasa group breakdown).
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  const houses = Array.from({length:4}, (_,i)=>((startHouse-1+i)%12)+1);
+  const occupantsPerHouse = houses.map(h => bsGrahasInHouses(pos, ascSignIdx, sevenGrahas, [h]));
+  const present = occupantsPerHouse.every(list => list.length>0);
+  return { present, houses, occupantsPerHouse, name: NABHASA_FOURFOLD_NAMES[startHouse] };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
