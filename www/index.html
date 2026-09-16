@@ -8431,30 +8431,6 @@ function renderNatalPage(){
         `Condición A (navāṁśa propio + Mṛdvāṁśa, sin aspecto necesario): ${hf(r.conditionA.pass)} — signo navāṁśa ${r.ownNavamsa.navamsaSign} (necesita Sagitario/Piscis): ${hf(r.ownNavamsa.pass)}; ordinal Mṛdvāṁśa ${r.mridvamsha.ordinal}/60 (necesita ${r.mridvamsha.threshold}): ${hf(r.mridvamsha.pass)}. Condición B (Gopurāṁśa + aspecto benéfico): ${hf(r.conditionB.pass)} — conteo Vaiśeṣikāṁśa en Daśavarga: ${r.gopuramsha.count}/10 (necesita ≥4): ${hf(r.gopuramsha.pass)}; aspecto benéfico a Júpiter: ${hf(r.beneficAspect.pass)}.`) }
   ];
   const allYogaEntries = JNANA_YOGAS.concat(rajYogaEntries);
-  const jnanaYogaActiveCount = allYogaEntries.filter(y=>y.result.present).length;
-  const jnanaYogaHtml = (() => {
-    const filtered = allYogaEntries.filter(y=>y.result.present);
-    const groups = { positive: [], negative: [], mixed: [] };
-    filtered.forEach(y => {
-      const p = y.polarity;
-      if (groups[p]) groups[p].push(y);
-    });
-    const renderGroup = (entries) => entries.map(y=>{
-      const cls = y.result.present ? 'good' : 'neutral';
-      const label = y.result.present ? T('Present in this chart','Presente en esta carta') : T('Not present','No presente');
-      return `<div class="li" style="margin-bottom:9px;">
-        <span class="tag ${cls}">${T(y.nameEn,y.nameEs)}</span> <span class="tag ${cls}">${label}</span>
-        <div style="margin-top:4px; color:var(--slate); font-size:11.5px; line-height:1.6;">${T(y.glossEn,y.glossEs)}</div>
-        <div style="margin-top:5px; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); line-height:1.5; border-left:2px solid var(--line-soft); padding-left:8px;">${y.reasonLine(y.result.reasons)}</div>
-      </div>`;
-    }).join('');
-    const header = (text, color) => `<div style="font-size:13px; font-weight:600; color:var(${color}); margin:10px 0 6px;">${text}</div>`;
-    let html = '';
-    if (groups.positive.length) html += header(T('Auspicious yogas present','Yogas auspiciosos presentes'), '--jade') + renderGroup(groups.positive);
-    if (groups.negative.length) html += header(T('Afflictions and cautions present','Aflicciones y precauciones presentes'), '--vermilion') + renderGroup(groups.negative);
-    if (groups.mixed.length) html += header(T('Mixed and situational yogas present','Yogas mixtos y situacionales presentes'), '--slate') + renderGroup(groups.mixed);
-    return html;
-  })();
 
   // Raman's 300 Important Combinations — first installment, yogas #1-7 (all
   // Chandra-relative). Grows incrementally as more of the 300 are extracted
@@ -9876,21 +9852,32 @@ function renderNatalPage(){
   289:'negative', 290:'negative', 291:'negative', 292:'negative', 293:'negative', 294:'negative', 295:'negative',
   296:'mixed', 298:'negative', 299:'negative', 300:'negative'
 };
-const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
-  const ramanYogaHtml = (() => {
-    const filtered = RAMAN_YOGAS.filter(y=>y.result.present);
+// All yoga-formation systems checked against this chart — Raja Yoga, the
+// Jñāna Yoga series, Trikālagnāna, and the full 300-combination classical
+// catalogue — merged into one undivided set, grouped only by whether each
+// active entry reads auspicious/cautionary/mixed. No sub-category headers
+// or per-catalogue branding: from the reader's side, this is simply "the
+// yogas this chart has," not a tour of which historical text each came from.
+  const masterYogaEntries = allYogaEntries.concat(
+    RAMAN_YOGAS.map(y => ({ ...y, polarity: YOGA_POLARITY[y.num] || 'mixed' }))
+  );
+  const masterYogaActiveCount = masterYogaEntries.filter(y=>y.result.present).length;
+  const masterYogaHtml = (() => {
+    const filtered = masterYogaEntries.filter(y=>y.result.present);
     const groups = { positive: [], negative: [], mixed: [] };
     filtered.forEach(y => {
-      const p = YOGA_POLARITY[y.num];
+      const p = y.polarity;
       if (groups[p]) groups[p].push(y);
     });
     const renderGroup = (entries) => entries.map(y=>{
       const cls = y.result.present ? 'good' : 'neutral';
       const label = y.result.present ? T('Present in this chart','Presente en esta carta') : T('Not present','No presente');
+      const reasonArg = y.num ? y.result : y.result.reasons;
+      const tagName = (y.num ? `#${y.num} ` : '') + T(y.nameEn,y.nameEs);
       return `<div class="li" style="margin-bottom:9px;">
-        <span class="tag ${cls}">#${y.num} ${T(y.nameEn,y.nameEs)}</span> <span class="tag ${cls}">${label}</span>
+        <span class="tag ${cls}">${tagName}</span> <span class="tag ${cls}">${label}</span>
         <div style="margin-top:4px; color:var(--slate); font-size:11.5px; line-height:1.6;">${T(y.glossEn,y.glossEs)}</div>
-        <div style="margin-top:5px; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); line-height:1.5; border-left:2px solid var(--line-soft); padding-left:8px;">${y.reasonLine(y.result)}</div>
+        <div style="margin-top:5px; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); line-height:1.5; border-left:2px solid var(--line-soft); padding-left:8px;">${y.reasonLine(reasonArg)}</div>
       </div>`;
     }).join('');
     const header = (text, color) => `<div style="font-size:13px; font-weight:600; color:var(${color}); margin:10px 0 6px;">${text}</div>`;
@@ -10047,17 +10034,9 @@ const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
       </div>
     </div>
 
-    <div class="panel"><div class="hd"><h2>${T('Yoga combinations','Combinaciones de yoga')}</h2><span class="note">${rajYoga.pairs.length+rajYoga.dualRulers.length+jnanaYogaActiveCount} ${T('active','activa(s)')}</span></div>
+    <div class="panel"><div class="hd"><h2>${T('Yoga combinations','Combinaciones de yoga')}</h2><span class="note">${masterYogaActiveCount} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('Ten classical yoga-formation rules checked against this birth chart — Raja Yoga (power/status), nine knowledge-and-insight yogas, and Trikālagnāna — shown together below, grouped by whether each active one is auspicious or cautionary. Each is a distinct, independently-sourced classical condition — none of these overlap with the 28 Chara Yogas (a separate, daily-panchāṅga system). Full technical reasoning per yoga: menu → Yoga/Combinations.','Diez reglas clásicas de formación de yoga evaluadas contra esta carta natal — Raja Yoga (poder/estatus), nueve yogas de conocimiento y perspicacia, y Trikālagnāna — mostradas juntas abajo, agrupadas según si cada una activa es auspiciosa o cautelar. Cada uno es una condición clásica distinta y de fuente independiente — ninguno se superpone con los 28 Chara Yogas (un sistema separado de panchāṅga diario). Razonamiento técnico completo por yoga: menú → Yoga/Combinaciones.')}</div>
-        ${jnanaYogaHtml}
-      </div>
-    </div>
-
-    <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
-      <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. This is the complete book — all 300 of B.V. Raman\'s combinations accounted for. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-233, #235-263, #265-269, #271-272, #274-296 and #298-300 of 300 (#11, #174, #204, #264 and #270 all need a Gulika-family point\'s zodiacal position, not computed anywhere in this app; #185 and #273 need a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have; #276-277 need an unnamed "evil sub-division/amsa" classical system too vague in the source to operationalize; #297 needs a real Aroodha Dwadasa calculation plus a reliable Aroodha Lagna -- this app\'s only existing Arudha function looks like a pre-existing bug, flagged separately, not fixed here; #234 Thrikalagnana is implemented separately, in the Jñāna Yoga panel above — every gap accounted for, none silently skipped). Complete as of 2026-09-16.','Este es el libro completo — las 300 combinaciones de B.V. Raman contabilizadas en su totalidad. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-233, #235-263, #265-269, #271-272, #274-296 y #298-300 de 300 (#11, #174, #204, #264 y #270 necesitan todos la posición zodiacal de un punto de la familia Gulika, no calculado en ningún lugar de esta app; #185 y #273 necesitan una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene; #276-277 necesitan un sistema clásico de "sub-división/amsa maligna" sin nombrar, demasiado vago en la fuente para operacionalizar; #297 necesita un cálculo real de Aroodha Dwadasa además de un Aroodha Lagna fiable -- la única función de Arudha existente en esta app parece tener un error preexistente, señalado por separado, no corregido aquí; #234 Thrikalagnana está implementado por separado, en el panel de Yoga Jñāna de arriba — cada vacío contabilizado, ninguno omitido en silencio). Completo a partir de 2026-09-16.')}</div>
-        ${ramanYogaHtml}
+        ${masterYogaHtml}
       </div>
     </div>
 
@@ -10996,6 +10975,14 @@ function renderAshtakavargaPage(){
   container.innerHTML = `
     <div class="panel">
       <div class="hd"><h2>${T('Ashtakavarga — Transit Strength','Ashtakavarga — Fuerza de Tránsito')}</h2></div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('What Ashtakavarga measures','Qué mide el Ashtakavarga')}</h2></div>
+      <div class="bd">
+        <div class="hint" style="line-height:1.7;">${T('Ashtakavarga is a point-scoring system layered on top of the birth chart, separate from dignity or house-lordship. For each of the seven classical grahas (Sun through Saturn — Rāhu/Ketu are excluded from this system entirely), eight reference points — the graha itself, the other six grahas, and the Lagna — each look out from their own natal position and award one benefic "bindu" (point) to specific signs, following a fixed classical table of rules unique to each reference point. Add up all eight reference points\' contributions for one graha across the twelve signs and you get that graha\'s own <b>Bhinnāṣṭakavarga</b> — a personal 0–8 strength map, sign by sign, of where that specific graha tends to perform well versus poorly. Add all seven grahas\' Bhinnāṣṭakavarga tables together, sign by sign, and you get the <b>Sarvāṣṭakavarga</b> — one combined number per sign (337 points spread across the zodiac, 28/sign on average) describing that sign\'s general vitality regardless of which graha happens to be sitting or transiting there.','Ashtakavarga es un sistema de puntuación superpuesto a la carta natal, independiente de la dignidad o el señorío de casas. Para cada uno de los siete graha clásicos (del Sol a Saturno — Rāhu/Ketu quedan totalmente fuera de este sistema), ocho puntos de referencia — el propio graha, los otros seis graha, y el Lagna — miran cada uno desde su propia posición natal y otorgan un "bindu" (punto) benéfico a signos específicos, siguiendo una tabla clásica fija de reglas propia de cada punto de referencia. Sumando las contribuciones de los ocho puntos de referencia para un graha en los doce signos se obtiene el <b>Bhinnāṣṭakavarga</b> de ese graha — un mapa personal de fuerza 0–8, signo por signo, de dónde tiende a rendir bien o mal ese graha en particular. Sumando las tablas de Bhinnāṣṭakavarga de los siete graha, signo por signo, se obtiene el <b>Sarvāṣṭakavarga</b> — un número combinado por signo (337 puntos repartidos por el zodíaco, 28/signo en promedio) que describe la vitalidad general de ese signo sin importar qué graha esté allí.')}</div>
+        <div class="hint" style="line-height:1.7; margin-top:10px;">${T('What a bindu count means in practice: a HIGH Bhinnāṣṭakavarga count (5–8) for a given graha in a given sign means that when that specific graha occupies or transits that sign, whatever it governs — its natural kāraka significations and the house it happens to rule from the Lagna — tends to find support, cooperation, and favourable timing. A LOW count (0–3) means the opposite: that same graha in that same sign tends toward strain, delay, or under-performance for what it governs, regardless of the graha\'s own dignity by sign lordship. A count of exactly 0 is the classical system\'s single most severe reading for that placement. Sarvāṣṭakavarga works the same way but at the level of the SIGN itself rather than one graha: a sign with a high combined total (above 28, "very good" above 30) tends to support whatever transits through it or whatever house it represents, while a low total (below 25) marks that sign as a generally weaker stage for events — read this independently of, not merged with, Bhinnāṣṭakavarga\'s graha-specific answer.','Qué significa en la práctica un conteo de bindus: un conteo ALTO de Bhinnāṣṭakavarga (5–8) para un graha dado en un signo dado significa que, cuando ese graha específico ocupa o transita ese signo, lo que gobierna — sus significaciones kāraka naturales y la casa que gobierna desde el Lagna — tiende a encontrar apoyo, cooperación y buen momento. Un conteo BAJO (0–3) significa lo contrario: ese mismo graha en ese mismo signo tiende a la tensión, la demora o el bajo rendimiento en lo que gobierna, sin importar la dignidad propia del graha por señorío de signo. Un conteo de exactamente 0 es la lectura más severa del sistema clásico para esa posición. El Sarvāṣṭakavarga funciona igual pero a nivel del SIGNO en sí, no de un graha: un signo con un total combinado alto (por encima de 28, "muy bueno" por encima de 30) tiende a apoyar lo que transite por él o la casa que representa, mientras que un total bajo (por debajo de 25) marca ese signo como un escenario generalmente más débil para los eventos — léase de forma independiente de, no combinado con, la respuesta específica por graha del Bhinnāṣṭakavarga.')}</div>
+        <div class="hint" style="line-height:1.7; margin-top:10px; border-left:2px solid var(--gold); padding-left:10px;">${T('Not yet included: the classical "Rāśi" reduction of Sarvāṣṭakavarga — Trikoṇa Śodhana and Ekādhipatya Śodhana, two further sign-by-sign adjustment passes some traditions apply before reading Sarvāṣṭakavarga for transit-result predictions specifically (as opposed to the general strength reading shown below). This app has not yet ingested a primary source it trusts for that reduction\'s exact rule set, so it is not computed here rather than guessed at — see menu → Yoga/Combinations-style sourcing discipline applied consistently across this app.','Aún no incluido: la reducción "Rāśi" clásica del Sarvāṣṭakavarga — Trikoṇa Śodhana y Ekādhipatya Śodhana, dos pasadas adicionales de ajuste signo por signo que algunas tradiciones aplican antes de leer el Sarvāṣṭakavarga para predicciones de resultados de tránsito específicamente (a diferencia de la lectura general de fuerza que se muestra abajo). Esta app aún no ha incorporado una fuente primaria de confianza para el conjunto exacto de reglas de esa reducción, así que no se calcula aquí en vez de adivinarla — se aplica la misma disciplina de fuentes que en el resto de la app.')}</div>
+      </div>
     </div>
 
     <div class="panel"><div class="hd"><h2>${T('Transit check — the muhūrta moment','Comprobación de tránsito — el momento muhūrta')}</h2><span class="note">${T('against the reference person\'s natal Ashtakavarga','contra el Ashtakavarga natal de la persona de referencia')}</span></div>
