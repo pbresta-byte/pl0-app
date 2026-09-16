@@ -8551,7 +8551,27 @@ function renderNatalPage(){
       nameEn:'Sakata Yoga', nameEs:'Yoga Sakata',
       glossEn:'The Moon in the 6th, 8th or 12th from Jupiter — Raman\'s own adopted definition, chosen over the older Parashara/Varahamihira "planets in the 1st and 7th" version. A classically difficult combination (loss of fortune, hardship), though Raman notes from his own case review that real-world severity is usually nominal rather than the full traditional reading, and that its effects concentrate specifically around Moon transits of the 6th/8th/12th from natal Jupiter.',
       glossEs:'La Luna en la 6.ª, 8.ª o 12.ª desde Júpiter — la definición que el propio Raman adopta, en vez de la versión más antigua de Parashara/Varahamihira ("planetas en la 1.ª y la 7.ª"). Una combinación clásicamente difícil (pérdida de fortuna, dificultad), aunque Raman señala por su propia revisión de casos que la severidad real suele ser nominal en vez de la lectura tradicional completa, y que sus efectos se concentran específicamente en los tránsitos de la Luna por la 6.ª/8.ª/12.ª desde el Júpiter natal.',
-      reasonLine: r => T(`Moon's house from Jupiter: ${r.moonHouseFromJupiter} (needs 6th, 8th or 12th).`, `Casa de la Luna desde Júpiter: ${r.moonHouseFromJupiter} (necesita 6.ª, 8.ª o 12.ª).`) }
+      reasonLine: r => T(`Moon's house from Jupiter: ${r.moonHouseFromJupiter} (needs 6th, 8th or 12th).`, `Casa de la Luna desde Júpiter: ${r.moonHouseFromJupiter} (necesita 6.ª, 8.ª o 12.ª).`) },
+    { result: amalaYoga(birthPos, lagnaIdx), num: 13,
+      nameEn:'Amala Yoga', nameEs:'Yoga Amala',
+      glossEn:'A benefic (Jupiter/Venus/Mercury) in the 10th from the Lagna or from the Moon. "Amala" means pure — lasting fame and a genuinely spotless reputation, earned through fair means, distinct from wealth gained by other means.',
+      glossEs:'Un benéfico (Júpiter/Venus/Mercurio) en la 10.ª desde el Lagna o desde la Luna. "Amala" significa puro — fama duradera y una reputación genuinamente intachable, ganada por medios justos, distinta de la riqueza obtenida por otros medios.',
+      reasonLine: r => T(`From Lagna: ${r.fromLagna.length?r.fromLagna.join(', '):'none'}. From Moon: ${r.fromMoon.length?r.fromMoon.join(', '):'none'}.`, `Desde el Lagna: ${r.fromLagna.length?r.fromLagna.join(', '):'ninguno'}. Desde la Luna: ${r.fromMoon.length?r.fromMoon.join(', '):'ninguno'}.`) },
+    { result: parvataYoga(birthPos, lagnaIdx), num: 14,
+      nameEn:'Parvata Yoga', nameEs:'Yoga Parvata',
+      glossEn:'A benefic in a kendra from the Lagna, with the 6th and 8th either both empty or both held only by benefics — or, separately, the lords of the Lagna and the 12th in mutual kendras. Wealth, generosity and local standing, though Raman is clear it doesn\'t rival the major Raja Yogas in scale.',
+      glossEs:'Un benéfico en un kendra desde el Lagna, con la 6.ª y la 8.ª ambas vacías o ambas ocupadas solo por benéficos — o, por separado, los señores del Lagna y de la 12.ª en kendras mutuos. Riqueza, generosidad y posición local, aunque Raman aclara que no rivaliza en escala con los grandes Raja Yoga.',
+      reasonLine: r => T(`Path (a) benefic-in-kendra + 6th/8th empty: ${hf(r.condA)}. Path (b) benefic-in-kendra + 6th/8th all-benefic: ${hf(r.condB)}. Path (c) Lagna/12th lords in mutual kendra: ${hf(r.condC)}.`, `Vía (a) benéfico-en-kendra + 6.ª/8.ª vacías: ${hf(r.condA)}. Vía (b) benéfico-en-kendra + 6.ª/8.ª todo benéfico: ${hf(r.condB)}. Vía (c) señores de Lagna/12.ª en kendra mutuo: ${hf(r.condC)}.`) },
+    { result: kahalaYoga(birthPos, lagnaIdx), num: 15,
+      nameEn:'Kahala Yoga', nameEs:'Yoga Kahala',
+      glossEn:'Either the lords of the 4th and 9th in mutual kendras with a well-placed Lagna lord, or the 4th lord exalted/own-sign and linked to the 10th lord by conjunction or aspect. Reads (in modern terms per Raman) as a position of command — armed forces, police, or civil administration.',
+      glossEs:'O los señores de la 4.ª y la 9.ª en kendras mutuos con un señor del Lagna bien ubicado, o el señor de la 4.ª exaltado/en signo propio y vinculado al señor de la 10.ª por conjunción o aspecto. Se lee (en términos modernos según Raman) como una posición de mando — fuerzas armadas, policía, o administración civil.',
+      reasonLine: r => T(`Path (i) 4th/9th lords mutual kendra + strong Lagna lord: ${hf(r.condI)}. Path (ii) 4th lord exalted/own + linked to 10th lord: ${hf(r.condII)}.`, `Vía (i) señores 4.ª/9.ª en kendra mutuo + señor de Lagna fuerte: ${hf(r.condI)}. Vía (ii) señor de la 4.ª exaltado/propio + vinculado al señor de la 10.ª: ${hf(r.condII)}.`) },
+    { result: vesiYoga(birthPos), num: 16,
+      nameEn:'Vesi Yoga', nameEs:'Yoga Vesi',
+      glossEn:'Any planet except the Moon, Rahu and Ketu in the 2nd from the Sun — the Sun-relative counterpart to the Chandra yogas above. A benefic there gives the favourable "Subhavesi" reading (fortune, virtue, fame); a malefic gives the harsher "Papavesi" instead — genuinely opposite readings, not just a strength difference.',
+      glossEs:'Cualquier planeta excepto la Luna, Rahu y Ketu en la 2.ª desde el Sol — la contraparte solar de los yogas de Chandra anteriores. Un benéfico ahí da la lectura favorable "Subhavesi" (fortuna, virtud, fama); un maléfico da en cambio la más dura "Papavesi" — lecturas genuinamente opuestas, no solo una diferencia de fuerza.',
+      reasonLine: r => T(`2nd from Sun — benefics (Subhavesi): ${r.subhavesi.length?r.subhavesi.join(', '):'none'}; malefics (Papavesi): ${r.papavesi.length?r.papavesi.join(', '):'none'}.`, `2.ª desde el Sol — benéficos (Subhavesi): ${r.subhavesi.length?r.subhavesi.join(', '):'ninguno'}; maléficos (Papavesi): ${r.papavesi.length?r.papavesi.join(', '):'ninguno'}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -8701,7 +8721,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-16 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-16 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -11058,6 +11078,77 @@ function sakataYoga(pos){
   const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
   const moonHouse = bsHouseFromAsc(pos.Moon.sidereal, jupSignIdx);
   return { present: [6,8,12].includes(moonHouse), moonHouseFromJupiter: moonHouse };
+}
+function lordOfHouse(houseNum, ascSignIdx){
+  return SIGN_LORD[SIGNS[(ascSignIdx + houseNum - 1) % 12]];
+}
+const RAMAN_BENEFICS = ['Jupiter','Venus','Mercury']; // classical naisargika benefics used throughout this section (Moon excluded — its own benefic/malefic status is waxing/waning-dependent and not what these entries mean by "benefic")
+function amalaYoga(pos, ascSignIdx){
+  // #13 (txt L2025-2027): a benefic (Jupiter/Venus/Mercury) in the 10th
+  // from the Lagna OR from the Moon. Raman's Remarks (L2036-2045) flag a
+  // looser secondary dictum ("any planet in the 10th... gives wealth")
+  // that would allow a malefic too, but is explicit that TRUE Amala
+  // ("pure") specifically needs a benefic for the fame/spotless-character
+  // reading — implemented to that primary, named definition.
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const fromLagna = bsGrahasInHouses(pos, ascSignIdx, RAMAN_BENEFICS, [10]);
+  const fromMoon = bsGrahasInHouses(pos, moonSignIdx, RAMAN_BENEFICS, [10]);
+  return { present: fromLagna.length>0 || fromMoon.length>0, fromLagna, fromMoon };
+}
+function parvataYoga(pos, ascSignIdx){
+  // #14 (txt L2117-2121, three-way Remarks at L2125-2134): (a) a benefic in
+  // a kendra from Lagna AND the 6th+8th both empty, OR (b) a benefic in a
+  // kendra AND the 6th+8th occupied only by benefics, OR (c) the lords of
+  // the Lagna and the 12th in mutual kendras. AMBIGUITY FLAG: Raman's
+  // wording ("Benefics being disposed in Kendras") doesn't state a count
+  // the way he does explicitly elsewhere (e.g. Adhi Yoga) — implemented
+  // here as "at least one benefic in a kendra" (the more common cross-text
+  // convention for this specific yoga) rather than "all four kendras",
+  // pending a clearer citation; no worked chart example is given for this
+  // entry to disambiguate against.
+  const kendraHouses = [1,4,7,10];
+  const beneficsInKendra = bsGrahasInHouses(pos, ascSignIdx, RAMAN_BENEFICS, kendraHouses);
+  const sixEighthOccupants = bsGrahasInHouses(pos, ascSignIdx, GRAHA_LIST, [6,8]);
+  const sixEighthAllBenefic = sixEighthOccupants.length>0 && sixEighthOccupants.every(g=>RAMAN_BENEFICS.includes(g));
+  const condA = beneficsInKendra.length>0 && sixEighthOccupants.length===0;
+  const condB = beneficsInKendra.length>0 && sixEighthAllBenefic;
+  const lagnaLord = lordOfHouse(1, ascSignIdx), twelfthLord = lordOfHouse(12, ascSignIdx);
+  const condC = lagnaLord!==twelfthLord && pos[lagnaLord] && pos[twelfthLord] && isKendraFrom(pos[lagnaLord].sidereal, pos[twelfthLord].sidereal);
+  return { present: condA || condB || condC, condA, condB, condC, beneficsInKendra };
+}
+function kahalaYoga(pos, ascSignIdx){
+  // #15 (txt L2153-2156, second definition at L2167-2169): EITHER (i) the
+  // lords of the 4th and 9th in mutual kendras from each other, with the
+  // Lagna lord "strongly disposed" (interpreted here as own/exalted/friend
+  // dignity — Raman doesn't give a numeric threshold), OR (ii) the 4th
+  // lord exalted or in its own sign, conjunct or aspected by the 10th lord.
+  const fourthLord = lordOfHouse(4, ascSignIdx), ninthLord = lordOfHouse(9, ascSignIdx), tenthLord = lordOfHouse(10, ascSignIdx), lagnaLord = lordOfHouse(1, ascSignIdx);
+  const mutualKendra49 = fourthLord!==ninthLord && isKendraFrom(pos[fourthLord].sidereal, pos[ninthLord].sidereal);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const lagnaLordStrong = ['Own','Exalted','Friend'].includes(dignityTierInSign(lagnaLord, lagnaLordSignIdx));
+  const condI = mutualKendra49 && lagnaLordStrong;
+  const fourthLordSignIdx = Math.floor(norm360(pos[fourthLord].sidereal)/30);
+  const fourthLordDignity = dignityTierInSign(fourthLord, fourthLordSignIdx);
+  const fourthLordExaltedOrOwn = ['Own','Exalted'].includes(fourthLordDignity);
+  const fourthConjunctTenthLord = fourthLord!==tenthLord && Math.floor(norm360(pos[tenthLord].sidereal)/30)===fourthLordSignIdx;
+  const tenthLordSignIdx = Math.floor(norm360(pos[tenthLord].sidereal)/30);
+  const fourthAspectedByTenthLord = fourthLord!==tenthLord && aspectsSignWholeSign(tenthLord, tenthLordSignIdx, fourthLordSignIdx);
+  const condII = fourthLordExaltedOrOwn && (fourthConjunctTenthLord || fourthAspectedByTenthLord);
+  return { present: condI || condII, condI, condII, fourthLord, ninthLord, tenthLord, lagnaLord };
+}
+function vesiYoga(pos){
+  // #16 (txt L2187-2189, exclusions at L2192-2193): any planet except the
+  // Moon, Rahu and Ketu in the 2nd from the Sun. Malefics there give
+  // "Papavesi" (harsher reading), benefics give "Subhavesi" (the
+  // favourable reading Raman gives under Results) — tracked separately
+  // since the two sub-types have opposite readings, not just a strength
+  // gradient.
+  const sunSignIdx = Math.floor(norm360(pos.Sun.sidereal)/30);
+  const eligible = GRAHA_LIST.filter(g=>!['Sun','Moon','Rahu','Ketu'].includes(g));
+  const hits = bsGrahasInHouses(pos, sunSignIdx, eligible, [2]);
+  const beneficHits = hits.filter(g=>RAMAN_BENEFICS.includes(g));
+  const maleficHits = hits.filter(g=>!RAMAN_BENEFICS.includes(g));
+  return { present: hits.length>0, grahas: hits, subhavesi: beneficHits, papavesi: maleficHits };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
