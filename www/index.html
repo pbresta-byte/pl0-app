@@ -8314,6 +8314,11 @@ function renderNatalPage(){
   const navLagnaSign = SIGNS[Math.floor(navLagnaSidereal/30)];
   const isWaxingMoon = refP._panch ? refP._panch.paksha === "Shukla" : true;
 
+  const charaKarakas = computeAtmakaraka(birthPos);
+  const atmakarakaGraha = charaKarakas[0].graha;
+  const karakamshaSignIdx = Math.floor(norm360(navPos[atmakarakaGraha].sidereal)/30);
+  const karakamshaSign = SIGNS[karakamshaSignIdx];
+
   const positionRows = (pos, ascSidereal) => {
       const ascSign = SIGNS[Math.floor(norm360(ascSidereal)/30)];
       const ascDeg = norm360(ascSidereal)%30;
@@ -8420,10 +8425,10 @@ function renderNatalPage(){
         `Planetas prósperos conectados al Lagna: ${r.thrivingPlanetsConnectedToLagna.length ? r.thrivingPlanetsConnectedToLagna.join(', ') : 'ninguno'}.`) },
     { result: trikalagnanaYoga(birthPos, navPos), polarity:'positive',
       nameEn:'Trikālagnāna Yoga', nameEs:'Yoga Trikālagnāna',
-      glossEn:'"Knowledge of the three times" — past, present, and future. Either of two paths satisfies it: Jupiter in its own navāṁśa while also landing precisely on the Mṛdvāṁśa (a specific D60 ordinal) — no aspect needed — or Jupiter in Gopurāṁśa (own sign in Rasi, Drekkāṇa, Chaturthāṁśa AND Saptāṁśa all at once) while aspected by a benefic. Genuinely rare either way.',
-      glossEs:'"Conocimiento de los tres tiempos" — pasado, presente y futuro. Se cumple por cualquiera de dos vías: Júpiter en su propio navāṁśa y a la vez exactamente en el Mṛdvāṁśa (un ordinal D60 preciso) — sin necesitar aspecto — o Júpiter en Gopurāṁśa (signo propio en Rasi, Drekkāṇa, Chaturthāṁśa Y Saptāṁśa a la vez) aspectado por un benéfico. Genuinamente raro por cualquiera de las dos vías.',
-      reasonLine: r => T(`Condition A (own navāṁśa + Mṛdvāṁśa, no aspect needed): ${hf(r.conditionA.pass)} — navāṁśa sign ${r.ownNavamsa.navamsaSign} (needs Sagittarius/Pisces): ${hf(r.ownNavamsa.pass)}; Mṛdvāṁśa ordinal ${r.mridvamsha.ordinal}/60 (needs ${r.mridvamsha.threshold}): ${hf(r.mridvamsha.pass)}. Condition B (Gopurāṁśa + benefic aspect): ${hf(r.conditionB.pass)} — own sign in D1+D3+D4+D7 together: ${hf(r.gopuramsha.pass)}; benefic aspect to Jupiter: ${hf(r.beneficAspect.pass)}.`,
-        `Condición A (navāṁśa propio + Mṛdvāṁśa, sin aspecto necesario): ${hf(r.conditionA.pass)} — signo navāṁśa ${r.ownNavamsa.navamsaSign} (necesita Sagitario/Piscis): ${hf(r.ownNavamsa.pass)}; ordinal Mṛdvāṁśa ${r.mridvamsha.ordinal}/60 (necesita ${r.mridvamsha.threshold}): ${hf(r.mridvamsha.pass)}. Condición B (Gopurāṁśa + aspecto benéfico): ${hf(r.conditionB.pass)} — signo propio en D1+D3+D4+D7 a la vez: ${hf(r.gopuramsha.pass)}; aspecto benéfico a Júpiter: ${hf(r.beneficAspect.pass)}.`) }
+      glossEn:'"Knowledge of the three times" — past, present, and future. Either of two paths satisfies it: Jupiter in its own navāṁśa while also landing precisely on the Mṛdvāṁśa (a specific D60 ordinal) — no aspect needed — or Jupiter reaching Gopurāṁśa (the 4th rung of the general Vaiśeṣikāṁśa dignity ladder in the Daśavarga set — own sign in at least 4 of the 10 vargas; since the ladder is cumulative, any higher rung such as Siṃhāsana also satisfies this) while aspected by a benefic. Genuinely rare either way.',
+      glossEs:'"Conocimiento de los tres tiempos" — pasado, presente y futuro. Se cumple por cualquiera de dos vías: Júpiter en su propio navāṁśa y a la vez exactamente en el Mṛdvāṁśa (un ordinal D60 preciso) — sin necesitar aspecto — o Júpiter alcanzando Gopurāṁśa (el 4.º peldaño de la escala general de dignidad Vaiśeṣikāṁśa del conjunto Daśavarga — signo propio en al menos 4 de los 10 vargas; al ser una escala acumulativa, un peldaño superior como Siṃhāsana también lo cumple) aspectado por un benéfico. Genuinamente raro por cualquiera de las dos vías.',
+      reasonLine: r => T(`Condition A (own navāṁśa + Mṛdvāṁśa, no aspect needed): ${hf(r.conditionA.pass)} — navāṁśa sign ${r.ownNavamsa.navamsaSign} (needs Sagittarius/Pisces): ${hf(r.ownNavamsa.pass)}; Mṛdvāṁśa ordinal ${r.mridvamsha.ordinal}/60 (needs ${r.mridvamsha.threshold}): ${hf(r.mridvamsha.pass)}. Condition B (Gopurāṁśa + benefic aspect): ${hf(r.conditionB.pass)} — Vaiśeṣikāṁśa count in Daśavarga: ${r.gopuramsha.count}/10 (needs ≥4): ${hf(r.gopuramsha.pass)}; benefic aspect to Jupiter: ${hf(r.beneficAspect.pass)}.`,
+        `Condición A (navāṁśa propio + Mṛdvāṁśa, sin aspecto necesario): ${hf(r.conditionA.pass)} — signo navāṁśa ${r.ownNavamsa.navamsaSign} (necesita Sagitario/Piscis): ${hf(r.ownNavamsa.pass)}; ordinal Mṛdvāṁśa ${r.mridvamsha.ordinal}/60 (necesita ${r.mridvamsha.threshold}): ${hf(r.mridvamsha.pass)}. Condición B (Gopurāṁśa + aspecto benéfico): ${hf(r.conditionB.pass)} — conteo Vaiśeṣikāṁśa en Daśavarga: ${r.gopuramsha.count}/10 (necesita ≥4): ${hf(r.gopuramsha.pass)}; aspecto benéfico a Júpiter: ${hf(r.beneficAspect.pass)}.`) }
   ];
   const allYogaEntries = JNANA_YOGAS.concat(rajYogaEntries);
   const jnanaYogaActiveCount = allYogaEntries.filter(y=>y.result.present).length;
@@ -10013,6 +10018,28 @@ const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
     <div class="hint" style="margin:8px 0 0;">${T('(r) = retrograde at birth. Dignity (own/exalted/friend/neutral/enemy/debilitated) is read off the sign each chart places the graha in — the same rule for both D1 and D9. The third table is a separate, independent lens on the same natal placements: how many bindus (0–8) each graha\'s own Bhinnāṣṭakavarga assigns to the sign it was born in (5+ strong, 4 average, 0–3 weak), plus the Sarvāṣṭakavarga total (all 7 grahas\' bindus) for that sign — average 28, above is supportive, below 25 weak. Dignity measures the graha\'s relationship to its sign; bindus count contributions from 8 sources — the two can genuinely disagree about the same placement, which is why they\'re shown side by side rather than merged. Rāhu/Ketu have no Bhinnāṣṭakavarga in this system (7 grahas only), so they show only the Sarva column.','(r) = retrógrado al nacer. La dignidad (propio/exaltado/amigo/neutral/enemigo/debilitado) se lee según el signo en que cada carta ubica al graha — la misma regla para D1 y D9. La tercera tabla es una lente separada e independiente sobre las mismas posiciones natales: cuántos bindus (0–8) asigna el propio Bhinnāṣṭakavarga de cada graha al signo en que nació (5+ fuerte, 4 promedio, 0–3 débil), más el total de Sarvāṣṭakavarga (los bindus de los 7 graha) para ese signo — promedio 28, por encima es favorable, por debajo de 25 débil. La dignidad mide la relación del graha con su signo; los bindus cuentan contribuciones de 8 fuentes — los dos pueden discrepar genuinamente sobre la misma posición, por eso se muestran lado a lado en vez de fusionados. Rāhu/Ketu no tienen Bhinnāṣṭakavarga en este sistema (solo 7 graha), así que muestran solo la columna Sarva.')}</div>
     <div style="height:8px"></div>
 
+    <div class="panel"><div class="hd"><h2>${T('Jaimini Chara Karakas','Chara Karakas de Jaimini')}</h2><span class="note">${T('Ātmakāraka scheme','esquema Ātmakāraka')}</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('Jaimini\'s system ranks the seven classical grahas — Sun through Saturn — by degree within their own sign; whichever graha holds the highest degree becomes Ātmakāraka ("significator of the soul"), and the remaining six fill out the scheme down to Dārakāraka. Unlike Parāśara\'s Lagna-centered approach, Jaimini reads much of the chart through this one point instead — the daśā periods of whichever graha is Ātmakāraka are often read as carrying the chart\'s central life-agenda.','El sistema de Jaimini clasifica los siete graha clásicos — del Sol a Saturno — por el grado dentro de su propio signo; el graha con el grado más alto se convierte en Ātmakāraka ("significador del alma"), y los seis restantes completan el esquema hasta Dārakāraka. A diferencia del enfoque de Parāśara centrado en el Lagna, Jaimini lee buena parte de la carta a través de este único punto — los períodos de daśā del graha que sea Ātmakāraka suelen leerse como portadores de la agenda central de la vida.')}</div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Karaka','Karaka')}</th><th>${T('Graha','Graha')}</th><th>${T('Signifies','Significa')}</th><th>${T('Position','Posición')}</th><th>${T('House (from Lagna)','Casa (desde Lagna)')}</th></tr></thead><tbody>${
+          charaKarakas.map(k=>{
+            const sid = norm360(birthPos[k.graha].sidereal);
+            const sign = SIGNS[Math.floor(sid/30)];
+            const house = bsHouseFromAsc(sid, lagnaIdx);
+            return `<tr>
+              <td class="wide">${T(k.karaka.en, k.karaka.es)}</td>
+              <td style="color:${MALEFIC_GRAHAS.includes(k.graha)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(k.graha)}</td>
+              <td style="font-size:11px; color:var(--ink-dim);">${T(k.karaka.sigEn, k.karaka.sigEs)}</td>
+              <td>${sign} ${fmtDeg(k.degInSign)}</td>
+              <td>${T(house+ordinalSuffix(house), 'casa '+house)}</td>
+            </tr>`;
+          }).join('')
+        }</tbody></table></div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T(`<b>Karakāṁśa</b>: the Navāṁśa sign occupied by the Ātmakāraka (${gNameNatal(atmakarakaGraha)}) — here, <b>${karakamshaSign}</b>. Jaimini tradition treats this sign as a second, soul-level "Lagna" for reading the chart's deeper purpose, separate from the birth-chart Lagna used everywhere else on this page.`, `<b>Karakāṁśa</b>: el signo de Navāṁśa que ocupa el Ātmakāraka (${gNameNatal(atmakarakaGraha)}) — aquí, <b>${karakamshaSign}</b>. La tradición de Jaimini trata este signo como un segundo "Lagna" a nivel del alma para leer el propósito más profundo de la carta, distinto del Lagna natal usado en el resto de esta página.`)}</div>
+        <div class="hint" style="margin-top:10px; line-height:1.6; border-left:2px solid var(--gold); padding-left:10px;">${T('Note: this app computes the standard 7-graha Jaimini scheme only (Sun–Saturn). A less common 8-karaka variant additionally considers Rāhu (ranked by 30° minus its degree, since Rāhu is always treated as retrograde) as a possible Ātmakāraka. Some modern teachers describe that variant as most relevant to spiritually realized or renunciate charts, but this app has not located a rigorous, well-attested primary-source citation for that specific claim — treat it as a noted tradition among some teachers, not a verified classical rule, and it is not computed here.','Nota: esta app calcula únicamente el esquema Jaimini estándar de 7 graha (Sol–Saturno). Una variante menos común de 8 karakas considera además a Rāhu (clasificado por 30° menos su grado, ya que Rāhu se trata siempre como retrógrado) como posible Ātmakāraka. Algunos maestros modernos describen esa variante como más relevante para cartas espiritualmente realizadas o renunciantes, pero esta app no ha localizado una cita de fuente primaria rigurosa y bien atestiguada para esa afirmación específica — trátese como una tradición señalada por algunos maestros, no como una regla clásica verificada, y no se calcula aquí.')}</div>
+      </div>
+    </div>
+
     <div class="panel"><div class="hd"><h2>${T('Functional benefic / malefic by house lordship','Benéfico / maléfico funcional por señorío de casas')}</h2></div>
       <div class="bd">
         <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Rules','Gobierna')}</th><th>${T('Natural','Natural')}</th><th>${T('Applicable rules','Reglas aplicables')}</th><th>${T('Net','Neto')}</th></tr></thead><tbody>${funcRows}</tbody></table></div>
@@ -10430,6 +10457,30 @@ const GRAHA_KARAKA = {
   Rahu:{en:"ambition and the unconventional",es:"la ambición y lo poco convencional"},
   Ketu:{en:"detachment and past-life karma",es:"el desapego y el karma de vidas pasadas"}
 };
+// Jaimini Chara Karakas — standard 7-graha scheme (Sun through Saturn only).
+// Ranked by degree within own sign, highest wins each rank; Ātmakāraka is
+// rank 1, the "soul significator." Rāhu/Ketu are deliberately excluded here —
+// a less common 8-karaka variant (Rāhu ranked by 30° minus its degree, since
+// it is always retrograde) is discussed in some modern sources as relevant
+// mainly to renunciate or saintly charts, but this app has not found a
+// rigorous primary-source citation for that specific claim, so it is not
+// computed here; see the hedge note rendered alongside this on the Natal page.
+const JAIMINI_KARAKA_GRAHAS = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"];
+const JAIMINI_KARAKA_NAMES = [
+  {en:"Ātmakāraka",es:"Ātmakāraka",sigEn:"the soul, life's central agenda",sigEs:"el alma, la agenda central de la vida"},
+  {en:"Amātyakāraka",es:"Amātyakāraka",sigEn:"career and counsel",sigEs:"la carrera y el consejo"},
+  {en:"Bhrātṛkāraka",es:"Bhrātṛkāraka",sigEn:"siblings and courage",sigEs:"los hermanos y el coraje"},
+  {en:"Mātṛkāraka",es:"Mātṛkāraka",sigEn:"the mother and home",sigEs:"la madre y el hogar"},
+  {en:"Putrakāraka",es:"Putrakāraka",sigEn:"children and intelligence",sigEs:"los hijos y la inteligencia"},
+  {en:"Gnātikāraka",es:"Gnātikāraka",sigEn:"relatives and obstacles",sigEs:"los parientes y los obstáculos"},
+  {en:"Dārakāraka",es:"Dārakāraka",sigEn:"the spouse and partnerships",sigEs:"el cónyuge y las sociedades"}
+];
+function computeAtmakaraka(pos){
+  return JAIMINI_KARAKA_GRAHAS
+    .map(g => ({ graha: g, degInSign: norm360(pos[g].sidereal) % 30 }))
+    .sort((a,b) => b.degInSign - a.degInSign)
+    .map((r,i) => ({ ...r, karaka: JAIMINI_KARAKA_NAMES[i] }));
+}
 const DIGNITY_TAIL = {
   "Exalted":   {en:"unusually strong here (exalted)",es:"inusualmente fuerte aquí (exaltado)"},
   "Own":       {en:"strong in its own sign",es:"fuerte en su propio signo"},
