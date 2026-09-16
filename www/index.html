@@ -732,7 +732,6 @@
         <button type="button" data-page="pageHorary" data-i18n="navHorary">Horary / Praśna (SBC)</button>
         <button type="button" data-page="pageChintamani" data-i18n="navChintamani">Muhūrta</button>
         <button type="button" data-page="pageMatchmaking" data-i18n="navMatchmaking">Matchmaking</button>
-        <button type="button" data-page="pageRemedies" data-i18n="navRemedies">Remedies &amp; Combinations</button>
         <button type="button" data-page="pageTarot" data-i18n="navTarot">Tarot (Shadow)</button>
               </div>
     </div>
@@ -921,9 +920,6 @@
   <div class="result-col" id="antaraPageContent" style="max-width:1100px; margin:0 auto;"></div>
 </div>
 
-<div id="pageRemedies" class="page">
-  <div class="result-col" id="remediesPageContent" style="max-width:900px; margin:0 auto;"></div>
-</div>
 
 <div id="pageChintamani" class="page">
   <div class="result-col" id="chintamaniPageContent" style="max-width:1000px; margin:0 auto;"></div>
@@ -1046,7 +1042,6 @@ const I18N = {
   navAnatomy: { en:`Anatomy`, es:`Anatomía` },
   navCalendar: { en:`Calendar`, es:`Calendario` },
   navAntara: { en:`Antara Chakra (Portents)`, es:`Antara Chakra (Presagios)` },
-  navRemedies: { en:`Remedies &amp; Combinations`, es:`Remedios y Combinaciones` },
   navAshtakavarga: { en:`Ashtakavarga`, es:`Ashtakavarga` },
   navHorary: { en:`Horary / Praśna (SBC)`, es:`Horaria / Praśna (SBC)` },
   navChintamani: { en:`Muhūrta`, es:`Muhūrta` },
@@ -1680,15 +1675,27 @@ const NAK_PADA_CONSONANTS = {
 };
 
 // Reverse of NAK_PADA_CONSONANTS, for the Horary/Praśna page: syllable
-// (lowercased) -> {star, pada}. Ch. "Horary Astrology" (p.27): "find out
-// pada, Star owned by this consonant" — the question's first syllable is
-// looked up the opposite way from how a birth name's first letter is used
-// for the Reference Person's Consonant Pañcaka elsewhere in this app.
+// (lowercased) -> every {star, pada} that consonant is printed under. Ch.
+// "Horary Astrology" (p.27): "find out pada, Star owned by this consonant"
+// — the question's first syllable is looked up the opposite way from how a
+// birth name's first letter is used for the Reference Person's Consonant
+// Pañcaka elsewhere in this app.
+// A handful of consonants (Na, Tha, Da, Ja, Gha, Do, Du, De) are printed
+// under more than one star in the source's pada table — an array here
+// (rather than a single overwritten entry) is deliberate, so the auto-detect
+// path can surface the ambiguity instead of silently keeping whichever star
+// happened to be inserted last. PRASNA_KEY_INDEX below gives each individual
+// star+pada option below a unique, unambiguous key for manual selection.
 const PRASNA_SYLLABLE_INDEX = {};
+const PRASNA_KEY_INDEX = {};
 (function(){
   for (const star in NAK_PADA_CONSONANTS){
     NAK_PADA_CONSONANTS[star].forEach((syl, i)=>{
-      PRASNA_SYLLABLE_INDEX[syl.toLowerCase()] = {star, pada:i+1, syllable:syl};
+      const pada = i+1;
+      const entry = {star, pada, syllable:syl};
+      const key = syl.toLowerCase();
+      (PRASNA_SYLLABLE_INDEX[key] || (PRASNA_SYLLABLE_INDEX[key]=[])).push(entry);
+      PRASNA_KEY_INDEX[`${star}::${pada}`] = entry;
     });
   }
 })();
@@ -1696,6 +1703,9 @@ const PRASNA_SYLLABLE_INDEX = {};
 // Longest-prefix match of a typed question's opening word against the 108
 // nakshatra-pada syllables above (1-4 letters each) — mirrors how a
 // practitioner reads a question's first syllable off the printed table.
+// Returns the array of every star+pada printed under the matched consonant
+// (usually length 1; see PRASNA_SYLLABLE_INDEX comment for the ambiguous
+// ones), or null if no prefix of the typed word matches any consonant.
 function matchPrasnaSyllable(text){
   const alpha = ((text||'').trim().match(/[A-Za-z]+/) || [''])[0];
   if (!alpha) return null;
@@ -8219,8 +8229,7 @@ const PAGES_NEEDING_BIRTH_DATA = {
   pageAnatomy: {contentId:'anatomyPageContent', render:()=>renderAnatomyPage()},
   pageCalendar: {contentId:'calendarPageContent', render:()=>renderCalendarPage()},
   pageChintamani: {contentId:'chintamaniPageContent', render:()=>renderChintamaniPage()},
-  pageMatchmaking: {contentId:'matchmakingPageContent', render:()=>renderMatchmakingPage()},
-  pageRemedies: {contentId:'remediesPageContent', render:()=>renderRemediesPage()}
+  pageMatchmaking: {contentId:'matchmakingPageContent', render:()=>renderMatchmakingPage()}
 };
 function renderPageOrBirthDataPlaceholder(pageId){
   const spec = PAGES_NEEDING_BIRTH_DATA[pageId];
@@ -8608,46 +8617,12 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Yoga combinations','Combinaciones de yoga')}</h2><span class="note">${rajYoga.pairs.length+rajYoga.dualRulers.length+jnanaYogaActiveCount} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('Ten classical yoga-formation rules checked against this birth chart: Raja Yoga (power/status, below) plus nine knowledge-and-insight yogas from the Jñāna Yoga series and one more (Trikālagnāna). Each is a distinct, independently-sourced classical condition — none of these overlap with the 28 Chara Yogas (a separate, daily-panchāṅga system) or the Cross-Varga Yoga Aggregate panel below. Full technical reasoning per yoga: menu → Yoga/Combinations.','Diez reglas clásicas de formación de yoga evaluadas contra esta carta natal: Raja Yoga (poder/estatus, abajo) más nueve yogas de conocimiento y perspicacia de la serie Jñāna Yoga y uno más (Trikālagnāna). Cada uno es una condición clásica distinta y de fuente independiente — ninguno se superpone con los 28 Chara Yogas (un sistema separado de panchāṅga diario) ni con el panel de Agregado de Yogas entre Vargas de más abajo. Razonamiento técnico completo por yoga: menú → Yoga/Combinaciones.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('Ten classical yoga-formation rules checked against this birth chart: Raja Yoga (power/status, below) plus nine knowledge-and-insight yogas from the Jñāna Yoga series and one more (Trikālagnāna). Each is a distinct, independently-sourced classical condition — none of these overlap with the 28 Chara Yogas (a separate, daily-panchāṅga system). Full technical reasoning per yoga: menu → Yoga/Combinations.','Diez reglas clásicas de formación de yoga evaluadas contra esta carta natal: Raja Yoga (poder/estatus, abajo) más nueve yogas de conocimiento y perspicacia de la serie Jñāna Yoga y uno más (Trikālagnāna). Cada uno es una condición clásica distinta y de fuente independiente — ninguno se superpone con los 28 Chara Yogas (un sistema separado de panchāṅga diario). Razonamiento técnico completo por yoga: menú → Yoga/Combinaciones.')}</div>
         <div style="font-size:13px; font-weight:600; color:var(--gold); margin-bottom:6px;">${T('Raja Yoga — power combinations','Raja Yoga — combinaciones de poder')}</div>
         <div class="hint" style="margin-bottom:10px;">${T('This chart\'s angle-houses (self, home, partnerships, career) and fortune-houses (creative intelligence, dharma) are checked for shared rulers — a classical marker of elevated status or success.','Se revisa si las casas angulares de esta carta (uno mismo, hogar, asociaciones, carrera) y las de fortuna (inteligencia creativa, dharma) comparten regente — un marcador clásico de estatus o éxito elevado.')}</div>
         ${rajYogaHtml}
         <div style="font-size:13px; font-weight:600; color:var(--gold); margin:14px 0 6px;">${T('Jñāna Yoga series — knowledge & insight combinations','Serie Jñāna Yoga — combinaciones de conocimiento y perspicacia')}</div>
         ${jnanaYogaHtml}
-      </div>
-    </div>
-
-    
-    <div class="panel"><div class="hd"><h2>${T('Cross-Varga Yoga Aggregate','Agregado de yogas entre vargas')}</h2><span class="note">${T('all 16 divisions','las 16 divisiones')}</span></div>
-      <div class="bd">
-        <div class="hint" style="margin-bottom:10px;">${T('Each graha is scored across every divisional chart (D1–D60), not one at a time. A graha dignified in MANY vargas carries the combination more strongly — a synthesis of the classical principle that a yoga must repeat across divisions to manifest fully. Shown: dignity tally per graha and any Mahāpuruṣa yoga whose planet is exalted or in own sign in 8+ divisions.','Cada graha se evalúa en todas las cartas divisionales (D1–D60), no de una en una. Un graha dignificado en MUCHOS vargas sostiene la combinación con más fuerza — síntesis del principio clásico de que un yoga debe repetirse entre divisiones para manifestarse plenamente. Se muestra: recuento de dignidad por graha y cualquier Mahāpuruṣa cuyo planeta esté exaltado o en su propio signo en 8+ divisiones.')}</div>
-        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>Ex</th><th>${T('Own','Propio')}</th><th>${T('Friendly','Amistoso')}</th><th>${T('Debilitated','Debilitado')}</th><th>${T('Verdict','Veredicto')}</th></tr></thead><tbody>
-        ${(() => {
-          const tally = {};
-          GRAHA_LIST.forEach(g => {
-            const t = {Exalted:0,Own:0,Friend:0,Debilitated:0};
-            VARGA_DEFS.forEach(def => {
-              GRAHA_LIST.forEach(h => {}); // no-op keep scope
-              const sig = def.key==='D1' ? Math.floor(norm360(birthPos[g].sidereal)/30) : vargaSignForKey(def.key, birthPos[g].sidereal);
-              if (sig==null) return;
-              const tier = dignityTierInSign(g, sig);
-              if (t[tier]!==undefined) t[tier]++;
-            });
-            tally[g] = t;
-          });
-          return GRAHA_LIST.map(g => {
-            const t = tally[g];
-            const strong = t.Exalted + t.Own;
-            const mp = MAHAPURUSHA_YOGA[g];
-            const verdict = (mp && strong >= 8) ? T(`${mp.name} reinforced (${strong}/16)`,`${mp.name} reforzado (${strong}/16)`)
-                          : strong >= 8 ? T(`Strong across vargas (${strong}/16)`,`Fuerte entre vargas (${strong}/16)`)
-                          : strong >= 5 ? T(`Moderate support (${strong}/16)`,`Apoyo moderado (${strong}/16)`)
-                          : t.Debilitated >= 5 ? T(`Widely afflicted (${t.Debilitated}/16 deb.)`,`Ampliamente aflicto (${t.Debilitated}/16 deb.)`)
-                          : T('Mixed / weak','Mixto / débil');
-            return `<tr><td class="wide">${gNameNatal(g)}</td><td>${t.Exalted||'—'}</td><td>${t.Own||'—'}</td><td>${t.Friend||'—'}</td><td>${t.Debilitated||'—'}</td><td><span class="tag ${strong>=8?'good':(t.Debilitated>=5?'bad':'neutral')}">${verdict}</span></td></tr>`;
-          }).join('');
-        })()}
-        </tbody></table></div>
       </div>
     </div>
 
@@ -10076,7 +10051,7 @@ function renderAnatomyPage(){
               <div class="k">${T('Poison zone','Zona de veneno')}</div><div class="v"><b style="color:var(--vermilion)">${deha.poison.title}</b> ${deha.poison.tier==='severe'?`<span class="tag bad">${T('severe','severo')}</span>`:deha.poison.tier==='heightened'?`<span class="tag bad">${T('heightened','elevado')}</span>`:deha.poison.tier==='watch'?`<span class="tag neutral">${T('watch','vigilar')}</span>`:`<span class="tag neutral">${T('quiet','tranquilo')}</span>`} <span style="color:var(--slate)">(${deha.poison.sign})</span></div>
               <div class="k">${T('Reading','Lectura')}</div><div class="v">${deha.poison.note}.</div>
               <div class="k">${T('Avoid','Evitar')}</div><div class="v">${deha.poison.avoid}</div>
-              ${deha.poison.remedy ? `<div class="k">${T('Traditionally','Tradicionalmente')}</div><div class="v">${T(`${deha.poison.lord}'s upāya: ${deha.poison.remedy.mantra} · ${deha.poison.remedy.color} · ${deha.poison.remedy.donation}`,`Upāya de ${GRAHA_ES[deha.poison.lord]||deha.poison.lord}: ${deha.poison.remedy.mantra} · ${GRAHA_REMEDY_ES[deha.poison.lord].color} · ${GRAHA_REMEDY_ES[deha.poison.lord].donation}`)} <span style="color:var(--slate); font-size:11px;">${T('(the Poison zone\'s own ruling graha — see Remedies page for the full table)','(el graha regente propio de la zona de veneno — ver la página de Remedios para la tabla completa)')}</span></div>` : ''}
+              ${deha.poison.remedy ? `<div class="k">${T('Traditionally','Tradicionalmente')}</div><div class="v">${T(`${deha.poison.lord}'s upāya: ${deha.poison.remedy.mantra} · ${deha.poison.remedy.color} · ${deha.poison.remedy.donation}`,`Upāya de ${GRAHA_ES[deha.poison.lord]||deha.poison.lord}: ${deha.poison.remedy.mantra} · ${GRAHA_REMEDY_ES[deha.poison.lord].color} · ${GRAHA_REMEDY_ES[deha.poison.lord].donation}`)} <span style="color:var(--slate); font-size:11px;">${T('(the Poison zone\'s own ruling graha)','(el graha regente propio de la zona de veneno)')}</span></div>` : ''}
             </div>
             <div class="kv" style="margin-top:14px;">
               <div class="k">${T('Vitality zone','Zona de vitalidad')}</div><div class="v"><b style="color:var(--indigo)">${deha.vitality.title}</b> <span style="color:var(--slate)">(${deha.vitality.sign})</span></div>
@@ -10698,14 +10673,6 @@ function renderAntaraChakraPage(){
   `;
 }
 
-// ---- Remedies & Combinations ----
-// Deliberately independent of runAnalysis()'s score: no Vedha/Latta/Tārā
-// input at all. The SBC source text has no remedy chapter of its own, so
-// gating a remedy behind an SBC Vedha hit conflated two unrelated systems —
-// this page picks a planet or direction directly instead.
-let remediesSelectedGraha = 'Sun';
-function setRemediesGraha(g){ remediesSelectedGraha = g; renderRemediesPage(); }
-
 function isKendraFrom(refSid, testSid){
   const refSign = Math.floor(norm360(refSid)/30);
   const testSign = Math.floor(norm360(testSid)/30);
@@ -10986,155 +10953,6 @@ function dreshkanaInsightYoga(pos, birthPos){
   return { present: hits.length > 0, reasons: { thrivingPlanetsConnectedToLagna: hits } };
 }
 
-// Natal check only (Mahāpuruṣa Yoga is a birth-chart feature, not a transit
-// one) — needs the reference person's full birth positions, only available
-// in "compute from birth data" mode.
-function mahapurushaActiveInChart(birthPos, graha){
-  if (!birthPos || !birthPos[graha] || !birthPos.Moon) return false;
-  const sid = birthPos[graha].sidereal;
-  if (!isOwnOrExalt(graha, sid)) return false;
-  return isKendraFrom(birthPos._ascSidereal, sid) || isKendraFrom(birthPos.Moon.sidereal, sid);
-}
-
-function renderRemediesPage(){
-  const container = document.getElementById('remediesPageContent');
-  if (!container) return;
-
-  const refInfo = getReferencePanchaka();
-  const refP = refInfo.panch;
-  const birthPos = refInfo.birthPos;
-
-  const g = remediesSelectedGraha;
-  const rTable = LANG==='es' ? GRAHA_REMEDY_ES : GRAHA_REMEDY;
-  const r = GRAHA_REMEDY[g], rl = rTable[g];
-  const grahaOptions = GRAHA_LIST.map(x=>`<option value="${x}" ${g===x?'selected':''}>${x}</option>`).join('');
-
-  const maha = MAHAPURUSHA_YOGA[g];
-  let mahaHtml = '';
-  if (maha){
-    const active = mahapurushaActiveInChart(birthPos, g);
-    mahaHtml = `
-      <div style="margin-top:14px; border:1px solid var(--gold-dim); background:rgba(209,169,78,0.07); padding:10px 12px; font-size:12px; color:var(--ink-dim);">
-        <b>${maha.name} ${T('Yoga','Yoga')}</b> — ${T('when','cuando')} ${g} ${T('is in its own sign or exaltation, in a kendra (1st/4th/7th/10th) from the Lagna or the Moon.','está en su propio signo o exaltación, en un kendra (1.º/4.º/7.º/10.º) desde el Lagna o la Luna.')}
-        <div style="margin-top:6px;">${T(maha.desc, maha.descEs)}</div>
-        <div style="margin-top:8px;"><span class="tag ${active?'good':'neutral'}">${active ? T('Present in this birth chart','Presente en esta carta natal') : T('Not present in this birth chart','No presente en esta carta natal')}</span></div>
-      </div>`;
-  }
-
-  const lagnaSignForRemedy = SIGNS[Math.floor(norm360(birthPos._ascSidereal)/30)];
-  const pgg = PATHAK_GEM_GUIDANCE[g];
-  let pathakHtml = '';
-  if (pgg){
-    let verdict, gemText;
-    if (pgg.wear.includes(lagnaSignForRemedy)){
-      verdict = {cls:'good', label:T('Wear-eligible for this Lagna','Apto para llevar según este Lagna')};
-      gemText = g==='Saturn'
-        ? (isOwnOrExalt('Saturn', birthPos.Saturn.sidereal) ? T(pgg.gemStrongEn,pgg.gemStrongEs) : T(pgg.gemWeakEn,pgg.gemWeakEs))
-        : T(pgg.gem, pgg.gemEs);
-    } else if (pgg.mixed && pgg.mixed.includes(lagnaSignForRemedy)){
-      verdict = {cls:'gold', label:T('Combination gem, not the plain one','Gema combinada, no la simple')};
-      gemText = T(pgg.mixedGemEn, pgg.mixedGemEs);
-    } else if (g==='Moon' && pgg.ownSignBonus.includes(lagnaSignForRemedy) && isOwnOrExalt('Moon', birthPos.Moon.sidereal)){
-      verdict = {cls:'good', label:T('Wear-eligible — natal Moon is in its own sign','Apto para llevar — la Luna natal está en su propio signo')};
-      gemText = T(pgg.gem, pgg.gemEs);
-    } else {
-      verdict = {cls:'bad', label:T('Resist the temptation — worship/donation instead','Resiste la tentación — culto/donación en su lugar')};
-      gemText = g==='Saturn' ? T(pgg.avoidGemEn, pgg.avoidGemEs) : null;
-    }
-    pathakHtml = `
-      <div style="margin-top:14px; border:1px solid var(--line); padding:10px 12px; font-size:12px; color:var(--ink-dim);">
-        <b>${T('Lagna-conditional gemstone guidance','Guía de gema condicionada por el Lagna')}</b>
-        <div style="margin-top:6px;">${T('Reference person\'s Lagna:','Lagna de la persona de referencia:')} <b style="color:var(--ink);">${lagnaSignForRemedy}</b></div>
-        <div style="margin-top:6px;"><span class="tag ${verdict.cls}">${verdict.label}</span></div>
-        ${gemText ? `<div style="margin-top:6px;">${gemText}</div>` : ''}
-      </div>`;
-  } else if (g==='Rahu' || g==='Ketu'){
-    pathakHtml = `
-      <div style="margin-top:14px; border:1px solid var(--line); padding:10px 12px; font-size:12px; color:var(--ink-dim);">
-        <b>${T('Lagna-conditional gemstone guidance','Guía de gema condicionada por el Lagna')}</b>
-        <div style="margin-top:6px;">${T(`${g}'s own rule isn't Lagna-conditional like the other 7 grahas — it keys instead to which Nakṣatra ${g} rules/occupies (1st, 2nd, 4th, 6th, 8th or 9th star from a reference point → wearable; 3rd, 5th or 7th star → avoid, worship Durgā/Hanumān (Rahu) or Gaṇeśa/Chāmuṇḍā (Ketu) instead). Not computed live here — the counting base isn't pinned down precisely enough for this app to assert a yes/no.`, `La regla de ${g} no es condicional al Lagna como la de los otros 7 graha — se vincula en cambio al Nakṣatra que ${g} gobierna/ocupa (estrella 1.ª, 2.ª, 4.ª, 6.ª, 8.ª o 9.ª desde un punto de referencia → apto para llevar; estrella 3.ª, 5.ª o 7.ª → evitar, culto a Durgā/Hanumān (Rahu) o Gaṇeśa/Chāmuṇḍā (Ketu) en su lugar). No se calcula en vivo aquí — la base de conteo no está lo bastante precisada para que esta app afirme un sí/no.`)}</div>
-      </div>`;
-  }
-
-  let yogaCombosHtml = `
-    <h3 style="margin:18px 0 6px; font-size:13px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">Yoga Combinations — Case Studies</h3>
-    <div class="hint" style="line-height:1.6; margin-bottom:14px;">${T('These are real historical charts reached for often in the tradition — study them as patterns to notice rather than verdicts to chase. None of the placement claims here were independently re-verified against a live calculation engine; birth times are inherently approximate, and what any of this describes is a capacity, not a fixed judgment of the people named.','Estos son casos reales de cartas históricas a los que se suele recurrir en la tradición — étudialos como patrones para notar, no como veredictos para perseguir. Ninguna de las afirmaciones de ubicación aquí fue verificada independientemente contra un motor de cálculo en vivo; las horas de nacimiento son inherentemente aproximadas, y lo que cualquiera de esto describe es una capacidad, no un juicio fijo de las personas nombradas.')}</div>
-
-    <div class="yoga-case" style="margin-top:14px; font-size:12.5px; line-height:1.7; color:var(--ink-dim);">
-      <b>Sasa Yoga (शश — "the hare"), one of the five Panchamahapurusha Yogas (पञ्च-महापुरुष = "five great-persons")</b>
-      <br><br>
-      Sasa belongs to this set of five, formed when Shani — Saturn, our teacher of patience and structure — sits in a kendra (केन्द्र, a pivot-point: houses 1, 4, 7, or 10) from the Lagna (लग्न — the ascendant, or rising point), while occupying its own sign, or Swakshetra (स्वक्षेत्र — "own field"): Capricorn or Aquarius, or its exaltation sign, or Uccha (उच्च — "high place"): Libra. Classically this is read as discipline that becomes authority: staying power long enough that institutions begin to answer to you. Barack Obama's chart is among the better-documented celebrity examples I've come across — his birth data comes from an official record, and multiple Jyotish writers place his Saturn in Capricorn, in the first house, a kendra, which they read as satisfying the yoga. Even a well-attested placement like this one describes temperament and timing, not a promise; what a person does with Saturnine staying-power remains theirs to choose.
-    </div>
-
-    <div class="yoga-case" style="margin-top:14px; font-size:12.5px; line-height:1.7; color:var(--ink-dim);">
-      <b>Neechabhanga Raja Yoga (नीच-भङ्ग — "cancellation of debility")</b>
-      <br><br>
-      Neecha means low or debilitated; bhanga means breaking. Classical texts describe several distinct ways a debilitated planet's weakness can be undone — case by case, rather than by one fixed formula. The most commonly cited route: the planet that rules the debilitated planet's own sign sits strong in a kendra, usually counted from the Lagna (लग्न, the ascendant) though some readings count from the Moon instead. When the cancellation holds, the very placement that looked like a weakness converts into a raja yoga (राज-योग — "king-combination"), a combination read for standing and reach. It is one of my favorite teaching cases for how this system refuses to let any one placement be a final verdict. In Barack Obama's chart, retrograde — Vakri (वक्री) — Jupiter sits debilitated in the first house, but Saturn, the planet classical writers use to cancel that particular debility, sits right there with it in the same kendra; some who work with his chart connect the pattern to the Jupiter Mahadasha (महादशा — "great period," one of the long planetary cycles the tradition uses to time a life) that began for him in the mid-1990s, though I'd treat any such life-event tie as illustrative rather than demonstrated. I offer this one with real humility about method, since astrologers reason through "cancellation" case by case rather than by fixed formula — but as a teaching case for how difficulty transforms with the right supporting strength, it earns its place in any curriculum. As with every yoga here, this describes a pattern of potential, not a determined outcome for the person, and not a verdict on your own chart.
-    </div>
-
-    <div class="yoga-case" style="margin-top:14px; font-size:12.5px; line-height:1.7; color:var(--ink-dim);">
-      <b>Hamsa Yoga (हंस — "the swan"), one of the five Panchamahapurusha Yogas (पञ्च-महापुरुष = "five great-persons")</b>
-      <br><br>
-      Hamsa is Jupiter's turn among these five great-person combinations: Guru in a kendra from the Lagna (लग्न, the ascendant, or rising point), seated in its own sign (Swakshetra) — Sagittarius or Pisces — or its exaltation sign (Uccha): Cancer. The swan in our tradition is said to separate milk from water, so this yoga reads as discernment: a teacher's moral clarity rather than mere cleverness — a description of temperament, not a verdict on any person's character. Dr. A. P. J. Abdul Kalam, aerospace scientist and later President of India, is the example most often reached for: several charts drawn up for him place Jupiter in Sagittarius, its own sign, sitting in a kendra from the ascendant. His birth date is well recorded, though published birth times vary enough across sources that I'd treat the exact ascendant and house as the commonly reported version rather than a settled one; study the pattern, and hold the specific chart lightly.
-    </div>
-
-    <div class="yoga-case" style="margin-top:14px; font-size:12.5px; line-height:1.7; color:var(--ink-dim);">
-      <b>Budhaditya Yoga (बुध-आदित्य — "Mercury-Sun")</b>
-      <br><br>
-      Budha is Mercury, our planet of language and analysis; Aditya is the Sun, the seat of authority and visibility. When the two conjoin in the same house, tradition reads it as a mind built for articulate, public-facing work — administration, commentary, performance — so long as Mercury isn't burned too close to the Sun's glare, a state classical writers call Asta (अस्त — "set"): combustion, when a planet sits so close to the Sun that its own light is said to be overwhelmed, which can complicate the reading. Amitabh Bachchan is commonly cited alongside Dr. Manmohan Singh and Dr. Kalam, with Sun and Mercury reported together in a stellium — a cluster of several planets in one house — in the eighth house alongside Venus and Mars; I want to flag plainly that Bachchan himself has said he was born in the small hours of the morning, while most astrology sites in circulation use an unconfirmed afternoon time — a discrepancy noted openly even by the databank sites that track it. Take this one as illustrative of the yoga's meaning rather than a verified chart — a good reminder that the map is never quite the territory until the birth record is certain, and that what any of this describes is a capacity, not a fixed judgment of the people named here.
-    </div>
-
-    <div class="yoga-case" style="margin-top:14px; font-size:12.5px; line-height:1.7; color:var(--ink-dim);">
-      <b>Chandra-Mangal Yoga (चन्द्र-मंगल — "Moon-Mars")</b>
-      <br><br>
-      This is a wealth-combination of a different temperament than the standard house-lord Dhana Yogas (धन-योग — dhana = "wealth"): Chandra, the Moon, and Mangal, Mars, conjoined in the same house are read as generating resources through boldness and appetite for risk rather than quiet accumulation; some texts extend the yoga to a mutual-kendra relationship between the two as well, though that reading is looser and not every source accepts it. Bill Gates is the example most often named alongside it. Sources I've compared don't agree with one another on the exact geometry — some describe Mars and Moon opposite each other across the seventh house, others place Mars in the fourth — so while his birth date is public, I would treat any specific house claim here as instructive rather than settled. What the yoga teaches stands regardless of the exact degree: a chart can build wealth through calculated daring, and recognizing that temperament in your own placements is worth more than pinning down any one celebrity's exact hour of birth.
-    </div>
-
-    <div class="yoga-case" style="margin-top:14px; font-size:12.5px; line-height:1.7; color:var(--ink-dim);">
-      <b>Gajakesari Yoga (गज-केसरी — "elephant-lion")</b>
-      <br><br>
-      When Bṛhaspati, our teacher-planet Jupiter, lands in a kendra — kendra (केन्द्र) simply means a pivot-point, houses 1, 4, 7, or 10 counted from the Moon — the tradition names this Gajakesari Yoga, one of the great markers of a dignified, far-seeing mind. I think of it as the elephant's steady strength married to the lion's visibility: breadth of judgment that others notice. Vedic astrology writers reach for this yoga often when a chart shows unusual public credibility paired with sound judgment — it is one of the most frequently cited combinations in the whole tradition, precisely because Jupiter near a kendra from the Moon is common enough to recognize in many well-regarded charts, your own included. Study it as a pattern to notice rather than a name to chase — the yoga describes a capacity for large-scale thinking; what you build with it stays entirely your own work.
-    </div>
-
-    <div class="hint" style="line-height:1.6;">*Wishing you every happiness in this study, patience with the placements that resist easy certainty, and success in all of life's endeavors.*</div>
-  `;
-
-  container.innerHTML = `
-    <div class="panel">
-      <div class="hd"><h2>${T('Yoga &amp; Gemstone Guidance','Guía de Yoga y Gemas')}</h2><span class="note">${T('Mahapurusha yogas and gemstone eligibility for this chart','Yogas Mahapurusha y elegibilidad de gemas para esta carta')}</span></div>
-      <div class="bd">
-        ${mahaHtml}
-        ${yogaCombosHtml}
-        ${pathakHtml}
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="hd"><h2>${T('Remedies by direction','Remedios por dirección')}</h2></div>
-      <div class="bd">
-        <div class="hint" style="margin-bottom:10px;">${T('If an affliction traces to a direction rather than a planet — e.g. via the Antara Chakra page, or which way something ominous was noticed — here is that direction\'s deity and remedy.','Si una aflicción se rastrea a una dirección en vez de a un planeta — p. ej. mediante la página Antara Chakra, o hacia dónde se notó algo ominoso — aquí está la deidad y el remedio de esa dirección.')}</div>
-        <div class="tblwrap"><table>
-          <tr><th>${T('Direction','Dirección')}</th><th>${T('Deity','Deidad')}</th><th>${T('Remedy','Remedio')}</th></tr>
-          ${PRASNA_DIRECTION_REMEDY.map(d=>`<tr><td class="wide">${T(d.dir,d.dirEs)}</td><td>${d.deity}</td><td>${T(d.remedy,d.remedyEs)}</td></tr>`).join('')}
-        </table></div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="hd"><h2>${T('General principle','Principio general')}</h2></div>
-      <div class="bd">
-        <div class="kv">
-          <div class="k">${T('Framework','Marco')}</div><div class="v">${T('Affliction is read as the residue of past karma; the classical remedy combines medicine, charity (dāna), mantra repetition (japa), fire ritual (homa) and worship — not any one of these alone.','La aflicción se lee como residuo de karma pasado; el remedio clásico combina medicina, caridad (dāna), repetición de mantra (japa), ritual de fuego (homa) y adoración — no solo uno de estos.')}</div>
-          <div class="k">${T('Universal remedy','Remedio universal')}</div><div class="v"><b>${T('Mṛtyuñjaya Homa / Mantra','Mṛtyuñjaya Homa / Mantra')}</b> — ${T('described in the source as effective against any disease, affliction by evil spirits, and even danger to life itself; for severe affliction the mantra is prescribed to be repeated 8000 times (japa).','descrito en la fuente como eficaz contra cualquier enfermedad, aflicción por espíritus malignos, e incluso peligro para la vida misma; para aflicciones graves se prescribe repetir el mantra 8000 veces (japa).')}</div>
-        </div>
-        <div class="warnbox" style="margin-top:12px;">${T('It is not advisable to carry out remedial measures of this kind on bookish knowledge alone, without the sound advice and guidance of an expert. Nothing on this page is medical, legal or financial advice.','No es aconsejable llevar a cabo este tipo de medidas remediales solo por conocimiento libresco, sin el consejo y la guía experta de un especialista. Nada en esta página es consejo médico, legal o financiero.')}</div>
-      </div>
-    </div>
-
-    <div class="hint" style="line-height:1.6;">${T('The by-planet mantra/gemstone/color/donation table is general Navagraha upāya, standard practice rather than a variant by birth chart. The Lagna-conditional gemstone guidance above is a genuinely different axis from that table — it changes with the Lagna, where the generic table doesn\'t vary at all.','La tabla de mantra/gema/color/donación por planeta es upāya general de Navagraha, práctica estándar en vez de una variante por carta natal. La guía de gema condicionada por el Lagna de arriba es un eje genuinamente distinto de esa tabla — cambia con el Lagna, mientras que la tabla general no varía en absoluto.')}</div>
-  `;
-}
-
 function ordinalSuffix(n){
   if (n % 100 >= 11 && n % 100 <= 13) return 'th';
   return {1:'st',2:'nd',3:'rd'}[n % 10] || 'th';
@@ -11171,7 +10989,7 @@ function declutterCommodityList(text){
 // birth data of its own, only the question's opening syllable and the
 // instant it's cast.
 let horaryQuestionText = '';
-let horarySelectedKey = null; // syllable key (lowercased) chosen via the manual select, or null to auto-detect from the question text
+let horarySelectedKey = null; // "Star::pada" chosen via the manual select (unique per star+pada — see PRASNA_KEY_INDEX), or null to auto-detect from the question text
 let horaryLastMatchedAlpha = '';
 
 function escHtml(s){
@@ -11230,15 +11048,16 @@ function renderHoraryPage(){
   const container = document.getElementById('horaryPageContent');
   if (!container) return;
 
-  const autoMatch = matchPrasnaSyllable(horaryQuestionText);
-  const activeKey = horarySelectedKey || (autoMatch ? autoMatch.syllable.toLowerCase() : null);
-  const match = activeKey ? PRASNA_SYLLABLE_INDEX[activeKey] : null;
+  const autoCandidates = matchPrasnaSyllable(horaryQuestionText); // array of {star,pada,syllable}, or null
+  const ambiguous = !horarySelectedKey && autoCandidates && autoCandidates.length > 1;
+  const match = horarySelectedKey ? PRASNA_KEY_INDEX[horarySelectedKey]
+    : (autoCandidates && autoCandidates.length === 1 ? autoCandidates[0] : null);
   horaryLastMatchedAlpha = (horaryQuestionText.match(/[A-Za-z]+/)||[''])[0];
 
   const syllableOptions = NAK28_ORDER.map(star=>{
     const opts = NAK_PADA_CONSONANTS[star].map((syl,i)=>{
-      const key = syl.toLowerCase();
-      return `<option value="${key}" ${key===horarySelectedKey ? 'selected':''}>${syl} — ${star} (${T('pada','pada')} ${i+1})</option>`;
+      const optKey = `${star}::${i+1}`;
+      return `<option value="${optKey}" ${optKey===horarySelectedKey ? 'selected':''}>${syl} — ${star} (${T('pada','pada')} ${i+1})</option>`;
     }).join('');
     return `<optgroup label="${star}">${opts}</optgroup>`;
   }).join('');
@@ -11251,7 +11070,13 @@ function renderHoraryPage(){
 
   let resultHtml = '';
   if (horaryQuestionText.trim() || horarySelectedKey){
-    if (!match){
+    if (ambiguous){
+      const candidateList = autoCandidates.map(c=>`${c.star} (${T('pada','pada')} ${c.pada})`).join(', ');
+      resultHtml = `<div class="hint" style="margin-top:12px;">${T(
+        `The consonant "${escHtml(autoCandidates[0].syllable)}" is printed under more than one star in the source's pada table: ${escHtml(candidateList)}. Pick the one that applies from the dropdown below — auto-detect can't choose between them on its own.`,
+        `La consonante "${escHtml(autoCandidates[0].syllable)}" aparece bajo más de una estrella en la tabla de padas de la fuente: ${escHtml(candidateList)}. Elige la que corresponda en el menú de abajo — la detección automática no puede decidir entre ellas por sí sola.`
+      )}</div>`;
+    } else if (!match){
       resultHtml = `<div class="hint" style="margin-top:12px;">${T(
         `No Sarvato Bhadra syllable starts with "${escHtml(horaryLastMatchedAlpha)}" in the 28-star pada table. Pick the closest syllable directly below, or rephrase the question's opening word.`,
         `Ninguna sílaba del Sarvato Bhadra empieza con "${escHtml(horaryLastMatchedAlpha)}" en la tabla de padas de 28 estrellas. Elige la sílaba más cercana abajo, o reformula la palabra inicial de la pregunta.`
