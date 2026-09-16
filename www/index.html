@@ -8452,7 +8452,7 @@ function renderNatalPage(){
         `Condición A (navāṁśa propio + Mṛdvāṁśa, sin aspecto necesario): ${hf(r.conditionA.pass)} — signo navāṁśa ${r.ownNavamsa.navamsaSign} (necesita Sagitario/Piscis): ${hf(r.ownNavamsa.pass)}; ordinal Mṛdvāṁśa ${r.mridvamsha.ordinal}/60 (necesita ${r.mridvamsha.threshold}): ${hf(r.mridvamsha.pass)}. Condición B (Gopurāṁśa + aspecto benéfico): ${hf(r.conditionB.pass)} — signo propio en D1+D3+D4+D7 a la vez: ${hf(r.gopuramsha.pass)}; aspecto benéfico a Júpiter: ${hf(r.beneficAspect.pass)}.`) }
   ];
   const jnanaYogaActiveCount = JNANA_YOGAS.filter(y=>y.result.present).length;
-  const jnanaYogaHtml = JNANA_YOGAS.map(y=>{
+  const jnanaYogaHtml = JNANA_YOGAS.filter(y=>y.result.present).map(y=>{
     const cls = y.result.present ? 'good' : 'neutral';
     const label = y.result.present ? T('Present in this chart','Presente en esta carta') : T('Not present','No presente');
     return `<div class="li" style="margin-bottom:9px;">
@@ -9841,7 +9841,7 @@ function renderNatalPage(){
       reasonLine: r => T(`Jupiter in 8th: ${hf(r.jupIn8th)}. Unaspected malefic in kendra: ${hf(r.maleficInKendraUnaspected)}.`, `Júpiter en la 8.ª: ${hf(r.jupIn8th)}. Maléfico sin aspectar en kendra: ${hf(r.maleficInKendraUnaspected)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
-  const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
+  const ramanYogaHtml = RAMAN_YOGAS.filter(y=>y.result.present).map(y=>{
     const cls = y.result.present ? 'good' : 'neutral';
     const label = y.result.present ? T('Present in this chart','Presente en esta carta') : T('Not present','No presente');
     return `<div class="li" style="margin-bottom:9px;">
