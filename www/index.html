@@ -8571,7 +8571,17 @@ function renderNatalPage(){
       nameEn:'Vesi Yoga', nameEs:'Yoga Vesi',
       glossEn:'Any planet except the Moon, Rahu and Ketu in the 2nd from the Sun — the Sun-relative counterpart to the Chandra yogas above. A benefic there gives the favourable "Subhavesi" reading (fortune, virtue, fame); a malefic gives the harsher "Papavesi" instead — genuinely opposite readings, not just a strength difference.',
       glossEs:'Cualquier planeta excepto la Luna, Rahu y Ketu en la 2.ª desde el Sol — la contraparte solar de los yogas de Chandra anteriores. Un benéfico ahí da la lectura favorable "Subhavesi" (fortuna, virtud, fama); un maléfico da en cambio la más dura "Papavesi" — lecturas genuinamente opuestas, no solo una diferencia de fuerza.',
-      reasonLine: r => T(`2nd from Sun — benefics (Subhavesi): ${r.subhavesi.length?r.subhavesi.join(', '):'none'}; malefics (Papavesi): ${r.papavesi.length?r.papavesi.join(', '):'none'}.`, `2.ª desde el Sol — benéficos (Subhavesi): ${r.subhavesi.length?r.subhavesi.join(', '):'ninguno'}; maléficos (Papavesi): ${r.papavesi.length?r.papavesi.join(', '):'ninguno'}.`) }
+      reasonLine: r => T(`2nd from Sun — benefics (Subhavesi): ${r.subhavesi.length?r.subhavesi.join(', '):'none'}; malefics (Papavesi): ${r.papavesi.length?r.papavesi.join(', '):'none'}.`, `2.ª desde el Sol — benéficos (Subhavesi): ${r.subhavesi.length?r.subhavesi.join(', '):'ninguno'}; maléficos (Papavesi): ${r.papavesi.length?r.papavesi.join(', '):'ninguno'}.`) },
+    { result: vasiYoga(birthPos), num: 17,
+      nameEn:'Vasi Yoga', nameEs:'Yoga Vasi',
+      glossEn:'Any planet except the Moon, Rahu and Ketu in the 12th from the Sun — Vesi\'s mirror. A benefic there gives the favourable "Subhavasi" reading (happiness, prosperity, favour of the powerful); a malefic gives the reverse.',
+      glossEs:'Cualquier planeta excepto la Luna, Rahu y Ketu en la 12.ª desde el Sol — el espejo de Vesi. Un benéfico ahí da la lectura favorable "Subhavasi" (felicidad, prosperidad, favor de los poderosos); un maléfico da lo contrario.',
+      reasonLine: r => T(`12th from Sun — benefics (Subhavasi): ${r.subhavasi.length?r.subhavasi.join(', '):'none'}; malefics (Papavasi): ${r.papavasi.length?r.papavasi.join(', '):'none'}.`, `12.ª desde el Sol — benéficos (Subhavasi): ${r.subhavasi.length?r.subhavasi.join(', '):'ninguno'}; maléficos (Papavasi): ${r.papavasi.length?r.papavasi.join(', '):'ninguno'}.`) },
+    { result: ubhayachariYoga(birthPos), num: 18,
+      nameEn:'Ubhayachari Yoga', nameEs:'Yoga Ubhayachari',
+      glossEn:'Planets other than the Moon, Rahu and Ketu on BOTH sides of the Sun at once — Vesi and Vasi holding simultaneously. Reads as eloquence, a well-proportioned bearing, and broad likability. Raman notes one of these three Solar yogas (Vesi/Vasi/Ubhayachari) is present in almost every chart, since Mercury\'s limited elongation from the Sun makes at least one of them close to unavoidable.',
+      glossEs:'Planetas distintos de la Luna, Rahu y Ketu a ambos lados del Sol a la vez — Vesi y Vasi vigentes simultáneamente. Se lee como elocuencia, un porte bien proporcionado y simpatía amplia. Raman señala que uno de estos tres yogas solares (Vesi/Vasi/Ubhayachari) está presente en casi toda carta, ya que la elongación limitada de Mercurio respecto al Sol hace casi inevitable al menos uno de ellos.',
+      reasonLine: r => T(`2nd-from-Sun: ${r.secondHouseGrahas.length?r.secondHouseGrahas.join(', '):'none'}. 12th-from-Sun: ${r.twelfthHouseGrahas.length?r.twelfthHouseGrahas.join(', '):'none'}. Both needed.`, `2.ª desde el Sol: ${r.secondHouseGrahas.length?r.secondHouseGrahas.join(', '):'ninguno'}. 12.ª desde el Sol: ${r.twelfthHouseGrahas.length?r.twelfthHouseGrahas.join(', '):'ninguno'}. Se necesitan ambas.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -8721,7 +8731,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-16 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-16 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-18 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-18 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -11149,6 +11159,27 @@ function vesiYoga(pos){
   const beneficHits = hits.filter(g=>RAMAN_BENEFICS.includes(g));
   const maleficHits = hits.filter(g=>!RAMAN_BENEFICS.includes(g));
   return { present: hits.length>0, grahas: hits, subhavesi: beneficHits, papavesi: maleficHits };
+}
+function vasiYoga(pos){
+  // #17 (txt L2260-2262): any planet except the Moon in the 12th from the
+  // Sun. Raman's own Remarks for #18 (L2265-2269) cross-reference this
+  // entry's explanation back to Vesi's, which explicitly also excludes
+  // Rahu/Ketu — applied here the same way, on that citation.
+  const sunSignIdx = Math.floor(norm360(pos.Sun.sidereal)/30);
+  const eligible = GRAHA_LIST.filter(g=>!['Sun','Moon','Rahu','Ketu'].includes(g));
+  const hits = bsGrahasInHouses(pos, sunSignIdx, eligible, [12]);
+  const beneficHits = hits.filter(g=>RAMAN_BENEFICS.includes(g));
+  const maleficHits = hits.filter(g=>!RAMAN_BENEFICS.includes(g));
+  return { present: hits.length>0, grahas: hits, subhavasi: beneficHits, papavasi: maleficHits };
+}
+function ubhayachariYoga(pos){
+  // #18 (txt L2270-2273): planets other than the Moon (and, per the same
+  // cross-reference as Vasi above, Rahu/Ketu) on BOTH sides of the Sun at
+  // once — the Vesi+Vasi structural sibling to Dhurdhura (#4), which
+  // needed both the 2nd and 12th simultaneously rather than either alone;
+  // implemented the same way here for the same textual reason.
+  const v = vesiYoga(pos), a = vasiYoga(pos);
+  return { present: v.present && a.present, secondHouseGrahas: v.grahas, twelfthHouseGrahas: a.grahas };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
