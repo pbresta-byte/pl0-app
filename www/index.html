@@ -9217,7 +9217,62 @@ function renderNatalPage(){
       nameEn:'Marud Yoga', nameEs:'Yoga Marud',
       glossEn:'A good conversationalist, large-hearted, rich, learned, successful in business, king or equal to one, with a protruding belly. Another pure mutual sign-distance test: Jupiter in a trikona (5th/9th) from Venus, the Moon 5th from Jupiter, and the Sun in a kendra from the Moon.',
       glossEs:'Un buen conversador, de gran corazón, rico, culto, exitoso en los negocios, rey o su igual, con vientre prominente. Otra prueba pura de distancia de signos entre sí: Júpiter en trikona (5.ª/9.ª) desde Venus, la Luna en la 5.ª desde Júpiter, y el Sol en kendra desde la Luna.',
-      reasonLine: r => T(`Jupiter ${r.jupFromVenus}th from Venus (need trikona): ${hf([5,9].includes(r.jupFromVenus))}. Moon ${r.moonFromJup}th from Jupiter (need 5th): ${hf(r.moonFromJup===5)}. Sun ${r.sunFromMoon}th from Moon (need kendra): ${hf([1,4,7,10].includes(r.sunFromMoon))}.`, `Júpiter en ${r.jupFromVenus}.ª desde Venus (necesita trikona): ${hf([5,9].includes(r.jupFromVenus))}. Luna en ${r.moonFromJup}.ª desde Júpiter (necesita 5.ª): ${hf(r.moonFromJup===5)}. Sol en ${r.sunFromMoon}.ª desde la Luna (necesita kendra): ${hf([1,4,7,10].includes(r.sunFromMoon))}.`) }
+      reasonLine: r => T(`Jupiter ${r.jupFromVenus}th from Venus (need trikona): ${hf([5,9].includes(r.jupFromVenus))}. Moon ${r.moonFromJup}th from Jupiter (need 5th): ${hf(r.moonFromJup===5)}. Sun ${r.sunFromMoon}th from Moon (need kendra): ${hf([1,4,7,10].includes(r.sunFromMoon))}.`, `Júpiter en ${r.jupFromVenus}.ª desde Venus (necesita trikona): ${hf([5,9].includes(r.jupFromVenus))}. Luna en ${r.moonFromJup}.ª desde Júpiter (necesita 5.ª): ${hf(r.moonFromJup===5)}. Sol en ${r.sunFromMoon}.ª desde la Luna (necesita kendra): ${hf([1,4,7,10].includes(r.sunFromMoon))}.`) },
+    { result: saraswathiYoga(birthPos, lagnaIdx), num: 161,
+      nameEn:'Saraswathi Yoga', nameEs:'Yoga Saraswathi',
+      glossEn:'A poet, famous, learned in all sciences, skilled, rich, praised by all. Raman notes this is "not rare" — Jupiter, Venus and Mercury each occupy one of seven houses (Lagna/2nd/4th/5th/7th/9th/10th), jointly or severally, with Jupiter in own/exaltation/friendly sign. Confirmed by Chart No.77 (exalted Jupiter in the 5th, Venus+Mercury in the 2nd).',
+      glossEs:'Un poeta, famoso, erudito en todas las ciencias, hábil, rico, alabado por todos. Raman señala que "no es rara" — Júpiter, Venus y Mercurio ocupan cada uno una de siete casas (Lagna/2.ª/4.ª/5.ª/7.ª/9.ª/10.ª), juntos o por separado, con Júpiter en signo propio/exaltación/amigo. Confirmada por la Carta N.º77 (Júpiter exaltado en la 5.ª, Venus+Mercurio en la 2.ª).',
+      reasonLine: r => T(`Jupiter/Venus/Mercury each in one of Lagna/2/4/5/7/9/10: ${hf(r.allThreeIn)}. Jupiter own/exalted/friend: ${hf(r.jupDignity)}.`, `Júpiter/Venus/Mercurio cada uno en Lagna/2/4/5/7/9/10: ${hf(r.allThreeIn)}. Júpiter propio/exaltado/amigo: ${hf(r.jupDignity)}.`) },
+    { result: budhaYoga(birthPos, lagnaIdx), num: 162,
+      nameEn:'Budha Yoga', nameEs:'Yoga Budha',
+      glossEn:'Kingly comforts, power, fame, learning, and freedom from enemies. Jupiter in the Lagna, the Moon in a kendra from Jupiter (which Raman notes independently equals Gajakesari Yoga), Rahu 2nd from the Moon, and both the Sun and Mars in the 3rd from Rahu.',
+      glossEs:'Comodidades reales, poder, fama, erudición, y ausencia de enemigos. Júpiter en el Lagna, la Luna en kendra desde Júpiter (lo que Raman señala que equivale por sí solo al Yoga Gajakesari), Rahu en la 2.ª desde la Luna, y el Sol y Marte ambos en la 3.ª desde Rahu.',
+      reasonLine: r => T(`Jupiter in Lagna: ${hf(r.jupInLagna)}. Moon in kendra from Jupiter: ${hf(r.moonKendraFromJup)}. Rahu 2nd from Moon: ${hf(r.rahuOk)}. Sun+Mars 3rd from Rahu: ${hf(r.sunMarsOk)}.`, `Júpiter en el Lagna: ${hf(r.jupInLagna)}. Luna en kendra desde Júpiter: ${hf(r.moonKendraFromJup)}. Rahu en la 2.ª desde la Luna: ${hf(r.rahuOk)}. Sol+Marte en la 3.ª desde Rahu: ${hf(r.sunMarsOk)}.`) },
+    { result: mookaYoga(birthPos, lagnaIdx), num: 163,
+      nameEn:'Mooka Yoga', nameEs:'Yoga Mooka',
+      glossEn:'Dumbness. The 2nd lord joins the 8th house with Jupiter — but cancelled outright if the 8th happens to be Jupiter’s own or exaltation sign.',
+      glossEs:'Mudez. El señor de la 2.ª se une a la 8.ª casa con Júpiter — pero se cancela por completo si la 8.ª resulta ser signo propio o de exaltación de Júpiter.',
+      reasonLine: r => T(`2nd lord in 8th with Jupiter: ${hf(r.inEighthWithJupiter)}. 8th is Jupiter own/exalt (cancels): ${hf(r.eighthIsJupOwnExalt)}.`, `Señor de la 2.ª en la 8.ª con Júpiter: ${hf(r.inEighthWithJupiter)}. La 8.ª es propia/exaltación de Júpiter (cancela): ${hf(r.eighthIsJupOwnExalt)}.`) },
+    { result: netranasaYoga(birthPos, navPos, lagnaIdx), num: 164,
+      nameEn:'Netranasa Yoga', nameEs:'Yoga Netranasa',
+      glossEn:'Loss of eyesight. EITHER the 2nd, 6th and 10th lords all join the Lagna (Chart No.78’s own "slight variation" — the 6th lord ASPECTING the Lagna instead of occupying it — is folded in here), OR the 6th and 10th lords are both in Neechamsa (debilitated Navamsa). Raman cautions: if the Sun and Moon (the eyes’ karakas) are strongly placed, do not predict this regardless.',
+      glossEs:'Pérdida de la vista. O los señores de la 2.ª, 6.ª y 10.ª se unen todos al Lagna (la propia "ligera variación" de la Carta N.º78 — el señor de la 6.ª ASPECTANDO el Lagna en vez de ocuparlo — se incorpora aquí), O los señores de la 6.ª y 10.ª están ambos en Neechamsa (Navamsa debilitado). Raman advierte: si el Sol y la Luna (los karakas de los ojos) están fuertemente ubicados, no predecir esto de todos modos.',
+      reasonLine: r => T(`2nd+10th lords in Lagna, 6th lord in/aspecting Lagna: ${hf(r.condA)}. Or 6th+10th lords both in Neechamsa: ${hf(r.condB)}.`, `Señores de la 2.ª+10.ª en el Lagna, señor de la 6.ª en/aspectando el Lagna: ${hf(r.condA)}. O señores de la 6.ª+10.ª ambos en Neechamsa: ${hf(r.condB)}.`) },
+    { result: andhaYoga(birthPos, lagnaIdx), num: 165,
+      nameEn:'Andha Yoga', nameEs:'Yoga Andha',
+      glossEn:'Defective night sight, or blindness from birth. EITHER Mercury and the Moon both in the 2nd (night-blindness), OR the Lagna lord, 2nd lord and the Sun all join the 2nd (born blind).',
+      glossEs:'Vista defectuosa nocturna, o ceguera de nacimiento. O Mercurio y la Luna ambos en la 2.ª (ceguera nocturna), O el señor del Lagna, el señor de la 2.ª y el Sol se unen todos a la 2.ª (ceguera de nacimiento).',
+      reasonLine: r => T(`Mercury+Moon in 2nd: ${hf(r.condA)}. Or Lagna lord+2nd lord+Sun in 2nd: ${hf(r.condB)}.`, `Mercurio+Luna en la 2.ª: ${hf(r.condA)}. O señor del Lagna+señor de la 2.ª+Sol en la 2.ª: ${hf(r.condB)}.`) },
+    { result: sumukhaYoga166(birthPos, lagnaIdx), num: 166,
+      nameEn:'Sumukha Yoga (I)', nameEs:'Yoga Sumukha (I)',
+      glossEn:'An attractive, smiling face — first of two combinations. EITHER the 2nd lord in a kendra aspected by benefics, OR benefics join the 2nd house directly.',
+      glossEs:'Un rostro atractivo y sonriente — la primera de dos combinaciones. O el señor de la 2.ª en kendra aspectado por benéficos, O benéficos se unen directamente a la 2.ª casa.',
+      reasonLine: r => T(`2nd lord in kendra + benefic aspect: ${hf(r.condA)}. Or benefics in 2nd: ${hf(r.condB)}.`, `Señor de la 2.ª en kendra + aspecto benéfico: ${hf(r.condA)}. O benéficos en la 2.ª: ${hf(r.condB)}.`) },
+    { result: sumukhaYoga167(birthPos, navPos, lagnaIdx), num: 167,
+      nameEn:'Sumukha Yoga (II)', nameEs:'Yoga Sumukha (II)',
+      glossEn:'Second of the pair: the 2nd lord posited in a kendra that is its own exaltation, own, or friendly sign, and the lord of that kendra sign attains Gopuramsa (own-varga four times).',
+      glossEs:'La segunda del par: el señor de la 2.ª ubicado en un kendra que es su exaltación, signo propio, o amigo, y el señor de ese signo kendra alcanza Gopuramsa (varga propio cuatro veces).',
+      reasonLine: r => T(`2nd lord in kendra: ${hf(r.inKendra)}, good dignity: ${hf(r.dignityOk)}. Kendra lord (${r.kendraLord}) Gopuramsa (count ${r.gopuramsaCount}): ${hf(r.gopuramsaCount===4)}.`, `Señor de la 2.ª en kendra: ${hf(r.inKendra)}, buena dignidad: ${hf(r.dignityOk)}. Señor del kendra (${r.kendraLord}) Gopuramsa (cuenta ${r.gopuramsaCount}): ${hf(r.gopuramsaCount===4)}.`) },
+    { result: durmukhaYoga168(birthPos, lagnaIdx), num: 168,
+      nameEn:'Durmukha Yoga (I)', nameEs:'Yoga Durmukha (I)',
+      glossEn:'An ugly, repulsive face and an angry, irritable temper — first of two combinations. Malefics occupy the 2nd house, and its lord joins an evil planet or is debilitated.',
+      glossEs:'Un rostro feo y repulsivo, y un temperamento iracundo e irritable — la primera de dos combinaciones. Maléficos ocupan la 2.ª casa, y su señor se une a un planeta maléfico o está debilitado.',
+      reasonLine: r => T(`Malefics in 2nd: ${hf(r.maleficsInSecond)}. 2nd lord joins evil: ${hf(r.joinsEvil)} or debilitated: ${hf(r.debilitated)}.`, `Maléficos en la 2.ª: ${hf(r.maleficsInSecond)}. Señor de la 2.ª se une a maléfico: ${hf(r.joinsEvil)} o debilitado: ${hf(r.debilitated)}.`) },
+    { result: durmukhaYoga169(birthPos, navPos, lagnaIdx), num: 169,
+      nameEn:'Durmukha Yoga (II)', nameEs:'Yoga Durmukha (II)',
+      glossEn:'Second of the pair: the 2nd lord, itself a natural malefic, occupies an unfriendly or debilitated Navamsa together with malefics. (The Definition’s "or joins Gulika" path needs Gulika’s zodiacal position — the same missing infrastructure deferred for #11 — so only this path is checked.)',
+      glossEs:'La segunda del par: el señor de la 2.ª, siendo él mismo un maléfico natural, ocupa un Navamsa hostil o debilitado junto con maléficos. (La vía "o se une a Gulika" de la Definición necesita la posición zodiacal de Gulika — la misma infraestructura pospuesta para la #11 — así que solo se comprueba esta vía.)',
+      reasonLine: r => T(`2nd lord is a natural malefic: ${hf(r.lord2IsMalefic)}. Bad (enemy/debilitated) Navamsa: ${hf(r.badNavamsa)}. With malefics there: ${hf(r.maleficsWithInNavamsa)}.`, `El señor de la 2.ª es maléfico natural: ${hf(r.lord2IsMalefic)}. Navamsa malo (enemigo/debilitado): ${hf(r.badNavamsa)}. Con maléficos ahí: ${hf(r.maleficsWithInNavamsa)}.`) },
+    { result: bhojanaSoukhyaYoga(birthPos, navPos, lagnaIdx), num: 170,
+      nameEn:'Bhojana Soukhya Yoga', nameEs:'Yoga Bhojana Soukhya',
+      glossEn:'Wealth and always having good, delicious food. The powerful 2nd lord occupies Vaiseshikamsa and has the aspect of Jupiter or Venus — Raman notes Venus is the karaka of food, so its own condition matters most of all.',
+      glossEs:'Riqueza y siempre tener comida buena y deliciosa. El señor de la 2.ª, poderoso, ocupa Vaiseshikamsa y tiene el aspecto de Júpiter o Venus — Raman señala que Venus es el karaka de la comida, por lo que su propia condición importa más que nada.',
+      reasonLine: r => T(`2nd lord powerful: ${hf(r.lord2Powerful)}, Vaiseshikamsa (count ${r.vamsaCount}): ${hf(r.attainsVaiseshikamsa)}, aspected by Jupiter/Venus: ${hf(r.aspected)}.`, `Señor de la 2.ª poderoso: ${hf(r.lord2Powerful)}, Vaiseshikamsa (cuenta ${r.vamsaCount}): ${hf(r.attainsVaiseshikamsa)}, aspectado por Júpiter/Venus: ${hf(r.aspected)}.`) },
+    { result: annadanaYoga(birthPos, navPos, lagnaIdx), num: 171,
+      nameEn:'Annadana Yoga', nameEs:'Yoga Annadana',
+      glossEn:'A hospitable nature, feeding large numbers of people — Annadana (feeding the hungry) is considered a sacred charitable act. The 2nd lord joins Vaiseshikamsa and is conjunct or aspected by BOTH Jupiter and Mercury. Confirmed by chart discussion: 2nd lord Mercury in the 10th with Jupiter.',
+      glossEs:'Una naturaleza hospitalaria, alimentando a grandes cantidades de personas — Annadana (alimentar a los hambrientos) se considera un acto de caridad sagrado. El señor de la 2.ª se une a Vaiseshikamsa y está conjunto o aspectado por Júpiter Y Mercurio. Confirmada por la discusión de la carta: señor de la 2.ª Mercurio en la 10.ª con Júpiter.',
+      reasonLine: r => T(`2nd lord Vaiseshikamsa (count ${r.vamsaCount}): ${hf(r.attainsVaiseshikamsa)}. Linked to Jupiter: ${hf(r.withJupiter)} and Mercury: ${hf(r.withMercury)}.`, `Vaiseshikamsa del señor de la 2.ª (cuenta ${r.vamsaCount}): ${hf(r.attainsVaiseshikamsa)}. Vinculado a Júpiter: ${hf(r.withJupiter)} y Mercurio: ${hf(r.withMercury)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9367,7 +9422,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-160 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-160 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-171 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-171 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -13431,6 +13486,188 @@ function marudYoga(pos){
   const moonFromJup = housesCountFrom(jupSignIdx, moonSignIdx);
   const sunFromMoon = housesCountFrom(moonSignIdx, sunSignIdx);
   return { present: [5,9].includes(jupFromVenus) && moonFromJup===5 && [1,4,7,10].includes(sunFromMoon), jupFromVenus, moonFromJup, sunFromMoon };
+}
+function saraswathiYoga(pos, ascSignIdx){
+  // #161 (txt L6619-6624): Jupiter, Venus and Mercury EACH occupy one of
+  // the seven houses Lagna/2nd/4th/5th/7th/9th/10th (jointly or severally
+  // -- i.e. any of the three can be in any one of those seven, not all
+  // three in the same house), with Jupiter in own/exaltation/friendly
+  // sign. Confirmed by Chart No.77: Jupiter (exalted) in the 5th, Venus
+  // and Mercury together in the 2nd.
+  const allowedHouses = [1,2,4,5,7,9,10];
+  const inAllowed = g => allowedHouses.includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx));
+  const allThreeIn = ['Jupiter','Venus','Mercury'].every(inAllowed);
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const jupDignity = ['Own','Exalted','Friend'].includes(dignityTierInSign('Jupiter', jupSignIdx));
+  return { present: allThreeIn && jupDignity, allThreeIn, jupDignity };
+}
+function budhaYoga(pos, ascSignIdx){
+  // #162 (txt L6668-6670, Remarks at L6678-6685): Jupiter in the Lagna, the
+  // Moon in a kendra FROM JUPITER (Raman's own Remarks note this
+  // sub-condition independently equals Gajakesari Yoga), Rahu in the 2nd
+  // from the Moon, and both the Sun and Mars in the 3rd from Rahu (which
+  // the Remarks confirm is equivalent to the 4th from the Moon).
+  const jupHouse = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx);
+  const jupInLagna = jupHouse===1;
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const moonFromJup = housesCountFrom(jupSignIdx, moonSignIdx);
+  const moonKendraFromJup = [1,4,7,10].includes(moonFromJup);
+  const rahuSignIdx = Math.floor(norm360(pos.Rahu.sidereal)/30);
+  const rahuFromMoon = housesCountFrom(moonSignIdx, rahuSignIdx);
+  const rahuOk = rahuFromMoon===2;
+  const sunSignIdx = Math.floor(norm360(pos.Sun.sidereal)/30);
+  const marsSignIdx = Math.floor(norm360(pos.Mars.sidereal)/30);
+  const sunFromRahu = housesCountFrom(rahuSignIdx, sunSignIdx);
+  const marsFromRahu = housesCountFrom(rahuSignIdx, marsSignIdx);
+  const sunMarsOk = sunFromRahu===3 && marsFromRahu===3;
+  return { present: jupInLagna && moonKendraFromJup && rahuOk && sunMarsOk, jupInLagna, moonKendraFromJup, rahuOk, sunMarsOk };
+}
+function mookaYoga(pos, ascSignIdx){
+  // #163 (txt L6687-6694): the 2nd lord joins the 8th house with Jupiter.
+  // Remarks: cancelled outright if the 8th house happens to be Jupiter's
+  // own or exaltation sign. (A separate ancient writer, Ganapathi, is
+  // cited as also excluding the 12th house -- a named variant view, not
+  // Raman's own primary rule, so not folded into the gating here.)
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const lord2House = bsHouseFromAsc(pos[lord2].sidereal, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const withJupiter = lord2!=='Jupiter' && Math.floor(norm360(pos.Jupiter.sidereal)/30)===lord2SignIdx;
+  const eighthSignIdx = (ascSignIdx+7)%12;
+  const eighthIsJupOwnExalt = ['Own','Exalted'].includes(dignityTierInSign('Jupiter', eighthSignIdx));
+  const inEighthWithJupiter = lord2House===8 && withJupiter;
+  return { present: inEighthWithJupiter && !eighthIsJupOwnExalt, inEighthWithJupiter, eighthIsJupOwnExalt };
+}
+function netranasaYoga(pos, navPos, ascSignIdx){
+  // #164 (txt L6695-6698, Remarks+Chart No.78 at L6701-6743): EITHER (a)
+  // the 2nd, 6th AND 10th lords all join the Lagna, OR (b) the 6th and
+  // 10th lords are in Neechamsa (debilitated Navamsa). AMBIGUITY FLAG:
+  // Chart No.78 is explicitly offered as "a slight variation" on path (a)
+  // where the 6th lord ASPECTS the Lagna instead of occupying it, and is
+  // still counted as an instance of the yoga -- folded in here as an OR
+  // against strict occupation for the 6th lord specifically (the 2nd and
+  // 10th lords are NOT relaxed this way, since the worked example keeps
+  // them strictly in occupation).
+  const lord2 = lordOfHouse(2, ascSignIdx), lord6 = lordOfHouse(6, ascSignIdx), lord10 = lordOfHouse(10, ascSignIdx);
+  const lord2InLagna = bsHouseFromAsc(pos[lord2].sidereal, ascSignIdx)===1;
+  const lord10InLagna = bsHouseFromAsc(pos[lord10].sidereal, ascSignIdx)===1;
+  const lord6InLagna = bsHouseFromAsc(pos[lord6].sidereal, ascSignIdx)===1;
+  const lord6SignIdx = Math.floor(norm360(pos[lord6].sidereal)/30);
+  const lord6AspectsLagna = aspectsSignWholeSign(lord6, lord6SignIdx, ascSignIdx);
+  const condA = lord2InLagna && lord10InLagna && (lord6InLagna || lord6AspectsLagna);
+  const lord6NavSignIdx = Math.floor(norm360(navamsaSidereal(pos[lord6].sidereal))/30);
+  const lord10NavSignIdx = Math.floor(norm360(navamsaSidereal(pos[lord10].sidereal))/30);
+  const lord6Neechamsa = dignityTierInSign(lord6, lord6NavSignIdx)==='Debilitated';
+  const lord10Neechamsa = dignityTierInSign(lord10, lord10NavSignIdx)==='Debilitated';
+  const condB = lord6Neechamsa && lord10Neechamsa;
+  return { present: condA || condB, condA, condB };
+}
+function andhaYoga(pos, ascSignIdx){
+  // #165 (txt L6745-6747): EITHER (a) Mercury and the Moon both in the 2nd
+  // (night-blindness, per Remarks), OR (b) the Lagna lord, 2nd lord AND
+  // the Sun all join the 2nd house (born blind).
+  const secondSignIdx = (ascSignIdx+1)%12;
+  const mercInSecond = Math.floor(norm360(pos.Mercury.sidereal)/30)===secondSignIdx;
+  const moonInSecond = Math.floor(norm360(pos.Moon.sidereal)/30)===secondSignIdx;
+  const condA = mercInSecond && moonInSecond;
+  const lord1 = lordOfHouse(1, ascSignIdx), lord2 = lordOfHouse(2, ascSignIdx);
+  const lord1InSecond = Math.floor(norm360(pos[lord1].sidereal)/30)===secondSignIdx;
+  const lord2InSecond = Math.floor(norm360(pos[lord2].sidereal)/30)===secondSignIdx;
+  const sunInSecond = Math.floor(norm360(pos.Sun.sidereal)/30)===secondSignIdx;
+  const condB = lord1InSecond && lord2InSecond && sunInSecond;
+  return { present: condA || condB, condA, condB };
+}
+function sumukhaYoga166(pos, ascSignIdx){
+  // #166 (txt L6764-6766): EITHER (a) the 2nd lord in a kendra aspected by
+  // benefics, OR (b) benefics join the 2nd house directly.
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const lord2House = bsHouseFromAsc(pos[lord2].sidereal, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const lord2InKendra = [1,4,7,10].includes(lord2House);
+  const beneficAspectsLord2 = RAMAN_BENEFICS.some(b=> b!==lord2 && aspectsSignWholeSign(b, Math.floor(norm360(pos[b].sidereal)/30), lord2SignIdx));
+  const condA = lord2InKendra && beneficAspectsLord2;
+  const secondSignIdx = (ascSignIdx+1)%12;
+  const condB = RAMAN_BENEFICS.some(b=> Math.floor(norm360(pos[b].sidereal)/30)===secondSignIdx);
+  return { present: condA || condB, condA, condB };
+}
+function sumukhaYoga167(pos, navPos, ascSignIdx){
+  // #167 (txt L6767-6770): the 2nd lord posited in a kendra which is its
+  // own exaltation, own, or friendly sign, and the lord OF THAT KENDRA
+  // SIGN (usually the 2nd lord itself if it is in its own sign, but a
+  // different graha if the 2nd lord is merely exalted/friendly there)
+  // attains Gopuramsa (own-varga four times).
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const lord2House = bsHouseFromAsc(pos[lord2].sidereal, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const inKendra = [1,4,7,10].includes(lord2House);
+  const dignityOk = ['Own','Exalted','Friend'].includes(dignityTierInSign(lord2, lord2SignIdx));
+  const kendraLord = SIGN_LORD[SIGNS[lord2SignIdx]];
+  const gopuramsaCount = vaiseshikamsaCount(kendraLord, pos, navPos, 'dasa');
+  const gopuramsa = gopuramsaCount===4;
+  return { present: inKendra && dignityOk && gopuramsa, inKendra, dignityOk, kendraLord, gopuramsaCount };
+}
+function durmukhaYoga168(pos, ascSignIdx){
+  // #168 (txt L6788-6790): malefics occupy the 2nd house, and its lord
+  // joins an evil (malefic) planet OR is in debilitation.
+  const secondSignIdx = (ascSignIdx+1)%12;
+  const maleficsInSecond = MALEFIC_GRAHAS.some(m=> Math.floor(norm360(pos[m].sidereal)/30)===secondSignIdx);
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const joinsEvil = MALEFIC_GRAHAS.some(m=> m!==lord2 && Math.floor(norm360(pos[m].sidereal)/30)===lord2SignIdx);
+  const debilitated = dignityTierInSign(lord2, lord2SignIdx)==='Debilitated';
+  return { present: maleficsInSecond && (joinsEvil || debilitated), maleficsInSecond, joinsEvil, debilitated };
+}
+function durmukhaYoga169(pos, navPos, ascSignIdx){
+  // #169 (txt L6791-6793): the 2nd lord, itself a natural malefic, EITHER
+  // joins Gulika, OR occupies an unfriendly-or-debilitated Navamsa
+  // together with malefics. AMBIGUITY FLAG (x2): (1) "join Gulika" needs
+  // Gulika's zodiacal position -- the same missing infrastructure already
+  // deferred for #11/#158 -- so this path is simply omitted from the OR,
+  // not asserted false. (2) "unfriendly AND debilitated Navamsa" is read
+  // as an OR (Enemy-tier OR Debilitated-tier for the 2nd lord's own
+  // Navamsa placement), since this file's dignity-tier system assigns a
+  // graha exactly one tier per sign -- a single sign cannot literally be
+  // both "unfriendly" and "debilitated" to the same graha at once.
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const lord2IsMalefic = MALEFIC_GRAHAS.includes(lord2);
+  const lord2NavSignIdx = Math.floor(norm360(navPos[lord2].sidereal)/30);
+  const tier = dignityTierInSign(lord2, lord2NavSignIdx);
+  const badNavamsa = tier==='Enemy' || tier==='Debilitated';
+  const maleficsWithInNavamsa = MALEFIC_GRAHAS.some(m=> m!==lord2 && Math.floor(norm360(navPos[m].sidereal)/30)===lord2NavSignIdx);
+  return { present: lord2IsMalefic && badNavamsa && maleficsWithInNavamsa, lord2IsMalefic, badNavamsa, maleficsWithInNavamsa };
+}
+function bhojanaSoukhyaYoga(pos, navPos, ascSignIdx){
+  // #170 (txt L6804-6806): the powerful 2nd lord occupies Vaiseshikamsa
+  // (any named title, count>=2, per the file's standing reading) and has
+  // the aspect of Jupiter or Venus.
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const lord2Powerful = ['Own','Exalted','Friend'].includes(dignityTierInSign(lord2, lord2SignIdx));
+  const vamsaCount = vaiseshikamsaCount(lord2, pos, navPos, 'dasa');
+  const attainsVaiseshikamsa = vamsaCount>=2;
+  const aspected = ['Jupiter','Venus'].some(b=> b!==lord2 && aspectsSignWholeSign(b, Math.floor(norm360(pos[b].sidereal)/30), lord2SignIdx));
+  return { present: lord2Powerful && attainsVaiseshikamsa && aspected, lord2Powerful, vamsaCount, attainsVaiseshikamsa, aspected };
+}
+function annadanaYoga(pos, navPos, ascSignIdx){
+  // #171 (txt L6816-6819, Chart confirmation at L6829-6834): the 2nd lord
+  // joins Vaiseshikamsa and is in conjunction with or aspected by BOTH
+  // Jupiter and Mercury. Confirmed by the chart discussion: 2nd lord
+  // Mercury in the 10th with Jupiter -- since the 2nd lord IS Mercury
+  // there, the "linked to Mercury" clause is trivially satisfied by being
+  // that very graha, which this implementation treats as automatically
+  // true (a graha cannot fail to be "linked" to itself).
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const vamsaCount = vaiseshikamsaCount(lord2, pos, navPos, 'dasa');
+  const attainsVaiseshikamsa = vamsaCount>=2;
+  const linked = g=>{
+    if (g===lord2) return true;
+    const gSignIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    return gSignIdx===lord2SignIdx || aspectsSignWholeSign(g, gSignIdx, lord2SignIdx);
+  };
+  const withJupiter = linked('Jupiter');
+  const withMercury = linked('Mercury');
+  return { present: attainsVaiseshikamsa && withJupiter && withMercury, vamsaCount, attainsVaiseshikamsa, withJupiter, withMercury };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
