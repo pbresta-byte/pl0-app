@@ -8491,6 +8491,59 @@ function renderNatalPage(){
     </div>`;
   }).join('');
 
+  // Raman's 300 Important Combinations — first installment, yogas #1-7 (all
+  // Chandra-relative). Grows incrementally as more of the 300 are extracted
+  // and implemented; see the citation block right before gajakesariYoga()
+  // above for sourcing. Kept as its own panel/array rather than folded into
+  // JNANA_YOGAS since it's a different book/numbering scheme entirely.
+  const RAMAN_YOGAS = [
+    { result: gajakesariYoga(birthPos), num: 1,
+      nameEn:'Gajakesari Yoga', nameEs:'Yoga Gajakesari',
+      glossEn:'Jupiter in a kendra (1st/4th/7th/10th) from the Moon. One of the best-known classical combinations — reputation, generosity, and standing that outlasts the native, scaled entirely by how strong Jupiter and the Moon actually are in this chart, not a guaranteed outcome from the placement alone.',
+      glossEs:'Júpiter en un kendra (1.º/4.º/7.º/10.º) desde la Luna. Una de las combinaciones clásicas más conocidas — reputación, generosidad y una posición que perdura, graduada enteramente por la fuerza real de Júpiter y la Luna en esta carta, no un resultado garantizado solo por la ubicación.',
+      reasonLine: r => T(`Jupiter's house from the Moon: ${bsHouseFromAsc(birthPos.Jupiter.sidereal, Math.floor(norm360(birthPos.Moon.sidereal)/30))}.`, `Casa de Júpiter desde la Luna: ${bsHouseFromAsc(birthPos.Jupiter.sidereal, Math.floor(norm360(birthPos.Moon.sidereal)/30))}.`) },
+    { result: sunaphaYoga(birthPos), num: 2,
+      nameEn:'Sunapha Yoga', nameEs:'Yoga Sunapha',
+      glossEn:'Any planet except the Sun occupying the 2nd house from the Moon. Reads as self-earned wealth and standing built through one\'s own effort rather than inheritance — Raman notes the strength varies enormously with which planet(s) occupy that house.',
+      glossEs:'Cualquier planeta excepto el Sol en la 2.ª casa desde la Luna. Se lee como riqueza y posición ganadas por esfuerzo propio en vez de herencia — Raman señala que la fuerza varía enormemente según qué planeta(s) ocupen esa casa.',
+      reasonLine: r => T(`Planets (excl. Sun) in the 2nd from the Moon: ${r.grahas.length?r.grahas.join(', '):'none'}.`, `Planetas (excl. Sol) en la 2.ª desde la Luna: ${r.grahas.length?r.grahas.join(', '):'ninguno'}.`) },
+    { result: anaphaYoga(birthPos), num: 3,
+      nameEn:'Anapha Yoga', nameEs:'Yoga Anapha',
+      glossEn:'Any planet except the Sun occupying the 12th house from the Moon. Reads as a dignified bearing and good reputation in youth, with a turn toward renunciation and austerity later in life.',
+      glossEs:'Cualquier planeta excepto el Sol en la 12.ª casa desde la Luna. Se lee como porte digno y buena reputación en la juventud, con un giro hacia la renuncia y la austeridad en la vejez.',
+      reasonLine: r => T(`Planets (excl. Sun) in the 12th from the Moon: ${r.grahas.length?r.grahas.join(', '):'none'}.`, `Planetas (excl. Sol) en la 12.ª desde la Luna: ${r.grahas.length?r.grahas.join(', '):'ninguno'}.`) },
+    { result: dhurdhuraYoga(birthPos), num: 4,
+      nameEn:'Dhurdhura Yoga', nameEs:'Yoga Dhurdhura',
+      glossEn:'Planets (except the Sun) occupying BOTH the 2nd and 12th from the Moon at the same time — Sunapha and Anapha holding simultaneously, not either alone. Reads as bountiful wealth and conveyances; Raman notes dozens of distinct sub-varieties depending on exactly which planets land where.',
+      glossEs:'Planetas (excepto el Sol) ocupando A LA VEZ la 2.ª y la 12.ª desde la Luna — Sunapha y Anapha vigentes simultáneamente, no una sola. Se lee como riqueza y medios de transporte abundantes; Raman señala docenas de subvariantes según exactamente qué planetas caen dónde.',
+      reasonLine: r => T(`2nd-from-Moon: ${r.secondHouseGrahas.length?r.secondHouseGrahas.join(', '):'none'}. 12th-from-Moon: ${r.twelfthHouseGrahas.length?r.twelfthHouseGrahas.join(', '):'none'}. Both needed.`, `2.ª desde la Luna: ${r.secondHouseGrahas.length?r.secondHouseGrahas.join(', '):'ninguno'}. 12.ª desde la Luna: ${r.twelfthHouseGrahas.length?r.twelfthHouseGrahas.join(', '):'ninguno'}. Se necesitan ambas.`) },
+    { result: kemadrumaYoga(birthPos), num: 5,
+      nameEn:'Kemadruma Yoga', nameEs:'Yoga Kemadruma',
+      glossEn:'No planets at all (except the Sun) in either the 2nd or the 12th from the Moon — an isolated Moon. One of the classical difficult combinations, read as hardship and a wandering, unsupported disposition. Implemented to Raman\'s own strict definition — he explicitly rejects other authors\' cancellation clauses (kendra occupied, Moon conjunct a planet) as "not generally acceptable."',
+      glossEs:'Ningún planeta (excepto el Sol) en la 2.ª ni en la 12.ª desde la Luna — una Luna aislada. Una de las combinaciones difíciles clásicas, leída como dificultad y una disposición errante y sin apoyo. Implementado según la definición estricta de Raman — él rechaza explícitamente las cláusulas de cancelación de otros autores (kendra ocupado, Luna conjunta a un planeta) como "no generalmente aceptables."',
+      reasonLine: r => T(`Both the 2nd and 12th from the Moon are empty of planets (excl. Sun): ${hf(r.present)}.`, `Tanto la 2.ª como la 12.ª desde la Luna están vacías de planetas (excl. Sol): ${hf(r.present)}.`) },
+    { result: chandraMangalaYoga(birthPos), num: 6,
+      nameEn:'Chandra-Mangala Yoga', nameEs:'Yoga Chandra-Mangala',
+      glossEn:'Mars conjunct the Moon, or — per Raman\'s own added reading beyond the classical definition — the two in mutual whole-sign aspect. A wealth combination built through boldness and appetite for risk rather than quiet accumulation; house placement (2nd/9th/10th/11th read best) and the dignity of both planets shape whether the earnings are through approved or unscrupulous means.',
+      glossEs:'Marte conjunto a la Luna, o — según la lectura propia de Raman más allá de la definición clásica — ambos en aspecto mutuo de signo completo. Una combinación de riqueza construida mediante audacia y apetito de riesgo en vez de acumulación tranquila; la casa (2.ª/9.ª/10.ª/11.ª se lee mejor) y la dignidad de ambos planetas determinan si las ganancias son por medios aprobados o inescrupulosos.',
+      reasonLine: r => T(`Conjunct: ${hf(r.conjunct)}. Mutual aspect: ${hf(r.mutualAspect)}.`, `Conjunción: ${hf(r.conjunct)}. Aspecto mutuo: ${hf(r.mutualAspect)}.`) },
+    { result: adhiYoga(birthPos), num: 7,
+      nameEn:'Adhi Yoga', nameEs:'Yoga Adhi',
+      glossEn:'Mercury, Jupiter and/or Venus in the 6th, 7th or 8th from the Moon — Raman is explicit this does NOT require all three houses occupied at once, just at least one of the three benefics present. One of the most important classical combinations, close to a Raja Yoga in its own right: 1 benefic present reads as a leader, 2 as a minister, 3 as an eminent station in life.',
+      glossEs:'Mercurio, Júpiter y/o Venus en la 6.ª, 7.ª u 8.ª desde la Luna — Raman es explícito en que esto NO requiere las tres casas ocupadas a la vez, solo al menos uno de los tres benéficos presente. Una de las combinaciones clásicas más importantes, cercana a un Raja Yoga por derecho propio: 1 benéfico presente se lee como líder, 2 como ministro, 3 como una posición eminente en la vida.',
+      reasonLine: r => T(`Benefics in 6th/7th/8th from the Moon: ${r.grahas.length?r.grahas.join(', '):'none'} (${r.count}/3${r.tier?', tier: '+r.tier:''}).`, `Benéficos en 6.ª/7.ª/8.ª desde la Luna: ${r.grahas.length?r.grahas.join(', '):'ninguno'} (${r.count}/3${r.tier?', nivel: '+r.tier:''}).`) }
+  ];
+  const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
+  const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
+    const cls = y.result.present ? 'good' : 'neutral';
+    const label = y.result.present ? T('Present in this chart','Presente en esta carta') : T('Not present','No presente');
+    return `<div class="li" style="margin-bottom:9px;">
+      <span class="tag ${cls}">#${y.num} ${T(y.nameEn,y.nameEs)}</span> <span class="tag ${cls}">${label}</span>
+      <div style="margin-top:4px; color:var(--slate); font-size:11.5px; line-height:1.6;">${T(y.glossEn,y.glossEs)}</div>
+      <div style="margin-top:5px; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); line-height:1.5; border-left:2px solid var(--line-soft); padding-left:8px;">${y.reasonLine(y.result)}</div>
+    </div>`;
+  }).join('');
+
   const vargottamaList = GRAHA_LIST.filter(g=>{
     const d1 = SIGNS[Math.floor(norm360(birthPos[g].sidereal)/30)];
     const d9 = SIGNS[Math.floor(norm360(navPos[g].sidereal)/30)];
@@ -8623,6 +8676,13 @@ function renderNatalPage(){
         ${rajYogaHtml}
         <div style="font-size:13px; font-weight:600; color:var(--gold); margin:14px 0 6px;">${T('Jñāna Yoga series — knowledge & insight combinations','Serie Jñāna Yoga — combinaciones de conocimiento y perspicacia')}</div>
         ${jnanaYogaHtml}
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: the first 7 of 300, all Chandra (Moon)-relative. Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: las primeras 7 de 300, todas relativas a Chandra (la Luna). En crecimiento con el tiempo.')}</div>
+        ${ramanYogaHtml}
       </div>
     </div>
 
@@ -10856,6 +10916,82 @@ function trikalagnanaYoga(pos, navPos){
       conditionB: { pass: conditionB }
     }
   };
+}
+
+// --- Raman's "300 Important Combinations" — Chandra-relative yogas 1-7 --
+// Sourced directly from B.V. Raman, Three Hundred Important Combinations
+// (see domains/raman-300-combinations.md for the full 300-entry index and
+// citation convention this follows). First installment of what will grow
+// into the app's full engine for that book's 300 numbered yogas — each
+// batch checked against the primary source's Definition+Remarks (not just
+// the Definition alone), the same discipline that caught the Trikālagnāna
+// bug: e.g. Adhi Yoga below looked like it needed all of houses 6+7+8
+// simultaneously occupied from its one-line Definition, but Raman's own
+// Remarks (txt L1672-1683) and worked Chart No.12 (only 2 of 3 houses
+// occupied) explicitly rule that out.
+const RAMAN_MOON_YOGA_GRAHAS = GRAHA_LIST.filter(g=>!['Sun','Moon'].includes(g)); // "planets excepting the Sun" per Raman's own Sunapha/Anapha wording (txt L1296-1298, L1400-1401); Moon excluded as the reference point itself
+
+function gajakesariYoga(pos){
+  // #1 (txt L1162-1165): Jupiter in a kendra (1/4/7/10) from the Moon.
+  return { present: isKendraFrom(pos.Moon.sidereal, pos.Jupiter.sidereal) };
+}
+function sunaphaYoga(pos){
+  // #2 (txt L1295-1298): any planet except the Sun in the 2nd from the Moon.
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const hits = bsGrahasInHouses(pos, moonSignIdx, RAMAN_MOON_YOGA_GRAHAS, [2]);
+  return { present: hits.length>0, grahas: hits };
+}
+function anaphaYoga(pos){
+  // #3 (txt L1393-1395, Sun exclusion confirmed at L1400-1401): any planet
+  // except the Sun in the 12th from the Moon.
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const hits = bsGrahasInHouses(pos, moonSignIdx, RAMAN_MOON_YOGA_GRAHAS, [12]);
+  return { present: hits.length>0, grahas: hits };
+}
+function dhurdhuraYoga(pos){
+  // #4 (txt L1439-1442): planets (except Sun) occupying BOTH the 2nd AND
+  // 12th from the Moon at once — Raman's Remarks (L1453-1462, "If Mars is
+  // in the 2nd and Mercury is in the 12th a kind of Dhurdhura is formed")
+  // make clear this needs one planet on each side simultaneously, not
+  // simply Sunapha-or-Anapha.
+  const s = sunaphaYoga(pos), a = anaphaYoga(pos);
+  return { present: s.present && a.present, secondHouseGrahas: s.grahas, twelfthHouseGrahas: a.grahas };
+}
+function kemadrumaYoga(pos){
+  // #5 (txt L1507-1509): NO planets (except Sun) in EITHER the 2nd or 12th
+  // from the Moon. Raman explicitly notes (L1513-1518) that some other
+  // authors add cancellation clauses (kendra from Lagna/Moon occupied, or
+  // Moon conjunct a planet) but calls those "not generally acceptable" —
+  // implemented here to Raman's own strict definition only, no
+  // cancellation clauses.
+  const s = sunaphaYoga(pos), a = anaphaYoga(pos);
+  return { present: !s.present && !a.present };
+}
+function chandraMangalaYoga(pos){
+  // #6 (txt L1592-1594): Mars conjunct the Moon (same sign), OR — per
+  // Raman's own added interpretation (txt L1608-1609, "I feel that the
+  // yoga will also be formed if the Moon and Mars are in mutual aspect") —
+  // Mars and Moon in mutual whole-sign aspect.
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const marsSignIdx = Math.floor(norm360(pos.Mars.sidereal)/30);
+  const conjunct = moonSignIdx === marsSignIdx;
+  const mutualAspect = aspectsSignWholeSign('Mars', marsSignIdx, moonSignIdx) && aspectsSignWholeSign('Moon', moonSignIdx, marsSignIdx);
+  return { present: conjunct || mutualAspect, conjunct, mutualAspect };
+}
+function adhiYoga(pos){
+  // #7 (txt L1653-1656): at least one of Mercury/Jupiter/Venus in the 6th,
+  // 7th or 8th from the Moon — Raman's Remarks (L1672-1683) are explicit
+  // this does NOT require all three houses simultaneously occupied ("All
+  // these benefics may be in the 6th, 7th or 8th or in two houses or all
+  // of them may be in any one of these houses"), graded by COUNT of the
+  // three benefics present (1=leader, 2=minister, 3=eminent station),
+  // verified against Chart No.12's own worked example (only Venus+Jupiter
+  // present, 2 of 3 houses, still "fairly powerful" Adhi Yoga per the text).
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const benefics = ['Jupiter','Mercury','Venus'];
+  const hits = bsGrahasInHouses(pos, moonSignIdx, benefics, [6,7,8]);
+  const tier = hits.length===1 ? 'leader' : hits.length===2 ? 'minister' : hits.length===3 ? 'eminent' : null;
+  return { present: hits.length>0, grahas: hits, count: hits.length, tier };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
