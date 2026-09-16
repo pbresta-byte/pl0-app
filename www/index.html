@@ -10980,6 +10980,60 @@ function dashaFunnelNote(level, childReading, parentReading, childLordName, pare
   return T(`Reads as mixed on its own, and ${parentLordName}'s own period above it doesn't tip the balance clearly either way — genuinely undecided at this depth.`,
             `Se lee mixto por sí sola, y el propio período de ${parentLordName} encima tampoco inclina la balanza con claridad — genuinamente indecisa a esta profundidad.`);
 }
+// Classical Mahadasha effects, Shanker Adawal's "Encyclopedia of Vedic
+// Astrology: Dasa Systems" (source PDF under ansel/1050 jyotish books...,
+// extracted and verified 2026-09-16 -- see domains/mahadasha-effects-adawal.md
+// for the full transcription with txt-line citations). Deliberately a
+// SEPARATE layer from dashaLordReading/dashaFunnelNote above: those derive
+// their reading from THIS app's own Lagna-based functional house-lordship
+// engine; this is a genuine classical text's own stated Mahadasha effects,
+// gated by the lord's own dignity in its natal sign (own/exalted/friend ->
+// strong branch, enemy/debilitated -> weak branch, neutral -> general
+// paragraph only). English quotes are the source's own wording (minor
+// OCR-ligature fixes only, e.g. "bss"->"loss"); Spanish is this app's own
+// translation of that English wording, not a separately-sourced citation.
+const MAHADASHA_CLASSICAL_EFFECTS = {
+  Sun: { general:{en:"Accumulation of wealth through wickedness, kings and battles. There may be trouble from fire, beasts, eyesore, dental and abdominal troubles, serious condition of wife or children, separation from elders and preceptor, loss of servants and property.", es:"Acumulación de riqueza por medios cuestionables, reyes y batallas. Puede haber problemas por fuego, animales, vista, dientes y abdomen, condición grave de la esposa o los hijos, separación de mayores y del preceptor, pérdida de sirvientes y propiedad."},
+    strong:{en:"Well placed, the Sun brings birth of children, power and position, fame, favours from elders and people in authority, success in undertakings, and prosperity to the father.", es:"Bien ubicado, el Sol trae nacimiento de hijos, poder y posición, fama, favores de mayores y de gente con autoridad, éxito en las empresas, y prosperidad para el padre."},
+    weak:{en:"Weak or badly placed, the Sun causes ill health, bilious excitement, burning sensations, eye trouble and skin disease, loss of wealth, bad reputation, and danger to the father.", es:"Débil o mal ubicado, el Sol causa mala salud, excitación biliosa, sensación de ardor, problemas de vista y piel, pérdida de riqueza, mala reputación, y peligro para el padre."} },
+  Moon: { general:{en:"Fame and wealth through Vedic hymns, deities, Brahmins and state favour; wealth and lands through women; flowers, clothes, ornaments and enjoyments of varied taste. May be opposed by the wicked, suffer loss of fortune, or rheumatism.", es:"Fama y riqueza a través de himnos védicos, deidades, brahmanes y favor del estado; riqueza y tierras por medio de mujeres; flores, ropa, adornos y placeres variados. Puede haber oposición de gente malvada, pérdida de fortuna, o reumatismo."},
+    strong:{en:"Strong and well placed, the Moon brings tranquillity of mind, success in business, good food and comforts, birth of children, marriage, and gains from lands and houses.", es:"Fuerte y bien ubicada, la Luna trae tranquilidad mental, éxito en los negocios, buena comida y comodidades, nacimiento de hijos, matrimonio, y ganancias de tierras y casas."},
+    weak:{en:"Weak or badly placed, the Moon causes ailments of sleep, lungs and digestion; ill health or danger to mother, wife and children, trouble from female servants, and loss of ancestral property.", es:"Débil o mal ubicada, la Luna causa dolencias del sueño, los pulmones y la digestión; mala salud o peligro para la madre, la esposa y los hijos, problemas con sirvientas, y pérdida del patrimonio ancestral."} },
+  Mars: { general:{en:"Attempts at money-making through land, litigation and royal favour, acquisition of cattle and land; quarrels with brothers and sons; entanglement with wicked women, and disease from bile, blood or fire.", es:"Intentos de hacer dinero por tierras, litigios y favor real, adquisición de ganado y tierras; disputas con hermanos e hijos; enredos con mujeres de mala reputación, y enfermedad por bilis, sangre o fuego."},
+    strong:{en:"Strong and well placed, Mars brings success in litigation, defeat of enemies, prosperity to brothers, gains from land and minerals; fame increases and command and power follow.", es:"Fuerte y bien ubicado, Marte trae éxito en litigios, derrota de enemigos, prosperidad para los hermanos, ganancias de tierras y minerales; la fama aumenta y llegan el mando y el poder."},
+    weak:{en:"Weak or badly placed, Mars brings failure in litigation, family quarrels, ill health or death of brothers, loss of property, danger from weapons and poison, and entanglement in conspiracy.", es:"Débil o mal ubicado, Marte trae fracaso en litigios, disputas familiares, mala salud o muerte de hermanos, pérdida de propiedad, peligro de armas y veneno, y enredos en conspiraciones."} },
+  Mercury: { general:{en:"Benefit of spiritual preceptors, wealth through Brahmins, new lands, cows and horses, worship of great men and gods. Trouble from disturbance of the three humours — wind, heat and phlegm.", es:"Beneficio de preceptores espirituales, riqueza por medio de brahmanes, nuevas tierras, vacas y caballos, veneración de grandes hombres y dioses. Molestias por el desequilibrio de los tres humores — viento, calor y flema."},
+    strong:{en:"Strong and well placed, Mercury brings good friends, increased fame, respect from the learned, favours from elders, high position, gains from business, fluency of speech, and well-being of wife and children.", es:"Fuerte y bien ubicado, Mercurio trae buenos amigos, fama creciente, respeto de los eruditos, favores de mayores, alta posición, ganancias del negocio, fluidez en el habla, y bienestar de la esposa y los hijos."},
+    weak:{en:"Weak or badly placed, Mercury causes eye and throat disease, skin trouble, anaemia and mental trouble; displeasure from superiors, quarrels with friends, and loss of wealth through wicked acts.", es:"Débil o mal ubicado, Mercurio causa enfermedades de ojos y garganta, problemas de piel, anemia y trastornos mentales; disgusto de los superiores, disputas con amigos, y pérdida de riqueza por actos indebidos."} },
+  Jupiter: { general:{en:"New clothes, attendants and grandeur, great respect and dignity, children, wealth, friends, and eloquence in speech. Separation from elders in the family, and ear or phlegmatic trouble.", es:"Ropa nueva, sirvientes y esplendor, gran respeto y dignidad, hijos, riqueza, amigos, y elocuencia en el habla. Separación de mayores en la familia, y molestias de oído o flema."},
+    strong:{en:"Strong and well placed, Jupiter brings increase of wealth and fame, respect from elders and preceptors, birth of children, rise to high position, and success in undertakings, with a turn toward virtue and charity.", es:"Fuerte y bien ubicado, Júpiter trae aumento de riqueza y fama, respeto de mayores y preceptores, nacimiento de hijos, ascenso a alta posición, y éxito en las empresas, con inclinación hacia la virtud y la caridad."},
+    weak:{en:"Weak or badly placed, Jupiter brings bad health or death of children, loss of wealth and position, scandal and intrigue with wicked people, and failure in undertakings.", es:"Débil o mal ubicado, Júpiter trae mala salud o muerte de hijos, pérdida de riqueza y posición, escándalos e intrigas con gente indeseable, y fracaso en las empresas."} },
+  Venus: { general:{en:"Acquisition of a spouse, jewels, clothes, gems, wealth and ornaments, comfort and profusion of wealth by trade, agriculture and travel; also anxiety, mental agony, and separation or death of elders.", es:"Adquisición de cónyuge, joyas, ropa, gemas, riqueza y adornos, comodidad y abundancia de riqueza por comercio, agricultura y viajes; también ansiedad, angustia mental, y separación o muerte de mayores."},
+    strong:{en:"Strong and well placed, Venus brings marriage, marital happiness, birth of daughters, luxury, vehicles and houses, respect from people in authority, and success in undertakings.", es:"Fuerte y bien ubicada, Venus trae matrimonio, felicidad conyugal, nacimiento de hijas, lujo, vehículos y casas, respeto de la gente con autoridad, y éxito en las empresas."},
+    weak:{en:"Weak or badly placed, Venus causes ill health or death of the spouse, entanglement with disreputable company and loss of wealth thereby, low vitality, and venereal, kidney or urinary disease.", es:"Débil o mal ubicada, Venus causa mala salud o muerte del cónyuge, enredos de mala reputación y la consiguiente pérdida de riqueza, baja vitalidad, y enfermedades venéreas, renales o urinarias."} },
+  Saturn: { general:{en:"Wealth through upheaval or dislocation, attendants, cattle wealth; distress to children and spouse; disease from wind and phlegm, piles, and burning sensation in the limbs.", es:"Riqueza por trastornos o desplazamientos, sirvientes, riqueza en ganado; angustia para los hijos y el cónyuge; enfermedad por viento y flema, hemorroides, y sensación de ardor en las extremidades."},
+    strong:{en:"Strong and well placed, Saturn brings high position and authority, influence over the masses, gains through servants and land, and general prosperity and happiness.", es:"Fuerte y bien ubicado, Saturno trae alta posición y autoridad, influencia sobre las masas, ganancias por sirvientes y tierras, y prosperidad y felicidad generales."},
+    weak:{en:"Weak or badly placed, Saturn brings loss of wealth, poverty, ill health, death of elders in the family, trouble through servants, litigation, misery, and rheumatic complaints.", es:"Débil o mal ubicado, Saturno trae pérdida de riqueza, pobreza, mala salud, muerte de mayores en la familia, problemas con sirvientes, litigios, sufrimiento, y dolencias reumáticas."} },
+  Rahu: { general:{en:"May lead to wicked means or an undiagnosable ailment, loss of wife and children, danger of poisoning, trouble from enemies, and disease of the eyes and head; opposition from friends.", es:"Puede llevar a medios cuestionables o a una dolencia difícil de diagnosticar, pérdida de la esposa y los hijos, peligro de envenenamiento, problemas con enemigos, y enfermedad de ojos y cabeza; oposición de amigos."},
+    strong:{en:"Strong and well placed, Rahu brings accumulation of wealth, gains from business, promotion in profession, a position of command, and general happiness.", es:"Fuerte y bien ubicado, Rahu trae acumulación de riqueza, ganancias del negocio, ascenso profesional, una posición de mando, y felicidad general."},
+    weak:{en:"Weak or badly placed, Rahu brings loss of wealth, quarrels and disputes, criminal entanglement, wandering, poverty, ill health to wife and children, and death of elders in the family.", es:"Débil o mal ubicado, Rahu trae pérdida de riqueza, disputas y peleas, enredos criminales, andanzas, pobreza, mala salud para la esposa y los hijos, y muerte de mayores en la familia."} },
+  Ketu: { general:{en:"Oppression by enemies, thieves or rulers; wounds from weapons, disease from excess heat, a stigma to the family, danger from fire, and residence in a foreign land.", es:"Opresión por enemigos, ladrones o gobernantes; heridas de armas, enfermedad por exceso de calor, un estigma para la familia, peligro de fuego, y residencia en tierra extranjera."},
+    strong:{en:"Strong and well placed, Ketu brings gain of wealth and general prosperity — the source's own phrasing adds \"gains through evil actions,\" kept as stated rather than softened.", es:"Fuerte y bien ubicado, Ketu trae ganancia de riqueza y prosperidad general — la fuente añade textualmente \"ganancias por acciones malas\", mantenido tal cual en vez de suavizado."},
+    weak:{en:"Weak or badly placed, Ketu brings loss of wealth, ill health, imprisonment, association with low company, fear of thieves, and chronic or acute disease.", es:"Débil o mal ubicado, Ketu trae pérdida de riqueza, mala salud, encarcelamiento, malas compañías, miedo a los ladrones, y enfermedad crónica o aguda."} }
+};
+// Picks the strong/weak/general branch above from the Mahadasha lord's OWN
+// natal dignity (own/exalted/friend -> strong; enemy/debilitated -> weak;
+// neutral, or Rahu/Ketu outside their one own-sign, -> general only).
+function mahadashaClassicalReading(lord, birthPos){
+  const entry = MAHADASHA_CLASSICAL_EFFECTS[lord];
+  if (!entry) return null;
+  const signIdx = Math.floor(norm360(birthPos[lord].sidereal)/30);
+  const tier = dignityTierInSign(lord, signIdx);
+  const branch = ["Exalted","Own","Friend"].includes(tier) ? 'strong'
+    : ["Enemy","Debilitated"].includes(tier) ? 'weak'
+    : null;
+  return { general: entry.general, branch: branch ? entry[branch] : null, branchTag: branch, dignityTier: tier };
+}
 function fmtDashaDate(jd, tz){
   const d = jdToLocalString(jd, tz);
   return `${pad2(d.day)}-${pad2(d.month)}-${d.year} ${pad2(d.hh)}:${pad2(d.mm)}`;
@@ -11028,6 +11082,23 @@ function renderDashaPage(){
     muhurtaCrossRef = `<div class="hint" style="margin-top:10px;">${T(`The muhūrta moment set on the main page falls in: <b style="color:var(--ink);">${chainLabel}</b> Daśā.`,`El momento muhūrta fijado en la página principal cae en: <b style="color:var(--ink);">${chainLabel}</b> Daśā.`)}</div>`;
   }
 
+  const currentMahadashaLord = chain[0].lord;
+  const classicalReading = mahadashaClassicalReading(currentMahadashaLord, birthPos);
+  let classicalHtml = '';
+  if (classicalReading){
+    const dignityLabel = classicalReading.dignityTier==='—' ? T('not exalted or in its own sign','ni exaltado ni en signo propio') : T(classicalReading.dignityTier, classicalReading.dignityTier);
+    const branchHtml = classicalReading.branch
+      ? `<div class="effect-box" style="margin-top:10px;"><div class="effect-label">${classicalReading.branchTag==='strong' ? T('Since this lord is well-dignified here','Ya que este señor está bien dignificado aquí') : T('Since this lord is poorly dignified here','Ya que este señor está mal dignificado aquí')}</div><div class="effect-text">${T(classicalReading.branch.en, classicalReading.branch.es)}</div></div>`
+      : `<div class="hint" style="margin-top:10px;">${T('This lord\'s natal dignity here is neutral — neither the source\'s strong-placement nor weak-placement branch applies cleanly, so only the general paragraph above is shown.','La dignidad natal de este señor aquí es neutral — no aplica claramente ni la rama de ubicación fuerte ni la de ubicación débil de la fuente, así que solo se muestra el párrafo general de arriba.')}</div>`;
+    classicalHtml = `<div class="panel"><div class="hd"><h2>${T('Classical Mahādaśā effects','Efectos clásicos de la Mahādaśā')}</h2><span class="note">${gNameNatal(currentMahadashaLord)} — ${dignityLabel}</span></div>
+      <div class="bd">
+        <div class="effect-box"><div class="effect-label">${T('General effects, any dignity','Efectos generales, cualquier dignidad')}</div><div class="effect-text">${T(classicalReading.general.en, classicalReading.general.es)}</div></div>
+        ${branchHtml}
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('Source: Shanker Adawal, <i>Encyclopedia of Vedic Astrology: Dasa Systems</i>, ch. 2 — a genuinely different layer from the functional reading above: that one derives from this app\'s own Lagna-based house-lordship engine, this is the source\'s own stated Mahādaśā effects, gated only by the lord\'s natal dignity. Shown for the current Mahādaśā only (not Antardaśā and below).','Fuente: Shanker Adawal, <i>Encyclopedia of Vedic Astrology: Dasa Systems</i>, cap. 2 — una capa genuinamente distinta de la lectura funcional de arriba: aquella se deriva del propio motor de señorío de casas basado en el Lagna de esta app, esta es la formulación propia de la fuente sobre los efectos de la Mahādaśā, condicionada solo por la dignidad natal del señor. Se muestra solo para la Mahādaśā actual, no para Antardaśā ni niveles inferiores.')}</div>
+      </div>
+    </div>`;
+  }
+
   container.innerHTML = `
     <div class="panel">
       <div class="hd"><h2>${T('Vimśottari Daśā','Vimśottari Daśā')}</h2><span class="note">${T('120-year cycle','ciclo de 120 años')}</span></div>
@@ -11046,6 +11117,7 @@ function renderDashaPage(){
         <div class="hint" style="margin-top:6px;">${T('Boundary dates can drift by a few days from other software\'s — a few arcminutes of difference in the birth Moon\'s exact degree shifts how much of the first Daśā period is already elapsed, and that shift then carries forward at constant size through every later period.','Las fechas límite pueden variar unos días respecto a otro software — unos pocos minutos de arco de diferencia en el grado exacto de la Luna natal desplazan cuánto del primer período de Daśā ya transcurrió, y ese desplazamiento se traslada luego, con tamaño constante, a través de cada período posterior.')}</div>
       </div>
     </div>
+    ${classicalHtml}
   `;
 }
 
