@@ -8343,12 +8343,15 @@ function renderNatalPage(){
     const overall = v.score>0.5 ? {label:T('Leans functionally benefic','Se inclina funcionalmente benéfico'), cls:'good'}
       : v.score<-0.5 ? {label:T('Leans functionally malefic','Se inclina funcionalmente maléfico'), cls:'bad'}
       : {label:T('Mixed / neutral','Mixto / neutral'), cls:'neutral'};
+    const reading = functionalLordshipReading(g, lordships[g], overall.cls);
     return `<tr>
       <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
       <td style="font-size:11px;">${lordships[g].map(h=>T(h+ordinalSuffix(h), 'casa '+h)).join(', ')}</td>
       <td style="font-size:11px;">${T(nature==='benefic'?'Natural benefic':'Natural malefic', nature==='benefic'?'Benéfico natural':'Maléfico natural')}</td>
       <td style="font-size:10.5px; color:var(--ink-dim);">${v.tags.map(t=>t.text).join('; ')}</td>
       <td><span class="tag ${overall.cls}">${overall.label}</span></td>
+    </tr><tr>
+      <td colspan="5" style="font-size:11px; line-height:1.5; color:var(--ink-dim); padding:4px 12px 8px 24px; border-bottom:1px solid var(--line-soft);">${T(reading.en, reading.es)}</td>
     </tr>`;
   }).join('');
 
@@ -10400,6 +10403,35 @@ function dignityTagClass(tier){
   if (["Exalted","Own","Own (per source note)"].includes(tier)) return "good";
   if (["Debilitated","Enemy"].includes(tier)) return "bad";
   return "neutral";
+}
+// One plain-language sentence per graha in the functional lordship table:
+// folds the graha's natural kāraka, the plain-English significations of each
+// house it rules, and a closing clause keyed to the net verdict class.
+function functionalLordshipReading(g, housesRuled, overallCls){
+  const karaka = GRAHA_KARAKA[g] || {en:"",es:""};
+  const sigs = housesRuled.map(h=>{
+    const s = HOUSE_SIGNIF[h];
+    return s ? T(s.en, s.es) : null;
+  }).filter(Boolean);
+  const listed = sigs.length>1
+    ? sigs.slice(0,-1).join(', ') + ' and ' + sigs[sigs.length-1]
+    : sigs[0] || '';
+  const ges = T(g, GRAHA_ES[g]);
+  const cls = overallCls || 'neutral';
+  let tailEn, tailEs;
+  if (cls==='good'){
+    tailEn = `tends to carry a broadly supportive cast — what ${g} governs tends to cooperate rather than resist, and the native usually finds these areas of life workable with patience and ordinary effort.`;
+    tailEs = `tiende a portar un matiz ampliamente favorable — lo que ${ges} gobierna tiende a cooperar antes que a resistir, y el nativo suele encontrar estas áreas de la vida manejables con paciencia y esfuerzo ordinario.`;
+  } else if (cls==='bad'){
+    tailEn = `tends to carry a friction-bearing cast — what ${g} governs asks for extra effort, shows up through strain or delay, and is most reliably improved by working with its grain rather than against it.`;
+    tailEs = `tiende a portar un matiz de fricción — lo que ${ges} gobierna pide esfuerzo extra, se manifiesta a través de tensión o demora, y se mejora más fielmente trabajando con su grano que contra él.`;
+  } else {
+    tailEn = `lands in a mixed, case-by-case way — results depend on the rest of the chart and on timing; the same house-lordship can read generous in one season and demanding in another.`;
+    tailEs = `cae de forma mixta y caso por caso — los resultados dependen del resto de la carta y del momento; el mismo señorío de casa puede leerse generoso en una temporada y exigente en otra.`;
+  }
+  const en = `${g}, natural significator of ${karaka.en}, ruling the ground of ${listed}, ${tailEn}`;
+  const es = `${ges}, significador natural de ${karaka.es}, gobernando el terreno de ${listed}, ${tailEs}`;
+  return {en, es};
 }
 // One template paragraph: graha G sits in divisional sign vSignIdx, counted
 // as house H from that varga's Lagna (lagnaVIdx). Theme varies by varga.
