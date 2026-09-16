@@ -9712,7 +9712,62 @@ function renderNatalPage(){
       nameEn:'Raja Yoga #263', nameEs:'Yoga Raja #263',
       glossEn:'Closing this chapter, per Raman\'s own Remarks ("very simple, needs no explanation"). Jupiter, Mercury, Venus or the Moon in the 9th house, free from combustion, aspected by or associated with a naturally friendly planet.',
       glossEs:'Cerrando este capítulo, según los propios Comentarios de Raman ("muy sencillo, no necesita explicación"). Júpiter, Mercurio, Venus o la Luna en la 9.ª casa, libre de combustión, aspectado por o asociado con un planeta naturalmente amigo.',
-      reasonLine: r => T(`Qualifying planet in 9th: ${r.matched||T('none','ninguno')}.`, `Planeta calificado en la 9.ª: ${r.matched||T('none','ninguno')}.`) }
+      reasonLine: r => T(`Qualifying planet in 9th: ${r.matched||T('none','ninguno')}.`, `Planeta calificado en la 9.ª: ${r.matched||T('none','ninguno')}.`) },
+    { result: vranaYoga(birthPos, lagnaIdx), num: 265,
+      nameEn:'Vrana Yoga', nameEs:'Yoga Vrana',
+      glossEn:'A dreadful disease (cancer). The 6th lord, being a natural malefic, occupying Lagna, the 8th or the 10th.',
+      glossEs:'Una enfermedad terrible (cáncer). El señor de la 6.ª, siendo un maléfico natural, ocupando el Lagna, la 8.ª o la 10.ª.',
+      reasonLine: r => T(`6th lord (${r.lord6}) is malefic: ${hf(r.lord6IsMalefic)}. In Lagna/8th/10th: ${hf(r.inTargetHouse)}.`, `El señor de la 6.ª (${r.lord6}) es maléfico: ${hf(r.lord6IsMalefic)}. En Lagna/8.ª/10.ª: ${hf(r.inTargetHouse)}.`) },
+    { result: sisnavyadhiYoga(birthPos, lagnaIdx), num: 266,
+      nameEn:'Sisnavyadhi Yoga', nameEs:'Yoga Sisnavyadhi',
+      glossEn:'Incurable sexual diseases. Mercury in Lagna, together with the lords of the 6th and the 8th.',
+      glossEs:'Enfermedades sexuales incurables. Mercurio en el Lagna, junto con los señores de la 6.ª y la 8.ª.',
+      reasonLine: r => T(`Mercury in Lagna: ${hf(r.mercuryInLagna)}. 6th lord in Lagna: ${hf(r.lord6InLagna)}. 8th lord in Lagna: ${hf(r.lord8InLagna)}.`, `Mercurio en el Lagna: ${hf(r.mercuryInLagna)}. Señor de la 6.ª en el Lagna: ${hf(r.lord6InLagna)}. Señor de la 8.ª en el Lagna: ${hf(r.lord8InLagna)}.`) },
+    { result: kalatrashandaYoga(birthPos, lagnaIdx), num: 267,
+      nameEn:'Kalatrashanda Yoga', nameEs:'Yoga Kalatrashanda',
+      glossEn:'The wife will be frigid (Raman himself flags this as untested against a large sample). The 7th lord in the 6th house, together with Venus.',
+      glossEs:'La esposa será frígida (el propio Raman señala que no la ha probado contra una muestra amplia). El señor de la 7.ª en la 6.ª casa, junto con Venus.',
+      reasonLine: r => T(`7th lord in 6th: ${hf(r.lord7In6th)}. Venus in 6th: ${hf(r.venusIn6th)}.`, `Señor de la 7.ª en la 6.ª: ${hf(r.lord7In6th)}. Venus en la 6.ª: ${hf(r.venusIn6th)}.`) },
+    { result: kushtarogaYogaA(birthPos, lagnaIdx), num: 268,
+      nameEn:'Kushtaroga Yoga I', nameEs:'Yoga Kushtaroga I',
+      glossEn:'Leprosy. The Lagna lord together with Mars and Mercury in the 4th or the 12th house.',
+      glossEs:'Lepra. El señor del Lagna junto con Marte y Mercurio en la 4.ª o la 12.ª casa.',
+      reasonLine: r => T(`Present: ${hf(r.present)}.`, `Presente: ${hf(r.present)}.`) },
+    { result: kushtarogaYogaB(birthPos, lagnaIdx), num: 269,
+      nameEn:'Kushtaroga Yoga II', nameEs:'Yoga Kushtaroga II',
+      glossEn:'Leprosy (a second, independent path). Jupiter, Saturn and the Moon all together in the 6th house.',
+      glossEs:'Lepra (una segunda vía independiente). Júpiter, Saturno y la Luna todos juntos en la 6.ª casa.',
+      reasonLine: r => T(`Jupiter+Saturn+Moon in 6th: ${hf(r.jupIn6th && r.saturnIn6th && r.moonIn6th)}.`, `Júpiter+Saturno+Luna en la 6.ª: ${hf(r.jupIn6th && r.saturnIn6th && r.moonIn6th)}.`) },
+    { result: bandhanaYoga(birthPos, lagnaIdx), num: 271,
+      nameEn:'Bandhana Yoga', nameEs:'Yoga Bandhana',
+      glossEn:'Incarceration. The lords of Lagna and the 6th together in a kendra or trikona, joined by Saturn, Rahu or Ketu.',
+      glossEs:'Encarcelamiento. Los señores del Lagna y la 6.ª juntos en un kendra o trikona, unidos a Saturno, Rahu o Ketu.',
+      reasonLine: r => T(`Lagna+6th lords together: ${hf(r.together)}. In kendra/trikona: ${hf(r.inKendraTrikona)}. With Saturn/Rahu/Ketu: ${hf(r.withCruelInfluence)}.`, `Señores de Lagna+6.ª juntos: ${hf(r.together)}. En kendra/trikona: ${hf(r.inKendraTrikona)}. Con Saturno/Rahu/Ketu: ${hf(r.withCruelInfluence)}.`) },
+    { result: karaschedaYoga(birthPos, lagnaIdx), num: 272,
+      nameEn:'Karascheda Yoga', nameEs:'Yoga Karascheda',
+      glossEn:'Loss of hands (Raman himself doubts the literal severity, offering it "for what it is worth"). Saturn in the 9th and Jupiter in the 3rd.',
+      glossEs:'Pérdida de las manos (el propio Raman duda de la gravedad literal, ofreciéndola "por lo que valga"). Saturno en la 9.ª y Júpiter en la 3.ª.',
+      reasonLine: r => T(`Saturn in 9th: ${hf(r.saturnIn9th)}. Jupiter in 3rd: ${hf(r.jupIn3rd)}.`, `Saturno en la 9.ª: ${hf(r.saturnIn9th)}. Júpiter en la 3.ª: ${hf(r.jupIn3rd)}.`) },
+    { result: durmaranaYoga(birthPos, lagnaIdx), num: 274,
+      nameEn:'Durmarana Yoga', nameEs:'Yoga Durmarana',
+      glossEn:'Unnatural death. The Moon aspected by the Lagna lord, occupying the 6th, 8th or 12th, in association with Saturn or Rahu (a 3rd OR-option, Mandi, is not computed anywhere in this app and is simply omitted from the OR).',
+      glossEs:'Muerte no natural. La Luna aspectada por el señor del Lagna, ocupando la 6.ª, la 8.ª o la 12.ª, en asociación con Saturno o Rahu (una 3.ª opción disyuntiva, Mandi, no se calcula en ningún lugar de esta app y simplemente se omite de la disyunción).',
+      reasonLine: r => T(`Moon aspected by Lagna lord: ${hf(r.moonAspectedByLord1)}. Moon in dusthana: ${hf(r.moonInDusthana)}. With Saturn/Rahu: ${hf(r.moonWithSaturnOrRahu)}.`, `Luna aspectada por el señor del Lagna: ${hf(r.moonAspectedByLord1)}. Luna en dusthana: ${hf(r.moonInDusthana)}. Con Saturno/Rahu: ${hf(r.moonWithSaturnOrRahu)}.`) },
+    { result: yuddheMaranaYoga(birthPos, navPos, lagnaIdx), num: 275,
+      nameEn:'Yuddhe Marana Yoga', nameEs:'Yoga Yuddhe Marana',
+      glossEn:'Death in battle. Implemented via Raman\'s own confirmed alternate path (his primary Definition needs an unverified "cruel amsa" classification): the lord of the Drekkana occupied by Saturn, in a Rasi or Navamsa sign of Mars, or aspected by Mars.',
+      glossEs:'Muerte en batalla. Implementado mediante la vía alternativa confirmada por el propio Raman (su Definición principal necesita una clasificación de "amsa cruel" no verificada): el señor del Drekkana ocupado por Saturno, en un signo de Rasi o Navamsa de Marte, o aspectado por Marte.',
+      reasonLine: r => T(`Drekkana lord (${r.drekkanaLord}) in Mars Rasi sign: ${hf(r.lordInMarsRasiSign)}. In Mars Navamsa: ${hf(r.lordInMarsNavamsa)}. Aspected by Mars: ${hf(r.lordAspectedByMars)}.`, `Señor del Drekkana (${r.drekkanaLord}) en signo de Rasi de Marte: ${hf(r.lordInMarsRasiSign)}. En Navamsa de Marte: ${hf(r.lordInMarsNavamsa)}. Aspectado por Marte: ${hf(r.lordAspectedByMars)}.`) },
+    { result: peenasarogaYoga(birthPos, navPos, lagnaIdx), num: 278,
+      nameEn:'Peenasaroga Yoga', nameEs:'Yoga Peenasaroga',
+      glossEn:'Inflammation of the nasal membrane. The Moon in the 6th, Saturn in the 8th, another malefic in the 12th, and the Lagna lord in a malefic Navamsa (Raman\'s own worked chart actually satisfies only 3 of these 4 clauses -- flagged, not silently resolved).',
+      glossEs:'Inflamación de la membrana nasal. La Luna en la 6.ª, Saturno en la 8.ª, otro maléfico en la 12.ª, y el señor del Lagna en un Navamsa maléfico (la propia carta resuelta de Raman en realidad solo cumple 3 de estas 4 cláusulas -- señalado, no resuelto en silencio).',
+      reasonLine: r => T(`Moon in 6th: ${hf(r.moonIn6th)}. Saturn in 8th: ${hf(r.saturnIn8th)}. Malefic in 12th: ${hf(r.maleficIn12th)}. Lagna lord malefic Navamsa: ${hf(r.lord1MaleficNavamsa)}.`, `Luna en la 6.ª: ${hf(r.moonIn6th)}. Saturno en la 8.ª: ${hf(r.saturnIn8th)}. Maléfico en la 12.ª: ${hf(r.maleficIn12th)}. Señor del Lagna en Navamsa maléfico: ${hf(r.lord1MaleficNavamsa)}.`) },
+    { result: pittarogaYoga(birthPos, lagnaIdx), num: 279,
+      nameEn:'Pittaroga Yoga', nameEs:'Yoga Pittaroga',
+      glossEn:'Bilious complaints (per Ayurveda\'s Pitta dosha). The Sun in the 6th house, conjunct one malefic and aspected by a different malefic.',
+      glossEs:'Molestias biliosas (según el dosha Pitta del Ayurveda). El Sol en la 6.ª casa, conjunto a un maléfico y aspectado por otro maléfico distinto.',
+      reasonLine: r => T(`Sun in 6th: ${hf(r.sunIn6th)}. Malefic with Sun: ${hf(r.maleficWithSun)}. Malefic aspecting: ${hf(r.maleficAspecting)}.`, `Sol en la 6.ª: ${hf(r.sunIn6th)}. Maléfico con el Sol: ${hf(r.maleficWithSun)}. Maléfico aspectando: ${hf(r.maleficAspecting)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9862,7 +9917,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-233 and #235-263 of 300 (#11, #174 and #204 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 needs a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have; #234 Thrikalagnana is already implemented separately, in the Jñāna Yoga panel above — all four accounted for elsewhere or deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-233 y #235-263 de 300 (#11, #174 y #204 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 necesita una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene; #234 Thrikalagnana ya está implementado por separado, en el panel de Yoga Jñāna de arriba — las cuatro contabilizadas en otro lugar o pospuestas). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-233, #235-263, #265-269, #271-272 and #274-279 of 300 (#11, #174, #204, #264 and #270 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 and #273 need a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have; #276-277 need an unnamed "evil sub-division/amsa" classical system too vague in the source to operationalize; #234 Thrikalagnana is already implemented separately, in the Jñāna Yoga panel above — every gap accounted for elsewhere or deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-233, #235-263, #265-269, #271-272 y #274-279 de 300 (#11, #174, #204, #264 y #270 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 y #273 necesitan una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene; #276-277 necesitan un sistema clásico de "sub-división/amsa maligna" sin nombrar, demasiado vago en la fuente para operacionalizar; #234 Thrikalagnana ya está implementado por separado, en el panel de Yoga Jñāna de arriba — cada vacío contabilizado en otro lugar o pospuesto). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -15449,6 +15504,148 @@ function rajaYoga263(pos, ascSignIdx){
     if (friendlyAssoc){ matched = g; break; }
   }
   return { present: !!matched, matched };
+}
+
+// --- Arishta Yogas (misfortune/health/death combinations) begin here, txt
+// L10369. #264 Galakarna Yoga and #270 Kshayaroga Yoga both need Mandi (a
+// Gulika-family point this app has never computed -- same gap as
+// #11/#174/#204), each as an AND-clause that can't be safely omitted, so
+// both are genuine skips (noted in intro text, not added to the array).
+// #273 Sirachcheda Yoga ANDs in a "cruel shashtiamsa" (D60 deity/
+// temperament) classification, the same unverified-table gap as #185 --
+// also skipped. #276/#277 Sanghataka Marana Yogas require an unnamed
+// "evil sub-divisions"/"evil amsas" classification with no specific
+// classical system named in the source to operationalize -- too vague to
+// implement, also skipped.
+
+// #265, Vrana Yoga (txt L10412-10414): the 6th lord, being a natural
+// malefic, occupying Lagna, the 8th or the 10th.
+function vranaYoga(pos, ascSignIdx){
+  const lord6 = lordOfHouse(6, ascSignIdx);
+  const lord6IsMalefic = MALEFIC_GRAHAS.includes(lord6);
+  const lord6House = bsHouseFromAsc(pos[lord6].sidereal, ascSignIdx);
+  const inTargetHouse = [1,8,10].includes(lord6House);
+  return { present: lord6IsMalefic && inTargetHouse, lord6IsMalefic, inTargetHouse, lord6 };
+}
+// #266, Sisnavyadhi Yoga (txt L10512-10513): Mercury in Lagna, together
+// with the lords of the 6th AND 8th (all three in Lagna). Self-lordship
+// shortcut applied if Mercury itself happens to own the 6th or 8th.
+function sisnavyadhiYoga(pos, ascSignIdx){
+  const mercuryInLagna = bsHouseFromAsc(pos.Mercury.sidereal, ascSignIdx)===1;
+  const lord6 = lordOfHouse(6, ascSignIdx), lord8 = lordOfHouse(8, ascSignIdx);
+  const lord6InLagna = lord6==='Mercury' ? true : bsHouseFromAsc(pos[lord6].sidereal, ascSignIdx)===1;
+  const lord8InLagna = lord8==='Mercury' ? true : bsHouseFromAsc(pos[lord8].sidereal, ascSignIdx)===1;
+  return { present: mercuryInLagna && lord6InLagna && lord8InLagna, mercuryInLagna, lord6InLagna, lord8InLagna };
+}
+// #267, Kalatrashanda Yoga (txt L10559-10561): the 7th lord in the 6th
+// house, together with Venus.
+function kalatrashandaYoga(pos, ascSignIdx){
+  const lord7 = lordOfHouse(7, ascSignIdx);
+  const house6SignIdx = (ascSignIdx+5)%12;
+  const lord7In6th = Math.floor(norm360(pos[lord7].sidereal)/30)===house6SignIdx;
+  const venusIn6th = Math.floor(norm360(pos.Venus.sidereal)/30)===house6SignIdx;
+  return { present: lord7In6th && venusIn6th, lord7In6th, venusIn6th };
+}
+// #268 & #269, Kushtaroga Yogas (txt L10578-10581): two independent
+// combinations for leprosy.
+function kushtarogaYogaA(pos, ascSignIdx){ // 268: Lagna lord+Mars+Mercury together in 4th or 12th
+  const lord1 = SIGN_LORD[SIGNS[ascSignIdx]];
+  const checkHouse = (targetSignIdx) => ['Mars','Mercury'].every(g=>Math.floor(norm360(pos[g].sidereal)/30)===targetSignIdx) && Math.floor(norm360(pos[lord1].sidereal)/30)===targetSignIdx;
+  const house4SignIdx = (ascSignIdx+3)%12, house12SignIdx = (ascSignIdx+11)%12;
+  return { present: checkHouse(house4SignIdx) || checkHouse(house12SignIdx) };
+}
+function kushtarogaYogaB(pos, ascSignIdx){ // 269: Jupiter+Saturn+Moon together in 6th
+  const house6SignIdx = (ascSignIdx+5)%12;
+  const jupIn6th = Math.floor(norm360(pos.Jupiter.sidereal)/30)===house6SignIdx;
+  const saturnIn6th = Math.floor(norm360(pos.Saturn.sidereal)/30)===house6SignIdx;
+  const moonIn6th = Math.floor(norm360(pos.Moon.sidereal)/30)===house6SignIdx;
+  return { present: jupIn6th && saturnIn6th && moonIn6th, jupIn6th, saturnIn6th, moonIn6th };
+}
+// #271, Bandhana Yoga (txt L10878-10881): the lords of Lagna and the 6th
+// together in a kendra or trikona, with Saturn, Rahu or Ketu.
+function bandhanaYoga(pos, ascSignIdx){
+  const lord1 = SIGN_LORD[SIGNS[ascSignIdx]];
+  const lord6 = lordOfHouse(6, ascSignIdx);
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const lord6SignIdx = Math.floor(norm360(pos[lord6].sidereal)/30);
+  const together = lord1SignIdx===lord6SignIdx;
+  const inKendraTrikona = [1,4,5,7,9,10].includes(bsHouseFromAsc(pos[lord1].sidereal, ascSignIdx));
+  const withCruelInfluence = ['Saturn','Rahu','Ketu'].some(g=>Math.floor(norm360(pos[g].sidereal)/30)===lord1SignIdx);
+  return { present: together && inKendraTrikona && withCruelInfluence, together, inKendraTrikona, withCruelInfluence };
+}
+// #272, Karascheda Yoga (txt L10891-10893): Saturn in the 9th and Jupiter
+// in the 3rd. The Remarks' three further alternate paths (a)/(b)/(c) have
+// no worked example behind any of them -- left out per this project's
+// standing practice for unverified Remarks-only alternates.
+function karaschedaYoga(pos, ascSignIdx){
+  const saturnIn9th = bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx)===9;
+  const jupIn3rd = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx)===3;
+  return { present: saturnIn9th && jupIn3rd, saturnIn9th, jupIn3rd };
+}
+// #274, Durmarana Yoga (txt L10984-10987): the Moon aspected by the Lagna
+// lord, occupying a dusthana (6th/8th/12th), in association with Saturn,
+// Mandi or Rahu -- Mandi is one of three OR'd options here (unlike #264/
+// #270's AND-clauses), so it's simply omitted from the OR per this
+// project's #158/#169 precedent, not grounds to skip the whole entry.
+function durmaranaYoga(pos, ascSignIdx){
+  const lord1 = SIGN_LORD[SIGNS[ascSignIdx]];
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const moonAspectedByLord1 = lord1==='Moon' ? false : aspectsSignWholeSign(lord1, Math.floor(norm360(pos[lord1].sidereal)/30), moonSignIdx);
+  const moonInDusthana = [6,8,12].includes(bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx));
+  const moonWithSaturnOrRahu = ['Saturn','Rahu'].some(g=>Math.floor(norm360(pos[g].sidereal)/30)===moonSignIdx);
+  return { present: moonAspectedByLord1 && moonInDusthana && moonWithSaturnOrRahu, moonAspectedByLord1, moonInDusthana, moonWithSaturnOrRahu };
+}
+// #275, Yuddhe Marana Yoga (txt L11016-11018, alternate path txt
+// L11035-11037, worked Chart No.136 confirms the alternate): the
+// Definition's own primary path needs "cruel amsas" (unverified D60
+// classification, same gap as #185/#273), but Raman offers a fully
+// checkable alternate presented as equivalent ("the same yoga is ALSO said
+// to be caused if...") and confirms it with a worked chart -- implemented
+// via that alternate exclusively: the lord of the Drekkana (D3) occupied by
+// Saturn, in a Rasi or Navamsa sign of Mars, or aspected by Mars.
+function yuddheMaranaYoga(pos, navPos, ascSignIdx){
+  const saturnDrekkanaSignIdx = drekkanaSignIdx(pos.Saturn.sidereal);
+  const drekkanaLord = SIGN_LORD[SIGNS[saturnDrekkanaSignIdx]];
+  const lordRasiSignIdx = Math.floor(norm360(pos[drekkanaLord].sidereal)/30);
+  const lordInMarsRasiSign = SIGN_LORD[SIGNS[lordRasiSignIdx]]==='Mars';
+  const lordNavSignIdx = Math.floor(norm360(navPos[drekkanaLord].sidereal)/30);
+  const lordInMarsNavamsa = SIGN_LORD[SIGNS[lordNavSignIdx]]==='Mars';
+  const lordAspectedByMars = drekkanaLord==='Mars' ? false : aspectsSignWholeSign('Mars', Math.floor(norm360(pos.Mars.sidereal)/30), lordRasiSignIdx);
+  return { present: lordInMarsRasiSign || lordInMarsNavamsa || lordAspectedByMars, lordInMarsRasiSign, lordInMarsNavamsa, lordAspectedByMars, drekkanaLord };
+}
+// #278, Peenasaroga Yoga (txt L11102-11105): the literal 4-clause
+// Definition is implemented as written, but flagged honestly -- Raman's
+// OWN worked Chart No.132(sic, described near L11149) satisfies only 3 of
+// the 4 clauses (explicitly missing the Lagna-lord malefic-Navamsa clause,
+// "Jupiter Lagnadhipathi has NOT joined a malefic Navamsa") yet he still
+// calls it "clearly illustrative." His own prose elsewhere emphasizes a
+// DIFFERENT 2-factor subset (Moon in 6th + Lagnadhipathi malefic Navamsa)
+// than what that same chart actually shows. Source is genuinely
+// inconsistent here; kept as the literal AND rather than guessing which
+// subset is "real," since no single clean alternative structure is stated.
+function peenasarogaYoga(pos, navPos, ascSignIdx){
+  const moonIn6th = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx)===6;
+  const saturnIn8th = bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx)===8;
+  const house12SignIdx = (ascSignIdx+11)%12;
+  const maleficIn12th = MALEFIC_GRAHAS.some(m=>m!=='Saturn' && Math.floor(norm360(pos[m].sidereal)/30)===house12SignIdx);
+  const lord1 = SIGN_LORD[SIGNS[ascSignIdx]];
+  const lord1NavSignIdx = Math.floor(norm360(navPos[lord1].sidereal)/30);
+  const lord1MaleficNavamsa = MALEFIC_GRAHAS.includes(SIGN_LORD[SIGNS[lord1NavSignIdx]]);
+  return { present: moonIn6th && saturnIn8th && maleficIn12th && lord1MaleficNavamsa, moonIn6th, saturnIn8th, maleficIn12th, lord1MaleficNavamsa };
+}
+// #279, Pittaroga Yoga (txt L11154-11157): the Sun in the 6th house,
+// conjunct one malefic AND aspected by a DIFFERENT malefic.
+function pittarogaYoga(pos, ascSignIdx){
+  const house6SignIdx = (ascSignIdx+5)%12;
+  const sunIn6th = Math.floor(norm360(pos.Sun.sidereal)/30)===house6SignIdx;
+  const maleficWithSun = MALEFIC_GRAHAS.some(m=>m!=='Sun' && Math.floor(norm360(pos[m].sidereal)/30)===house6SignIdx);
+  const maleficAspecting = MALEFIC_GRAHAS.some(m=>{
+    if (m==='Sun') return false;
+    const mSignIdx = Math.floor(norm360(pos[m].sidereal)/30);
+    if (mSignIdx===house6SignIdx) return false;
+    return aspectsSignWholeSign(m, mSignIdx, house6SignIdx);
+  });
+  return { present: sunIn6th && maleficWithSun && maleficAspecting, sunIn6th, maleficWithSun, maleficAspecting };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
