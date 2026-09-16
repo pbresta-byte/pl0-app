@@ -8475,10 +8475,10 @@ function renderNatalPage(){
         `Planetas prósperos conectados al Lagna: ${r.thrivingPlanetsConnectedToLagna.length ? r.thrivingPlanetsConnectedToLagna.join(', ') : 'ninguno'}.`) },
     { result: trikalagnanaYoga(birthPos, navPos),
       nameEn:'Trikālagnāna Yoga', nameEs:'Yoga Trikālagnāna',
-      glossEn:'"Knowledge of the three times" — past, present, and future. Jupiter has to be doing real work here: own sign in the navāṁśa, landed on a precise D60 ordinal (Mridvāṁśa) or a Vaiśeṣikāṁśa count of Gopura-or-higher, AND aspected by a benefic — all three layers at once, which is why this is the rarest of the nine.',
-      glossEs:'"Conocimiento de los tres tiempos" — pasado, presente y futuro. Júpiter tiene que cumplir varias condiciones a la vez: signo propio en el navāṁśa, un ordinal D60 preciso (Mridvāṁśa) o un conteo Vaiśeṣikāṁśa de Gopura o superior, Y aspectado por un benéfico — las tres capas juntas, por lo que es el más raro de los nueve.',
-      reasonLine: r => T(`Jupiter's navāṁśa sign: ${r.ownNavamsa.navamsaSign} — own sign needed (Sagittarius/Pisces): ${hf(r.ownNavamsa.pass)}. Mṛdvāṁśa ordinal ${r.mridvamsha.ordinal}/60 (needs ${r.mridvamsha.threshold}): ${hf(r.mridvamsha.pass)}. Vaiśeṣikāṁśa (daśāvarga) count: ${r.gopuramsha.dasavargaCount} (needs ≥4, Gopura+): ${hf(r.gopuramsha.pass)}. Benefic aspect to Jupiter: ${hf(r.beneficAspect.pass)}.`,
-        `Signo navāṁśa de Júpiter: ${r.ownNavamsa.navamsaSign} — se necesita signo propio (Sagitario/Piscis): ${hf(r.ownNavamsa.pass)}. Ordinal Mṛdvāṁśa ${r.mridvamsha.ordinal}/60 (necesita ${r.mridvamsha.threshold}): ${hf(r.mridvamsha.pass)}. Conteo Vaiśeṣikāṁśa (daśāvarga): ${r.gopuramsha.dasavargaCount} (necesita ≥4, Gopura o más): ${hf(r.gopuramsha.pass)}. Aspecto benéfico a Júpiter: ${hf(r.beneficAspect.pass)}.`) }
+      glossEn:'"Knowledge of the three times" — past, present, and future. Either of two paths satisfies it: Jupiter in its own navāṁśa while also landing precisely on the Mṛdvāṁśa (a specific D60 ordinal) — no aspect needed — or Jupiter in Gopurāṁśa (own sign in Rasi, Drekkāṇa, Chaturthāṁśa AND Saptāṁśa all at once) while aspected by a benefic. Genuinely rare either way.',
+      glossEs:'"Conocimiento de los tres tiempos" — pasado, presente y futuro. Se cumple por cualquiera de dos vías: Júpiter en su propio navāṁśa y a la vez exactamente en el Mṛdvāṁśa (un ordinal D60 preciso) — sin necesitar aspecto — o Júpiter en Gopurāṁśa (signo propio en Rasi, Drekkāṇa, Chaturthāṁśa Y Saptāṁśa a la vez) aspectado por un benéfico. Genuinamente raro por cualquiera de las dos vías.',
+      reasonLine: r => T(`Condition A (own navāṁśa + Mṛdvāṁśa, no aspect needed): ${hf(r.conditionA.pass)} — navāṁśa sign ${r.ownNavamsa.navamsaSign} (needs Sagittarius/Pisces): ${hf(r.ownNavamsa.pass)}; Mṛdvāṁśa ordinal ${r.mridvamsha.ordinal}/60 (needs ${r.mridvamsha.threshold}): ${hf(r.mridvamsha.pass)}. Condition B (Gopurāṁśa + benefic aspect): ${hf(r.conditionB.pass)} — own sign in D1+D3+D4+D7 together: ${hf(r.gopuramsha.pass)}; benefic aspect to Jupiter: ${hf(r.beneficAspect.pass)}.`,
+        `Condición A (navāṁśa propio + Mṛdvāṁśa, sin aspecto necesario): ${hf(r.conditionA.pass)} — signo navāṁśa ${r.ownNavamsa.navamsaSign} (necesita Sagitario/Piscis): ${hf(r.ownNavamsa.pass)}; ordinal Mṛdvāṁśa ${r.mridvamsha.ordinal}/60 (necesita ${r.mridvamsha.threshold}): ${hf(r.mridvamsha.pass)}. Condición B (Gopurāṁśa + aspecto benéfico): ${hf(r.conditionB.pass)} — signo propio en D1+D3+D4+D7 a la vez: ${hf(r.gopuramsha.pass)}; aspecto benéfico a Júpiter: ${hf(r.beneficAspect.pass)}.`) }
   ];
   const jnanaYogaActiveCount = JNANA_YOGAS.filter(y=>y.result.present).length;
   const jnanaYogaHtml = JNANA_YOGAS.map(y=>{
@@ -10784,20 +10784,41 @@ function checkRajYoga(lordships, birthPos){
 
 // --- Trikalagnana Yoga -------------------------------------------------
 // "Knowledge of three times" (past/present/future). Sarvartha Chintamani
-// 5/53, per two cross-checked sources (blog.pocketpandit.com/trikalagnana-
-// yoga/, and the indiadivine.org forum thread "Trikala Gyan Yoga
-// information required" — Ramadas Rao's post gives the precise Mridvamsha
-// definition, Satya Kuruvilla quotes the verse verbatim): "Jupiter in
-// mrudvamsha, in own navamsa sign or in gopuramsha, aspected by a benefic
-// planet, gives trikalagnana yoga." Composed entirely from this app's own
-// already-verified primitives — navamsaSidereal() for own-navamsa, the
-// Vaiseshikamsa dasa-set (Gopura = count 4, see VAISESHIKAMSA_NAMES.dasa)
-// for Gopuramsha, and aspectsSignWholeSign() for the benefic-aspect
-// condition. No new divisional-chart math introduced; Mridvamsha's D60
-// ordinal (19th part for odd natal signs, 42nd for even) is the one new
-// piece of arithmetic, and it's pure division — no new lord-sequence
-// needed since Mridvamsha is defined purely by ordinal position.
+// 5/53. Re-derived 2026-09-15 from B.V. Raman's own primary-source text
+// (now ingested at domains/raman-300-combinations.md, yoga #234, txt
+// L8968-9002) after the previous version — sourced from two secondary web
+// forums (blog.pocketpandit.com, an indiadivine.org thread) rather than a
+// primary text — was found to wrongly dismiss valid charts. Two bugs fixed:
+//
+// 1. Structure: Raman's own definition (verbatim) is "Jupiter should occupy
+//    Mrudwamsa in his own navamsa, OR Gopuramsa and be aspected by a
+//    benefic planet" — two independent conditions joined by OR, each with
+//    its own aspect requirement (condition (a) needs none; the aspect
+//    belongs to (b) only). The old code ANDed everything together
+//    (ownNavamsa && (mridvamsha || gopuramsha) && beneficAspect), which
+//    wrongly requires a benefic aspect even for condition (a) and wrongly
+//    requires own-navamsa even for condition (b) — verified wrong against
+//    Raman's own worked example, Chart No. 108 (Jupiter 9°16' Thula, born
+//    30-9-1946 5:30am IST, 25°N 82°30'E): own-navamsa + Mrudvamsha both
+//    hold there with no aspect requirement stated, so the old AND-everything
+//    structure could fail this exact textbook case depending on transient
+//    aspect state, which the primary source never asks for.
+// 2. Gopuramsa varga set: Raman's own text defines Gopuramsa narrowly as
+//    "occupies its own varga FOUR TIMES" — specifically Rasi (D1) + Drekkana
+//    (D3) + Chaturthamsa (D4) + Sapthamsa (D7) all own-sign simultaneously
+//    (his own worked example: Jupiter 1st degree of Dhanus). The old code
+//    instead reused vaiseshikamsaCount('dasa') — count>=4 across a
+//    DIFFERENT, unrelated 10-varga set (D1/D2/D3/D7/D9/D10/D12/D16/D30/D60)
+//    that happens to share the name "Gopura" as the 4th rung of that
+//    general dignity ladder, but tests a completely different condition.
+//
+// navamsaSidereal() for own-navamsa and aspectsSignWholeSign() for the
+// benefic-aspect condition are unchanged, already-verified primitives.
+// Mridvamsha's D60 ordinal math (19th part for odd natal signs, 42nd for
+// even) was already correct — verified against Chart No. 108 (Jupiter
+// 9.2667° in Thula → ordinal 19, threshold 19 for the odd sign → matches).
 const TRIKALAGNANA_OWN_NAVAMSA_SIGNS = ['Sagittarius','Pisces'];
+const TRIKALAGNANA_GOPURAMSA_VARGAS = ['D1','D3','D4','D7'];
 function mridvamshaOrdinal(sidereal){
   const signIdx = Math.floor(norm360(sidereal)/30);
   const degInSign = norm360(sidereal) - signIdx*30;
@@ -10811,22 +10832,28 @@ function trikalagnanaYoga(pos, navPos){
   const jupNavSign = SIGNS[Math.floor(norm360(navamsaSidereal(jupSid))/30)];
   const ownNavamsa = TRIKALAGNANA_OWN_NAVAMSA_SIGNS.includes(jupNavSign);
   const mrid = mridvamshaOrdinal(jupSid);
-  const gopuraCount = vaiseshikamsaCount('Jupiter', pos, navPos, 'dasa');
-  const isGopuramsha = gopuraCount >= 4; // Gopura (count 4) OR higher: Simhasana 5 / Paaraavata 6 / etc.
+  const isGopuramsha = TRIKALAGNANA_GOPURAMSA_VARGAS.every(vk=>{
+    const signIdx = vimshopakaVargaSignIdx(vk, 'Jupiter', pos, navPos);
+    return dignityTierInSign('Jupiter', signIdx) === 'Own';
+  });
   const jupSignIdx = Math.floor(norm360(jupSid)/30);
   const beneficAspect = ['Venus','Mercury','Moon'].some(b=>{
     if (!pos[b]) return false;
     const bSignIdx = Math.floor(norm360(pos[b].sidereal)/30);
     return aspectsSignWholeSign(b, bSignIdx, jupSignIdx);
   });
-  const present = ownNavamsa && (mrid.isMridvamsha || isGopuramsha) && beneficAspect;
+  const conditionA = ownNavamsa && mrid.isMridvamsha; // no aspect required
+  const conditionB = isGopuramsha && beneficAspect;    // aspect is specific to this branch
+  const present = conditionA || conditionB;
   return {
     present,
     reasons: {
       ownNavamsa: { pass: ownNavamsa, navamsaSign: jupNavSign },
       mridvamsha: { pass: mrid.isMridvamsha, ordinal: mrid.ordinal, threshold: mrid.threshold },
-      gopuramsha: { pass: isGopuramsha, dasavargaCount: gopuraCount },
-      beneficAspect: { pass: beneficAspect }
+      gopuramsha: { pass: isGopuramsha },
+      beneficAspect: { pass: beneficAspect },
+      conditionA: { pass: conditionA },
+      conditionB: { pass: conditionB }
     }
   };
 }
