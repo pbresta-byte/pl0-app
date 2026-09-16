@@ -9617,7 +9617,102 @@ function renderNatalPage(){
       nameEn:'Apakeerti Yoga', nameEs:'Yoga Apakeerti',
       glossEn:'A bad reputation. The Sun and Saturn together in the 10th house, with either in a malefic-owned Navamsa or the 10th aspected by another malefic.',
       glossEs:'Mala reputación. El Sol y Saturno juntos en la 10.ª casa, con alguno de ellos en un Navamsa regido por un maléfico o la 10.ª aspectada por otro maléfico.',
-      reasonLine: r => T(`Sun+Saturn in 10th: ${hf(r.sunIn10th && r.saturnIn10th)}. Malefic Navamsa: ${hf(r.sunMaleficNavamsa || r.saturnMaleficNavamsa)}. Aspected by malefic: ${hf(r.aspectedByMalefic)}.`, `Sol+Saturno en la 10.ª: ${hf(r.sunIn10th && r.saturnIn10th)}. Navamsa maléfico: ${hf(r.sunMaleficNavamsa || r.saturnMaleficNavamsa)}. Aspectado por maléfico: ${hf(r.aspectedByMalefic)}.`) }
+      reasonLine: r => T(`Sun+Saturn in 10th: ${hf(r.sunIn10th && r.saturnIn10th)}. Malefic Navamsa: ${hf(r.sunMaleficNavamsa || r.saturnMaleficNavamsa)}. Aspected by malefic: ${hf(r.aspectedByMalefic)}.`, `Sol+Saturno en la 10.ª: ${hf(r.sunIn10th && r.saturnIn10th)}. Navamsa maléfico: ${hf(r.sunMaleficNavamsa || r.saturnMaleficNavamsa)}. Aspectado por maléfico: ${hf(r.aspectedByMalefic)}.`) },
+    { result: rajaYoga245(birthPos, lagnaIdx), num: 245,
+      nameEn:'Raja Yoga #245', nameEs:'Yoga Raja #245',
+      glossEn:'Becoming a famous king/leader. Three or more of the 7 classical grahas exalted or in their own sign, occupying kendras or trikonas (Raman\'s own Remarks explicitly broaden the Definition\'s "kendras only" to include trikonas too).',
+      glossEs:'Convertirse en un líder/rey famoso. Tres o más de los 7 graha clásicos exaltados o en signo propio, ocupando kendras o trikonas (los propios Comentarios de Raman amplían explícitamente el "solo kendras" de la Definición para incluir también los trikonas).',
+      reasonLine: r => T(`Count of exalted/own grahas in kendra/trikona: ${r.count} (${r.matched.join(', ')||'—'}).`, `Recuento de graha exaltados/propios en kendra/trikona: ${r.count} (${r.matched.join(', ')||'—'}).`) },
+    { result: rajaYoga246(birthPos, lagnaIdx), num: 246,
+      nameEn:'Raja Yoga #246', nameEs:'Yoga Raja #246',
+      glossEn:'Attaining a position equal to a ruler. A debilitated planet, either bright (not combust) or retrograde, occupying a house that is not a dusthana.',
+      glossEs:'Alcanzar una posición equivalente a un gobernante. Un planeta debilitado, brillante (no combusto) o retrógrado, ocupando una casa que no es un dusthana.',
+      reasonLine: r => T(`Qualifying debilitated planet: ${r.matched.join(', ')||T('none','ninguno')}.`, `Planeta debilitado calificado: ${r.matched.join(', ')||T('none','ninguno')}.`) },
+    { result: rajaYoga247(birthPos, lagnaIdx), num: 247,
+      nameEn:'Raja Yoga #247', nameEs:'Yoga Raja #247',
+      glossEn:'Rising to rulership even from an ordinary family. Exactly 2, 3 or 4 of the 7 classical grahas possessing Digbala (directional strength — Jupiter/Mercury in Lagna, Sun/Mars in the 10th, Saturn in the 7th, Moon/Venus in the 4th).',
+      glossEs:'Ascender a un cargo de gobierno incluso desde una familia ordinaria. Exactamente 2, 3 o 4 de los 7 graha clásicos con Digbala (fuerza direccional — Júpiter/Mercurio en el Lagna, Sol/Marte en la 10.ª, Saturno en la 7.ª, Luna/Venus en la 4.ª).',
+      reasonLine: r => T(`Grahas with Digbala: ${r.count} (${r.withDigbala.join(', ')||'—'}).`, `Graha con Digbala: ${r.count} (${r.withDigbala.join(', ')||'—'}).`) },
+    { result: rajaYoga248(birthPos, lagnaIdx), num: 248,
+      nameEn:'Raja Yoga #248', nameEs:'Yoga Raja #248',
+      glossEn:'Only possible for Kumbha (Aquarius) Lagna. Venus in Lagna, with 4 or more grahas exalted (the Definition\'s further "free of evil navamsas/shashtiamsas" qualifier has no operationalizable rule given and is not checked here).',
+      glossEs:'Solo posible para Lagna de Kumbha (Acuario). Venus en el Lagna, con 4 o más graha exaltados (el calificador adicional de la Definición sobre "libre de navamsas/shashtiamsas malos" no tiene una regla operacionalizable dada y no se comprueba aquí).',
+      reasonLine: r => T(`Lagna is Aquarius: ${hf(r.lagnaIsAquarius)}. Venus in Lagna: ${hf(r.venusInLagna)}. Exalted count: ${r.exaltedCount}.`, `El Lagna es Acuario: ${hf(r.lagnaIsAquarius)}. Venus en el Lagna: ${hf(r.venusInLagna)}. Recuento de exaltados: ${r.exaltedCount}.`) },
+    { result: rajaYoga249(birthPos, lagnaIdx), num: 249,
+      nameEn:'Raja Yoga #249', nameEs:'Yoga Raja #249',
+      glossEn:'The Moon in Lagna, Jupiter in the 4th, Venus in the 10th, and Saturn exalted or in his own house.',
+      glossEs:'La Luna en el Lagna, Júpiter en la 4.ª, Venus en la 10.ª, y Saturno exaltado o en su propia casa.',
+      reasonLine: r => T(`Moon in Lagna: ${hf(r.moonInLagna)}. Jupiter in 4th: ${hf(r.jupIn4th)}. Venus in 10th: ${hf(r.venusIn10th)}. Saturn strong: ${hf(r.saturnStrong)}.`, `Luna en el Lagna: ${hf(r.moonInLagna)}. Júpiter en la 4.ª: ${hf(r.jupIn4th)}. Venus en la 10.ª: ${hf(r.venusIn10th)}. Saturno fuerte: ${hf(r.saturnStrong)}.`) },
+    { result: rajaYoga250(birthPos, lagnaIdx), num: 250,
+      nameEn:'Raja Yoga #250 (Neechabhanga)', nameEs:'Yoga Raja #250 (Neechabhanga)',
+      glossEn:'The classical debilitation-cancellation Raja Yoga: a debilitated planet whose sign-lord, OR whichever planet would be exalted in that same sign, stands in a kendra from the Moon or Lagna.',
+      glossEs:'El clásico Raja Yoga de cancelación de debilitación: un planeta debilitado cuyo señor de signo, O el planeta que se exaltaría en ese mismo signo, está en un kendra desde la Luna o el Lagna.',
+      reasonLine: r => T(`Neechabhanga on: ${r.matched||T('none','ninguno')}.`, `Neechabhanga en: ${r.matched||T('none','ninguno')}.`) },
+    { result: rajaYoga251(birthPos, lagnaIdx), num: 251,
+      nameEn:'Raja Yoga #251', nameEs:'Yoga Raja #251',
+      glossEn:'A powerful Moon in a kendra OTHER than Lagna (4th, 7th or 10th), aspected by Jupiter.',
+      glossEs:'Una Luna poderosa en un kendra DISTINTO del Lagna (4.ª, 7.ª o 10.ª), aspectada por Júpiter.',
+      reasonLine: r => T(`Moon in 4th/7th/10th: ${hf(r.moonInOtherKendra)}. Aspected by Jupiter: ${hf(r.jupAspectsMoon)}. Moon powerful: ${hf(r.moonPowerful)}.`, `Luna en 4.ª/7.ª/10.ª: ${hf(r.moonInOtherKendra)}. Aspectada por Júpiter: ${hf(r.jupAspectsMoon)}. Luna poderosa: ${hf(r.moonPowerful)}.`) },
+    { result: rajaYoga252(birthPos, navPos, lagnaIdx), num: 252,
+      nameEn:'Raja Yoga #252', nameEs:'Yoga Raja #252',
+      glossEn:'A planet debilitated in Rasi (D1) but exalted in its own Navamsa (D9).',
+      glossEs:'Un planeta debilitado en Rasi (D1) pero exaltado en su propio Navamsa (D9).',
+      reasonLine: r => T(`Qualifying planet: ${r.matched.join(', ')||T('none','ninguno')}.`, `Planeta calificado: ${r.matched.join(', ')||T('none','ninguno')}.`) },
+    { result: rajaYoga253(birthPos, lagnaIdx), num: 253,
+      nameEn:'Raja Yoga #253', nameEs:'Yoga Raja #253',
+      glossEn:'Jupiter in Lagna and Mercury in a kendra, aspected respectively by the lords of the 9th and 11th (self-lordship counts, per Raman\'s own worked Chart No.123).',
+      glossEs:'Júpiter en el Lagna y Mercurio en un kendra, aspectados respectivamente por los señores de la 9.ª y la 11.ª (el propio señorío cuenta, según el propio Chart No.123 de Raman).',
+      reasonLine: r => T(`Jupiter in Lagna: ${hf(r.jupInLagna)}. Mercury in kendra: ${hf(r.mercInKendra)}. Jupiter aspected by 9th lord: ${hf(r.jupAspectedBy9thLord)}. Mercury aspected by 11th lord: ${hf(r.mercAspectedBy11thLord)}.`, `Júpiter en el Lagna: ${hf(r.jupInLagna)}. Mercurio en kendra: ${hf(r.mercInKendra)}. Júpiter aspectado por el señor de la 9.ª: ${hf(r.jupAspectedBy9thLord)}. Mercurio aspectado por el señor de la 11.ª: ${hf(r.mercAspectedBy11thLord)}.`) },
+    { result: rajaYoga254(birthPos, lagnaIdx), num: 254,
+      nameEn:'Raja Yoga #254', nameEs:'Yoga Raja #254',
+      glossEn:'Saturn in exaltation (Libra) or Moolatrikona (Aquarius), occupying a kendra or trikona, aspected by the 10th lord.',
+      glossEs:'Saturno en exaltación (Libra) o Moolatrikona (Acuario), ocupando un kendra o trikona, aspectado por el señor de la 10.ª.',
+      reasonLine: r => T(`Saturn exalted/own: ${hf(r.saturnStrong)}. In kendra/trikona: ${hf(r.saturnInKendraTrikona)}. Aspected by 10th lord: ${hf(r.aspectedBy10thLord)}.`, `Saturno exaltado/propio: ${hf(r.saturnStrong)}. En kendra/trikona: ${hf(r.saturnInKendraTrikona)}. Aspectado por el señor de la 10.ª: ${hf(r.aspectedBy10thLord)}.`) },
+    { result: rajaYoga255(birthPos, lagnaIdx), num: 255,
+      nameEn:'Raja Yoga #255', nameEs:'Yoga Raja #255',
+      glossEn:'The Moon joins Mars in the 2nd or 3rd house, with Rahu in the 5th (Raman himself notes he lacks a confirming worked chart for this one).',
+      glossEs:'La Luna se une a Marte en la 2.ª o la 3.ª casa, con Rahu en la 5.ª (el propio Raman señala que carece de una carta resuelta que confirme esta combinación).',
+      reasonLine: r => T(`Moon+Mars in 2nd/3rd: ${hf(r.moonMarsIn2or3)}. Rahu in 5th: ${hf(r.rahuIn5th)}.`, `Luna+Marte en 2.ª/3.ª: ${hf(r.moonMarsIn2or3)}. Rahu en la 5.ª: ${hf(r.rahuIn5th)}.`) },
+    { result: rajaYoga256(birthPos, navPos, lagnaIdx), num: 256,
+      nameEn:'Raja Yoga #256', nameEs:'Yoga Raja #256',
+      glossEn:'The 10th lord in the 9th house, in an exalted or friendly Navamsa, having attained Uttamamsa (own varga exactly 3 times).',
+      glossEs:'El señor de la 10.ª en la 9.ª casa, en un Navamsa exaltado o amigo, habiendo alcanzado Uttamamsa (varga propio exactamente 3 veces).',
+      reasonLine: r => T(`10th lord in 9th: ${hf(r.in9th)}. Favourable Navamsa: ${hf(r.navFavourable)}. Uttamamsa: ${hf(r.hasUttamamsa)}.`, `Señor de la 10.ª en la 9.ª: ${hf(r.in9th)}. Navamsa favorable: ${hf(r.navFavourable)}. Uttamamsa: ${hf(r.hasUttamamsa)}.`) },
+    { result: rajaYoga257(birthPos, lagnaIdx), num: 257,
+      nameEn:'Raja Yoga #257', nameEs:'Yoga Raja #257',
+      glossEn:'Jupiter in the 5th from Lagna, in a kendra from the Moon (implying Gajakesari Yoga), the Lagna being a fixed sign with its lord in the 10th.',
+      glossEs:'Júpiter en la 5.ª desde el Lagna, en un kendra desde la Luna (lo que implica Yoga Gajakesari), siendo el Lagna un signo fijo con su señor en la 10.ª.',
+      reasonLine: r => T(`Jupiter in 5th: ${hf(r.jupIn5th)}. Kendra from Moon: ${hf(r.jupKendraFromMoon)}. Fixed Lagna: ${hf(r.lagnaIsFixed)}. Lagna lord in 10th: ${hf(r.lord1In10th)}.`, `Júpiter en la 5.ª: ${hf(r.jupIn5th)}. Kendra desde la Luna: ${hf(r.jupKendraFromMoon)}. Lagna fijo: ${hf(r.lagnaIsFixed)}. Señor del Lagna en la 10.ª: ${hf(r.lord1In10th)}.`) },
+    { result: rajaYoga258(birthPos, navPos, lagnaIdx), num: 258,
+      nameEn:'Raja Yoga #258', nameEs:'Yoga Raja #258',
+      glossEn:'A modest Raja Yoga, per Raman\'s own Remarks ("quite a common combination"). The lord of the Moon\'s own Navamsa sign in a kendra or trikona from either Lagna or Mercury.',
+      glossEs:'Un Raja Yoga modesto, según los propios Comentarios de Raman ("una combinación bastante común"). El señor del propio signo de Navamsa de la Luna en un kendra o trikona desde el Lagna o desde Mercurio.',
+      reasonLine: r => T(`Kendra/trikona from Lagna: ${hf(r.kendraOrTrikonaFromLagna)}. From Mercury: ${hf(r.kendraOrTrikonaFromMercury)}.`, `Kendra/trikona desde el Lagna: ${hf(r.kendraOrTrikonaFromLagna)}. Desde Mercurio: ${hf(r.kendraOrTrikonaFromMercury)}.`) },
+    { result: rajaYoga259(birthPos, lagnaIdx), num: 259,
+      nameEn:'Raja Yoga #259', nameEs:'Yoga Raja #259',
+      glossEn:'Only possible for Vrishabha (Taurus) Lagna, per Raman\'s own Remarks. The Moon in Lagna, Saturn in the 10th, the Sun in the 4th, and Jupiter in the 7th.',
+      glossEs:'Solo posible para Lagna de Vrishabha (Tauro), según los propios Comentarios de Raman. La Luna en el Lagna, Saturno en la 10.ª, el Sol en la 4.ª, y Júpiter en la 7.ª.',
+      reasonLine: r => T(`Taurus Lagna: ${hf(r.lagnaIsTaurus)}. Moon in Lagna: ${hf(r.moonInLagna)}. Saturn in 10th: ${hf(r.saturnIn10th)}. Sun in 4th: ${hf(r.sunIn4th)}. Jupiter in 7th: ${hf(r.jupIn7th)}.`, `Lagna Tauro: ${hf(r.lagnaIsTaurus)}. Luna en el Lagna: ${hf(r.moonInLagna)}. Saturno en la 10.ª: ${hf(r.saturnIn10th)}. Sol en la 4.ª: ${hf(r.sunIn4th)}. Júpiter en la 7.ª: ${hf(r.jupIn7th)}.`) },
+    { result: rajaYoga260(birthPos, navPos, lagnaIdx), num: 260,
+      nameEn:'Raja Yoga #260', nameEs:'Yoga Raja #260',
+      glossEn:'The lord of the Navamsa held by a debilitated planet joining a kendra/trikona from Lagna that is itself a movable sign, with the Lagna lord also in a movable sign.',
+      glossEs:'El señor del Navamsa ocupado por un planeta debilitado uniéndose a un kendra/trikona desde el Lagna que es a su vez un signo móvil, con el señor del Lagna también en un signo móvil.',
+      reasonLine: r => T(`Qualifying debilitated planet: ${r.matched||T('none','ninguno')}. Lagna lord in movable sign: ${hf(r.lord1InMovableSign)}.`, `Planeta debilitado calificado: ${r.matched||T('none','ninguno')}. Señor del Lagna en signo móvil: ${hf(r.lord1InMovableSign)}.`) },
+    { result: rajaYoga261(birthPos, lagnaIdx), num: 261,
+      nameEn:'Raja Yoga #261', nameEs:'Yoga Raja #261',
+      glossEn:'The Lagna lord joins a debilitated planet, with Rahu and Saturn together in the 10th, aspected by the 9th lord (Raman himself finds the rationale unclear, but confirms it by a worked chart).',
+      glossEs:'El señor del Lagna se une a un planeta debilitado, con Rahu y Saturno juntos en la 10.ª, aspectados por el señor de la 9.ª (el propio Raman encuentra la lógica poco clara, pero la confirma con una carta resuelta).',
+      reasonLine: r => T(`Lagna lord with debilitated planet: ${hf(r.debilitatedWithLord1)}. Rahu+Saturn in 10th: ${hf(r.rahuIn10th && r.saturnIn10th)}. Aspected by 9th lord: ${hf(r.tenthAspectedBy9thLord)}.`, `Señor del Lagna con planeta debilitado: ${hf(r.debilitatedWithLord1)}. Rahu+Saturno en la 10.ª: ${hf(r.rahuIn10th && r.saturnIn10th)}. Aspectado por el señor de la 9.ª: ${hf(r.tenthAspectedBy9thLord)}.`) },
+    { result: rajaYoga262(birthPos, lagnaIdx), num: 262,
+      nameEn:'Raja Yoga #262', nameEs:'Yoga Raja #262',
+      glossEn:'Out of the lords of the 11th, 9th and 2nd, at least one in a kendra from the Moon, with Jupiter as lord of the 2nd, 5th or 11th.',
+      glossEs:'De entre los señores de la 11.ª, la 9.ª y la 2.ª, al menos uno en un kendra desde la Luna, con Júpiter como señor de la 2.ª, la 5.ª o la 11.ª.',
+      reasonLine: r => T(`A qualifying lord in kendra from Moon: ${hf(r.anyInKendraFromMoon)}. Jupiter owns 2nd/5th/11th: ${hf(r.jupIsLord2or5or11)}.`, `Un señor calificado en kendra desde la Luna: ${hf(r.anyInKendraFromMoon)}. Júpiter rige la 2.ª/5.ª/11.ª: ${hf(r.jupIsLord2or5or11)}.`) },
+    { result: rajaYoga263(birthPos, lagnaIdx), num: 263,
+      nameEn:'Raja Yoga #263', nameEs:'Yoga Raja #263',
+      glossEn:'Closing this chapter, per Raman\'s own Remarks ("very simple, needs no explanation"). Jupiter, Mercury, Venus or the Moon in the 9th house, free from combustion, aspected by or associated with a naturally friendly planet.',
+      glossEs:'Cerrando este capítulo, según los propios Comentarios de Raman ("muy sencillo, no necesita explicación"). Júpiter, Mercurio, Venus o la Luna en la 9.ª casa, libre de combustión, aspectado por o asociado con un planeta naturalmente amigo.',
+      reasonLine: r => T(`Qualifying planet in 9th: ${r.matched||T('none','ninguno')}.`, `Planeta calificado en la 9.ª: ${r.matched||T('none','ninguno')}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9767,7 +9862,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-233 and #235-244 of 300 (#11, #174 and #204 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 needs a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have; #234 Thrikalagnana is already implemented separately, in the Jñāna Yoga panel above — all four accounted for elsewhere or deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-233 y #235-244 de 300 (#11, #174 y #204 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 necesita una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene; #234 Thrikalagnana ya está implementado por separado, en el panel de Yoga Jñāna de arriba — las cuatro contabilizadas en otro lugar o pospuestas). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-233 and #235-263 of 300 (#11, #174 and #204 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 needs a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have; #234 Thrikalagnana is already implemented separately, in the Jñāna Yoga panel above — all four accounted for elsewhere or deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-233 y #235-263 de 300 (#11, #174 y #204 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 necesita una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene; #234 Thrikalagnana ya está implementado por separado, en el panel de Yoga Jñāna de arriba — las cuatro contabilizadas en otro lugar o pospuestas). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -15090,6 +15185,270 @@ function apakeertiYoga(pos, navPos, ascSignIdx){
     return aspectsSignWholeSign(m, Math.floor(norm360(pos[m].sidereal)/30), house10SignIdx);
   });
   return { present: sunIn10th && saturnIn10th && (sunMaleficNavamsa||saturnMaleficNavamsa||aspectedByMalefic), sunIn10th, saturnIn10th, sunMaleficNavamsa, saturnMaleficNavamsa, aspectedByMalefic };
+}
+
+// --- #245-263, Raja Yogas (txt L9467-10320) -----------------------------
+// Raman's own chapter title, closed explicitly at L10324 ("with the above
+// two combinations, the chapter on Raja Yoga is completed"). Small shared
+// helpers used only by this cluster:
+function isCombust(g, pos){
+  const diff = norm360(pos[g].sidereal - pos.Sun.sidereal);
+  const orb = (g==='Venus' && pos.Venus.speed<0) ? 8 : COMBUSTION_ORB_DEG[g];
+  return diff<=orb || (360-diff)<=orb;
+}
+const DIGBALA_HOUSE = { Jupiter:1, Mercury:1, Sun:10, Mars:10, Saturn:7, Moon:4, Venus:4 };
+function hasDigbala(g, pos, ascSignIdx){ return bsHouseFromAsc(pos[g].sidereal, ascSignIdx) === DIGBALA_HOUSE[g]; }
+// Derives graha-to-graha natural friendship from the existing sign-based
+// GRAHA_SIGN_REL table: "other" counts as a friend of "g" if other's own
+// sign(s) appear in g's friend-sign list. Cross-checked against classical
+// Naisargika Maitri (e.g. Sun's friends: Moon, Mars, Jupiter -- confirmed
+// by this derivation).
+function isNaturalFriendGraha(g, other){
+  if (!GRAHA_SIGN_REL[g] || !GRAHA_SIGN_REL[other]) return false;
+  return GRAHA_SIGN_REL[other].own.some(s => GRAHA_SIGN_REL[g].friend.includes(s));
+}
+// #245 (txt L9467-9471, "3 or more planets exalted or in own sign, in
+// kendras"): Raman's own Remarks explicitly broaden this ("need not
+// necessarily be in kendras. Even trikonas will do") -- implemented per
+// the Remarks, houses 1/4/5/7/9/10. Restricted to the 7 classical grahas
+// (Rahu/Ketu have no agreed exaltation doctrine in this app).
+function rajaYoga245(pos, ascSignIdx){
+  const matched = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'].filter(g=>{
+    const signIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    if (!['Exalted','Own'].includes(dignityTierInSign(g, signIdx))) return false;
+    return [1,4,5,7,9,10].includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx));
+  });
+  return { present: matched.length>=3, count: matched.length, matched };
+}
+// #246 (txt L9472-9475): a debilitated planet, either bright (not combust)
+// or retrograde, occupying a non-dusthana house (per Remarks: "occupy
+// houses which are not dusthanas"). Sun/Rahu/Ketu excluded -- combustion
+// is meaningless for the Sun itself and undefined for the nodes here.
+function rajaYoga246(pos, ascSignIdx){
+  const matched = ['Moon','Mars','Mercury','Jupiter','Venus','Saturn'].filter(g=>{
+    const signIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    if (dignityTierInSign(g, signIdx)!=='Debilitated') return false;
+    if (!(!isCombust(g,pos) || pos[g].speed<0)) return false;
+    return ![6,8,12].includes(bsHouseFromAsc(pos[g].sidereal, ascSignIdx));
+  });
+  return { present: matched.length>0, matched };
+}
+// #247 (txt L9483-9484): exactly 2, 3 or 4 of the 7 classical grahas
+// possessing Digbala (directional strength) -- the classical fixed-house
+// rule quoted verbatim in Raman's own Remarks (Jupiter/Mercury->Lagna,
+// Sun/Mars->10th, Saturn->7th, Moon/Venus->4th), not the full Shadbala
+// system (deliberately kept unwired from this engine).
+function rajaYoga247(pos, ascSignIdx){
+  const withDigbala = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'].filter(g=>hasDigbala(g,pos,ascSignIdx));
+  return { present: withDigbala.length>=2 && withDigbala.length<=4, count: withDigbala.length, withDigbala };
+}
+// #248 (txt L9647-9649): Lagna=Kumbha (Aquarius) with Venus in it, and 4+
+// planets exalted. The Definition's further qualifier ("without occupying
+// evil navamsas or shashtiamsas") has no operationalizable rule given in
+// the source and is left unchecked, same treatment this project gives any
+// unverifiable exclusion clause.
+function rajaYoga248(pos, ascSignIdx){
+  const lagnaIsAquarius = ascSignIdx===10;
+  const venusInLagna = bsHouseFromAsc(pos.Venus.sidereal, ascSignIdx)===1;
+  const exaltedCount = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'].filter(g=>{
+    return dignityTierInSign(g, Math.floor(norm360(pos[g].sidereal)/30))==='Exalted';
+  }).length;
+  return { present: lagnaIsAquarius && venusInLagna && exaltedCount>=4, lagnaIsAquarius, venusInLagna, exaltedCount };
+}
+// #249 (txt L9650-9652): the Moon in Lagna, Jupiter in the 4th, Venus in
+// the 10th, and Saturn exalted or in his own house (no specific house
+// named for Saturn in the Definition).
+function rajaYoga249(pos, ascSignIdx){
+  const moonInLagna = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx)===1;
+  const jupIn4th = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx)===4;
+  const venusIn10th = bsHouseFromAsc(pos.Venus.sidereal, ascSignIdx)===10;
+  const saturnStrong = ['Exalted','Own'].includes(dignityTierInSign('Saturn', Math.floor(norm360(pos.Saturn.sidereal)/30)));
+  return { present: moonInLagna && jupIn4th && venusIn10th && saturnStrong, moonInLagna, jupIn4th, venusIn10th, saturnStrong };
+}
+// #250 (txt L9653-9655), the classical Neechabhanga (debilitation
+// cancellation) Raja Yoga -- exactly matches this app's existing, already
+// shared nichaBhangaCheck() helper (kendra from Moon OR Lagna).
+function rajaYoga250(pos, ascSignIdx){
+  let matched = null;
+  for (const g of ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn']){
+    const nb = nichaBhangaCheck(g, pos[g].sidereal, pos, ascSignIdx);
+    if (nb && nb.cancelled){ matched = g; break; }
+  }
+  return { present: !!matched, matched };
+}
+// #251 (txt L9781-9783): the Moon in a kendra OTHER than Lagna (4th, 7th or
+// 10th), aspected by Jupiter, and otherwise powerful (own/exalted/friend).
+function rajaYoga251(pos, ascSignIdx){
+  const moonHouse = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx);
+  const moonInOtherKendra = [4,7,10].includes(moonHouse);
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const jupAspectsMoon = aspectsSignWholeSign('Jupiter', Math.floor(norm360(pos.Jupiter.sidereal)/30), moonSignIdx);
+  const moonPowerful = ['Own','Exalted','Friend'].includes(dignityTierInSign('Moon', moonSignIdx));
+  return { present: moonInOtherKendra && jupAspectsMoon && moonPowerful, moonInOtherKendra, jupAspectsMoon, moonPowerful };
+}
+// #252 (txt L9784-9785): a planet debilitated in Rasi (D1) but exalted in
+// its own Navamsa (D9).
+function rajaYoga252(pos, navPos, ascSignIdx){
+  const matched = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'].filter(g=>{
+    const rasiSignIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    if (dignityTierInSign(g, rasiSignIdx)!=='Debilitated') return false;
+    const navSignIdx = Math.floor(norm360(navPos[g].sidereal)/30);
+    return dignityTierInSign(g, navSignIdx)==='Exalted';
+  });
+  return { present: matched.length>0, matched };
+}
+// #253 (txt L9786-9788, worked-example refinement L9961-9964): Jupiter in
+// Lagna, Mercury in a kendra, aspected respectively by the lords of the
+// 9th and 11th. Raman's own worked Chart No.123 treats the 11th-lord
+// clause as satisfied when Mercury himself IS the 11th lord (self-aspect
+// not required) -- applied symmetrically to Jupiter/9th-lord too.
+function rajaYoga253(pos, ascSignIdx){
+  const jupInLagna = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx)===1;
+  const mercInKendra = [1,4,7,10].includes(bsHouseFromAsc(pos.Mercury.sidereal, ascSignIdx));
+  const lord9 = lordOfHouse(9, ascSignIdx);
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const jupAspectedBy9thLord = lord9==='Jupiter' ? true : aspectsSignWholeSign(lord9, Math.floor(norm360(pos[lord9].sidereal)/30), jupSignIdx);
+  const lord11 = lordOfHouse(11, ascSignIdx);
+  const mercSignIdx = Math.floor(norm360(pos.Mercury.sidereal)/30);
+  const mercAspectedBy11thLord = lord11==='Mercury' ? true : aspectsSignWholeSign(lord11, Math.floor(norm360(pos[lord11].sidereal)/30), mercSignIdx);
+  return { present: jupInLagna && mercInKendra && jupAspectedBy9thLord && mercAspectedBy11thLord, jupInLagna, mercInKendra, jupAspectedBy9thLord, mercAspectedBy11thLord };
+}
+// #254 (txt L9971-9973): Saturn in exaltation (Libra) or Moolatrikona
+// (Aquarius) occupying a kendra or trikona, aspected by the 10th lord.
+function rajaYoga254(pos, ascSignIdx){
+  const saturnSignIdx = Math.floor(norm360(pos.Saturn.sidereal)/30);
+  const saturnStrong = ['Exalted','Own'].includes(dignityTierInSign('Saturn', saturnSignIdx));
+  const saturnInKendraTrikona = [1,4,5,7,9,10].includes(bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx));
+  const lord10 = lordOfHouse(10, ascSignIdx);
+  const aspectedBy10thLord = lord10==='Saturn' ? true : aspectsSignWholeSign(lord10, Math.floor(norm360(pos[lord10].sidereal)/30), saturnSignIdx);
+  return { present: saturnStrong && saturnInKendraTrikona && aspectedBy10thLord, saturnStrong, saturnInKendraTrikona, aspectedBy10thLord };
+}
+// #255 (txt L9977-9978): the Moon joins Mars in the 2nd or 3rd house, with
+// Rahu in the 5th.
+function rajaYoga255(pos, ascSignIdx){
+  const moonHouse = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx);
+  const marsHouse = bsHouseFromAsc(pos.Mars.sidereal, ascSignIdx);
+  const moonMarsIn2or3 = [2,3].includes(moonHouse) && moonHouse===marsHouse;
+  const rahuIn5th = bsHouseFromAsc(pos.Rahu.sidereal, ascSignIdx)===5;
+  return { present: moonMarsIn2or3 && rahuIn5th, moonMarsIn2or3, rahuIn5th };
+}
+// #256 (txt L9979-9981): the 10th lord in the 9th house, in an exalted or
+// friendly Navamsa, having attained Uttamamsa (own varga exactly 3 times
+// in the 10-varga/Dashavarga set -- "Uttama" at count 3 per
+// VAISESHIKAMSA_NAMES.dasa, same naming-derivation precedent as #206's
+// Parvata/Paaraavata reading).
+function rajaYoga256(pos, navPos, ascSignIdx){
+  const lord10 = lordOfHouse(10, ascSignIdx);
+  const in9th = bsHouseFromAsc(pos[lord10].sidereal, ascSignIdx)===9;
+  const lord10NavSignIdx = Math.floor(norm360(navPos[lord10].sidereal)/30);
+  const navFavourable = ['Exalted','Friend'].includes(dignityTierInSign(lord10, lord10NavSignIdx));
+  const hasUttamamsa = vaiseshikamsaCount(lord10, pos, navPos, 'dasa')===3;
+  return { present: in9th && navFavourable && hasUttamamsa, in9th, navFavourable, hasUttamamsa };
+}
+// #257 (txt L9982-9984): Jupiter in the 5th from Lagna, in a kendra from
+// the Moon, the Lagna being a fixed sign, with the Lagna lord in the 10th.
+function rajaYoga257(pos, ascSignIdx){
+  const jupIn5th = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx)===5;
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const jupKendraFromMoon = [1,4,7,10].includes(housesCountFrom(moonSignIdx, jupSignIdx));
+  const lagnaIsFixed = (ascSignIdx%3)===1;
+  const lord1 = SIGN_LORD[SIGNS[ascSignIdx]];
+  const lord1In10th = bsHouseFromAsc(pos[lord1].sidereal, ascSignIdx)===10;
+  return { present: jupIn5th && jupKendraFromMoon && lagnaIsFixed && lord1In10th, jupIn5th, jupKendraFromMoon, lagnaIsFixed, lord1In10th };
+}
+// #258 (txt L9985-9987): the lord of the Navamsa occupied by the Moon in a
+// kendra or trikona either from Lagna or from Mercury.
+function rajaYoga258(pos, navPos, ascSignIdx){
+  const moonNavSignIdx = Math.floor(norm360(navPos.Moon.sidereal)/30);
+  const navLord = SIGN_LORD[SIGNS[moonNavSignIdx]];
+  const navLordSignIdx = Math.floor(norm360(pos[navLord].sidereal)/30);
+  const kendraOrTrikonaFromLagna = [1,4,5,7,9,10].includes(housesCountFrom(ascSignIdx, navLordSignIdx));
+  const mercurySignIdx = Math.floor(norm360(pos.Mercury.sidereal)/30);
+  const kendraOrTrikonaFromMercury = [1,4,5,7,9,10].includes(housesCountFrom(mercurySignIdx, navLordSignIdx));
+  return { present: kendraOrTrikonaFromLagna || kendraOrTrikonaFromMercury, kendraOrTrikonaFromLagna, kendraOrTrikonaFromMercury };
+}
+// #259 (txt L10191-10193): Lagna=Vrishabha (Taurus) with the Moon in it,
+// Saturn/Sun/Jupiter in the 10th/4th/7th respectively -- a single-Lagna
+// combination, per Raman's own Remarks ("applicable only to those born in
+// Vrishabha Lagna").
+function rajaYoga259(pos, ascSignIdx){
+  const lagnaIsTaurus = ascSignIdx===1;
+  const moonInLagna = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx)===1;
+  const saturnIn10th = bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx)===10;
+  const sunIn4th = bsHouseFromAsc(pos.Sun.sidereal, ascSignIdx)===4;
+  const jupIn7th = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx)===7;
+  return { present: lagnaIsTaurus && moonInLagna && saturnIn10th && sunIn4th && jupIn7th, lagnaIsTaurus, moonInLagna, saturnIn10th, sunIn4th, jupIn7th };
+}
+// #260 (txt L10211-10214): the lord of the Navamsa held by a debilitated
+// planet joining a kendra/trikona from Lagna which is itself a movable
+// sign, AND the Lagna lord also in a movable sign (a separate condition).
+function rajaYoga260(pos, navPos, ascSignIdx){
+  const debilitatedGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'].filter(g=>
+    dignityTierInSign(g, Math.floor(norm360(pos[g].sidereal)/30))==='Debilitated');
+  let matched = null;
+  for (const g of debilitatedGrahas){
+    const navSignIdx = Math.floor(norm360(navPos[g].sidereal)/30);
+    const navLord = SIGN_LORD[SIGNS[navSignIdx]];
+    const navLordSignIdx = Math.floor(norm360(pos[navLord].sidereal)/30);
+    const inKendraTrikona = [1,4,5,7,9,10].includes(housesCountFrom(ascSignIdx, navLordSignIdx));
+    const navLordSignIsMovable = (navLordSignIdx%3)===0;
+    if (inKendraTrikona && navLordSignIsMovable){ matched = g; break; }
+  }
+  const lord1 = SIGN_LORD[SIGNS[ascSignIdx]];
+  const lord1InMovableSign = (Math.floor(norm360(pos[lord1].sidereal)/30)%3)===0;
+  return { present: !!matched && lord1InMovableSign, matched, lord1InMovableSign };
+}
+// #261 (txt L10216-10218): the Lagna lord joins a debilitated planet, with
+// Rahu and Saturn together in the 10th, aspected by the 9th lord.
+function rajaYoga261(pos, ascSignIdx){
+  const lord1 = SIGN_LORD[SIGNS[ascSignIdx]];
+  const lord1SignIdx = Math.floor(norm360(pos[lord1].sidereal)/30);
+  const debilitatedWithLord1 = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'].some(g=>{
+    if (g===lord1) return false;
+    const gSignIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    return gSignIdx===lord1SignIdx && dignityTierInSign(g, gSignIdx)==='Debilitated';
+  });
+  const house10SignIdx = (ascSignIdx+9)%12;
+  const rahuIn10th = Math.floor(norm360(pos.Rahu.sidereal)/30)===house10SignIdx;
+  const saturnIn10th = Math.floor(norm360(pos.Saturn.sidereal)/30)===house10SignIdx;
+  const lord9 = lordOfHouse(9, ascSignIdx);
+  const tenthAspectedBy9thLord = aspectsSignWholeSign(lord9, Math.floor(norm360(pos[lord9].sidereal)/30), house10SignIdx);
+  return { present: debilitatedWithLord1 && rahuIn10th && saturnIn10th && tenthAspectedBy9thLord, debilitatedWithLord1, rahuIn10th, saturnIn10th, tenthAspectedBy9thLord };
+}
+// #262 (txt L10314-10317): out of the lords of the 11th, 9th and 2nd, at
+// least one in a kendra from the Moon, and Jupiter as lord of the 2nd, 5th
+// or 11th.
+function rajaYoga262(pos, ascSignIdx){
+  const lord11 = lordOfHouse(11, ascSignIdx), lord9 = lordOfHouse(9, ascSignIdx), lord2 = lordOfHouse(2, ascSignIdx), lord5 = lordOfHouse(5, ascSignIdx);
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const anyInKendraFromMoon = [lord11,lord9,lord2].some(l=>{
+    const lSignIdx = Math.floor(norm360(pos[l].sidereal)/30);
+    return [1,4,7,10].includes(housesCountFrom(moonSignIdx, lSignIdx));
+  });
+  const jupIsLord2or5or11 = [lord2, lord5, lord11].includes('Jupiter');
+  return { present: anyInKendraFromMoon && jupIsLord2or5or11, anyInKendraFromMoon, jupIsLord2or5or11 };
+}
+// #263 (txt L10318-10320), closing this chapter: Jupiter, Mercury, Venus or
+// the Moon in the 9th, free from combustion, aspected by or associated
+// with a NATURALLY FRIENDLY planet (isNaturalFriendGraha, not just any
+// benefic) -- combustion is only checked for the 3 planets it classically
+// applies to here (not the Moon).
+function rajaYoga263(pos, ascSignIdx){
+  const house9SignIdx = (ascSignIdx+8)%12;
+  let matched = null;
+  for (const g of ['Jupiter','Mercury','Venus','Moon']){
+    const gSignIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    if (gSignIdx !== house9SignIdx) continue;
+    if (g!=='Moon' && isCombust(g,pos)) continue;
+    const friendlyAssoc = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'].some(other=>{
+      if (other===g || !isNaturalFriendGraha(g, other)) return false;
+      const otherSignIdx = Math.floor(norm360(pos[other].sidereal)/30);
+      return otherSignIdx===gSignIdx || aspectsSignWholeSign(other, otherSignIdx, gSignIdx);
+    });
+    if (friendlyAssoc){ matched = g; break; }
+  }
+  return { present: !!matched, matched };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
