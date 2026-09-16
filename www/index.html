@@ -8631,7 +8631,52 @@ function renderNatalPage(){
       nameEn:'Gauri Yoga', nameEs:'Yoga Gauri',
       glossEn:'The lord of the Navamsa sign occupied by the 10th lord must itself be exalted in the 10th house and conjunct the Lagna lord — a dispositor-chain combination. Respectable family standing, property, and a charitable, well-regarded character.',
       glossEs:'El señor del signo de Navamsa ocupado por el señor de la 10.ª debe estar exaltado en la 10.ª casa y conjunto al señor del Lagna — una combinación de cadena de dispositor. Posición familiar respetable, propiedades, y un carácter caritativo y bien considerado.',
-      reasonLine: r => T(`10th lord: ${r.tenthLord}. Its Navamsa-sign lord: ${r.navDispositor}. That lord exalted in the 10th: ${hf(r.inTenthExalted)}. Conjunct Lagna lord: ${hf(r.conjunctLagnaLord)}.`, `Señor de la 10.ª: ${r.tenthLord}. Señor de su signo de Navamsa: ${r.navDispositor}. Ese señor exaltado en la 10.ª: ${hf(r.inTenthExalted)}. Conjunto al señor del Lagna: ${hf(r.conjunctLagnaLord)}.`) }
+      reasonLine: r => T(`10th lord: ${r.tenthLord}. Its Navamsa-sign lord: ${r.navDispositor}. That lord exalted in the 10th: ${hf(r.inTenthExalted)}. Conjunct Lagna lord: ${hf(r.conjunctLagnaLord)}.`, `Señor de la 10.ª: ${r.tenthLord}. Señor de su signo de Navamsa: ${r.navDispositor}. Ese señor exaltado en la 10.ª: ${hf(r.inTenthExalted)}. Conjunto al señor del Lagna: ${hf(r.conjunctLagnaLord)}.`) },
+    { result: bharathiYoga(birthPos, navPos, lagnaIdx), num: 29,
+      nameEn:'Bharathi Yoga', nameEs:'Yoga Bharathi',
+      glossEn:'Any of three dispositor-chain paths (via the 2nd, 5th or 11th lord\'s Navamsa) landing that chain\'s final lord exalted and conjunct the 9th lord. World fame, scholarship, and an artistic, romantic temperament — Raman notes this is genuinely uncommon.',
+      glossEs:'Cualquiera de tres vías de cadena de dispositor (vía el señor de la 2.ª, 5.ª o 11.ª en Navamsa) que lleve al señor final de esa cadena a estar exaltado y conjunto al señor de la 9.ª. Fama mundial, erudición, y un temperamento artístico y romántico — Raman señala que esto es genuinamente poco común.',
+      reasonLine: r => T(`Path via 2nd lord: ${hf(r.a.pass)}. Via 5th lord: ${hf(r.b.pass)}. Via 11th lord: ${hf(r.c.pass)}.`, `Vía por señor de la 2.ª: ${hf(r.a.pass)}. Vía por señor de la 5.ª: ${hf(r.b.pass)}. Vía por señor de la 11.ª: ${hf(r.c.pass)}.`) },
+    { result: chapaYoga(birthPos, lagnaIdx), num: 30,
+      nameEn:'Chapa Yoga', nameEs:'Yoga Chapa',
+      glossEn:'The Lagna lord exalted, with the 4th and 10th lords in mutual exchange (Parivartana). Raman\'s own two-decade case review reads this less as personal wealth and more as control over OTHERS\' wealth — the classic profile is a bank cashier, financial secretary, or treasury officer.',
+      glossEs:'El señor del Lagna exaltado, con los señores de la 4.ª y la 10.ª en intercambio mutuo (Parivartana). La revisión de casos de dos décadas del propio Raman lo lee menos como riqueza personal y más como control sobre la riqueza AJENA — el perfil clásico es un cajero de banco, secretario financiero, u oficial de tesorería.',
+      reasonLine: r => T(`Lagna lord exalted: ${hf(r.lagnaLordExalted)}. 4th/10th lords exchanged: ${hf(r.exchanged)}.`, `Señor del Lagna exaltado: ${hf(r.lagnaLordExalted)}. Señores de 4.ª/10.ª intercambiados: ${hf(r.exchanged)}.`) },
+    { result: sreenathaYoga(birthPos, lagnaIdx), num: 31,
+      nameEn:'Sreenatha Yoga', nameEs:'Yoga Sreenatha',
+      glossEn:'The exalted 7th lord occupying the 10th house, with the 10th lord conjunct the 9th lord — a rare Raja Yoga linking marriage, career and fortune. Raman notes the strict reading can only ever fire for a Sagittarius Lagna (Mercury is the only 7th lord whose exaltation sign is also the 10th house from its own Lagna).',
+      glossEs:'El señor exaltado de la 7.ª ocupando la 10.ª casa, con el señor de la 10.ª conjunto al señor de la 9.ª — un Raja Yoga poco común que vincula matrimonio, carrera y fortuna. Raman señala que la lectura estricta solo puede darse con Lagna Sagitario (Mercurio es el único señor de la 7.ª cuyo signo de exaltación también es la 10.ª casa desde su propio Lagna).',
+      reasonLine: r => T(`7th lord exalted in the 10th: ${hf(r.exaltedInTenth)}. 10th lord conjunct 9th lord: ${hf(r.tenthConjunctNinth)}.`, `Señor de la 7.ª exaltado en la 10.ª: ${hf(r.exaltedInTenth)}. Señor de la 10.ª conjunto al señor de la 9.ª: ${hf(r.tenthConjunctNinth)}.`) },
+    ...Array.from({length:12}, (_,i)=>{
+      const startHouse = i+1;
+      const ORDINAL_HOUSE = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th'];
+      const r = malikaYoga(startHouse, lagnaIdx, birthPos);
+      return { result: r, num: 32+i,
+        nameEn:`${r.name} Malika Yoga`, nameEs:`Yoga ${r.name} Malika`,
+        glossEn:`#${32+i} of the 12 Malika ("garland") Yogas (txt L3083-3116): all seven classical grahas occupying seven contiguous houses starting from the ${startHouse===1?'Lagna':ORDINAL_HOUSE[i]+' house'} — a "garland" of planets draped across that Bhava and the six following it. Each of the 12 has its own distinct classical reading tied to the house it starts from.`,
+        glossEs:`#${32+i} de los 12 Yoga Malika ("guirnalda") (txt L3083-3116): los siete graha clásicos ocupando siete casas contiguas a partir de la ${startHouse===1?'Lagna':`casa ${startHouse}`} — una "guirnalda" de planetas desplegada sobre ese Bhava y los seis siguientes. Cada uno de los 12 tiene su propia lectura clásica distinta según la casa desde la que empieza.`,
+        reasonLine: rr => T(`Houses ${rr.houses.join(', ')} — occupied: ${rr.occupantsPerHouse.map(l=>l.length>0).filter(Boolean).length}/7.`, `Casas ${rr.houses.join(', ')} — ocupadas: ${rr.occupantsPerHouse.map(l=>l.length>0).filter(Boolean).length}/7.`) };
+    }),
+    { result: sankhaYoga(birthPos, lagnaIdx), num: 44,
+      nameEn:'Sankha Yoga', nameEs:'Yoga Sankha',
+      glossEn:'The 5th and 6th lords in mutual kendras, with a powerful Lagna lord. A love of pleasure paired with a genuinely humanitarian, learned disposition — Raman notes the 6th lord\'s usual difficulty is softened, not erased, by causing this yoga.',
+      glossEs:'Los señores de la 5.ª y la 6.ª en kendras mutuos, con un señor del Lagna poderoso. Un gusto por el placer emparejado con una disposición genuinamente humanitaria y culta — Raman señala que la dificultad habitual del señor de la 6.ª se suaviza, no se elimina, al causar este yoga.',
+      reasonLine: r => T(`5th/6th lords mutual kendra: ${hf(r.mutualKendra)}. Lagna lord powerful: ${hf(r.lagnaLordPowerful)}.`, `Señores de 5.ª/6.ª en kendra mutuo: ${hf(r.mutualKendra)}. Señor del Lagna poderoso: ${hf(r.lagnaLordPowerful)}.`) },
+    { result: bheriYoga(birthPos, lagnaIdx), num: 45,
+      nameEn:'Bheri Yoga', nameEs:'Yoga Bheri',
+      glossEn:'Venus, the Lagna lord, and Jupiter all pairwise in mutual kendras, with a powerfully-disposed 9th lord. Raman sums it up simply: a happy, comfortable life, long-lived and free of disease.',
+      glossEs:'Venus, el señor del Lagna, y Júpiter, todos en kendras mutuos entre sí, con un señor de la 9.ª poderosamente dispuesto. Raman lo resume simplemente: una vida feliz y cómoda, longeva y libre de enfermedad.',
+      reasonLine: r => T(`Venus/Lagna-lord(${r.lagnaLord})/Jupiter all pairwise mutual kendra: ${hf(r.allMutualKendra)}. 9th lord powerful: ${hf(r.ninthLordPowerful)}.`, `Venus/señor-del-Lagna(${r.lagnaLord})/Júpiter todos en kendra mutuo entre sí: ${hf(r.allMutualKendra)}. Señor de la 9.ª poderoso: ${hf(r.ninthLordPowerful)}.`) },
+    { result: mridangaYoga(birthPos, navPos, lagnaIdx), num: 46,
+      nameEn:'Mridanga Yoga', nameEs:'Yoga Mridanga',
+      glossEn:'Any exalted graha whose Navamsa-sign lord sits in a kendra or trikona that is also that lord\'s own, exalted, or friendly sign, combined with a strongly-disposed Lagna lord. Raman calls the definition itself "somewhat confusing" — commanding influence and the respect of rulers.',
+      glossEs:'Cualquier graha exaltado cuyo señor de signo de Navamsa esté en un kendra o trikona que también sea signo propio, exaltado o amistoso de ese señor, combinado con un señor del Lagna fuertemente dispuesto. El propio Raman llama a la definición "algo confusa" — influencia dominante y el respeto de los gobernantes.',
+      reasonLine: r => T(`Some exalted graha's navamsa-dispositor chain holds: ${hf(r.anyExaltedChainPasses)}. Lagna lord strong: ${hf(r.lagnaLordStrong)}.`, `Alguna cadena de dispositor-navamsa de un graha exaltado se cumple: ${hf(r.anyExaltedChainPasses)}. Señor del Lagna fuerte: ${hf(r.lagnaLordStrong)}.`) },
+    { result: parijathaYoga(birthPos, navPos, lagnaIdx), num: 47,
+      nameEn:'Parijatha Yoga', nameEs:'Yoga Parijatha',
+      glossEn:'A dispositor-chain combination starting from the Lagna lord\'s own sign-lord, checked two ways (via its own dispositor, or via its Navamsa dispositor) for landing in a kendra, trikona, or own/exaltation place. Raman treats this as equivalent to a powerful Raja Yoga.',
+      glossEs:'Una combinación de cadena de dispositor que empieza desde el señor del signo del señor del Lagna, comprobada de dos formas (vía su propio dispositor, o vía su dispositor de Navamsa) para caer en un kendra, trikona, o lugar propio/de exaltación. Raman lo trata como equivalente a un Raja Yoga poderoso.',
+      reasonLine: r => T(`Chain from Lagna lord's sign-lord (${r.l2}) — via own dispositor (${r.branchACandidate}): ${hf(r.branchA)}; via Navamsa dispositor (${r.branchBCandidate}): ${hf(r.branchB)}.`, `Cadena desde el señor de signo (${r.l2}) del señor del Lagna — vía su propio dispositor (${r.branchACandidate}): ${hf(r.branchA)}; vía su dispositor de Navamsa (${r.branchBCandidate}): ${hf(r.branchB)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -8781,7 +8826,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-28 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-28 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-47 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-47 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -11349,6 +11394,143 @@ function gauriYoga(pos, navPos, ascSignIdx){
   const lagnaLord = lordOfHouse(1, ascSignIdx);
   const conjunctLagnaLord = navDispositor!==lagnaLord && Math.floor(norm360(pos[lagnaLord].sidereal)/30)===navDispositorSignIdx;
   return { present: inTenthExalted && conjunctLagnaLord, tenthLord, navDispositor, inTenthExalted, conjunctLagnaLord };
+}
+function bharathiYoga(pos, navPos, ascSignIdx){
+  // #29 (txt L2981-2996): three alternate paths — the lord of the Navamsa
+  // sign occupied by the 2nd/5th/11th lord (respectively) should be
+  // exalted AND conjunct the 9th lord. Raman notes the 9th lord physically
+  // cannot conjunct all three navamsa-dispositors at once, hence three
+  // separate paths rather than one compound AND.
+  const ninthLord = lordOfHouse(9, ascSignIdx);
+  const ninthLordSignIdx = Math.floor(norm360(pos[ninthLord].sidereal)/30);
+  const pathFor = houseNum => {
+    const lord = lordOfHouse(houseNum, ascSignIdx);
+    const navSignIdx = Math.floor(norm360(navPos[lord].sidereal)/30);
+    const dispositor = SIGN_LORD[SIGNS[navSignIdx]];
+    const dispositorSignIdx = Math.floor(norm360(pos[dispositor].sidereal)/30);
+    const exalted = dignityTierInSign(dispositor, dispositorSignIdx) === 'Exalted';
+    const conjunct9th = dispositor!==ninthLord && dispositorSignIdx === ninthLordSignIdx;
+    return { lord, dispositor, exalted, conjunct9th, pass: exalted && conjunct9th };
+  };
+  const a = pathFor(2), b = pathFor(5), c = pathFor(11);
+  return { present: a.pass || b.pass || c.pass, a, b, c };
+}
+function chapaYoga(pos, ascSignIdx){
+  // #30 (txt L3035-3037): the Lagna lord exalted, AND the 4th and 10th
+  // lords have exchanged houses (Parivartana — 4th lord in the 10th lord's
+  // sign and vice versa).
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const lagnaLordExalted = dignityTierInSign(lagnaLord, lagnaLordSignIdx) === 'Exalted';
+  const fourthLord = lordOfHouse(4, ascSignIdx), tenthLord = lordOfHouse(10, ascSignIdx);
+  const fourthSignIdx = Math.floor(norm360(pos[fourthLord].sidereal)/30);
+  const tenthSignIdx = Math.floor(norm360(pos[tenthLord].sidereal)/30);
+  const exchanged = fourthLord!==tenthLord && SIGN_LORD[SIGNS[fourthSignIdx]]===tenthLord && SIGN_LORD[SIGNS[tenthSignIdx]]===fourthLord;
+  return { present: lagnaLordExalted && exchanged, lagnaLordExalted, exchanged };
+}
+function sreenathaYoga(pos, ascSignIdx){
+  // #31 (txt L3050-3053): the exalted 7th lord occupies the 10th house,
+  // AND the 10th lord is conjunct the 9th lord. Raman notes this can only
+  // occur for a Sagittarius Lagna under the strict reading (Mercury, lord
+  // of the 7th, is the only lord whose exaltation sign, Virgo, is also the
+  // 10th house from that specific Lagna) — not enforced as a precondition
+  // here, just computed directly; that constraint will simply mean this
+  // never fires for any other Lagna.
+  const seventhLord = lordOfHouse(7, ascSignIdx);
+  const seventhLordSignIdx = Math.floor(norm360(pos[seventhLord].sidereal)/30);
+  const seventhLordHouse = bsHouseFromAsc(pos[seventhLord].sidereal, ascSignIdx);
+  const exaltedInTenth = seventhLordHouse===10 && dignityTierInSign(seventhLord, seventhLordSignIdx)==='Exalted';
+  const tenthLord = lordOfHouse(10, ascSignIdx), ninthLord = lordOfHouse(9, ascSignIdx);
+  const tenthLordSignIdx = Math.floor(norm360(pos[tenthLord].sidereal)/30);
+  const ninthLordSignIdx = Math.floor(norm360(pos[ninthLord].sidereal)/30);
+  const tenthConjunctNinth = tenthLord!==ninthLord && tenthLordSignIdx===ninthLordSignIdx;
+  return { present: exaltedInTenth && tenthConjunctNinth, exaltedInTenth, tenthConjunctNinth };
+}
+const MALIKA_NAMES = ['Lagna','Dhana','Vikrama','Sukha','Putra','Satru','Kalatra','Randhra','Bhagya','Karma','Labha','Vyaya'];
+function malikaYoga(startHouse, ascSignIdx, pos){
+  // #32-43 (txt L3083-3116): all seven classical grahas (Sun-Saturn,
+  // excluding Rahu/Ketu) occupying seven CONTIGUOUS houses starting from a
+  // given Bhava — the majority-view reading Raman cites (he separately
+  // flags a minority view, Bhavartha Ratnakara, that drops the contiguity
+  // requirement and always spans houses 5-9 from Lagna specifically; not
+  // implemented here since Raman presents the contiguous version as the
+  // standard one). One shared helper generates all twelve named variants
+  // (Lagna Malika starting house 1, Dhana Malika house 2, ... Vyaya Malika
+  // house 12) via MALIKA_NAMES[startHouse-1].
+  const sevenGrahas = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+  const houses = Array.from({length:7}, (_,i)=>((startHouse-1+i)%12)+1);
+  const occupantsPerHouse = houses.map(h => bsGrahasInHouses(pos, ascSignIdx, sevenGrahas, [h]));
+  const present = occupantsPerHouse.every(list => list.length>0);
+  return { present, houses, occupantsPerHouse, name: MALIKA_NAMES[startHouse-1] };
+}
+function sankhaYoga(pos, ascSignIdx){
+  // #44 (txt L3117-3120): the 5th and 6th lords in mutual kendras, AND the
+  // Lagna lord "powerful" (own/exalted/friend dignity — same convention
+  // used throughout this section for Raman's undefined-threshold
+  // "powerful"/"strongly disposed" language).
+  const fifthLord = lordOfHouse(5, ascSignIdx), sixthLord = lordOfHouse(6, ascSignIdx), lagnaLord = lordOfHouse(1, ascSignIdx);
+  const mutualKendra = fifthLord!==sixthLord && isKendraFrom(pos[fifthLord].sidereal, pos[sixthLord].sidereal);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const lagnaLordPowerful = ['Own','Exalted','Friend'].includes(dignityTierInSign(lagnaLord, lagnaLordSignIdx));
+  return { present: mutualKendra && lagnaLordPowerful, mutualKendra, lagnaLordPowerful };
+}
+function bheriYoga(pos, ascSignIdx){
+  // #45 (txt L3167-3170): Venus, the Lagna lord, and Jupiter all pairwise
+  // in mutual kendras from each other, AND the 9th lord powerfully
+  // disposed. Raman's own worked Chart No.32 has Venus AS the Lagna lord
+  // itself (one planet serving both roles), collapsing the check to a
+  // simple Venus-Jupiter mutual kendra in that specific case — implemented
+  // generally for whichever planet actually is the Lagna lord.
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const pairs = [['Venus', lagnaLord], ['Venus','Jupiter'], [lagnaLord,'Jupiter']].filter(([a,b])=>a!==b);
+  const allMutualKendra = pairs.every(([a,b])=>isKendraFrom(pos[a].sidereal, pos[b].sidereal));
+  const ninthLord = lordOfHouse(9, ascSignIdx);
+  const ninthLordSignIdx = Math.floor(norm360(pos[ninthLord].sidereal)/30);
+  const ninthLordPowerful = ['Own','Exalted','Friend'].includes(dignityTierInSign(ninthLord, ninthLordSignIdx));
+  return { present: allMutualKendra && ninthLordPowerful, allMutualKendra, ninthLordPowerful, lagnaLord };
+}
+function mridangaYoga(pos, navPos, ascSignIdx){
+  // #46 (txt L3208-3224): find any exalted graha; the lord of the Navamsa
+  // sign it occupies should be in a kendra or trikona (from Lagna) that is
+  // also that lord's own/exalted/friendly sign, AND the Lagna lord should
+  // be "strongly disposed." Raman's own text is generic about which planet
+  // is exalted ("some planet is exalted"), so this checks whether ANY
+  // exalted graha satisfies the chain, not one fixed graha.
+  const kendraTrikona = [1,4,5,7,9,10];
+  const anyPass = GRAHA_LIST.filter(g=>!['Rahu','Ketu'].includes(g)).some(g=>{
+    const sid = pos[g].sidereal;
+    if (dignityTierInSign(g, Math.floor(norm360(sid)/30)) !== 'Exalted') return false;
+    const navSignIdx = Math.floor(norm360(navPos[g].sidereal)/30);
+    const dispositor = SIGN_LORD[SIGNS[navSignIdx]];
+    const dispositorSignIdx = Math.floor(norm360(pos[dispositor].sidereal)/30);
+    const dispositorHouse = bsHouseFromAsc(pos[dispositor].sidereal, ascSignIdx);
+    const goodDignity = ['Own','Exalted','Friend'].includes(dignityTierInSign(dispositor, dispositorSignIdx));
+    return kendraTrikona.includes(dispositorHouse) && goodDignity;
+  });
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const lagnaLordSignIdx = Math.floor(norm360(pos[lagnaLord].sidereal)/30);
+  const lagnaLordStrong = ['Own','Exalted','Friend'].includes(dignityTierInSign(lagnaLord, lagnaLordSignIdx));
+  return { present: anyPass && lagnaLordStrong, anyExaltedChainPasses: anyPass, lagnaLordStrong };
+}
+function parijathaYoga(pos, navPos, ascSignIdx){
+  // #47 (txt L3259-3265): let LL = the Lagna lord, and L2 = the lord of the
+  // sign LL currently occupies. Two branch conditions, either sufficient:
+  // (a) the dispositor of L2's own D1 sign, or (b) the lord of the Navamsa
+  // sign L2 occupies, should be in a kendra/trikona/own/exaltation place.
+  const kendraTrikona = [1,4,5,7,9,10];
+  const lagnaLord = lordOfHouse(1, ascSignIdx);
+  const l2 = SIGN_LORD[SIGNS[Math.floor(norm360(pos[lagnaLord].sidereal)/30)]];
+  const checkCandidate = candidate => {
+    const signIdx = Math.floor(norm360(pos[candidate].sidereal)/30);
+    const house = bsHouseFromAsc(pos[candidate].sidereal, ascSignIdx);
+    return kendraTrikona.includes(house) || ['Own','Exalted'].includes(dignityTierInSign(candidate, signIdx));
+  };
+  const branchACandidate = SIGN_LORD[SIGNS[Math.floor(norm360(pos[l2].sidereal)/30)]];
+  const branchA = checkCandidate(branchACandidate);
+  const l2NavSignIdx = Math.floor(norm360(navPos[l2].sidereal)/30);
+  const branchBCandidate = SIGN_LORD[SIGNS[l2NavSignIdx]];
+  const branchB = checkCandidate(branchBCandidate);
+  return { present: branchA || branchB, l2, branchACandidate, branchA, branchBCandidate, branchB };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
