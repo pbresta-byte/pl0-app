@@ -8701,7 +8701,37 @@ function renderNatalPage(){
       nameEn:'Kusuma Yoga', nameEs:'Yoga Kusuma',
       glossEn:'Jupiter in the Lagna, the Moon in the 7th, and the Sun in the 8th from the Moon — Raman\'s own Remarks identify this as Gajakesari Yoga and a Vasi-family Sun placement fused into one combination. A founder or headman\'s profile: protector of kin, unsullied reputation.',
       glossEs:'Júpiter en el Lagna, la Luna en la 7.ª, y el Sol en la 8.ª desde la Luna — los propios Comentarios de Raman identifican esto como el Yoga Gajakesari y una ubicación solar de la familia Vasi fusionados en una sola combinación. Un perfil de fundador o jefe: protector de los suyos, reputación intachable.',
-      reasonLine: r => T(`Jupiter in Lagna: ${hf(r.jupInLagna)}. Moon in 7th: ${hf(r.moonInSeventh)}. Sun in 8th from Moon: ${hf(r.sunInEighthFromMoon)}.`, `Júpiter en el Lagna: ${hf(r.jupInLagna)}. Luna en la 7.ª: ${hf(r.moonInSeventh)}. Sol en la 8.ª desde la Luna: ${hf(r.sunInEighthFromMoon)}.`) }
+      reasonLine: r => T(`Jupiter in Lagna: ${hf(r.jupInLagna)}. Moon in 7th: ${hf(r.moonInSeventh)}. Sun in 8th from Moon: ${hf(r.sunInEighthFromMoon)}.`, `Júpiter en el Lagna: ${hf(r.jupInLagna)}. Luna en la 7.ª: ${hf(r.moonInSeventh)}. Sol en la 8.ª desde la Luna: ${hf(r.sunInEighthFromMoon)}.`) },
+    { result: matsyaYoga(birthPos, lagnaIdx), num: 53,
+      nameEn:'Matsya Yoga', nameEs:'Yoga Matsya',
+      glossEn:'Malefics in the Lagna and 9th, with a mix of benefics and malefics in the 5th — implemented to Raman\'s own relaxed admission threshold, since he calls the full strict definition (malefics in 1st/4th/8th/9th) "conspicuously rare." Named for the fish (Matsya), a genuinely favourable combination despite the difficult-sounding houses involved.',
+      glossEs:'Maléficos en el Lagna y la 9.ª, con una mezcla de benéficos y maléficos en la 5.ª — implementado según el umbral de admisión relajado del propio Raman, ya que él llama a la definición estricta completa (maléficos en 1.ª/4.ª/8.ª/9.ª) "conspicuamente rara." Nombrado por el pez (Matsya), una combinación genuinamente favorable pese a las casas de sonido difícil involucradas.',
+      reasonLine: r => T(`Malefics in Lagna+9th: ${hf(r.lagnaAndNinthMalefic)}. 5th has both benefic and malefic occupants: ${hf(r.fifthMixed)}.`, `Maléficos en Lagna+9.ª: ${hf(r.lagnaAndNinthMalefic)}. La 5.ª tiene ocupantes benéficos y maléficos: ${hf(r.fifthMixed)}.`) },
+    { result: kurmaYoga(birthPos, navPos, lagnaIdx), num: 54,
+      nameEn:'Kurma Yoga', nameEs:'Yoga Kurma',
+      glossEn:'Either benefics (including a waxing Moon) filling the 5th/6th/7th each in a good Navamsa, or filling the 1st/3rd/11th each in a good Rasi sign. Raman flags real interpretive uncertainty here (which house-set pairs with Navamsa vs. Rasi) and asks readers to weigh his reading with reservation. World fame and influence, though not necessarily wealth.',
+      glossEs:'O bien benéficos (incluida una Luna creciente) llenando la 5.ª/6.ª/7.ª cada uno en un buen Navamsa, o llenando la 1.ª/3.ª/11.ª cada uno en un buen signo de Rasi. Raman señala incertidumbre interpretativa real aquí (qué conjunto de casas se empareja con Navamsa vs. Rasi) y pide a los lectores sopesar su lectura con reserva. Fama mundial e influencia, aunque no necesariamente riqueza.',
+      reasonLine: r => T(`Path (a) 5th/6th/7th benefics in good Navamsa: ${hf(r.pathA)}. Path (b) 1st/3rd/11th benefics in good Rasi: ${hf(r.pathB)}.`, `Vía (a) benéficos en 5.ª/6.ª/7.ª en buen Navamsa: ${hf(r.pathA)}. Vía (b) benéficos en 1.ª/3.ª/11.ª en buen Rasi: ${hf(r.pathB)}.`) },
+    { result: devendraYoga(birthPos, lagnaIdx), num: 55,
+      nameEn:'Devendra Yoga', nameEs:'Yoga Devendra',
+      glossEn:'A fixed-sign Lagna with two simultaneous Parivartana exchanges: the Lagna lord and 11th lord swap houses, and the 2nd lord and 10th lord swap houses. Named for Devendra, king of the celestials — a commander or monarch\'s profile, though Raman stresses the exchanging lords must be genuinely powerful, not just nominally exchanged.',
+      glossEs:'Un Lagna de signo fijo con dos intercambios Parivartana simultáneos: el señor del Lagna y el de la 11.ª intercambian casas, y el señor de la 2.ª y el de la 10.ª intercambian casas. Nombrado por Devendra, rey de los celestiales — un perfil de comandante o monarca, aunque Raman insiste en que los señores intercambiados deben ser genuinamente poderosos, no solo intercambiados de nombre.',
+      reasonLine: r => T(`Lagna fixed: ${hf(r.lagnaFixed)}. Lagna/11th lords exchanged: ${hf(r.exchange1)}. 2nd/10th lords exchanged: ${hf(r.exchange2)}.`, `Lagna fijo: ${hf(r.lagnaFixed)}. Señores de Lagna/11.ª intercambiados: ${hf(r.exchange1)}. Señores de 2.ª/10.ª intercambiados: ${hf(r.exchange2)}.`) },
+    { result: makutaYoga(birthPos, lagnaIdx), num: 56,
+      nameEn:'Makuta Yoga', nameEs:'Yoga Makuta',
+      glossEn:'Jupiter in the 9th counted from the 9th lord\'s own position, a benefic in the 9th from Jupiter, and Saturn in the 10th. Raman\'s own statistical research department found this in 6-7 of every 10 charts belonging to petty chiefs and forest-tribe leaders — a profile of rough authority rather than refined power.',
+      glossEs:'Júpiter en la 9.ª contada desde la posición propia del señor de la 9.ª, un benéfico en la 9.ª desde Júpiter, y Saturno en la 10.ª. El propio departamento de investigación estadística de Raman encontró esto en 6-7 de cada 10 cartas de jefes menores y líderes de tribus forestales — un perfil de autoridad ruda más que de poder refinado.',
+      reasonLine: r => T(`Jupiter in 9th from 9th lord: ${hf(r.jupInNinthFrom9thLord)}. Benefic in 9th from Jupiter: ${hf(r.beneficInNinthFromJupiter)}. Saturn in 10th: ${hf(r.saturnInTenth)}.`, `Júpiter en la 9.ª desde el señor de la 9.ª: ${hf(r.jupInNinthFrom9thLord)}. Benéfico en la 9.ª desde Júpiter: ${hf(r.beneficInNinthFromJupiter)}. Saturno en la 10.ª: ${hf(r.saturnInTenth)}.`) },
+    { result: chandikaYoga(birthPos, navPos, lagnaIdx), num: 57,
+      nameEn:'Chandika Yoga', nameEs:'Yoga Chandika',
+      glossEn:'A fixed-sign Lagna (only possible for Taurus/Leo/Scorpio/Aquarius), where the Navamsa-dispositors of both the 6th and 9th lords each conjoin the Sun, and the 6th lord aspects the Lagna. A blend of the 6th house\'s combative edge with genuine good fortune — aggressive but charitable, oriented toward political power.',
+      glossEs:'Un Lagna de signo fijo (solo posible para Tauro/Leo/Escorpio/Acuario), donde los dispositores de Navamsa de los señores de la 6.ª y la 9.ª se conjuntan cada uno con el Sol, y el señor de la 6.ª aspecta al Lagna. Una mezcla del filo combativo de la casa 6 con buena fortuna genuina — agresivo pero caritativo, orientado al poder político.',
+      reasonLine: r => T(`Lagna fixed: ${hf(r.lagnaFixed)}. 6th-lord Navamsa-dispositor conjunct Sun: ${hf(r.sixthChainConjunctSun)}. 9th-lord Navamsa-dispositor conjunct Sun: ${hf(r.ninthChainConjunctSun)}. Lagna aspected by 6th lord: ${hf(r.lagnaAspectedBy6th)}.`, `Lagna fijo: ${hf(r.lagnaFixed)}. Dispositor de Navamsa del señor de la 6.ª conjunto al Sol: ${hf(r.sixthChainConjunctSun)}. Dispositor de Navamsa del señor de la 9.ª conjunto al Sol: ${hf(r.ninthChainConjunctSun)}. Lagna aspectado por el señor de la 6.ª: ${hf(r.lagnaAspectedBy6th)}.`) },
+    { result: jayaYoga(birthPos, lagnaIdx), num: 58,
+      nameEn:'Jaya Yoga', nameEs:'Yoga Jaya',
+      glossEn:'The 6th lord debilitated, with the 10th lord exalted. "Jaya" means victory — success in undertakings and triumph over enemies, since the 6th house\'s usual troubles (debts, disease, enemies) are themselves weakened by their own lord\'s debility.',
+      glossEs:'El señor de la 6.ª debilitado, con el señor de la 10.ª exaltado. "Jaya" significa victoria — éxito en las empresas y triunfo sobre los enemigos, ya que los problemas habituales de la casa 6 (deudas, enfermedad, enemigos) quedan ellos mismos debilitados por la debilidad de su propio señor.',
+      reasonLine: r => T(`6th lord debilitated: ${hf(r.sixthDebilitated)}. 10th lord exalted: ${hf(r.tenthExalted)}.`, `Señor de la 6.ª debilitado: ${hf(r.sixthDebilitated)}. Señor de la 10.ª exaltado: ${hf(r.tenthExalted)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -8851,7 +8881,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-52 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-52 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-58 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-58 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -11632,6 +11662,88 @@ function kusumaYoga(pos, ascSignIdx){
   const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
   const sunInEighthFromMoon = bsHouseFromAsc(pos.Sun.sidereal, moonSignIdx) === 8;
   return { present: jupInLagna && moonInSeventh && sunInEighthFromMoon, jupInLagna, moonInSeventh, sunInEighthFromMoon };
+}
+function matsyaYoga(pos, ascSignIdx){
+  // #53 (txt L3613-3616, relaxed to Raman's own admission criterion at
+  // L3637-3639 since the strict Definition is "conspicuously rare" per his
+  // own remarks): Lagna and 9th occupied by malefics, AND the 5th by a mix
+  // of both benefics and malefics — Raman explicitly says presence "may be
+  // admitted" on this relaxed threshold rather than the full four-house
+  // strict reading.
+  const malefics = GRAHA_LIST.filter(g=>!RAMAN_BENEFICS.includes(g) && g!=='Moon');
+  const hasMaleficIn = h => bsGrahasInHouses(pos, ascSignIdx, malefics, [h]).length>0;
+  const lagnaAndNinthMalefic = hasMaleficIn(1) && hasMaleficIn(9);
+  const fifthOccupants = bsGrahasInHouses(pos, ascSignIdx, GRAHA_LIST, [5]);
+  const fifthMixed = fifthOccupants.some(g=>RAMAN_BENEFICS.includes(g)||g==='Moon') && fifthOccupants.some(g=>malefics.includes(g));
+  return { present: lagnaAndNinthMalefic && fifthMixed, lagnaAndNinthMalefic, fifthMixed };
+}
+function kurmaYoga(pos, navPos, ascSignIdx){
+  // #54 (txt L3645-3650): two alternate paths — (a) benefics occupy the
+  // 5th, 6th and 7th, each in own/exalted/friendly NAVAMSA; or (b)
+  // benefics occupy the 1st, 3rd and 11th, each in own/exalted/friendly
+  // RASI. "Benefics" here includes the Moon — Raman's own worked Chart
+  // No.39 uses Jupiter+Mercury+Moon for path (a) — alongside Jupiter/
+  // Venus/Mercury.
+  const benefics = [...RAMAN_BENEFICS, 'Moon'];
+  const goodDignity = ['Own','Exalted','Friend'];
+  const checkHouseNavamsa = h => bsGrahasInHouses(pos, ascSignIdx, benefics, [h]).some(g => goodDignity.includes(dignityTierInSign(g, Math.floor(norm360(navPos[g].sidereal)/30))));
+  const checkHouseRasi = h => bsGrahasInHouses(pos, ascSignIdx, benefics, [h]).some(g => goodDignity.includes(dignityTierInSign(g, Math.floor(norm360(pos[g].sidereal)/30))));
+  const pathA = [5,6,7].every(checkHouseNavamsa);
+  const pathB = [1,3,11].every(checkHouseRasi);
+  return { present: pathA || pathB, pathA, pathB };
+}
+function devendraYoga(pos, ascSignIdx){
+  // #55 (txt L3717-3720): Lagna is a fixed sign; the Lagna lord and 11th
+  // lord exchange houses (Parivartana); AND the 2nd lord and 10th lord
+  // exchange houses — two simultaneous exchanges.
+  const FIXED_SIGNS = ['Taurus','Leo','Scorpio','Aquarius'];
+  const lagnaFixed = FIXED_SIGNS.includes(SIGNS[ascSignIdx]);
+  const lagnaLord = lordOfHouse(1, ascSignIdx), eleventhLord = lordOfHouse(11, ascSignIdx);
+  const exchange1 = lagnaLord!==eleventhLord && SIGN_LORD[SIGNS[Math.floor(norm360(pos[lagnaLord].sidereal)/30)]]===eleventhLord && SIGN_LORD[SIGNS[Math.floor(norm360(pos[eleventhLord].sidereal)/30)]]===lagnaLord;
+  const secondLord = lordOfHouse(2, ascSignIdx), tenthLord = lordOfHouse(10, ascSignIdx);
+  const exchange2 = secondLord!==tenthLord && SIGN_LORD[SIGNS[Math.floor(norm360(pos[secondLord].sidereal)/30)]]===tenthLord && SIGN_LORD[SIGNS[Math.floor(norm360(pos[tenthLord].sidereal)/30)]]===secondLord;
+  return { present: lagnaFixed && exchange1 && exchange2, lagnaFixed, exchange1, exchange2 };
+}
+function makutaYoga(pos, ascSignIdx){
+  // #56 (txt L3742-3744): Jupiter in the 9th house counted from the 9th
+  // lord's own sign; a benefic in the 9th from Jupiter; and Saturn in the
+  // 10th (from Lagna).
+  const ninthLord = lordOfHouse(9, ascSignIdx);
+  const ninthLordSignIdx = Math.floor(norm360(pos[ninthLord].sidereal)/30);
+  const jupInNinthFrom9thLord = bsHouseFromAsc(pos.Jupiter.sidereal, ninthLordSignIdx) === 9;
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const beneficInNinthFromJupiter = bsGrahasInHouses(pos, jupSignIdx, RAMAN_BENEFICS, [9]).length>0;
+  const saturnInTenth = bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx) === 10;
+  return { present: jupInNinthFrom9thLord && beneficInNinthFromJupiter && saturnInTenth, jupInNinthFrom9thLord, beneficInNinthFromJupiter, saturnInTenth };
+}
+function chandikaYoga(pos, navPos, ascSignIdx){
+  // #57 (txt L3760-3765): the lord of the Navamsa sign occupied by the 6th
+  // lord, AND the lord of the Navamsa sign occupied by the 9th lord, both
+  // conjunct the Sun; the Lagna (which must be a fixed sign) aspected by
+  // the 6th lord. Raman notes this can only occur for Taurus/Leo/Scorpio/
+  // Aquarius Lagnas.
+  const FIXED_SIGNS = ['Taurus','Leo','Scorpio','Aquarius'];
+  const lagnaFixed = FIXED_SIGNS.includes(SIGNS[ascSignIdx]);
+  const sixthLord = lordOfHouse(6, ascSignIdx), ninthLord = lordOfHouse(9, ascSignIdx);
+  const dispositorOfNavamsa = lord => SIGN_LORD[SIGNS[Math.floor(norm360(navPos[lord].sidereal)/30)]];
+  const sixthChainLord = dispositorOfNavamsa(sixthLord), ninthChainLord = dispositorOfNavamsa(ninthLord);
+  const sunSignIdx = Math.floor(norm360(pos.Sun.sidereal)/30);
+  const sixthChainConjunctSun = sixthChainLord==='Sun' || Math.floor(norm360(pos[sixthChainLord].sidereal)/30)===sunSignIdx;
+  const ninthChainConjunctSun = ninthChainLord==='Sun' || Math.floor(norm360(pos[ninthChainLord].sidereal)/30)===sunSignIdx;
+  const sixthLordSignIdx = Math.floor(norm360(pos[sixthLord].sidereal)/30);
+  const lagnaAspectedBy6th = aspectsSignWholeSign(sixthLord, sixthLordSignIdx, ascSignIdx);
+  return { present: lagnaFixed && sixthChainConjunctSun && ninthChainConjunctSun && lagnaAspectedBy6th, lagnaFixed, sixthChainConjunctSun, ninthChainConjunctSun, lagnaAspectedBy6th };
+}
+function jayaYoga(pos, ascSignIdx){
+  // #58 (txt L3786-3788): the 6th lord debilitated, and the 10th lord
+  // "deeply exalted" — no separate degree threshold given for "deeply",
+  // implemented as the standard exalted-sign dignity check.
+  const sixthLord = lordOfHouse(6, ascSignIdx), tenthLord = lordOfHouse(10, ascSignIdx);
+  const sixthLordSignIdx = Math.floor(norm360(pos[sixthLord].sidereal)/30);
+  const tenthLordSignIdx = Math.floor(norm360(pos[tenthLord].sidereal)/30);
+  const sixthDebilitated = dignityTierInSign(sixthLord, sixthLordSignIdx) === 'Debilitated';
+  const tenthExalted = dignityTierInSign(tenthLord, tenthLordSignIdx) === 'Exalted';
+  return { present: sixthDebilitated && tenthExalted, sixthDebilitated, tenthExalted };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
