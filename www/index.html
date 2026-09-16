@@ -10835,6 +10835,25 @@ function renderHouseNaturePage(){
 // independent classical system from SBC, on purpose: shown side by side,
 // never folded into the SBC score below, exactly like Tārā Bala/Pañcha
 // Pakshi are additional signals rather than silently merged terms.
+function ashtakavargaTransitReading(graha, sign, bTierTag){
+  const karaka = GRAHA_KARAKA[graha] || {en:"",es:""};
+  const ges = T(graha, GRAHA_ES[graha]);
+  const cls = bTierTag || "neutral";
+  let tailEn, tailEs;
+  if (cls==="good"){
+    tailEn = `its transit of ${sign} reads as broadly favourable \u2014 what ${graha} governs (chiefly ${karaka.en}) tends to find support, open timing, and cooperative conditions in this season.`;
+    tailEs = `su tránsito por ${sign} se lee como ampliamente favorable \u2014 lo que ${ges} gobierna (principalmente ${karaka.es}) tiende a encontrar apoyo, momento propicio y condiciones cooperativas en esta temporada.`;
+  } else if (cls==="bad"){
+    tailEn = `its transit of ${sign} reads as friction-bearing \u2014 what ${graha} governs (chiefly ${karaka.en}) tends to meet strain or delay, and is best handled by working with the planet\u2019s grain rather than against it.`;
+    tailEs = `su tránsito por ${sign} se lee como portador de fricción \u2014 lo que ${ges} gobierna (principalmente ${karaka.es}) tiende a encontrar tensión o demora, y se maneja mejor trabajando con el grano del planeta que contra él.`;
+  } else {
+    tailEn = `its transit of ${sign} reads as mixed and case-by-case \u2014 what ${graha} governs (chiefly ${karaka.en}) neither leans clearly favourable nor clearly against the native at this moment.`;
+    tailEs = `su tránsito por ${sign} se lee como mixto y caso por caso \u2014 lo que ${ges} gobierna (principalmente ${karaka.es}) no se inclina claramente a favor ni claramente en contra del nativo en este momento.`;
+  }
+  const en = `${graha}, natural significator of ${karaka.en}, in ${sign}, ${tailEn}`;
+  const es = `${ges}, significador natural de ${karaka.es}, en ${sign}, ${tailEs}`;
+  return {en, es};
+}
 function renderAshtakavargaPage(){
   const container = document.getElementById('ashtakavargaPageContent');
   if (!container) return;
@@ -10860,12 +10879,14 @@ function renderAshtakavargaPage(){
     const sarvaVal = natalSarva[signIdx];
     const sTier = sarvaTier(sarvaVal);
     if (bTier.tag==='good') strongCount++; else if (bTier.tag==='bad') weakCount++;
+    const _reading = ashtakavargaTransitReading(g, sign, bTier.tag);
     return `<tr>
       <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
       <td style="font-size:11px; color:var(--slate);">${T('now in','ahora en')} ${sign}</td>
       <td><span class="tag ${bTier.tag}">${ashtakBindulabel(bindus)}</span></td>
       <td><span class="tag ${sTier.tag}">${sarvaVal} <span style="font-size:10px;">(${sTier.label})</span></span></td>
-    </tr>`;
+    </tr>
+    <tr><td colspan="4" style="font-size:11px; line-height:1.5; color:var(--ink-dim); padding:4px 12px 8px 24px; border-bottom:1px solid var(--line-soft);">${T(_reading.en, _reading.es)}</td></tr>`;
   }).join('');
 
   const overallVerdict = weakCount>=4
@@ -10883,9 +10904,6 @@ function renderAshtakavargaPage(){
   container.innerHTML = `
     <div class="panel">
       <div class="hd"><h2>${T('Ashtakavarga — Transit Strength','Ashtakavarga — Fuerza de Tránsito')}</h2></div>
-      <div class="bd">
-        <div class="hint">${T('A second, independent classical timing system alongside SBC. Each of the 7 classical grahas (Sun–Saturn; the source excludes Rāhu/Ketu here) contributes bindus (benefic points) to specific houses counted from its own position — from itself, from each of the other 6 grahas, and from the Lagna, 8 sources in all. Summed, that gives each graha its own Bhinnāṣṭakavarga (a 12-sign bindu map); summed again across all 7 grahas, it gives the Sarvāṣṭakavarga (total always 337, average 28/sign). The classical transit application ("Gochara Ashtakavarga"): check how many bindus a transiting graha\'s OWN natal Bhinnāṣṭakavarga assigns to the sign it\'s currently passing through — more bindus there, the more favourable that transit reads for this specific person. This page always uses the reference person\'s own birth chart as the fixed natal Ashtakavarga, checked against the muhūrta moment set on the main page — like SBC\'s own Vedha check, it\'s inherently person-specific, not a generic reading of the sky.','Un segundo sistema clásico de cronometría, independiente del SBC. Cada uno de los 7 graha clásicos (Sol–Saturno; la fuente excluye aquí a Rāhu/Ketu) aporta bindus (puntos benéficos) a casas específicas contadas desde su propia posición — desde sí mismo, desde cada uno de los otros 6 graha, y desde el Lagna, 8 fuentes en total. Sumado, esto da a cada graha su propio Bhinnāṣṭakavarga (un mapa de bindus de 12 signos); sumado de nuevo entre los 7 graha, da el Sarvāṣṭakavarga (total siempre 337, promedio 28/signo). La aplicación clásica de tránsito ("Ashtakavarga de Gochara"): comprobar cuántos bindus asigna el propio Bhinnāṣṭakavarga natal de un graha en tránsito al signo que está atravesando ahora — cuantos más bindus haya ahí, más favorable se lee ese tránsito para esta persona en particular. Esta página siempre usa la carta natal de la persona de referencia como el Ashtakavarga natal fijo, comprobado contra el momento muhūrta fijado en la página principal — como la propia comprobación de Vedha del SBC, es inherentemente específico de la persona, no una lectura genérica del cielo.')}</div>
-      </div>
     </div>
 
     <div class="panel"><div class="hd"><h2>${T('Transit check — the muhūrta moment','Comprobación de tránsito — el momento muhūrta')}</h2><span class="note">${T('against the reference person\'s natal Ashtakavarga','contra el Ashtakavarga natal de la persona de referencia')}</span></div>
