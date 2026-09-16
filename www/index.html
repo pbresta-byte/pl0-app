@@ -9767,7 +9767,62 @@ function renderNatalPage(){
       nameEn:'Pittaroga Yoga', nameEs:'Yoga Pittaroga',
       glossEn:'Bilious complaints (per Ayurveda\'s Pitta dosha). The Sun in the 6th house, conjunct one malefic and aspected by a different malefic.',
       glossEs:'Molestias biliosas (según el dosha Pitta del Ayurveda). El Sol en la 6.ª casa, conjunto a un maléfico y aspectado por otro maléfico distinto.',
-      reasonLine: r => T(`Sun in 6th: ${hf(r.sunIn6th)}. Malefic with Sun: ${hf(r.maleficWithSun)}. Malefic aspecting: ${hf(r.maleficAspecting)}.`, `Sol en la 6.ª: ${hf(r.sunIn6th)}. Maléfico con el Sol: ${hf(r.maleficWithSun)}. Maléfico aspectando: ${hf(r.maleficAspecting)}.`) }
+      reasonLine: r => T(`Sun in 6th: ${hf(r.sunIn6th)}. Malefic with Sun: ${hf(r.maleficWithSun)}. Malefic aspecting: ${hf(r.maleficAspecting)}.`, `Sol en la 6.ª: ${hf(r.sunIn6th)}. Maléfico con el Sol: ${hf(r.maleficWithSun)}. Maléfico aspectando: ${hf(r.maleficAspecting)}.`) },
+    { result: vikalangapatniYoga(birthPos, lagnaIdx), num: 280,
+      nameEn:'Vikalangapatni Yoga', nameEs:'Yoga Vikalangapatni',
+      glossEn:'The wife will have deformed limbs. Venus and the Sun together in the 7th, 9th or 5th house.',
+      glossEs:'La esposa tendrá extremidades deformes. Venus y el Sol juntos en la 7.ª, la 9.ª o la 5.ª casa.',
+      reasonLine: r => T(`Present: ${hf(r.present)}.`, `Presente: ${hf(r.present)}.`) },
+    { result: putrakalatrabeenaYoga(birthPos, lagnaIdx), num: 281,
+      nameEn:'Putrakalatrabeena Yoga', nameEs:'Yoga Putrakalatrabeena',
+      glossEn:'Deprivation of family and children. A waning Moon in the 5th, with the Sun, Mars and Saturn distributed across the 12th/7th/Lagna in any of the 3 orderings Raman himself lists.',
+      glossEs:'Privación de la familia y los hijos. Una Luna menguante en la 5.ª, con el Sol, Marte y Saturno distribuidos entre la 12.ª/7.ª/Lagna en cualquiera de los 3 órdenes que el propio Raman enumera.',
+      reasonLine: r => T(`Waning Moon in 5th: ${hf(r.moonWaning && r.moonIn5th)}. Matching permutation: ${hf(r.branchA || r.branchB || r.branchC)}.`, `Luna menguante en la 5.ª: ${hf(r.moonWaning && r.moonIn5th)}. Permutación coincidente: ${hf(r.branchA || r.branchB || r.branchC)}.`) },
+    { result: bharyasahavyabhicharaYoga(birthPos, lagnaIdx), num: 282,
+      nameEn:'Bharyasahavyabhichara Yoga', nameEs:'Yoga Bharyasahavyabhichara',
+      glossEn:'Both husband and wife guilty of adultery. Venus, Saturn and Mars all joining the Moon in the 7th house.',
+      glossEs:'Tanto el esposo como la esposa son culpables de adulterio. Venus, Saturno y Marte uniéndose todos a la Luna en la 7.ª casa.',
+      reasonLine: r => T(`All four together in 7th: ${hf(r.present)}.`, `Los cuatro juntos en la 7.ª: ${hf(r.present)}.`) },
+    { result: vamsachedaYoga(birthPos, lagnaIdx), num: 283,
+      nameEn:'Vamsacheda Yoga', nameEs:'Yoga Vamsacheda',
+      glossEn:'Extinguishing one\'s own family line. The Moon in the 10th, Venus in the 7th, and a malefic in the 4th.',
+      glossEs:'Extinguir la propia línea familiar. La Luna en la 10.ª, Venus en la 7.ª, y un maléfico en la 4.ª.',
+      reasonLine: r => T(`Moon in 10th: ${hf(r.moonIn10th)}. Venus in 7th: ${hf(r.venusIn7th)}. Malefic in 4th: ${hf(r.maleficIn4th)}.`, `Luna en la 10.ª: ${hf(r.moonIn10th)}. Venus en la 7.ª: ${hf(r.venusIn7th)}. Maléfico en la 4.ª: ${hf(r.maleficIn4th)}.`) },
+    { result: guhyarogaYoga(birthPos, navPos, lagnaIdx), num: 284,
+      nameEn:'Guhyaroga Yoga', nameEs:'Yoga Guhyaroga',
+      glossEn:'Diseases of the private parts. The Moon conjunct a malefic, with the Moon\'s own Navamsa sign being Cancer or Scorpio.',
+      glossEs:'Enfermedades de las partes íntimas. La Luna conjunta a un maléfico, con el propio signo de Navamsa de la Luna siendo Cáncer o Escorpio.',
+      reasonLine: r => T(`Moon with malefic: ${hf(r.moonWithMalefic)}. Navamsa is Cancer/Scorpio: ${hf(r.navIsCancerOrScorpio)}.`, `Luna con maléfico: ${hf(r.moonWithMalefic)}. Navamsa es Cáncer/Escorpio: ${hf(r.navIsCancerOrScorpio)}.`) },
+    { result: angaheenaYoga(birthPos), num: 285,
+      nameEn:'Angaheena Yoga', nameEs:'Yoga Angaheena',
+      glossEn:'Loss of limbs. Unusually counted FROM THE SUN rather than Lagna: the Moon in the 10th, Mars in the 7th and Saturn in the 2nd, all from the Sun\'s own sign.',
+      glossEs:'Pérdida de extremidades. Contado inusualmente DESDE EL SOL en lugar de desde el Lagna: la Luna en la 10.ª, Marte en la 7.ª y Saturno en la 2.ª, todos desde el propio signo del Sol.',
+      reasonLine: r => T(`Moon 10th from Sun: ${hf(r.moonIn10thFromSun)}. Mars 7th from Sun: ${hf(r.marsIn7thFromSun)}. Saturn 2nd from Sun: ${hf(r.saturnIn2ndFromSun)}.`, `Luna 10.ª desde el Sol: ${hf(r.moonIn10thFromSun)}. Marte 7.ª desde el Sol: ${hf(r.marsIn7thFromSun)}. Saturno 2.ª desde el Sol: ${hf(r.saturnIn2ndFromSun)}.`) },
+    { result: swetakushtaYoga(birthPos, lagnaIdx), num: 286,
+      nameEn:'Swetakushta Yoga', nameEs:'Yoga Swetakushta',
+      glossEn:'White leprosy. Mars in the 2nd, Saturn in the 12th, the Moon in Lagna, and the Sun in the 7th.',
+      glossEs:'Lepra blanca. Marte en la 2.ª, Saturno en la 12.ª, la Luna en el Lagna, y el Sol en la 7.ª.',
+      reasonLine: r => T(`Mars in 2nd: ${hf(r.marsIn2nd)}. Saturn in 12th: ${hf(r.saturnIn12th)}. Moon in Lagna: ${hf(r.moonInLagna)}. Sun in 7th: ${hf(r.sunIn7th)}.`, `Marte en la 2.ª: ${hf(r.marsIn2nd)}. Saturno en la 12.ª: ${hf(r.saturnIn12th)}. Luna en el Lagna: ${hf(r.moonInLagna)}. Sol en la 7.ª: ${hf(r.sunIn7th)}.`) },
+    { result: pisachaGrasthaYoga(birthPos, lagnaIdx), num: 287,
+      nameEn:'Pisacha Grastha Yoga', nameEs:'Yoga Pisacha Grastha',
+      glossEn:'Suffering attacks from "spirits." Rahu conjunct the Moon in Lagna, with a malefic in a trikona (5th/9th) -- the source doesn\'t specify exactly which malefic(s)/house(s), operationalized loosely.',
+      glossEs:'Sufrir ataques de "espíritus". Rahu conjunto a la Luna en el Lagna, con un maléfico en un trikona (5.ª/9.ª) -- la fuente no especifica exactamente cuál(es) maléfico(s)/casa(s), operacionalizado de forma flexible.',
+      reasonLine: r => T(`Rahu+Moon in Lagna: ${hf(r.rahuMoonInLagna)}. Malefic in trikona: ${hf(r.maleficInTrikona)}.`, `Rahu+Luna en el Lagna: ${hf(r.rahuMoonInLagna)}. Maléfico en trikona: ${hf(r.maleficInTrikona)}.`) },
+    { result: andhaYogaA(birthPos, lagnaIdx), num: 288,
+      nameEn:'Andha Yoga I', nameEs:'Yoga Andha I',
+      glossEn:'Stone-blindness. The Sun conjunct Rahu in Lagna, with Saturn and Mars each in a trikona (5th or 9th).',
+      glossEs:'Ceguera total. El Sol conjunto a Rahu en el Lagna, con Saturno y Marte cada uno en un trikona (5.ª o 9.ª).',
+      reasonLine: r => T(`Sun+Rahu in Lagna: ${hf(r.sunRahuInLagna)}. Saturn in trikona: ${hf(r.saturnInTrikona)}. Mars in trikona: ${hf(r.marsInTrikona)}.`, `Sol+Rahu en el Lagna: ${hf(r.sunRahuInLagna)}. Saturno en trikona: ${hf(r.saturnInTrikona)}. Marte en trikona: ${hf(r.marsInTrikona)}.`) },
+    { result: andhaYogaB(birthPos, lagnaIdx), num: 289,
+      nameEn:'Andha Yoga II', nameEs:'Yoga Andha II',
+      glossEn:'Stone-blindness, considered more malignant by Raman (all four eye-ruling factors afflicted at once). Mars in the 2nd, the Moon in the 6th, Saturn in the 12th, and the Sun in the 8th.',
+      glossEs:'Ceguera total, considerada más maligna por Raman (los cuatro factores que rigen la vista afligidos a la vez). Marte en la 2.ª, la Luna en la 6.ª, Saturno en la 12.ª, y el Sol en la 8.ª.',
+      reasonLine: r => T(`Mars in 2nd: ${hf(r.marsIn2nd)}. Moon in 6th: ${hf(r.moonIn6th)}. Saturn in 12th: ${hf(r.saturnIn12th)}. Sun in 8th: ${hf(r.sunIn8th)}.`, `Marte en la 2.ª: ${hf(r.marsIn2nd)}. Luna en la 6.ª: ${hf(r.moonIn6th)}. Saturno en la 12.ª: ${hf(r.saturnIn12th)}. Sol en la 8.ª: ${hf(r.sunIn8th)}.`) },
+    { result: vatharogaYoga(birthPos, lagnaIdx), num: 290,
+      nameEn:'Vatharoga Yoga', nameEs:'Yoga Vatharoga',
+      glossEn:'Windy/rheumatic complaints (per Ayurveda\'s Vata dosha). Jupiter in Lagna and Saturn in the 7th house.',
+      glossEs:'Molestias de viento/reumáticas (según el dosha Vata del Ayurveda). Júpiter en el Lagna y Saturno en la 7.ª casa.',
+      reasonLine: r => T(`Jupiter in Lagna: ${hf(r.jupInLagna)}. Saturn in 7th: ${hf(r.saturnIn7th)}.`, `Júpiter en el Lagna: ${hf(r.jupInLagna)}. Saturno en la 7.ª: ${hf(r.saturnIn7th)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9917,7 +9972,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-233, #235-263, #265-269, #271-272 and #274-279 of 300 (#11, #174, #204, #264 and #270 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 and #273 need a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have; #276-277 need an unnamed "evil sub-division/amsa" classical system too vague in the source to operationalize; #234 Thrikalagnana is already implemented separately, in the Jñāna Yoga panel above — every gap accounted for elsewhere or deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-233, #235-263, #265-269, #271-272 y #274-279 de 300 (#11, #174, #204, #264 y #270 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 y #273 necesitan una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene; #276-277 necesitan un sistema clásico de "sub-división/amsa maligna" sin nombrar, demasiado vago en la fuente para operacionalizar; #234 Thrikalagnana ya está implementado por separado, en el panel de Yoga Jñāna de arriba — cada vacío contabilizado en otro lugar o pospuesto). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203, #205-233, #235-263, #265-269, #271-272 and #274-290 of 300 (#11, #174, #204, #264 and #270 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 and #273 need a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have; #276-277 need an unnamed "evil sub-division/amsa" classical system too vague in the source to operationalize; #234 Thrikalagnana is already implemented separately, in the Jñāna Yoga panel above — every gap accounted for elsewhere or deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203, #205-233, #235-263, #265-269, #271-272 y #274-290 de 300 (#11, #174, #204, #264 y #270 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 y #273 necesitan una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene; #276-277 necesitan un sistema clásico de "sub-división/amsa maligna" sin nombrar, demasiado vago en la fuente para operacionalizar; #234 Thrikalagnana ya está implementado por separado, en el panel de Yoga Jñāna de arriba — cada vacío contabilizado en otro lugar o pospuesto). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -15646,6 +15701,114 @@ function pittarogaYoga(pos, ascSignIdx){
     return aspectsSignWholeSign(m, mSignIdx, house6SignIdx);
   });
   return { present: sunIn6th && maleficWithSun && maleficAspecting, sunIn6th, maleficWithSun, maleficAspecting };
+}
+// #280, Vikalangapatni Yoga (txt L11186-11188): Venus and the Sun together
+// in the same one of the 5th, 7th or 9th house. No worked example given to
+// confirm this "together" reading over an "independently, either house"
+// one, but "together" matches this book's usual two-planet phrasing
+// elsewhere in this cluster.
+function vikalangapatniYoga(pos, ascSignIdx){
+  const matched = [5,7,9].some(h=>{
+    const signIdx = (ascSignIdx + h - 1)%12;
+    return Math.floor(norm360(pos.Venus.sidereal)/30)===signIdx && Math.floor(norm360(pos.Sun.sidereal)/30)===signIdx;
+  });
+  return { present: matched };
+}
+// #281, Putrakalatrabeena Yoga (txt L11199-11201, all 3 variations spelled
+// out explicitly at L11213-11217): a waning Moon in the 5th, with the Sun,
+// Mars and Saturn distributed across the 12th/7th/Lagna in any of the 3
+// permutations Raman himself enumerates as "the three varieties of the
+// same yoga."
+function putrakalatrabeenaYoga(pos, ascSignIdx){
+  const moonWaning = norm360(pos.Moon.sidereal - pos.Sun.sidereal) >= 180;
+  const moonIn5th = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx)===5;
+  const houseOf = (g) => bsHouseFromAsc(pos[g].sidereal, ascSignIdx);
+  const branchA = houseOf('Sun')===12 && houseOf('Mars')===7 && houseOf('Saturn')===1;
+  const branchB = houseOf('Mars')===12 && houseOf('Saturn')===7 && houseOf('Sun')===1;
+  const branchC = houseOf('Saturn')===12 && houseOf('Mars')===1 && houseOf('Sun')===7;
+  return { present: moonWaning && moonIn5th && (branchA||branchB||branchC), moonWaning, moonIn5th, branchA, branchB, branchC };
+}
+// #282, Bharyasahavyabhichara Yoga (txt L11219-11220): Venus, Saturn AND
+// Mars all joining the Moon in the 7th house (all four together).
+function bharyasahavyabhicharaYoga(pos, ascSignIdx){
+  const house7SignIdx = (ascSignIdx+6)%12;
+  const allFourIn7th = ['Venus','Saturn','Mars','Moon'].every(g=>Math.floor(norm360(pos[g].sidereal)/30)===house7SignIdx);
+  return { present: allFourIn7th };
+}
+// #283, Vamsacheda Yoga (txt L11298-11300): the Moon in the 10th, Venus in
+// the 7th, and a malefic in the 4th.
+function vamsachedaYoga(pos, ascSignIdx){
+  const house10SignIdx=(ascSignIdx+9)%12, house7SignIdx=(ascSignIdx+6)%12, house4SignIdx=(ascSignIdx+3)%12;
+  const moonIn10th = Math.floor(norm360(pos.Moon.sidereal)/30)===house10SignIdx;
+  const venusIn7th = Math.floor(norm360(pos.Venus.sidereal)/30)===house7SignIdx;
+  const maleficIn4th = MALEFIC_GRAHAS.some(m=>Math.floor(norm360(pos[m].sidereal)/30)===house4SignIdx);
+  return { present: moonIn10th && venusIn7th && maleficIn4th, moonIn10th, venusIn7th, maleficIn4th };
+}
+// #284, Guhyaroga Yoga (txt L11313-11314): the Moon conjunct a malefic,
+// with the Moon's own Navamsa sign being Cancer or Scorpio.
+function guhyarogaYoga(pos, navPos, ascSignIdx){
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const moonWithMalefic = MALEFIC_GRAHAS.some(m=>Math.floor(norm360(pos[m].sidereal)/30)===moonSignIdx);
+  const moonNavSignIdx = Math.floor(norm360(navPos.Moon.sidereal)/30);
+  const navIsCancerOrScorpio = [3,7].includes(moonNavSignIdx);
+  return { present: moonWithMalefic && navIsCancerOrScorpio, moonWithMalefic, navIsCancerOrScorpio };
+}
+// #285, Angaheena Yoga (txt L11359-11361): unusually, this yoga is counted
+// FROM THE SUN, not from Lagna -- the Moon in the 10th, Mars in the 7th and
+// Saturn in the 2nd, all measured from the Sun's own sign. Self-contained,
+// no ascSignIdx needed.
+function angaheenaYoga(pos){
+  const sunSignIdx = Math.floor(norm360(pos.Sun.sidereal)/30);
+  const moonIn10thFromSun = housesCountFrom(sunSignIdx, Math.floor(norm360(pos.Moon.sidereal)/30))===10;
+  const marsIn7thFromSun = housesCountFrom(sunSignIdx, Math.floor(norm360(pos.Mars.sidereal)/30))===7;
+  const saturnIn2ndFromSun = housesCountFrom(sunSignIdx, Math.floor(norm360(pos.Saturn.sidereal)/30))===2;
+  return { present: moonIn10thFromSun && marsIn7thFromSun && saturnIn2ndFromSun, moonIn10thFromSun, marsIn7thFromSun, saturnIn2ndFromSun };
+}
+// #286, Swetakushta Yoga (txt L11374-11376, worked Chart No.140 confirms
+// the exact per-planet house assignment): Mars in the 2nd, Saturn in the
+// 12th, the Moon in Lagna, the Sun in the 7th.
+function swetakushtaYoga(pos, ascSignIdx){
+  const marsIn2nd = bsHouseFromAsc(pos.Mars.sidereal, ascSignIdx)===2;
+  const saturnIn12th = bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx)===12;
+  const moonInLagna = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx)===1;
+  const sunIn7th = bsHouseFromAsc(pos.Sun.sidereal, ascSignIdx)===7;
+  return { present: marsIn2nd && saturnIn12th && moonInLagna && sunIn7th, marsIn2nd, saturnIn12th, moonInLagna, sunIn7th };
+}
+// #287, Pisacha Grastha Yoga (txt L11415-11417): Rahu conjunct the Moon in
+// Lagna, with "the malefics" joining "trines." No worked example is given
+// to pin down which specific malefics/which specific trikona house(s) --
+// operationalized loosely as at least one of Sun/Mars/Saturn (the
+// remaining natural malefics) occupying the 5th or 9th, an honestly-flagged
+// judgment call given the source's own vagueness here (contrast with
+// #288's fully spelled-out per-planet assignment).
+function pisachaGrasthaYoga(pos, ascSignIdx){
+  const rahuMoonInLagna = bsHouseFromAsc(pos.Rahu.sidereal, ascSignIdx)===1 && bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx)===1;
+  const maleficInTrikona = ['Sun','Mars','Saturn'].some(m=>[5,9].includes(bsHouseFromAsc(pos[m].sidereal, ascSignIdx)));
+  return { present: rahuMoonInLagna && maleficInTrikona, rahuMoonInLagna, maleficInTrikona };
+}
+// #288 & #289, Andha Yogas (txt L11451-11455): two independent
+// combinations for blindness.
+function andhaYogaA(pos, ascSignIdx){ // 288: Sun+Rahu in Lagna, Saturn and Mars each in a trikona
+  const sunRahuInLagna = bsHouseFromAsc(pos.Sun.sidereal, ascSignIdx)===1 && bsHouseFromAsc(pos.Rahu.sidereal, ascSignIdx)===1;
+  const saturnInTrikona = [5,9].includes(bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx));
+  const marsInTrikona = [5,9].includes(bsHouseFromAsc(pos.Mars.sidereal, ascSignIdx));
+  return { present: sunRahuInLagna && saturnInTrikona && marsInTrikona, sunRahuInLagna, saturnInTrikona, marsInTrikona };
+}
+function andhaYogaB(pos, ascSignIdx){ // 289: Mars/Moon/Saturn/Sun each in a specific house
+  const marsIn2nd = bsHouseFromAsc(pos.Mars.sidereal, ascSignIdx)===2;
+  const moonIn6th = bsHouseFromAsc(pos.Moon.sidereal, ascSignIdx)===6;
+  const saturnIn12th = bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx)===12;
+  const sunIn8th = bsHouseFromAsc(pos.Sun.sidereal, ascSignIdx)===8;
+  return { present: marsIn2nd && moonIn6th && saturnIn12th && sunIn8th, marsIn2nd, moonIn6th, saturnIn12th, sunIn8th };
+}
+// #290, Vatharoga Yoga (txt L11500-11501): Jupiter in Lagna and Saturn in
+// the 7th house (Raman's own Remarks note both planets get Digbala here,
+// though this is a health/Arishta yoga, not one of the #245-263 Raja
+// Yogas).
+function vatharogaYoga(pos, ascSignIdx){
+  const jupInLagna = bsHouseFromAsc(pos.Jupiter.sidereal, ascSignIdx)===1;
+  const saturnIn7th = bsHouseFromAsc(pos.Saturn.sidereal, ascSignIdx)===7;
+  return { present: jupInLagna && saturnIn7th, jupInLagna, saturnIn7th };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
