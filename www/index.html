@@ -8149,41 +8149,9 @@ function runAnalysis(){
     <div class="hint" style="margin-top:8px;">${T('Rāśi chip = tattva family (fire/earth/air/water); Dignity text = strength right now — ','Chip de Rāśi = familia de tattva (fuego/tierra/aire/agua); texto de Dignidad = fuerza ahora mismo — ')}<b style="color:var(--jade)">${T('green','verde')}</b> ${T('favourable (Exalted/Own/Friend, darker = stronger)','favorable (Exaltado/Propio/Amigo, más oscuro = más fuerte)')}, <b style="color:var(--vermilion)">${T('red','rojo')}</b> ${T('unfavourable (Enemy/Debilitated, darker = weaker)','desfavorable (Enemigo/Debilitado, más oscuro = más débil)')}, <span style="color:var(--slate)">${T('grey','gris')}</span> ${T('neutral.','neutral.')}</div>
     </div></div>`;
 
-  // Panchaka Vedha breakdown
-  let vrows = "";
-  const pancRows = [
-    {label:T("Star (Janma Nakṣatra)","Estrella (Janma Nakṣatra)"), value:refP.star||"—", type:"Star (Janma Nakṣatra)"},
-    {label:T("Rāśi (Moon sign)","Rāśi (signo lunar)"), value:refP.sign||T("— (needs birth data)","— (requiere datos de nacimiento)"), type:"Rāśi (Moon sign)"},
-    {label:T("Consonant","Consonante"), value:refP.consonant||T("— (needs a name)","— (requiere un nombre)"), type:"Consonant"},
-    {label:T("Vowel","Vocal"), value:(refP.vowel||T("— (needs a name)","— (requiere un nombre)"))+" ⓘ", type:"Vowel"},
-  ];
-  pancRows.forEach(r=>{
-    const hits = vedha.hits.filter(h=>h.struck.includes(r.type));
-    const b = hits.filter(h=>h.benefic).map(h=>GRAHA_ABBR[h.graha]);
-    const m = hits.filter(h=>!h.benefic).map(h=>GRAHA_ABBR[h.graha]);
-    const none = T('none','ninguno');
-    vrows += `<tr><td class="wide">${r.label}</td><td>${r.value}</td>
-      <td>${b.length?`<span class="tag good">${b.join(', ')}</span>`:`<span class="tag neutral">${none}</span>`}</td>
-      <td>${m.length?`<span class="tag bad">${m.join(', ')}</span>`:`<span class="tag neutral">${none}</span>`}</td></tr>`;
-  });
-  html += `<div class="panel"><div class="hd"><h2>${T('Pañcaka Vedha breakdown','Desglose de Vedha del Pañcaka')}</h2></div>
-    <div class="bd"><div class="tblwrap"><table><thead><tr><th>Pañcaka</th><th>${T('Value','Valor')}</th><th>${T('Benefic Vedha','Vedha benéfico')}</th><th>${T('Malefic Vedha','Vedha maléfico')}</th></tr></thead><tbody>${vrows}</tbody></table></div>
-    <div class="hint" style="margin-top:10px; font-style:italic; line-height:1.7;">${narrateDayTheme(vedha, panch, weekdayName)}</div>
-    </div></div>`;
 
   // Tārā Bala / Latta / Upagraha no longer get their own panels here — see
   // the condensed strip folded into the Lunar Day panel above (2026-09-14).
-  html += `<div class="panel"><div class="hd"><h2>${T('Nāḍī of the reference star','Nāḍī de la estrella de referencia')}</h2></div><div class="bd">
-      ${nadi ? `<div class="kv">
-        <div class="k">Nāḍī</div><div class="v">${nadi.name} (${T('lord','señor')}: ${T(nadi.lord,GRAHA_ES[nadi.lord])})</div>
-        <div class="k">${T('Character','Carácter')}</div><div class="v">${T(nadi.gist, NADI_GIST_ES[nadi.name])}</div>
-        <div class="k">${T('Sibling stars','Estrellas hermanas')}</div><div class="v">${nadi.stars.join(', ')}</div>
-      </div>
-      <div class="hint" style="margin-top:10px; line-height:1.6;">${T(
-        `<b style="color:var(--muted)">This app's synthesis:</b> across the Sapta Nadi system, each nadi's character echoes a broader classical idea — that the elements and qualities behind a nakshatra grouping also describe how prana, the vital breath animating the body, tends to move through a given moment. Pawan takes its name from vayu, wind and vital air, and Vedic and yogic thought have long treated the vital air as the fastest and least restful of the subtle currents — always circulating, never pooling, the very thing that makes life itself active rather than still. That is why a Pawan transit reads as it does here: a nadi built on the quality of moving air cannot help but deliver its results with that same restlessness and speed, arriving quickly rather than accumulating slowly the way an earthier or wetter-toned nadi might. Read this way, Pawan's reputation for fast, shallow outcomes isn't a quirk of this table — it's the elemental signature of breath itself, translated into how a transit is felt.`,
-        `<b style="color:var(--muted)">Síntesis de esta app:</b> en todo el sistema Sapta Nadi, el carácter de cada nadi hace eco de una idea clásica más amplia — que los elementos y cualidades detrás de una agrupación de nakshatras también describen cómo tiende a moverse el prana, el aliento vital que anima el cuerpo, en un momento dado. Pawan toma su nombre de vayu, el viento y el aire vital, y el pensamiento védico y yóguico ha considerado desde antiguo que el aire vital es la más rápida y menos reposada de las corrientes sutiles — siempre circulando, nunca estancada, precisamente lo que hace que la vida misma sea activa y no quieta. Por eso un tránsito de Pawan se lee como se lee aquí: un nadi construido sobre la cualidad del aire en movimiento no puede sino entregar sus resultados con esa misma inquietud y velocidad, llegando rápido en vez de acumularse despacio como podría hacerlo un nadi de tono más terroso o acuoso. Leído así, la fama de Pawan por resultados rápidos y poco profundos no es un capricho de esta tabla — es la firma elemental del aliento mismo, traducida en cómo se siente un tránsito.`
-      )}</div>` : `<div class="hint">${T('Pick a reference star to see its Nāḍī.','Elige una estrella de referencia para ver su Nāḍī.')}</div>`}
-    </div></div>`;
 
   const refNote = T(refInfo.note, "calculado a partir de datos de nacimiento");
   html += `<footer class="notes">
@@ -11237,7 +11205,50 @@ function renderNakshatraPage(){
       </div>
     </div>`;
 
-  container.innerHTML = personalHtml + worldCyclesHtml + starReadingHtml;
+  // Pañcaka Vedha breakdown (moved from runAnalysis)
+  const vedhaMdt = readDateTime("m");
+  const vedhaAy = document.getElementById('ayanamsaMode') ? document.getElementById('ayanamsaMode').value : 'lahiri';
+  const vedhaPos = computePositions(vedhaMdt.jd, vedhaMdt.lat, vedhaMdt.lon, vedhaAy);
+  const vedhaPanch = computePanchanga(vedhaPos);
+  const vedhaHits = evaluateVedha(vedhaPos, vedhaPanch.nak28, refP);
+  const vedhaNadi = refP.star ? nadiOfStar(refP.star) : null;
+  const vedhaWeekdayName = T(WEEKDAYS[new Date(vedhaMdt.y,vedhaMdt.mo-1,vedhaMdt.da).getDay()], WEEKDAYS_ES[new Date(vedhaMdt.y,vedhaMdt.mo-1,vedhaMdt.da).getDay()]);
+
+  let vrows = "";
+  const pancRows = [
+    {label:T("Star (Janma Nakṣatra)","Estrella (Janma Nakṣatra)"), value:refP.star||"—", type:"Star (Janma Nakṣatra)"},
+    {label:T("Rāśi (Moon sign)","Rāśi (signo lunar)"), value:refP.sign||T("— (needs birth data)","— (requiere datos de nacimiento)"), type:"Rāśi (Moon sign)"},
+    {label:T("Consonant","Consonante"), value:refP.consonant||T("— (needs a name)","— (requiere un nombre)"), type:"Consonant"},
+    {label:T("Vowel","Vocal"), value:(refP.vowel||T("— (needs a name)","— (requiere un nombre)"))+" ⓘ", type:"Vowel"},
+  ];
+  pancRows.forEach(r=>{
+    const hits = vedhaHits.hits.filter(h=>h.struck.includes(r.type));
+    const b = hits.filter(h=>h.benefic).map(h=>GRAHA_ABBR[h.graha]);
+    const m = hits.filter(h=>!h.benefic).map(h=>GRAHA_ABBR[h.graha]);
+    const none = T('none','ninguno');
+    vrows += `<tr><td class="wide">${r.label}</td><td>${r.value}</td>
+      <td>${b.length?`<span class="tag good">${b.join(', ')}</span>`:`<span class="tag neutral">${none}</span>`}</td>
+      <td>${m.length?`<span class="tag bad">${m.join(', ')}</span>`:`<span class="tag neutral">${none}</span>`}</td></tr>`;
+  });
+  let vedhaPanelHtml = `<div class="panel"><div class="hd"><h2>${T('Pañcaka Vedha breakdown','Desglose de Vedha del Pañcaka')}</h2></div>
+    <div class="bd"><div class="tblwrap"><table><thead><tr><th>Pañcaka</th><th>${T('Value','Valor')}</th><th>${T('Benefic Vedha','Vedha benéfico')}</th><th>${T('Malefic Vedha','Vedha maléfico')}</th></tr></thead><tbody>${vrows}</tbody></table></div>
+    <div class="hint" style="margin-top:10px; font-style:italic; line-height:1.7;">${narrateDayTheme(vedhaHits, vedhaPanch, vedhaWeekdayName)}</div>
+    </div></div>`;
+
+  // Nāḍī of the reference star
+  vedhaPanelHtml += `<div class="panel"><div class="hd"><h2>${T('Nāḍī of the reference star','Nāḍī de la estrella de referencia')}</h2></div><div class="bd">
+      ${vedhaNadi ? `<div class="kv">
+        <div class="k">Nāḍī</div><div class="v">${vedhaNadi.name} (${T('lord','señor')}: ${T(vedhaNadi.lord,GRAHA_ES[vedhaNadi.lord])})</div>
+        <div class="k">${T('Character','Carácter')}</div><div class="v">${T(vedhaNadi.gist, NADI_GIST_ES[vedhaNadi.name])}</div>
+        <div class="k">${T('Sibling stars','Estrellas hermanas')}</div><div class="v">${vedhaNadi.stars.join(', ')}</div>
+      </div>
+      <div class="hint" style="margin-top:10px; line-height:1.6;">${T(
+        `<b style="color:var(--muted)">This app's synthesis:</b> across the Sapta Nadi system, each nadi's character echoes a broader classical idea — that the elements and qualities behind a nakshatra grouping also describe how prana, the vital breath animating the body, tends to move through a given moment. Pawan takes its name from vayu, wind and vital air, and Vedic and yogic thought have long treated the vital air as the fastest and least restful of the subtle currents — always circulating, never pooling, the very thing that makes life itself active rather than still. That is why a Pawan transit reads as it does here: a nadi built on the quality of moving air cannot help but deliver its results with that same restlessness and speed, arriving quickly rather than accumulating slowly the way an earthier or wetter-toned nadi might. Read this way, Pawan's reputation for fast, shallow outcomes isn't a quirk of this table — it's the elemental signature of breath itself, translated into how a transit is felt.`,
+        `<b style="color:var(--muted)">Síntesis de esta app:</b> en todo el sistema Sapta Nadi, el carácter de cada nadi hace eco de una idea clásica más amplia — que los elementos y cualidades detrás de una agrupación de nakshatras también describen cómo tiende a moverse el prana, el aliento vital que anima el cuerpo, en un momento dado. Pawan toma su nombre de vayu, el viento y el aire vital, y el pensamiento védico y yóguico ha considerado desde antiguo que el aire vital es la más rápida y menos reposada de las corrientes sutiles — siempre circulando, nunca estancada, precisamente lo que hace que la vida misma sea activa y no quieta. Por eso un tránsito de Pawan se lee como se lee aquí: un nadi construido sobre la cualidad del aire en movimiento no puede sino entregar sus resultados con esa misma inquietud y velocidad, llegando rápido en vez de acumularse despacio como podría hacerlo un nadi de tono más terroso o acuoso. Leído así, la fama de Pawan por resultados rápidos y poco profundos no es un capricho de esta tabla — es la firma elemental del aliento mismo, traducida en cómo se siente un tránsito.`
+      )}</div>` : `<div class="hint">${T('Pick a reference star to see its Nāḍī.','Elige una estrella de referencia para ver su Nāḍī.')}</div>`}
+    </div></div>`;
+  container.innerHTML = personalHtml + worldCyclesHtml + starReadingHtml + vedhaPanelHtml;
+
 }
 
 // ---- Anatomy ----
