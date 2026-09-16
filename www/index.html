@@ -9272,7 +9272,57 @@ function renderNatalPage(){
       nameEn:'Annadana Yoga', nameEs:'Yoga Annadana',
       glossEn:'A hospitable nature, feeding large numbers of people — Annadana (feeding the hungry) is considered a sacred charitable act. The 2nd lord joins Vaiseshikamsa and is conjunct or aspected by BOTH Jupiter and Mercury. Confirmed by chart discussion: 2nd lord Mercury in the 10th with Jupiter.',
       glossEs:'Una naturaleza hospitalaria, alimentando a grandes cantidades de personas — Annadana (alimentar a los hambrientos) se considera un acto de caridad sagrado. El señor de la 2.ª se une a Vaiseshikamsa y está conjunto o aspectado por Júpiter Y Mercurio. Confirmada por la discusión de la carta: señor de la 2.ª Mercurio en la 10.ª con Júpiter.',
-      reasonLine: r => T(`2nd lord Vaiseshikamsa (count ${r.vamsaCount}): ${hf(r.attainsVaiseshikamsa)}. Linked to Jupiter: ${hf(r.withJupiter)} and Mercury: ${hf(r.withMercury)}.`, `Vaiseshikamsa del señor de la 2.ª (cuenta ${r.vamsaCount}): ${hf(r.attainsVaiseshikamsa)}. Vinculado a Júpiter: ${hf(r.withJupiter)} y Mercurio: ${hf(r.withMercury)}.`) }
+      reasonLine: r => T(`2nd lord Vaiseshikamsa (count ${r.vamsaCount}): ${hf(r.attainsVaiseshikamsa)}. Linked to Jupiter: ${hf(r.withJupiter)} and Mercury: ${hf(r.withMercury)}.`, `Vaiseshikamsa del señor de la 2.ª (cuenta ${r.vamsaCount}): ${hf(r.attainsVaiseshikamsa)}. Vinculado a Júpiter: ${hf(r.withJupiter)} y Mercurio: ${hf(r.withMercury)}.`) },
+    { result: parannabhojanaYoga(birthPos, navPos, lagnaIdx), num: 172,
+      nameEn:'Parannabhojana Yoga', nameEs:'Yoga Parannabhojana',
+      glossEn:'Living on food doled out by others; dependency. The 2nd lord debilitated or in an unfriendly Navamsa — Raman’s own Remarks separate a WORSE escalation (becoming a hater of food) that additionally needs a debilitated planet’s aspect, which this app tracks as a secondary field rather than a gate on the base result.',
+      glossEs:'Vivir de la comida repartida por otros; dependencia. El señor de la 2.ª debilitado o en un Navamsa hostil — los propios Comentarios de Raman distinguen una escalada PEOR (odiar la comida) que además necesita el aspecto de un planeta debilitado, lo cual esta app rastrea como campo secundario en vez de condicionar el resultado base.',
+      reasonLine: r => T(`2nd lord debilitated/enemy Navamsa: ${hf(r.badNavamsa)}. Escalates to hating food (debilitated + aspected): ${hf(r.escalatesToHatesFood)}.`, `Señor de la 2.ª en Navamsa debilitado/enemigo: ${hf(r.badNavamsa)}. Escala a odiar la comida (debilitado + aspectado): ${hf(r.escalatesToHatesFood)}.`) },
+    { result: sraddhannabhukthaYoga(birthPos, lagnaIdx), num: 173,
+      nameEn:'Sraddhannabhuktha Yoga', nameEs:'Yoga Sraddhannabhuktha',
+      glossEn:'Being served food prepared at funeral obsequies — a stigmatized misfortune, per Raman, when eaten outside one’s nearest relatives. Saturn owns the 2nd house, or joins the 2nd lord, or aspects the 2nd house while debilitated.',
+      glossEs:'Recibir comida preparada en ritos fúnebres — una desgracia estigmatizada, según Raman, cuando se come fuera del círculo de parientes cercanos. Saturno rige la 2.ª casa, o se une al señor de la 2.ª, o aspecta la 2.ª casa estando debilitado.',
+      reasonLine: r => T(`Saturn owns 2nd: ${hf(r.saturnOwnsSecond)}. Or joins 2nd lord: ${hf(r.saturnJoinsLord2)}. Or debilitated Saturn aspects 2nd: ${hf(r.saturnAspectsSecond)}.`, `Saturno rige la 2.ª: ${hf(r.saturnOwnsSecond)}. O se une al señor de la 2.ª: ${hf(r.saturnJoinsLord2)}. O Saturno debilitado aspecta la 2.ª: ${hf(r.saturnAspectsSecond)}.`) },
+    { result: vakchalanaYoga(birthPos, navPos, lagnaIdx), num: 175,
+      nameEn:'Vakchalana Yoga', nameEs:'Yoga Vakchalana',
+      glossEn:'Stammering — "a great disadvantage for a man’s progress," per Raman, who adds that Jupiter’s own condition deserves at least as much weight as the 2nd lord’s. A malefic owns the 2nd house, occupies a Navamsa ruled by a malefic, and the 2nd house receives no benefic touch at all.',
+      glossEs:'Tartamudez — "una gran desventaja para el progreso de un hombre," según Raman, quien añade que la condición de Júpiter merece al menos tanto peso como la del señor de la 2.ª. Un maléfico rige la 2.ª casa, ocupa un Navamsa regido por un maléfico, y la 2.ª casa no recibe ningún toque benéfico.',
+      reasonLine: r => T(`2nd lord is malefic: ${hf(r.lord2IsMalefic)}, cruel Navamsa: ${hf(r.cruelNavamsa)}, no benefic touch on 2nd: ${hf(!r.beneficTouch)}.`, `Señor de la 2.ª es maléfico: ${hf(r.lord2IsMalefic)}, Navamsa cruel: ${hf(r.cruelNavamsa)}, sin toque benéfico en la 2.ª: ${hf(!r.beneficTouch)}.`) },
+    { result: vishaprayogaYoga(birthPos, navPos, lagnaIdx), num: 176,
+      nameEn:'Vishaprayoga Yoga', nameEs:'Yoga Vishaprayoga',
+      glossEn:'Being poisoned by others — common, Raman notes, "in court life where rivalries, jealousies and hatred play a great part." The 2nd house is joined AND aspected by malefics, and the 2nd lord sits in a cruel Navamsa aspected by a malefic.',
+      glossEs:'Ser envenenado por otros — común, señala Raman, "en la vida cortesana donde rivalidades, celos y odio juegan un gran papel." La 2.ª casa está unida Y aspectada por maléficos, y el señor de la 2.ª está en un Navamsa cruel aspectado por un maléfico.',
+      reasonLine: r => T(`2nd joined by malefic: ${hf(r.maleficJoinsSecond)} and aspected: ${hf(r.maleficAspectsSecond)}. 2nd lord cruel Navamsa: ${hf(r.cruelNavamsa)}, malefic-aspected: ${hf(r.maleficAspectsLord2)}.`, `2.ª unida a maléfico: ${hf(r.maleficJoinsSecond)} y aspectada: ${hf(r.maleficAspectsSecond)}. Señor de la 2.ª en Navamsa cruel: ${hf(r.cruelNavamsa)}, aspectado por maléfico: ${hf(r.maleficAspectsLord2)}.`) },
+    { result: bhratruvriddhiYoga(birthPos, lagnaIdx), num: 177,
+      nameEn:'Bhratruvriddhi Yoga', nameEs:'Yoga Bhratruvriddhi',
+      glossEn:'Happiness through prosperous brothers — genuinely cordial sibling relationships are rare enough, per Raman, that having and enjoying them "is indeed a fortune." Any ONE of the 3rd lord, Mars, or the 3rd house itself, joined or aspected by benefics (and, for the two grahas, otherwise strong).',
+      glossEs:'Felicidad gracias a hermanos prósperos — relaciones fraternales genuinamente cordiales son lo bastante raras, según Raman, que tenerlas y disfrutarlas "es en verdad una fortuna." Cualquiera de los tres: el señor de la 3.ª, Marte, o la 3.ª casa misma, unido o aspectado por benéficos (y, para los dos grahas, además fuerte).',
+      reasonLine: r => T(`3rd lord benefic+strong: ${hf(r.lord3Strong)}. Or Mars benefic+strong: ${hf(r.marsStrong)}. Or 3rd house benefic touch: ${hf(r.houseTouch)}.`, `Señor de la 3.ª benéfico+fuerte: ${hf(r.lord3Strong)}. O Marte benéfico+fuerte: ${hf(r.marsStrong)}. O toque benéfico en la 3.ª: ${hf(r.houseTouch)}.`) },
+    { result: sodaranasaYoga(birthPos, lagnaIdx), num: 178,
+      nameEn:'Sodaranasa Yoga', nameEs:'Yoga Sodaranasa',
+      glossEn:'Being devoid of almost all brothers and sisters. Mars (the karaka for brothers) and the 3rd lord both occupy the 8th house, aspected by malefics — confirmed by Chart No.81. Raman himself voices open doubt about the Definition’s wider parenthetical house list, so this app keeps to the plain 8th-house case.',
+      glossEs:'Quedar privado de casi todos los hermanos y hermanas. Marte (el karaka de los hermanos) y el señor de la 3.ª ocupan ambos la 8.ª casa, aspectados por maléficos — confirmado por la Carta N.º81. El propio Raman expresa dudas abiertas sobre la lista ampliada entre paréntesis de la Definición, así que esta app se limita al caso simple de la 8.ª casa.',
+      reasonLine: r => T(`Mars+3rd lord both in 8th: ${hf(r.bothInEighth)}. Aspected by malefics: ${hf(r.maleficAspectsEighth)}.`, `Marte+señor de la 3.ª ambos en la 8.ª: ${hf(r.bothInEighth)}. Aspectados por maléficos: ${hf(r.maleficAspectsEighth)}.`) },
+    { result: ekabhaginiYoga(birthPos, lagnaIdx), num: 179,
+      nameEn:'Ekabhagini Yoga', nameEs:'Yoga Ekabhagini',
+      glossEn:'Having only one sister — Raman calls the Definition "restricted in its application," requiring the 3rd house and 3rd lord fortified while Mars (weakened by being tied to Saturn) stays correspondingly weak. Mercury joins the 3rd house, the 3rd lord joins the Moon, and Mars joins Saturn.',
+      glossEs:'Tener solo una hermana — Raman llama a la Definición "restringida en su aplicación," pues exige la 3.ª casa y su señor fortificados mientras Marte (debilitado al ligarse a Saturno) permanece correspondientemente débil. Mercurio se une a la 3.ª casa, el señor de la 3.ª se une a la Luna, y Marte se une a Saturno.',
+      reasonLine: r => T(`Mercury in 3rd: ${hf(r.mercInThird)}. 3rd lord with Moon: ${hf(r.lord3WithMoon)}. Mars with Saturn: ${hf(r.marsWithSaturn)}.`, `Mercurio en la 3.ª: ${hf(r.mercInThird)}. Señor de la 3.ª con la Luna: ${hf(r.lord3WithMoon)}. Marte con Saturno: ${hf(r.marsWithSaturn)}.`) },
+    { result: dwadasaSahodaraYoga(birthPos, navPos, lagnaIdx), num: 180,
+      nameEn:'Dwadasa Sahodara Yoga', nameEs:'Yoga Dwadasa Sahodara',
+      glossEn:'Being the third of twelve siblings — Raman calls the Yoga "typical inasmuch as it is rare" and its original construction "confounding," reducing it by hand to: the 3rd lord in a kendra, exalted Mars conjunct Jupiter in Capricorn, with Capricorn a trikona from the 3rd lord. Confirmed by Chart No.82, where Jupiter’s resulting debility (Capricorn is also HIS fall sign) is explicitly cancelled by Neecha Bhanga.',
+      glossEs:'Ser el tercero de doce hermanos — Raman llama al Yoga "típico por lo raro que es" y a su construcción original "confusa," reduciéndolo a mano a: el señor de la 3.ª en kendra, Marte exaltado conjunto a Júpiter en Capricornio, con Capricornio en trikona desde el señor de la 3.ª. Confirmado por la Carta N.º82, donde la debilidad resultante de Júpiter (Capricornio es también su signo de caída) queda explícitamente cancelada por Neecha Bhanga.',
+      reasonLine: r => T(`3rd lord in kendra: ${hf(r.lord3InKendra)}. Mars exalted in Capricorn: ${hf(r.marsExaltedInCapricorn)}, Jupiter there too + Neecha Bhanga: ${hf(r.jupiterOk)}. Capricorn trikona from 3rd lord: ${hf(r.trikonaOk)}.`, `Señor de la 3.ª en kendra: ${hf(r.lord3InKendra)}. Marte exaltado en Capricornio: ${hf(r.marsExaltedInCapricorn)}, Júpiter también ahí + Neecha Bhanga: ${hf(r.jupiterOk)}. Capricornio en trikona desde el señor de la 3.ª: ${hf(r.trikonaOk)}.`) },
+    { result: sapthasankhyaSahodaraYoga(birthPos, lagnaIdx), num: 181,
+      nameEn:'Sapthasankhya Sahodara Yoga', nameEs:'Yoga Sapthasankhya Sahodara',
+      glossEn:'Having seven brothers — one of several rare "exact sibling count" combinations Raman includes for their curiosity value. The 12th lord joins Mars, the Moon sits in the 3rd with Jupiter, and the Moon is entirely free of Venus’s touch.',
+      glossEs:'Tener siete hermanos — una de varias combinaciones raras de "cantidad exacta de hermanos" que Raman incluye por su valor de curiosidad. El señor de la 12.ª se une a Marte, la Luna está en la 3.ª con Júpiter, y la Luna está completamente libre del toque de Venus.',
+      reasonLine: r => T(`12th lord with Mars: ${hf(r.lord12WithMars)}. Moon in 3rd with Jupiter: ${hf(r.moonInThird && r.jupiterWithMoon)}. Moon free of Venus: ${hf(r.venusFree)}.`, `Señor de la 12.ª con Marte: ${hf(r.lord12WithMars)}. Luna en la 3.ª con Júpiter: ${hf(r.moonInThird && r.jupiterWithMoon)}. Luna libre de Venus: ${hf(r.venusFree)}.`) },
+    { result: parakramaYoga(birthPos, navPos, lagnaIdx), num: 182,
+      nameEn:'Parakrama Yoga', nameEs:'Yoga Parakrama',
+      glossEn:'Much courage — "preserving one’s balance of mind in the face of grave danger," per Raman. The 3rd house (Parakrama) lord joins a benefic-ruled Navamsa, is aspected by or conjunct benefics, and Mars occupies a benefic-ruled sign.',
+      glossEs:'Mucho coraje — "conservar el equilibrio mental frente a un peligro grave," según Raman. El señor de la 3.ª casa (Parakrama) se une a un Navamsa regido por un benéfico, es aspectado o conjunto a benéficos, y Marte ocupa un signo regido por un benéfico.',
+      reasonLine: r => T(`3rd lord benefic Navamsa: ${hf(r.beneficNavamsa)}, benefic touch: ${hf(r.beneficTouch)}. Mars in benefic sign: ${hf(r.marsInBeneficSign)}.`, `Señor de la 3.ª en Navamsa benéfico: ${hf(r.beneficNavamsa)}, toque benéfico: ${hf(r.beneficTouch)}. Marte en signo benéfico: ${hf(r.marsInBeneficSign)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9422,7 +9472,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10 and #12-171 of 300 (#11, Vanchana Chora Bheethi, needs Gulika\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10 y #12-171 de 300 (#11, Vanchana Chora Bheethi, necesita la posición zodiacal de Gulika, aún no calculada en esta app — pospuesta). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173 and #175-182 of 300 (#11, Vanchana Chora Bheethi, and #174, Sarpaganda Yoga, both need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app — deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173 y #175-182 de 300 (#11, Vanchana Chora Bheethi, y #174, Yoga Sarpaganda, necesitan ambas la posición zodiacal de un punto de la familia Gulika, aún no calculada en esta app — pospuestas). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -13668,6 +13718,200 @@ function annadanaYoga(pos, navPos, ascSignIdx){
   const withJupiter = linked('Jupiter');
   const withMercury = linked('Mercury');
   return { present: attainsVaiseshikamsa && withJupiter && withMercury, vamsaCount, attainsVaiseshikamsa, withJupiter, withMercury };
+}
+function parannabhojanaYoga(pos, navPos, ascSignIdx){
+  // #172 (txt L6862-6874): the Definition literally ANDs "2nd lord
+  // debilitated or in unfriendly Navamsa" with "aspected by a debilitated
+  // planet." BUT Raman's own Remarks explicitly separate two tiers of
+  // result: the BASE result (dependent on others for food) needs ONLY the
+  // Navamsa condition ("If the 2nd lord is in a debilitated navamsa, or in
+  // an inimical navamsa, the above result holds good"); the aspect-by-a-
+  // debilitated-planet clause is described as an ESCALATION to a worse,
+  // separate result ("hater of food"), not a gate on the base result.
+  // Implemented to match the Remarks -- the Navamsa condition alone gates
+  // "present" -- with the aspect escalation tracked as a secondary
+  // diagnostic field only.
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const lord2NavSignIdx = Math.floor(norm360(navPos[lord2].sidereal)/30);
+  const tier = dignityTierInSign(lord2, lord2NavSignIdx);
+  const badNavamsa = tier==='Debilitated' || tier==='Enemy';
+  const lord2RasiSignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const debilitatedAspect = GRAHA_LIST.some(g=>{
+    if (g===lord2) return false;
+    const gSignIdx = Math.floor(norm360(pos[g].sidereal)/30);
+    if (dignityTierInSign(g, gSignIdx)!=='Debilitated') return false;
+    return aspectsSignWholeSign(g, gSignIdx, lord2RasiSignIdx);
+  });
+  return { present: badNavamsa, badNavamsa, escalatesToHatesFood: tier==='Debilitated' && debilitatedAspect };
+}
+function sraddhannabhukthaYoga(pos, ascSignIdx){
+  // #173 (txt L6877-6879): Saturn owns the 2nd house, OR Saturn joins the
+  // 2nd lord, OR the 2nd house is aspected by a debilitated Saturn.
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const saturnOwnsSecond = lord2==='Saturn';
+  const lord2SignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const saturnSignIdx = Math.floor(norm360(pos.Saturn.sidereal)/30);
+  const saturnJoinsLord2 = lord2!=='Saturn' && saturnSignIdx===lord2SignIdx;
+  const secondSignIdx = (ascSignIdx+1)%12;
+  const saturnDebilitated = dignityTierInSign('Saturn', saturnSignIdx)==='Debilitated';
+  const saturnAspectsSecond = saturnDebilitated && aspectsSignWholeSign('Saturn', saturnSignIdx, secondSignIdx);
+  return { present: saturnOwnsSecond || saturnJoinsLord2 || saturnAspectsSecond, saturnOwnsSecond, saturnJoinsLord2, saturnAspectsSecond };
+}
+// #174, Sarpaganda Yoga (txt L6888-6900): "Rahu should join the 2nd house
+// with Mandi." Mandi (a Gulika-family upagraha) has no zodiacal-position
+// computation anywhere in this app -- the same missing infrastructure
+// already deferred for #11 (Vanchana Chora Bheethi) and partially
+// encountered again at #158/#169. Unlike those two, #174's SOLE condition
+// needs Mandi (there is no alternate OR-path that is independently
+// computable), so this entry is skipped outright, following the #11
+// precedent -- noted in the panel's intro text, not added to RAMAN_YOGAS.
+function vakchalanaYoga(pos, navPos, ascSignIdx){
+  // #175 (txt L6902-6906): a malefic owns the 2nd house (i.e. the 2nd lord
+  // is itself a natural malefic), that 2nd lord occupies a "cruel"
+  // (malefic-ruled) Navamsa sign, and the 2nd house itself receives no
+  // benefic conjunction or aspect at all.
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const lord2IsMalefic = MALEFIC_GRAHAS.includes(lord2);
+  const lord2NavSignIdx = Math.floor(norm360(navPos[lord2].sidereal)/30);
+  const navSignLord = SIGN_LORD[SIGNS[lord2NavSignIdx]];
+  const cruelNavamsa = MALEFIC_GRAHAS.includes(navSignLord);
+  const secondSignIdx = (ascSignIdx+1)%12;
+  const beneficTouch = RAMAN_BENEFICS.some(b=>{
+    const bSignIdx = Math.floor(norm360(pos[b].sidereal)/30);
+    return bSignIdx===secondSignIdx || aspectsSignWholeSign(b, bSignIdx, secondSignIdx);
+  });
+  return { present: lord2IsMalefic && cruelNavamsa && !beneficTouch, lord2IsMalefic, cruelNavamsa, beneficTouch };
+}
+function vishaprayogaYoga(pos, navPos, ascSignIdx){
+  // #176 (txt L6914-6917): the 2nd house is joined AND aspected by
+  // malefics, and the 2nd lord is in a cruel (malefic-ruled) Navamsa
+  // aspected by a malefic.
+  const secondSignIdx = (ascSignIdx+1)%12;
+  const maleficJoinsSecond = MALEFIC_GRAHAS.some(m=> Math.floor(norm360(pos[m].sidereal)/30)===secondSignIdx);
+  const maleficAspectsSecond = MALEFIC_GRAHAS.some(m=>{
+    const mSignIdx = Math.floor(norm360(pos[m].sidereal)/30);
+    return mSignIdx!==secondSignIdx && aspectsSignWholeSign(m, mSignIdx, secondSignIdx);
+  });
+  const lord2 = lordOfHouse(2, ascSignIdx);
+  const lord2NavSignIdx = Math.floor(norm360(navPos[lord2].sidereal)/30);
+  const navSignLord = SIGN_LORD[SIGNS[lord2NavSignIdx]];
+  const cruelNavamsa = MALEFIC_GRAHAS.includes(navSignLord);
+  const lord2RasiSignIdx = Math.floor(norm360(pos[lord2].sidereal)/30);
+  const maleficAspectsLord2 = MALEFIC_GRAHAS.some(m=> m!==lord2 && aspectsSignWholeSign(m, Math.floor(norm360(pos[m].sidereal)/30), lord2RasiSignIdx));
+  return { present: maleficJoinsSecond && maleficAspectsSecond && cruelNavamsa && maleficAspectsLord2, maleficJoinsSecond, maleficAspectsSecond, cruelNavamsa, maleficAspectsLord2 };
+}
+function bhratruvriddhiYoga(pos, ascSignIdx){
+  // #177 (txt L6923-6926): the 3rd lord, OR Mars, OR the 3rd house itself
+  // -- ANY ONE of the three -- joined or aspected by benefics and
+  // "otherwise strong." AMBIGUITY FLAG: "otherwise strong" cleanly applies
+  // to a graha (3rd lord / Mars) via this file's usual dignity-tier
+  // reading, but not to "the 3rd house" itself, which has no dignity of
+  // its own -- for that third carrier, only the benefic-touch clause is
+  // checked.
+  const lord3 = lordOfHouse(3, ascSignIdx);
+  const thirdSignIdx = (ascSignIdx+2)%12;
+  const beneficTouch = signIdx => RAMAN_BENEFICS.some(b=>{
+    const bSignIdx = Math.floor(norm360(pos[b].sidereal)/30);
+    return bSignIdx===signIdx || aspectsSignWholeSign(b, bSignIdx, signIdx);
+  });
+  const lord3SignIdx = Math.floor(norm360(pos[lord3].sidereal)/30);
+  const lord3Strong = beneficTouch(lord3SignIdx) && ['Own','Exalted','Friend'].includes(dignityTierInSign(lord3, lord3SignIdx));
+  const marsSignIdx = Math.floor(norm360(pos.Mars.sidereal)/30);
+  const marsStrong = beneficTouch(marsSignIdx) && ['Own','Exalted','Friend'].includes(dignityTierInSign('Mars', marsSignIdx));
+  const houseTouch = beneficTouch(thirdSignIdx);
+  return { present: lord3Strong || marsStrong || houseTouch, lord3Strong, marsStrong, houseTouch };
+}
+function sodaranasaYoga(pos, ascSignIdx){
+  // #178 (txt L6982-6984, Remarks/Chart No.81 at L7015-7032): AMBIGUITY
+  // FLAG -- the Definition's own parenthetical widens the target house
+  // list ("the 8th (3rd, 5th or 7th)"), but Raman's Remarks -- in his own
+  // voice, immediately following -- give a DIFFERENT list (3rd/4th/7th),
+  // call the 7th "not as harmful" as the 8th, and openly say "I am not
+  // able to appreciate" why the 4th belongs at all. Given that uncertainty
+  // in Raman's own text, and that the one worked example (Chart No.81)
+  // uses the plain 8th-house case, this is gated on the 8th house alone --
+  // the primary, textually confirmed reading -- not the wider, disputed
+  // list.
+  const lord3 = lordOfHouse(3, ascSignIdx);
+  const marsHouse = bsHouseFromAsc(pos.Mars.sidereal, ascSignIdx);
+  const lord3House = bsHouseFromAsc(pos[lord3].sidereal, ascSignIdx);
+  const bothInEighth = marsHouse===8 && lord3House===8;
+  const marsSignIdx = Math.floor(norm360(pos.Mars.sidereal)/30);
+  const maleficAspectsEighth = MALEFIC_GRAHAS.some(m=> m!=='Mars' && aspectsSignWholeSign(m, Math.floor(norm360(pos[m].sidereal)/30), marsSignIdx));
+  return { present: bothInEighth && maleficAspectsEighth, bothInEighth, maleficAspectsEighth };
+}
+function ekabhaginiYoga(pos, ascSignIdx){
+  // #179 (txt L7034-7036): a "respectively"-matched triple -- Mercury
+  // joins the 3rd house, the lord of the 3rd joins the Moon, and Mars
+  // joins Saturn.
+  const thirdSignIdx = (ascSignIdx+2)%12;
+  const mercInThird = Math.floor(norm360(pos.Mercury.sidereal)/30)===thirdSignIdx;
+  const lord3 = lordOfHouse(3, ascSignIdx);
+  const lord3SignIdx = Math.floor(norm360(pos[lord3].sidereal)/30);
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const lord3WithMoon = lord3!=='Moon' && lord3SignIdx===moonSignIdx;
+  const marsSignIdx = Math.floor(norm360(pos.Mars.sidereal)/30);
+  const saturnSignIdx = Math.floor(norm360(pos.Saturn.sidereal)/30);
+  const marsWithSaturn = marsSignIdx===saturnSignIdx;
+  return { present: mercInThird && lord3WithMoon && marsWithSaturn, mercInThird, lord3WithMoon, marsWithSaturn };
+}
+function dwadasaSahodaraYoga(pos, navPos, ascSignIdx){
+  // #180, "Owadasa" (OCR of Dwadasa) Sahodara Yoga (txt L7045-7114): Raman
+  // himself calls the literal Definition "confounding" and instead works
+  // out, sign by sign across all 12 Lagnas by hand, a reduced general
+  // proposition: the 3rd lord in a kendra (from Lagna), with Mars exalted
+  // (Capricorn, "Swa-occha") conjunct Jupiter there, and Capricorn itself
+  // forming a trikona from the 3rd lord's own sign. Capricorn is
+  // simultaneously Mars's exaltation AND Jupiter's debilitation sign --
+  // the worked Chart No.82 explicitly shows Jupiter DEBILITATED there with
+  // its debility CANCELLED by Neecha Bhanga ("Jupiter has obtained
+  // neechabhanga"), which this implementation treats as a real,
+  // worked-example-confirmed requirement (not incidental chart color),
+  // since an uncancelled debilitated Jupiter sits oddly with a yoga whose
+  // entire point is many surviving siblings.
+  const lord3 = lordOfHouse(3, ascSignIdx);
+  const lord3House = bsHouseFromAsc(pos[lord3].sidereal, ascSignIdx);
+  const lord3InKendra = [1,4,7,10].includes(lord3House);
+  const capricornSignIdx = SIGNS.indexOf('Capricorn');
+  const marsSignIdx = Math.floor(norm360(pos.Mars.sidereal)/30);
+  const marsExaltedInCapricorn = marsSignIdx===capricornSignIdx && dignityTierInSign('Mars', marsSignIdx)==='Exalted';
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const jupiterWithMars = jupSignIdx===capricornSignIdx;
+  const trikonaOk = isTrikonaFrom(pos[lord3].sidereal, capricornSignIdx*30+15);
+  const nb = jupiterWithMars ? nichaBhangaCheck('Jupiter', pos.Jupiter.sidereal, pos, ascSignIdx) : null;
+  const jupiterOk = jupiterWithMars && !!nb && nb.cancelled;
+  return { present: lord3InKendra && marsExaltedInCapricorn && jupiterOk && trikonaOk, lord3InKendra, marsExaltedInCapricorn, jupiterWithMars, jupiterOk, trikonaOk };
+}
+function sapthasankhyaSahodaraYoga(pos, ascSignIdx){
+  // #181 (txt L7117-7119): the 12th lord joins Mars, the Moon is in the
+  // 3rd with Jupiter, and the Moon is devoid of any association with or
+  // aspect of Venus.
+  const lord12 = lordOfHouse(12, ascSignIdx);
+  const lord12SignIdx = Math.floor(norm360(pos[lord12].sidereal)/30);
+  const marsSignIdx = Math.floor(norm360(pos.Mars.sidereal)/30);
+  const lord12WithMars = lord12!=='Mars' && lord12SignIdx===marsSignIdx;
+  const thirdSignIdx = (ascSignIdx+2)%12;
+  const moonSignIdx = Math.floor(norm360(pos.Moon.sidereal)/30);
+  const moonInThird = moonSignIdx===thirdSignIdx;
+  const jupSignIdx = Math.floor(norm360(pos.Jupiter.sidereal)/30);
+  const jupiterWithMoon = jupSignIdx===moonSignIdx;
+  const venSignIdx = Math.floor(norm360(pos.Venus.sidereal)/30);
+  const venusFree = venSignIdx!==moonSignIdx && !aspectsSignWholeSign('Venus', venSignIdx, moonSignIdx);
+  return { present: lord12WithMars && moonInThird && jupiterWithMoon && venusFree, lord12WithMars, moonInThird, jupiterWithMoon, venusFree };
+}
+function parakramaYoga(pos, navPos, ascSignIdx){
+  // #182 (txt L7135-7139): the 3rd lord joins a benefic-ruled Navamsa sign,
+  // is conjunct or aspected by benefic planets, and Mars occupies a
+  // benefic-ruled (Rasi) sign.
+  const lord3 = lordOfHouse(3, ascSignIdx);
+  const lord3NavSignIdx = Math.floor(norm360(navPos[lord3].sidereal)/30);
+  const navSignLord = SIGN_LORD[SIGNS[lord3NavSignIdx]];
+  const beneficNavamsa = RAMAN_BENEFICS.includes(navSignLord);
+  const lord3SignIdx = Math.floor(norm360(pos[lord3].sidereal)/30);
+  const beneficTouch = RAMAN_BENEFICS.some(b=> b!==lord3 && (Math.floor(norm360(pos[b].sidereal)/30)===lord3SignIdx || aspectsSignWholeSign(b, Math.floor(norm360(pos[b].sidereal)/30), lord3SignIdx)));
+  const marsSignIdx = Math.floor(norm360(pos.Mars.sidereal)/30);
+  const marsInBeneficSign = RAMAN_BENEFICS.includes(SIGN_LORD[SIGNS[marsSignIdx]]);
+  return { present: beneficNavamsa && beneficTouch && marsInBeneficSign, beneficNavamsa, beneficTouch, marsInBeneficSign };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
