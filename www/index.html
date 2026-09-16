@@ -9477,7 +9477,27 @@ function renderNatalPage(){
       nameEn:'Sarpasapa Yoga IV', nameEs:'Yoga Sarpasapa IV',
       glossEn:'Raman calls this "merely a repetition" of the sign-based combination above, with Mercury\'s touch brought in as an added condition. The 5th house, being a sign of Mars, conjoined by Rahu and touched by Mercury.',
       glossEs:'Raman llama a esto "una mera repetición" de la combinación basada en el signo anterior, con el toque de Mercurio añadido como condición extra. La 5.ª casa, siendo un signo de Marte, conjunta con Rahu y tocada por Mercurio.',
-      reasonLine: r => T(`5th is a Mars sign: ${hf(r.house5IsMarsSign)}. Rahu in 5th: ${hf(r.rahuIn5th)}. Mercury touch: ${hf(r.mercuryTouch)}.`, `La 5.ª es signo de Marte: ${hf(r.house5IsMarsSign)}. Rahu en la 5.ª: ${hf(r.rahuIn5th)}. Toque de Mercurio: ${hf(r.mercuryTouch)}.`) }
+      reasonLine: r => T(`5th is a Mars sign: ${hf(r.house5IsMarsSign)}. Rahu in 5th: ${hf(r.rahuIn5th)}. Mercury touch: ${hf(r.mercuryTouch)}.`, `La 5.ª es signo de Marte: ${hf(r.house5IsMarsSign)}. Rahu en la 5.ª: ${hf(r.rahuIn5th)}. Toque de Mercurio: ${hf(r.mercuryTouch)}.`) },
+    { result: pitrusapaSutakshayaYoga(birthPos, navPos, lagnaIdx), num: 216,
+      nameEn:'Pitrusapa Sutakshaya Yoga', nameEs:'Yoga Pitrusapa Sutakshaya',
+      glossEn:'Loss of children due to a father\'s curse. Raman himself calls the wording "a bit confusing" — six OR\'d dispositions in total, all built around an afflicted Sun (debilitated in the 5th, in the 5th with a Capricorn/Aquarius Navamsa, hemmed in the 5th, as 5th lord in a trine hemmed/aspected, or bringing Jupiter/Mars/malefics into the 5th, Lagna and trikonas).',
+      glossEs:'Pérdida de hijos por la maldición de un padre. El propio Raman llama a la redacción "algo confusa" — seis disposiciones disyuntivas en total, todas construidas en torno a un Sol afligido (debilitado en la 5.ª, en la 5.ª con Navamsa de Capricornio/Acuario, encerrado en la 5.ª, como señor de la 5.ª en un trino encerrado/aspectado, o trayendo a Júpiter/Marte/maléficos a la 5.ª, el Lagna y los trikonas).',
+      reasonLine: r => T(`Debilitated Sun in 5th: ${hf(r.branchA)}. Sun in 5th w/ Capricorn-Aquarius Navamsa: ${hf(r.branchB)}. Sun hemmed in 5th: ${hf(r.branchC)}. Sun as 5th lord in trine, afflicted: ${hf(r.branchD)}. Jupiter-in-Leo variant: ${hf(r.branchE)}. Mars-as-9th-lord variant: ${hf(r.branchF)}.`, `Sol debilitado en la 5.ª: ${hf(r.branchA)}. Sol en la 5.ª con Navamsa de Capricornio-Acuario: ${hf(r.branchB)}. Sol encerrado en la 5.ª: ${hf(r.branchC)}. Sol como señor de la 5.ª en trino, afligido: ${hf(r.branchD)}. Variante de Júpiter en Leo: ${hf(r.branchE)}. Variante de Marte como señor de la 9.ª: ${hf(r.branchF)}.`) },
+    { result: matrusapaSutakshayaYoga(birthPos, lagnaIdx), num: 217,
+      nameEn:'Matrusapa Sutakshaya Yoga', nameEs:'Yoga Matrusapa Sutakshaya',
+      glossEn:'Loss of children due to a mother\'s curse. Parivartana (mutual exchange) between the 5th and 8th lords, with the Moon and the 4th lord both joining the 6th house.',
+      glossEs:'Pérdida de hijos por la maldición de una madre. Parivartana (intercambio mutuo) entre los señores de la 5.ª y la 8.ª, con la Luna y el señor de la 4.ª uniéndose ambos a la 6.ª casa.',
+      reasonLine: r => T(`5th/8th lord Parivartana: ${hf(r.parivartana)}. Moon in 6th: ${hf(r.moonIn6th)}. 4th lord in 6th: ${hf(r.lord4In6th)}.`, `Parivartana de señores 5.ª/8.ª: ${hf(r.parivartana)}. Luna en la 6.ª: ${hf(r.moonIn6th)}. Señor de la 4.ª en la 6.ª: ${hf(r.lord4In6th)}.`) },
+    { result: bhratrusapaSutakshayaYoga(birthPos, lagnaIdx), num: 218,
+      nameEn:'Bhratrusapa Sutakshaya Yoga', nameEs:'Yoga Bhratrusapa Sutakshaya',
+      glossEn:'Loss of children due to a brother\'s curse. The lords of Lagna and the 5th conjoined in the 8th, with the lord of the 3rd combined with both Mars and Rahu in the 5th.',
+      glossEs:'Pérdida de hijos por la maldición de un hermano. Los señores del Lagna y la 5.ª conjuntos en la 8.ª, con el señor de la 3.ª combinado con Marte y Rahu en la 5.ª.',
+      reasonLine: r => T(`Lagna+5th lords in 8th: ${hf(r.lord1In8th && r.lord5In8th)}. 3rd lord+Mars+Rahu in 5th: ${hf(r.lord3In5th && r.marsIn5th && r.rahuIn5th)}.`, `Señores Lagna+5.ª en la 8.ª: ${hf(r.lord1In8th && r.lord5In8th)}. Señor de la 3.ª+Marte+Rahu en la 5.ª: ${hf(r.lord3In5th && r.marsIn5th && r.rahuIn5th)}.`) },
+    { result: pretasapaYoga(birthPos, lagnaIdx), num: 219,
+      nameEn:'Pretasapa Yoga', nameEs:'Yoga Pretasapa',
+      glossEn:'Loss of children through the curses of Pretas (restless ancestral spirits from improperly performed obsequies). The Sun and Saturn together in the 5th, a weak Moon in the 7th, Rahu in Lagna, and Jupiter in the 12th.',
+      glossEs:'Pérdida de hijos por las maldiciones de los Pretas (espíritus ancestrales inquietos por exequias mal realizadas). El Sol y Saturno juntos en la 5.ª, una Luna débil en la 7.ª, Rahu en el Lagna, y Júpiter en la 12.ª.',
+      reasonLine: r => T(`Sun+Saturn in 5th: ${hf(r.sunIn5th && r.saturnIn5th)}. Weak Moon in 7th: ${hf(r.moonIn7th && r.moonWeak)}. Rahu in Lagna: ${hf(r.rahuInLagna)}. Jupiter in 12th: ${hf(r.jupIn12th)}.`, `Sol+Saturno en la 5.ª: ${hf(r.sunIn5th && r.saturnIn5th)}. Luna débil en la 7.ª: ${hf(r.moonIn7th && r.moonWeak)}. Rahu en el Lagna: ${hf(r.rahuInLagna)}. Júpiter en la 12.ª: ${hf(r.jupIn12th)}.`) }
   ];
   const ramanYogaActiveCount = RAMAN_YOGAS.filter(y=>y.result.present).length;
   const ramanYogaHtml = RAMAN_YOGAS.map(y=>{
@@ -9627,7 +9647,7 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Raman\'s 300 Important Combinations','Las 300 Combinaciones Importantes de Raman')}</h2><span class="note">${ramanYogaActiveCount}/${RAMAN_YOGAS.length} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203 and #205-215 of 300 (#11, #174 and #204 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 needs a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have — all four deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203 y #205-215 de 300 (#11, #174 y #204 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 necesita una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene — las cuatro pospuestas). En crecimiento con el tiempo.')}</div>
+        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('B.V. Raman\'s Three Hundred Important Combinations, implemented incrementally — this app checks each entry against Raman\'s own Definition AND Remarks (not the one-line Definition alone), since the Remarks routinely narrow or reshape what the Definition alone would suggest. Currently implemented: #1-10, #12-173, #175-184, #186-203 and #205-219 of 300 (#11, #174 and #204 all need a Gulika-family point\'s zodiacal position, not yet computed anywhere in this app; #185 needs a verified cruel/benefic classification of the 60 D60 divisions, which this app also does not have — all four deferred). Growing over time.','Las Trescientas Combinaciones Importantes de B.V. Raman, implementadas de forma incremental — esta app comprueba cada entrada contra la Definición Y los Comentarios de Raman (no solo la Definición de una línea), ya que los Comentarios habitualmente acotan o reformulan lo que la Definición por sí sola sugeriría. Implementadas actualmente: #1-10, #12-173, #175-184, #186-203 y #205-219 de 300 (#11, #174 y #204 necesitan todos la posición zodiacal de un punto de la familia Gulika; #185 necesita una clasificación cruel/benéfica verificada de las 60 divisiones D60, que esta app tampoco tiene — las cuatro pospuestas). En crecimiento con el tiempo.')}</div>
         ${ramanYogaHtml}
       </div>
     </div>
@@ -14523,6 +14543,104 @@ function sarpasapaYogaD(pos, ascSignIdx){
   const mercSignIdx = Math.floor(norm360(pos.Mercury.sidereal)/30);
   const mercuryTouch = mercSignIdx===house5SignIdx || aspectsSignWholeSign('Mercury', mercSignIdx, house5SignIdx);
   return { present: house5IsMarsSign && rahuIn5th && mercuryTouch, house5IsMarsSign, rahuIn5th, mercuryTouch };
+}
+// #216, Pitrusapa Sutakshaya Yoga (txt L8139-8143, second set of
+// dispositions txt L8259-8274): Raman gives SIX total OR'd dispositions
+// under this single number -- three in the main Definition (A/B/C below),
+// and three more explicitly said to "also constitute Yoga No. 216" (D/E/F
+// below). Branch B's elaborate manual degree-arc caveats are guidance for
+// hand calculation without a computer -- checking the real Navamsa sign
+// directly already handles those edge cases correctly, so they are not
+// hand-encoded here.
+function pitrusapaSutakshayaYoga(pos, navPos, ascSignIdx){
+  const house5SignIdx = (ascSignIdx+4)%12;
+  const sunSignIdx = Math.floor(norm360(pos.Sun.sidereal)/30);
+  const sunIn5th = sunSignIdx===house5SignIdx;
+  const branchA = sunIn5th && dignityTierInSign('Sun', sunSignIdx)==='Debilitated';
+  const sunNavSignIdx = Math.floor(norm360(navPos.Sun.sidereal)/30);
+  const branchB = sunIn5th && ['Capricorn','Aquarius'].includes(SIGNS[sunNavSignIdx]);
+  const ahead5 = (house5SignIdx+1)%12, behind5 = (house5SignIdx+11)%12;
+  const hemmed5th = MALEFIC_GRAHAS.some(m=>Math.floor(norm360(pos[m].sidereal)/30)===ahead5) && MALEFIC_GRAHAS.some(m=>Math.floor(norm360(pos[m].sidereal)/30)===behind5);
+  const branchC = sunIn5th && hemmed5th;
+  const lord5 = lordOfHouse(5, ascSignIdx);
+  const sunHouse = bsHouseFromAsc(pos.Sun.sidereal, ascSignIdx);
+  const sunInTrine = [1,5,9].includes(sunHouse);
+  const aheadSun = (sunSignIdx+1)%12, behindSun = (sunSignIdx+11)%12;
+  const sunHemmed = MALEFIC_GRAHAS.some(m=>Math.floor(norm360(pos[m].sidereal)/30)===aheadSun) && MALEFIC_GRAHAS.some(m=>Math.floor(norm360(pos[m].sidereal)/30)===behindSun);
+  const sunAspectedByMalefic = MALEFIC_GRAHAS.some(m=> m!=='Sun' && aspectsSignWholeSign(m, Math.floor(norm360(pos[m].sidereal)/30), sunSignIdx));
+  const branchD = lord5==='Sun' && sunInTrine && (sunHemmed || sunAspectedByMalefic);
+  const jupInLeo = SIGNS[Math.floor(norm360(pos.Jupiter.sidereal)/30)]==='Leo';
+  const lord5SignIdx = Math.floor(norm360(pos[lord5].sidereal)/30);
+  const lord5WithSun = lord5==='Sun' || lord5SignIdx===sunSignIdx;
+  const house1SignIdx = ascSignIdx;
+  const maleficIn5th = MALEFIC_GRAHAS.some(m=>Math.floor(norm360(pos[m].sidereal)/30)===house5SignIdx);
+  const maleficInLagna = MALEFIC_GRAHAS.some(m=>Math.floor(norm360(pos[m].sidereal)/30)===house1SignIdx);
+  const branchE = jupInLeo && lord5WithSun && maleficIn5th && maleficInLagna;
+  const lord9 = lordOfHouse(9, ascSignIdx);
+  const marsIsLord9 = lord9==='Mars';
+  const marsSignIdx = Math.floor(norm360(pos.Mars.sidereal)/30);
+  const marsWithLord5 = marsSignIdx===lord5SignIdx;
+  const house9SignIdx = (ascSignIdx+8)%12;
+  const maleficIn9th = MALEFIC_GRAHAS.some(m=>Math.floor(norm360(pos[m].sidereal)/30)===house9SignIdx);
+  const branchF = marsIsLord9 && marsWithLord5 && maleficInLagna && maleficIn5th && maleficIn9th;
+  return { present: branchA||branchB||branchC||branchD||branchE||branchF, branchA, branchB, branchC, branchD, branchE, branchF };
+}
+// #217, Matrusapa Sutakshaya Yoga (txt L8280-8298): Parivartana (mutual
+// exchange) between the 5th and 8th lords, with the Moon (Matrukaraka) and
+// the 4th lord (lord of the mother's house) both joining the 6th house.
+// Raman's own aside that Simha/Kumbha Lagnas can't have this yoga is
+// self-evident from the Parivartana structure (5th and 8th share one lord
+// there) -- no special-casing needed.
+function matrusapaSutakshayaYoga(pos, ascSignIdx){
+  const lord5 = lordOfHouse(5, ascSignIdx), lord8 = lordOfHouse(8, ascSignIdx);
+  const lord5House = bsHouseFromAsc(pos[lord5].sidereal, ascSignIdx);
+  const lord8House = bsHouseFromAsc(pos[lord8].sidereal, ascSignIdx);
+  const parivartana = lord5House===8 && lord8House===5;
+  const house6SignIdx = (ascSignIdx+5)%12;
+  const moonIn6th = Math.floor(norm360(pos.Moon.sidereal)/30)===house6SignIdx;
+  const lord4 = lordOfHouse(4, ascSignIdx);
+  const lord4In6th = Math.floor(norm360(pos[lord4].sidereal)/30)===house6SignIdx;
+  return { present: parivartana && moonIn6th && lord4In6th, parivartana, moonIn6th, lord4In6th };
+}
+// #218, Bhratrusapa Sutakshaya Yoga (txt L8332-8335): the lords of Lagna
+// and the 5th conjoined together in the 8th, AND the lord of the 3rd
+// combined with BOTH Mars and Rahu in the 5th. Remarks offer looser
+// "variations" (5th lord with Mars alone, or Mars+Rahu in 5th alone) as
+// advisory extensions, not a verified alternate reading with a worked
+// example behind it -- kept out of the boolean per this project's standing
+// practice for unverified Remarks caveats.
+function bhratrusapaSutakshayaYoga(pos, ascSignIdx){
+  const lord1 = SIGN_LORD[SIGNS[ascSignIdx]];
+  const lord5 = lordOfHouse(5, ascSignIdx);
+  const house8SignIdx = (ascSignIdx+7)%12;
+  const lord1In8th = Math.floor(norm360(pos[lord1].sidereal)/30)===house8SignIdx;
+  const lord5In8th = Math.floor(norm360(pos[lord5].sidereal)/30)===house8SignIdx;
+  const house5SignIdx = (ascSignIdx+4)%12;
+  const lord3 = lordOfHouse(3, ascSignIdx);
+  const lord3In5th = Math.floor(norm360(pos[lord3].sidereal)/30)===house5SignIdx;
+  const marsIn5th = Math.floor(norm360(pos.Mars.sidereal)/30)===house5SignIdx;
+  const rahuIn5th = Math.floor(norm360(pos.Rahu.sidereal)/30)===house5SignIdx;
+  return { present: lord1In8th && lord5In8th && lord3In5th && marsIn5th && rahuIn5th, lord1In8th, lord5In8th, lord3In5th, marsIn5th, rahuIn5th };
+}
+// #219, Pretasapa Yoga (txt L8352-8354): the Sun and Saturn together in
+// the 5th, a weak Moon in the 7th, Rahu in Lagna, and Jupiter in the 12th.
+// "Weak Moon" uses this project's standing own/exalted/friend dignity-tier
+// convention, same as #211/#214 in this same batch -- kept for consistency,
+// though Raman's own surrounding narrative (Moon "subject to a series of
+// afflictions" from the OTHER planets in this same combination) leaves
+// open whether he instead meant an independently afflicted/waning Moon;
+// flagged here rather than silently assumed.
+function pretasapaYoga(pos, ascSignIdx){
+  const house5SignIdx = (ascSignIdx+4)%12;
+  const sunIn5th = Math.floor(norm360(pos.Sun.sidereal)/30)===house5SignIdx;
+  const saturnIn5th = Math.floor(norm360(pos.Saturn.sidereal)/30)===house5SignIdx;
+  const house7SignIdx = (ascSignIdx+6)%12;
+  const moonIn7th = Math.floor(norm360(pos.Moon.sidereal)/30)===house7SignIdx;
+  const moonWeak = !['Own','Exalted','Friend'].includes(dignityTierInSign('Moon', house7SignIdx));
+  const rahuInLagna = bsHouseFromAsc(pos.Rahu.sidereal, ascSignIdx)===1;
+  const house12SignIdx = (ascSignIdx+11)%12;
+  const jupIn12th = Math.floor(norm360(pos.Jupiter.sidereal)/30)===house12SignIdx;
+  return { present: sunIn5th && saturnIn5th && moonIn7th && moonWeak && rahuInLagna && jupIn12th, sunIn5th, saturnIn5th, moonIn7th, moonWeak, rahuInLagna, jupIn12th };
 }
 
 // --- Six yogas from the Jñāna Yoga series (parts 1-3) -------------------
