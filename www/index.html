@@ -10699,7 +10699,9 @@ function d1LordshipReadingsHtml(vargaTable, ascIdx){
 }
 
 let vargaSelected = "D9";
+let vargaShowUpagrahas = false;
 function setVargaSelection(k){ vargaSelected = k; renderVargaPage(); }
+function toggleVargaUpagrahas(checked){ vargaShowUpagrahas = !!checked; renderVargaPage(); }
 function renderVargaPage(){
   const container = document.getElementById('vargaPageContent');
   if (!container) return;
@@ -10752,18 +10754,82 @@ function renderVargaPage(){
     `<option value="${d.key}" ${d.key===def.key?'selected':''}>${d.key} ${d.name} — ${T(d.purpose.en,d.purpose.es)}</option>`
   ).join('');
 
+  // Degree-in-sign within the selected varga: (degInSign % spanDeg) * (30/spanDeg)
+  // → a 0–30° value in the resulting varga sign. For uniform-partition vargas only
+  // (D30 uses non-uniform spans, handled by falling back to degInSign).
+  const spanDeg = def.parts ? 30/def.parts : 30;
+  function vargaDegInSign(sid){
+    const degInSign = sid % 30;
+    return (degInSign % spanDeg) * (30/spanDeg);
+  }
+
+  function buildRow(b, label, retroTag, color){
+    const vSign = SIGNS[vargaTable[b][def.key]];
+    return `<tr>
+      <td class="wide" style="color:${color}">${label}</td>
+      <td>${SIGNS[Math.floor(sidOf[b]/30)]} ${fmtDeg(sidOf[b]%30)}${retroTag}</td>
+      <td style="color:var(--gold); font-weight:700;">${SIGN_ABBR[vSign]} <span style="font-weight:normal; color:var(--mut);">· ${vSign}</span></td>
+      <td>${fmtDeg(vargaDegInSign(sidOf[b]))}</td>
+    </tr>`;
+  }
+
   const planetRows = bodies.map(b=>{
     const retroTag = b!=="Lagna" && birthPos[b].speed<0 ? ` <small style="color:var(--vermilion);">(${T('r','r')})</small>` : '';
-    // Single-varga table: D1 position + the SELECTED varga's sign only (not all 16).
-    return `<tr>
-      <td class="wide" style="color:${b==='Lagna'?'var(--gold)':(MALEFIC_GRAHAS.includes(b)?'var(--vermilion)':'var(--jade)')}">${b==='Lagna'?T('Lagna','Lagna'):gNameNatal(b)}</td>
-      <td>${SIGNS[Math.floor(sidOf[b]/30)]} ${fmtDeg(sidOf[b]%30)}${retroTag}</td>
-      <td style="color:var(--gold); font-weight:700;">${SIGN_ABBR[SIGNS[vargaTable[b][def.key]]]} <span style="font-weight:normal; color:var(--mut);">· ${SIGNS[vargaTable[b][def.key]]}</span></td>
-      <td>${vargaRashiQualityText(vargaTable[b][def.key])}</td>
-    </tr>`;
+    const color = b==='Lagna' ? 'var(--gold)' : (MALEFIC_GRAHAS.includes(b)?'var(--vermilion)':'var(--jade)');
+    return buildRow(b, b==='Lagna'?T('Lagna','Lagna'):gNameNatal(b), retroTag, color);
   }).join('');
+
+  // Shadow points (Upagrahas): Kala-family via ascendant at the portion-start,
+  // Chaya-family via Sun-longitude formulas. All computed in the selected varga.
+  let upagrahaRows = "";
+  if (vargaShowUpagrahas){
+    const dt = readDateTime("b");
+    const ay = document.getElementById('ayanamsaMode')?.value || 'lahiri';
+    const kalaNames = ["Kala","Mrityu","Ardhaprahara","Yamaghantaka","Gulika"];
+    const kalaSids = {};
+    kalaNames.forEach(n=>{ kalaSids[n] = kalaUpagrahaLongitude(n, dt.y, dt.mo, dt.da, dt.hh, dt.mm, dt.lat, dt.lon, dt.tz, ay); });
+
+    const chayaSids = chayaUpagrahas(norm360(birthPos.Sun.sidereal));
+
+    // Sort kala upagrahas by longitude for stable display order
+    const kalaSorted = kalaNames.map(n=>({name:n, sid:kalaSids[n]})).filter(x=>x.sid!=null).sort((a,b)=>a.sid-b.sid);
+    const chayaOrder = ["dhuma","vyatipata","parivesha","indrachapa","upaketu"];
+    const chayaLabel = {
+      dhuma:"Dhūma", vyatipata:"Vyatipāta", parivesha:"Pariveṣa", indrachapa:"Indrachāpa", upaketu:"Upaketu"
+    };
+
+    const separatorRow = `<tr><td colspan="4" style="border-top:2px solid var(--gold); padding:4px 0;"></td></tr>`;
+
+    kalaSorted.forEach(u=>{
+      const sid = u.sid;
+      const vIdx = def.calc(sid);
+      vargaTable["_up_"+u.name] = {}; vargaTable["_up_"+u.name][def.key] = vIdx;
+      const vSign = SIGNS[vIdx];
+      upagrahaRows += `<tr>
+        <td class="wide" style="color:var(--ink-dim);"><span title="${T('Kala-family Upagraha','Upagraha familia Kala')}">↑</span> ${u.name}</td>
+        <td>${SIGNS[Math.floor(sid/30)]} ${fmtDeg(sid%30)}</td>
+        <td style="color:var(--gold); font-weight:700;">${SIGN_ABBR[vSign]} <span style="font-weight:normal; color:var(--mut);">· ${vSign}</span></td>
+        <td>${fmtDeg(vargaDegInSign(sid))}</td>
+      </tr>`;
+    });
+
+    upagrahaRows += separatorRow;
+
+    chayaOrder.forEach(cn=>{
+      const sid = norm360(chayaSids[cn]);
+      const vIdx = def.calc(sid);
+      const vSign = SIGNS[vIdx];
+      upagrahaRows += `<tr>
+        <td class="wide" style="color:var(--ink-dim);"><span title="${T('Chaya Upagraha (from Sun)','Upagraha Chaya (del Sol)')}">◌</span> ${chayaLabel[cn]}</td>
+        <td>${SIGNS[Math.floor(sid/30)]} ${fmtDeg(sid%30)}</td>
+        <td style="color:var(--gold); font-weight:700;">${SIGN_ABBR[vSign]} <span style="font-weight:normal; color:var(--mut);">· ${vSign}</span></td>
+        <td>${fmtDeg(vargaDegInSign(sid))}</td>
+      </tr>`;
+    });
+  }
+
   const vargaHeaderCells =
-    `<th>${T('D1 position','Posición D1')}</th><th title="${T(def.purpose.en,def.purpose.es)}">${def.key} ${def.name}</th><th>${T('nature','naturaleza')}</th>`;
+    `<th>${T('D1 position','Posición D1')}</th><th title="${T(def.purpose.en,def.purpose.es)}">${def.key} ${def.name}</th><th>${T('degree in sign','grado en signo')}</th>`;
 
   container.innerHTML = `
     <div class="panel">
@@ -10795,7 +10861,11 @@ function renderVargaPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Positions in the selected varga','Posiciones en el varga seleccionado')}</h2><span class="note">${def.key} · ${T('one division at a time','una división a la vez')}</span></div>
       <div class="bd">
-        <div class="tblwrap"><table><thead><tr><th>${T('Body','Cuerpo')}</th>${vargaHeaderCells}</tr></thead><tbody>${planetRows}</tbody></table></div>
+        <label style="display:inline-flex; align-items:center; gap:6px; margin-bottom:10px; cursor:pointer; font-size:13px; color:var(--ink-dim);">
+          <input type="checkbox" onchange="toggleVargaUpagrahas(this.checked)" ${vargaShowUpagrahas?'checked':''}>
+          ${T('Include shadow points (Upagrahas)','Incluir puntos sombra (Upagrahas)')}
+        </label>
+        <div class="tblwrap"><table><thead><tr><th>${T('Body','Cuerpo')}</th>${vargaHeaderCells}</tr></thead><tbody>${planetRows}${upagrahaRows}</tbody></table></div>
         <div class="hint" style="margin-top:10px;">${T(`Showing ${def.key} (${def.name} — ${def.purpose.en.toLowerCase()}) only, alongside the D1 position. Change the dropdown above to read a different division; the chart and the readings below update to match. Purpose names: D1 body · D2 wealth · D3 siblings · D4 fortune/property · D7 children · D9 spouse/dharma · D10 career/power · D12 parents · D16 vehicles · D20 spiritual · D24 education · D27 strengths · D30 misfortunes · D40 maternal · D45 paternal · D60 all matters.`,`Mostrando solo ${def.key} (${def.name} — ${def.purpose.es.toLowerCase()}), junto a la posición D1. Cambia el desplegable de arriba para leer otra división; la carta y las lecturas de abajo se actualizan para coincidir. Propósitos: D1 cuerpo · D2 riqueza · D3 hermanos · D4 fortuna/propiedad · D7 hijos · D9 cónyuge/dharma · D10 carrera/poder · D12 padres · D16 vehículos · D20 espiritual · D24 educación · D27 fortalezas · D30 desgracias · D40 materno · D45 paterno · D60 todos los asuntos.`)}</div>
       </div>
     </div>
