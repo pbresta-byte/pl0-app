@@ -10483,7 +10483,7 @@ const VARGA_DEFS = [
   {key:"D1", name:"Rāśi", span:"30°",
    purpose:{en:"body",es:"cuerpo"},
    calc:sid=>vargaBase(sid).signIdx},
-  {key:"D2", name:"Horā", span:"15°",
+  {key:"D2", name:"Horā", span:"15°", parts:2,
    purpose:{en:"wealth",es:"riqueza"},
    calc:sid=>{ // Odd signs: first half Sun's hora (Leo), second Moon's (Cancer); even signs reversed.
      const vp=vargaPartOf(sid,2); const half=Math.floor(vp.degIn/15);
