@@ -9938,7 +9938,14 @@ function renderNatalPage(){
       const label = T('Present in this chart','Presente en esta carta');
       const reasonArg = y.num ? y.result : y.result.reasons;
       const tagName = (y.num ? `#${y.num} ` : '') + T(y.nameEn,y.nameEs);
-      return `<div class="li" style="margin-bottom:9px;">
+      // Inauspicious entries get the same light-red callout box used for
+      // every other malefic/inauspicious signal in this app (SBC Vedha
+      // hits, Deha Chakra poison sign, etc. all key off --hit-bad-*), so
+      // an affliction reads as visually distinct, not just a colored pill.
+      const boxStyle = cls === 'bad'
+        ? `margin-bottom:9px; background:var(--hit-bad-bg); border-left:3px solid var(--hit-bad-line); border-radius:0 var(--radius-sm) var(--radius-sm) 0; padding:8px 12px;`
+        : `margin-bottom:9px;`;
+      return `<div class="li" style="${boxStyle}">
         <span class="tag ${cls}">${tagName}</span> <span class="tag ${cls}">${label}</span>
         <div style="margin-top:4px; color:var(--slate); font-size:11.5px; line-height:1.6;">${T(y.glossEn,y.glossEs)}</div>
         <div style="margin-top:5px; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); line-height:1.5; border-left:2px solid var(--line-soft); padding-left:8px;">${y.reasonLine(reasonArg)}</div>
