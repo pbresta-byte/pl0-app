@@ -3714,6 +3714,181 @@ if (typeof fmtHM !== "function"){
 ------------------------------------------------------------------------- */
 
 
+/* ===== UPAGRAHAS — FULL CLASSICAL SET (BPHS ch. 4) ===== */
+/* Sources: domains/upagrahas-full-set.md
+   • Kala Upagrahas (5): BPHS ch. 4 — day/night 8-portion method
+   • Chaya Upagrahas (5): BPHS ch. 4 — Sun-longitude formulas
+   All functions return raw data; NOT wired into UI. */
+
+// ---- Kala Upagrahas: day/night 8-portion tables (BPHS ch. 4) ----
+// Day: 1st portion → weekday lord, then sequential. 8th lordless.
+// Night: 1st portion → 5th weekday lord from day. 8th lordless.
+// Planet order for portion assignment (ignoring Moon & Venus):
+//   Sun=Kala, Mars=Mrityu, Mercury=Ardhaprahara, Jupiter=Yamaghantaka, Saturn=Gulika
+// The 5 named portions are extracted from the 7-planet sequence.
+
+// Day tables: which portion index (0-7) each Upagraha occupies per weekday
+// Derived from BPHS: portion 0=weekday lord, 1=next lord, etc.
+// Weekday lord order: Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6
+// Planet sequence (ignoring Moon/Venus): Sun(0), Mars(2), Mercury(3), Jupiter(4), Saturn(6)
+// Day portion for planet at index i in sequence = (i - weekdayLordIdx + 7) % 7
+// But we precompute the standard tables from BPHS/Jataka Parijata ghatika positions.
+
+// Kala (Sun's portion) — day: Sun is portion 0 on Sunday, portion 6 on Saturday
+const UPAGRAHA_KALA_DAY = {
+  // BPHS: Sun's portion = weekday lord's portion on Sunday (portion 0)
+  // On Monday, Sun is portion 6 (Mon lord=Mon, next=Wed, Thu, Fri, Sat, Sun)
+  // Jataka Parijata ghatika: Kala at end of ghatikas 2,26,22,18,14,10,6 (Sun-Sat)
+  // Ghatika 2 = portion 0, 26 = portion 6, 22 = portion 5, 18 = portion 4,
+  // 14 = portion 3, 10 = portion 2, 6 = portion 1
+  Sunday:0, Monday:6, Tuesday:5, Wednesday:4, Thursday:3, Friday:2, Saturday:1
+};
+const UPAGRAHA_MRITYU_DAY = {
+  // Mars' portion — Jataka Parijata: Mrityu at end of ghatikas 10,6,2,26,22,18,14
+  // 10=portion 2, 6=portion 1, 2=portion 0, 26=portion 6, 22=portion 5, 18=portion 4, 14=portion 3
+  Sunday:2, Monday:1, Tuesday:0, Wednesday:6, Thursday:5, Friday:4, Saturday:3
+};
+const UPAGRAHA_ARDHAPRAHARA_DAY = {
+  // Mercury's portion — Jataka Parijata: Ardhaprahara at end of ghatikas 14,10,6,2,26,22,18
+  // 14=portion 3, 10=portion 2, 6=portion 1, 2=portion 0, 26=portion 6, 22=portion 5, 18=portion 4
+  Sunday:3, Monday:2, Tuesday:1, Wednesday:0, Thursday:6, Friday:5, Saturday:4
+};
+const UPAGRAHA_YAMAGHANTAKA_DAY = {
+  // Jupiter's portion — Jataka Parijata: Yamakantaka at end of ghatikas 18,14,10,6,2,26,22
+  // 18=portion 4, 14=portion 3, 10=portion 2, 6=portion 1, 2=portion 0, 26=portion 6, 22=portion 5
+  Sunday:4, Monday:3, Tuesday:2, Wednesday:1, Thursday:0, Friday:6, Saturday:5
+};
+
+// Night tables: 1st portion → 5th weekday lord from day
+// 5th lord from Sun=Thu, Mon=Fri, Tue=Sat, Wed=Sun, Thu=Mon, Fri=Tue, Sat=Wed
+// Then same planet sequence. 8th portion lordless.
+const UPAGRAHA_KALA_NIGHT = {
+  // Night: 5th lord from day. Sun's portion relative to 5th lord.
+  // 5th from Sun=Thu(4). Sun is 4th from Thu (Thu,Fri,Sat,Sun) → portion 3
+  // But Jataka Parijata night ghatikas for Kala: 6,2,26,22,18,14,10
+  // 6=portion 1, 2=portion 0, 26=portion 6, 22=portion 5, 18=portion 4, 14=portion 3, 10=portion 2
+  Sunday:1, Monday:0, Tuesday:6, Wednesday:5, Thursday:4, Friday:3, Saturday:2
+};
+const UPAGRAHA_MRITYU_NIGHT = {
+  // Jataka Parijata night: Mrityu at end of ghatikas 2,26,22,18,14,10,6
+  // 2=portion 0, 26=portion 6, 22=portion 5, 18=portion 4, 14=portion 3, 10=portion 2, 6=portion 1
+  Sunday:0, Monday:6, Tuesday:5, Wednesday:4, Thursday:3, Friday:2, Saturday:1
+};
+const UPAGRAHA_ARDHAPRAHARA_NIGHT = {
+  // Jataka Parijata night: Ardhaprahara at end of ghatikas 22,18,14,10,6,2,26
+  // 22=portion 5, 18=portion 4, 14=portion 3, 10=portion 2, 6=portion 1, 2=portion 0, 26=portion 6
+  Sunday:5, Monday:4, Tuesday:3, Wednesday:2, Thursday:1, Friday:0, Saturday:6
+};
+const UPAGRAHA_YAMAGHANTAKA_NIGHT = {
+  // Jataka Parijata night: Yamakantaka at end of ghatikas 26,22,18,14,10,6,2
+  // 26=portion 6, 22=portion 5, 18=portion 4, 14=portion 3, 10=portion 2, 6=portion 1, 2=portion 0
+  Sunday:6, Monday:5, Tuesday:4, Wednesday:3, Thursday:2, Friday:1, Saturday:0
+};
+
+/**
+ * Compute zodiacal longitude of a Kala Upagraha.
+ * The longitude is the ascendant degree at the start of the Upagraha's portion.
+ * @param {string} name - 'Kala'|'Mrityu'|'Ardhaprahara'|'Yamaghantaka'|'Gulika'
+ * @param {number} year, month1to12, day, hh, mm - local date/time
+ * @param {number} lat, lon, tz - location
+ * @returns {number} sidereal longitude (0-360) or null if not computable
+ */
+function kalaUpagrahaLongitude(name, year, month1to12, day, hh, mm, lat, lon, tz){
+  const civil = new Date(year, month1to12-1, day, 0, 0, 0);
+  civil.setHours(hh, mm||0, 0, 0);
+  const wd = WEEKDAYS[civil.getDay()];
+  const hr = hh + (mm||0)/60;
+
+  let sun = null;
+  if (typeof sunriseSunsetLocal === "function"){
+    sun = sunriseSunsetLocal(year, month1to12, day, lat, lon, tz);
+  }
+  const sunriseHr = sun ? sun.sunriseHr : 6;
+  const sunsetHr  = sun ? sun.sunsetHr  : 18;
+  const dayLen = ((sunsetHr - sunriseHr + 24) % 24) || 12;
+  const nightLen = 24 - dayLen;
+
+  const isDay = hr >= sunriseHr && hr <= sunsetHr;
+  const partLen = isDay ? dayLen/8 : nightLen/8;
+
+  let partIdx;
+  if (isDay){
+    const table = name==="Kala" ? UPAGRAHA_KALA_DAY :
+                  name==="Mrityu" ? UPAGRAHA_MRITYU_DAY :
+                  name==="Ardhaprahara" ? UPAGRAHA_ARDHAPRAHARA_DAY :
+                  name==="Yamaghantaka" ? UPAGRAHA_YAMAGHANTAKA_DAY :
+                  GULIKA_DAY;
+    partIdx = table[wd];
+  } else {
+    const table = name==="Kala" ? UPAGRAHA_KALA_NIGHT :
+                  name==="Mrityu" ? UPAGRAHA_MRITYU_NIGHT :
+                  name==="Ardhaprahara" ? UPAGRAHA_ARDHAPRAHARA_NIGHT :
+                  name==="Yamaghantaka" ? UPAGRAHA_YAMAGHANTAKA_NIGHT :
+                  GULIKA_NIGHT;
+    partIdx = table[wd];
+  }
+
+  if (partIdx === undefined || partIdx === null) return null;
+
+  // Start hour of this portion
+  const startHr = isDay
+    ? sunriseHr + partIdx * partLen
+    : sunsetHr + partIdx * partLen;
+
+  // Convert local time to sidereal longitude via ascendant
+  // Use the existing ascendant computation if available
+  if (typeof ascendantSidereal === "function"){
+    return ascendantSidereal(year, month1to12, day, startHr, lat, lon, tz);
+  }
+  // Fallback: approximate from Sun's longitude + time offset
+  if (typeof sunSiderealLongitude === "function"){
+    const sunLong = sunSiderealLongitude(year, month1to12, day, startHr, tz);
+    // Rough ascendant ≈ Sun + 90° + time-based offset (very approximate)
+    return (sunLong + 90 + (startHr - 12) * 15) % 360;
+  }
+  return null;
+}
+
+// ---- Chaya Upagrahas: Sun-longitude formulas (BPHS ch. 4) ----
+// BPHS Santhanam translation (primary source):
+//   Dhuma = Sun + 133°20'
+//   Vyatipata = Dhuma + 53°20'
+//   Parivesha = Vyatipata + 180°
+//   Indrachapa = Parivesha - 53°20'
+//   Upaketu = Indrachapa + 16°40'
+// Closure: Upaketu + 30° = Sun
+// Note: S. Rath / Jataka Parijata use equivalent subtractive forms
+// (Vyatipata = 360° - Dhuma, Indrachapa = 360° - Parivesha) which
+// produce the same final Upaketu/Indrachapa but different intermediates.
+
+/**
+ * Compute all 5 Chaya Upagraha longitudes from Sun's sidereal longitude.
+ * Uses BPHS Santhanam ch. 4 additive formulas.
+ * @param {number} sunSidereal - Sun's sidereal longitude (0-360)
+ * @returns {Object} {dhuma, vyatipata, parivesha, indrachapa, upaketu} in degrees
+ */
+function chayaUpagrahas(sunSidereal){
+  const norm = (x) => ((x % 360) + 360) % 360;
+  const dhuma = norm(sunSidereal + 133 + 20/60);        // Sun + 133°20'
+  const vyatipata = norm(dhuma + 53 + 20/60);            // Dhuma + 53°20'
+  const parivesha = norm(vyatipata + 180);                // Vyatipata + 180°
+  const indrachapa = norm(parivesha - 53 - 20/60);        // Parivesha - 53°20'
+  const upaketu = norm(indrachapa + 16 + 40/60);          // Indrachapa + 16°40'
+  return { dhuma, vyatipata, parivesha, indrachapa, upaketu };
+}
+
+/**
+ * Verify Chaya Upagraha closure: Upaketu + 30° should equal Sun's longitude.
+ * @param {number} sunSidereal
+ * @returns {boolean}
+ */
+function chayaUpagrahaClosureCheck(sunSidereal){
+  const { upaketu } = chayaUpagrahas(sunSidereal);
+  const norm = (x) => ((x % 360) + 360) % 360;
+  return Math.abs(norm(upaketu + 30) - norm(sunSidereal)) < 0.01;
+}
+
+
 /* ===== PARASARA-HORA ACTIVITY LAYERS ===== */
 
 /* =========================================================================
