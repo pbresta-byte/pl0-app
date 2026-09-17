@@ -11195,6 +11195,83 @@ function mahadashaClassicalReading(lord, birthPos){
     : null;
   return { general: entry.general, branch: branch ? entry[branch] : null, branchTag: branch, dignityTier: tier };
 }
+// Saravali ch. 44 sl. 1-3 antidote condition check — verified in corpus
+// Jyotish_2014_Dr S.P. Bhagat_Saravali.txt L5861-5867:
+// "If at the time of commencement of a Dasa, even, if one planet occupies the
+// divisions of a benefic, or of an intimate friend and is aspected by a
+// benefic, the evils due to come out of the said Dasa will disappear... Even,
+// if a single planet occupies its exaltation Sign, Moolatrikona Sign, or own
+// Sign and is aspected by a benefic, or is conjunct a benefic, at the start of
+// a Dasa the evils of the Dasa are nullified."
+function saravaliAntidotePresent(birthPos){
+  const grahas = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn","Rahu","Ketu"];
+  for (const g of grahas){
+    if (!birthPos[g]) continue;
+    const signIdx = Math.floor(norm360(birthPos[g].sidereal)/30);
+    const tier = dignityTierInSign(g, signIdx);
+    if (!["Exalted","Own","Friend"].includes(tier)) continue;
+    const benefics = ["Jupiter","Venus","Moon","Mercury"];
+    const aspectedByBenefic = benefics.some(b=>{
+      if (b===g || !birthPos[b]) return false;
+      const bSignIdx = Math.floor(norm360(birthPos[b].sidereal)/30);
+      return aspectsSignWholeSign(b, bSignIdx, signIdx);
+    });
+    const conjunctBenefic = benefics.some(b=>{
+      if (b===g || !birthPos[b]) return false;
+      const bSignIdx = Math.floor(norm360(birthPos[b].sidereal)/30);
+      return bSignIdx === signIdx;
+    });
+    if (aspectedByBenefic || conjunctBenefic) return true;
+  }
+  return false;
+}
+// Braids dashaLordReading (functional), dashaFunnelNote (funnel principle),
+// and mahadashaClassicalReading (Adawal) into one synthesis sentence — the
+// way vargaPlanetReadingLine braids varga context + dignity + sign flavor.
+// Per domains/narrative-synthesis-framework.md section 1. Returns {en, es}.
+// Scope: Mahadasha level only (level 0, parentLord null).
+function dashaSynthesisSentence(lord, birthPos, lordships, isWaxingMoon, level, parentLord){
+  const classical = mahadashaClassicalReading(lord, birthPos);
+  if (!classical) return null;
+  const karaka = GRAHA_KARAKA[lord] || {en:"",es:""};
+  const antidote = saravaliAntidotePresent(birthPos);
+  const noHouses = lord === "Rahu" || lord === "Ketu" || !lordships[lord];
+  const lcFirst = s => s.charAt(0).toLowerCase() + s.slice(1);
+  const stripPeriod = s => s.replace(/\.\s*$/, '');
+  const savedLang = LANG;
+  let en, es;
+  try {
+    // Build English
+    LANG = 'en';
+    const funcEn = dashaLordReading(lord, lordships, birthPos, isWaxingMoon);
+    const parentEn = parentLord ? dashaLordReading(parentLord, lordships, birthPos, isWaxingMoon) : null;
+    const funnelEn = dashaFunnelNote(level, funcEn, parentEn, gNameNatal(lord), parentLord ? gNameNatal(parentLord) : null);
+    const rulingClauseEn = noHouses ? ` — ${funcEn.housesText}` : ` from this Lagna, ruling ${funcEn.housesText.toLowerCase()}`;
+    const generalClauseEn = classical.branch
+      ? `${stripPeriod(lcFirst(classical.general.en))}; with ${gNameNatal(lord)} ${classical.dignityTier} here, ${lcFirst(classical.branch.en)}`
+      : lcFirst(classical.general.en);
+    const antidoteEn = antidote
+      ? ' — Saravali ch. 44 notes a mitigating condition: a planet in benefic or friendly divisions, aspected by a benefic, at the start of a Dasa can nullify its evils (sl. 1-3).'
+      : '';
+    en = `${gNameNatal(lord)} (natural significator of ${karaka.en}) ${funcEn.label.toLowerCase()}${rulingClauseEn}. ${funnelEn} Classically, during ${gNameNatal(lord)}'s Mahādaśā, ${stripPeriod(generalClauseEn)}.${antidoteEn}`;
+    // Build Spanish
+    LANG = 'es';
+    const funcEs = dashaLordReading(lord, lordships, birthPos, isWaxingMoon);
+    const parentEs = parentLord ? dashaLordReading(parentLord, lordships, birthPos, isWaxingMoon) : null;
+    const funnelEs = dashaFunnelNote(level, funcEs, parentEs, gNameNatal(lord), parentLord ? gNameNatal(parentLord) : null);
+    const rulingClauseEs = noHouses ? ` — ${funcEs.housesText}` : ` desde este Lagna, gobernando ${funcEs.housesText.toLowerCase()}`;
+    const generalClauseEs = classical.branch
+      ? `${stripPeriod(lcFirst(classical.general.es))}; con ${gNameNatal(lord)} ${classical.dignityTier} aquí, ${lcFirst(classical.branch.es)}`
+      : lcFirst(classical.general.es);
+    const antidoteEs = antidote
+      ? ' — Saravali cap. 44 señala una condición mitigadora: un planeta en divisiones benéficas o amistosas, aspectado por un benéfico, al inicio de una Dasa puede anular sus maldades (sl. 1-3).'
+      : '';
+    es = `${gNameNatal(lord)} (significador natural de ${karaka.es}) ${funcEs.label.toLowerCase()}${rulingClauseEs}. ${funnelEs} Clásicamente, durante la Mahādaśā de ${gNameNatal(lord)}, ${stripPeriod(generalClauseEs)}.${antidoteEs}`;
+  } finally {
+    LANG = savedLang;
+  }
+  return { en, es };
+}
 function fmtDashaDate(jd, tz){
   const d = jdToLocalString(jd, tz);
   return `${pad2(d.day)}-${pad2(d.month)}-${d.year} ${pad2(d.hh)}:${pad2(d.mm)}`;
@@ -11260,6 +11337,17 @@ function renderDashaPage(){
     </div>`;
   }
 
+  const synthSentence = dashaSynthesisSentence(currentMahadashaLord, birthPos, lordships, isWaxingMoon, 0, null);
+  let synthHtml = '';
+  if (synthSentence){
+    synthHtml = `<div class="panel"><div class="hd"><h2>${T('Synthesized Mahādaśā sentence','Síntesis de la Mahādaśā')}</h2><span class="note">${T('one braided sentence: functional + funnel + classical','una oración trenzada: funcional + embudo + clásico')}</span></div>
+      <div class="bd">
+        <blockquote class="verse" style="font-size:13px; line-height:1.7;">${T(synthSentence.en, synthSentence.es)}</blockquote>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T("Braids three layers into one: (1) the functional-benefic/malefic verdict from this app\u2019s own house-lordship engine, (2) the funnel note (a nested sub-period\u2019s promise only manifests as far as the coarser period above it allows), and (3) Shanker Adawal\u2019s classical Mah\u0101da\u015B\u0101 clause gated by the lord\u2019s natal dignity. An optional Saravali ch. 44 mitigation clause appears only when a chart condition actually matches it \u2014 it is not generic flavor text.","Tresa tres capas en una: (1) el veredicto ben\u00E9fico/mal\u00E9fico funcional del propio motor de se\u00F1or\u00EDo de casas de esta app, (2) la nota de embudo (la promesa de un subper\u00EDodo anidado solo se manifiesta hasta donde lo permita el per\u00EDodo m\u00E1s grueso que lo contiene), y (3) la cl\u00E1sula cl\u00E1sica de Mah\u0101da\u015B\u0101 de Shanker Adawal condicionada por la dignidad natal del se\u00F1or. Una cl\u00E1usula de mitigaci\u00F3n opcional de Saravali cap. 44 aparece solo cuando una condici\u00F3n de la carta realmente coincide con ella \u2014 no es texto gen\u00E9rico de relleno.")}</div>
+      </div>
+    </div>`;
+  }
+
   container.innerHTML = `
     <div class="panel">
       <div class="hd"><h2>${T('Vimśottari Daśā','Vimśottari Daśā')}</h2><span class="note">${T('120-year cycle','ciclo de 120 años')}</span></div>
@@ -11279,6 +11367,7 @@ function renderDashaPage(){
       </div>
     </div>
     ${classicalHtml}
+    ${synthHtml}
   `;
 }
 
