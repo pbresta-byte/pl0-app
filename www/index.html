@@ -8415,15 +8415,12 @@ function renderNatalPage(){
     const overall = v.score>0.5 ? {label:T('Leans functionally benefic','Se inclina funcionalmente benéfico'), cls:'good'}
       : v.score<-0.5 ? {label:T('Leans functionally malefic','Se inclina funcionalmente maléfico'), cls:'bad'}
       : {label:T('Mixed / neutral','Mixto / neutral'), cls:'neutral'};
-    const reading = functionalLordshipReading(g, lordships[g], overall.cls);
     return `<tr>
       <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
       <td style="font-size:11px;">${lordships[g].map(h=>T(h+ordinalSuffix(h), 'casa '+h)).join(', ')}</td>
       <td style="font-size:11px;">${T(nature==='benefic'?'Natural benefic':'Natural malefic', nature==='benefic'?'Benéfico natural':'Maléfico natural')}</td>
       <td style="font-size:10.5px; color:var(--ink-dim);">${v.tags.map(t=>t.text).join('; ')}</td>
       <td><span class="tag ${overall.cls}">${overall.label}</span></td>
-    </tr><tr>
-      <td colspan="5" style="font-size:11px; line-height:1.5; color:var(--ink-dim); padding:4px 12px 8px 24px; border-bottom:1px solid var(--line-soft);">${T(reading.en, reading.es)}</td>
     </tr>`;
   }).join('');
 
@@ -9937,8 +9934,8 @@ function renderNatalPage(){
       if (groups[p]) groups[p].push(y);
     });
     const renderGroup = (entries) => entries.map(y=>{
-      const cls = y.result.present ? 'good' : 'neutral';
-      const label = y.result.present ? T('Present in this chart','Presente en esta carta') : T('Not present','No presente');
+      const cls = y.polarity === 'negative' ? 'bad' : y.polarity === 'positive' ? 'good' : 'neutral';
+      const label = T('Present in this chart','Presente en esta carta');
       const reasonArg = y.num ? y.result : y.result.reasons;
       const tagName = (y.num ? `#${y.num} ` : '') + T(y.nameEn,y.nameEs);
       return `<div class="li" style="margin-bottom:9px;">
@@ -10542,35 +10539,6 @@ function dignityTagClass(tier){
   if (["Debilitated","Enemy"].includes(tier)) return "bad";
   return "neutral";
 }
-// One plain-language sentence per graha in the functional lordship table:
-// folds the graha's natural kāraka, the plain-English significations of each
-// house it rules, and a closing clause keyed to the net verdict class.
-function functionalLordshipReading(g, housesRuled, overallCls){
-  const karaka = GRAHA_KARAKA[g] || {en:"",es:""};
-  const sigs = housesRuled.map(h=>{
-    const s = HOUSE_SIGNIF[h];
-    return s ? T(s.en, s.es) : null;
-  }).filter(Boolean);
-  const listed = sigs.length>1
-    ? sigs.slice(0,-1).join(', ') + ' and ' + sigs[sigs.length-1]
-    : sigs[0] || '';
-  const ges = T(g, GRAHA_ES[g]);
-  const cls = overallCls || 'neutral';
-  let tailEn, tailEs;
-  if (cls==='good'){
-    tailEn = `tends to carry a broadly supportive cast — what ${g} governs tends to cooperate rather than resist, and the native usually finds these areas of life workable with patience and ordinary effort.`;
-    tailEs = `tiende a portar un matiz ampliamente favorable — lo que ${ges} gobierna tiende a cooperar antes que a resistir, y el nativo suele encontrar estas áreas de la vida manejables con paciencia y esfuerzo ordinario.`;
-  } else if (cls==='bad'){
-    tailEn = `tends to carry a friction-bearing cast — what ${g} governs asks for extra effort, shows up through strain or delay, and is most reliably improved by working with its grain rather than against it.`;
-    tailEs = `tiende a portar un matiz de fricción — lo que ${ges} gobierna pide esfuerzo extra, se manifiesta a través de tensión o demora, y se mejora más fielmente trabajando con su grano que contra él.`;
-  } else {
-    tailEn = `lands in a mixed, case-by-case way — results depend on the rest of the chart and on timing; the same house-lordship can read generous in one season and demanding in another.`;
-    tailEs = `cae de forma mixta y caso por caso — los resultados dependen del resto de la carta y del momento; el mismo señorío de casa puede leerse generoso en una temporada y exigente en otra.`;
-  }
-  const en = `${g}, natural significator of ${karaka.en}, ruling the ground of ${listed}, ${tailEn}`;
-  const es = `${ges}, significador natural de ${karaka.es}, gobernando el terreno de ${listed}, ${tailEs}`;
-  return {en, es};
-}
 // One template paragraph: graha G sits in divisional sign vSignIdx, counted
 // as house H from that varga's Lagna (lagnaVIdx). Theme varies by varga.
 function vargaPlanetReadingLine(def, g, vSignIdx, lagnaVIdx){
@@ -11110,43 +11078,12 @@ function dashaLordReading(lord, lordships, birthPos, isWaxingMoon){
     : {label:T('Mixed / neutral','Mixto / neutral'), cls:'neutral'};
   return { housesText: houses.map(h=>T(h+ordinalSuffix(h),'casa '+h)).join(', '), tag:overall.cls, label:overall.label };
 }
-/* Layer-to-layer "funnel" note (2026-09-15 request): the classical
-   Vimśottari principle that a nested sub-period's own significations only
-   manifest as far as the coarser period containing it allows — a benefic
-   Antardaśā inside a malefic Mahādaśā delivers a muted version of its own
-   promise, not its full independent one. Computed per-row from the real
-   functional-benefic/malefic tag each row already carries (not static
-   flavor text), so it's correct for whichever chart is loaded. level 0
-   (Mahādaśā) has no parent to funnel through, so it gets its own framing. */
-function dashaFunnelNote(level, childReading, parentReading, childLordName, parentLordName){
-  if (level === 0){
-    return T(
-      `The widest lens — nothing sits above ${childLordName}'s Mahādaśā, so every nested period below funnels through its own coarse promise first.`,
-      `El lente más amplio — nada está por encima de la Mahādaśā de ${childLordName}, así que cada período anidado debajo se filtra primero por su propia promesa gruesa.`
-    );
-  }
-  const c = childReading.tag, p = parentReading.tag;
-  if (c==='good' && p==='good')
-    return T(`Reinforced by ${parentLordName}'s own favourable period above it — ${childLordName}'s promise should land close to its full strength, not diluted.`,
-              `Reforzado por el período favorable de ${parentLordName} encima — la promesa de ${childLordName} debería llegar cerca de su fuerza plena, sin diluirse.`);
-  if (c==='bad' && p==='bad')
-    return T(`Compounds the difficulty ${parentLordName} already set above it — expect the harder edge of both readings together, not just this one alone.`,
-              `Se suma a la dificultad que ${parentLordName} ya impuso arriba — espera el lado más duro de ambas lecturas juntas, no solo de esta.`);
-  if (c==='good' && p==='bad')
-    return T(`Arrives constrained by ${parentLordName}'s harder period above it — ${childLordName}'s own promise shows, but muted or delayed rather than delivered in full.`,
-              `Llega limitado por el período más duro de ${parentLordName} encima — la propia promesa de ${childLordName} se asoma, pero atenuada o retrasada, no entregada por completo.`);
-  if (c==='bad' && p==='good')
-    return T(`Somewhat cushioned by ${parentLordName}'s more favourable period above it — friction still shows, but softened rather than raw.`,
-              `Algo amortiguado por el período más favorable de ${parentLordName} encima — la fricción se nota igual, pero suavizada, no en crudo.`);
-  return T(`Reads as mixed on its own, and ${parentLordName}'s own period above it doesn't tip the balance clearly either way — genuinely undecided at this depth.`,
-            `Se lee mixto por sí sola, y el propio período de ${parentLordName} encima tampoco inclina la balanza con claridad — genuinamente indecisa a esta profundidad.`);
-}
 // Classical Mahadasha effects, Shanker Adawal's "Encyclopedia of Vedic
 // Astrology: Dasa Systems" (source PDF under ansel/1050 jyotish books...,
 // extracted and verified 2026-09-16 -- see domains/mahadasha-effects-adawal.md
 // for the full transcription with txt-line citations). Deliberately a
-// SEPARATE layer from dashaLordReading/dashaFunnelNote above: those derive
-// their reading from THIS app's own Lagna-based functional house-lordship
+// SEPARATE layer from dashaLordReading above: that derives
+// its reading from THIS app's own Lagna-based functional house-lordship
 // engine; this is a genuine classical text's own stated Mahadasha effects,
 // gated by the lord's own dignity in its natal sign (own/exalted/friend ->
 // strong branch, enemy/debilitated -> weak branch, neutral -> general
@@ -11195,83 +11132,6 @@ function mahadashaClassicalReading(lord, birthPos){
     : null;
   return { general: entry.general, branch: branch ? entry[branch] : null, branchTag: branch, dignityTier: tier };
 }
-// Saravali ch. 44 sl. 1-3 antidote condition check — verified in corpus
-// Jyotish_2014_Dr S.P. Bhagat_Saravali.txt L5861-5867:
-// "If at the time of commencement of a Dasa, even, if one planet occupies the
-// divisions of a benefic, or of an intimate friend and is aspected by a
-// benefic, the evils due to come out of the said Dasa will disappear... Even,
-// if a single planet occupies its exaltation Sign, Moolatrikona Sign, or own
-// Sign and is aspected by a benefic, or is conjunct a benefic, at the start of
-// a Dasa the evils of the Dasa are nullified."
-function saravaliAntidotePresent(birthPos){
-  const grahas = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn","Rahu","Ketu"];
-  for (const g of grahas){
-    if (!birthPos[g]) continue;
-    const signIdx = Math.floor(norm360(birthPos[g].sidereal)/30);
-    const tier = dignityTierInSign(g, signIdx);
-    if (!["Exalted","Own","Friend"].includes(tier)) continue;
-    const benefics = ["Jupiter","Venus","Moon","Mercury"];
-    const aspectedByBenefic = benefics.some(b=>{
-      if (b===g || !birthPos[b]) return false;
-      const bSignIdx = Math.floor(norm360(birthPos[b].sidereal)/30);
-      return aspectsSignWholeSign(b, bSignIdx, signIdx);
-    });
-    const conjunctBenefic = benefics.some(b=>{
-      if (b===g || !birthPos[b]) return false;
-      const bSignIdx = Math.floor(norm360(birthPos[b].sidereal)/30);
-      return bSignIdx === signIdx;
-    });
-    if (aspectedByBenefic || conjunctBenefic) return true;
-  }
-  return false;
-}
-// Braids dashaLordReading (functional), dashaFunnelNote (funnel principle),
-// and mahadashaClassicalReading (Adawal) into one synthesis sentence — the
-// way vargaPlanetReadingLine braids varga context + dignity + sign flavor.
-// Per domains/narrative-synthesis-framework.md section 1. Returns {en, es}.
-// Scope: Mahadasha level only (level 0, parentLord null).
-function dashaSynthesisSentence(lord, birthPos, lordships, isWaxingMoon, level, parentLord){
-  const classical = mahadashaClassicalReading(lord, birthPos);
-  if (!classical) return null;
-  const karaka = GRAHA_KARAKA[lord] || {en:"",es:""};
-  const antidote = saravaliAntidotePresent(birthPos);
-  const noHouses = lord === "Rahu" || lord === "Ketu" || !lordships[lord];
-  const lcFirst = s => s.charAt(0).toLowerCase() + s.slice(1);
-  const stripPeriod = s => s.replace(/\.\s*$/, '');
-  const savedLang = LANG;
-  let en, es;
-  try {
-    // Build English
-    LANG = 'en';
-    const funcEn = dashaLordReading(lord, lordships, birthPos, isWaxingMoon);
-    const parentEn = parentLord ? dashaLordReading(parentLord, lordships, birthPos, isWaxingMoon) : null;
-    const funnelEn = dashaFunnelNote(level, funcEn, parentEn, gNameNatal(lord), parentLord ? gNameNatal(parentLord) : null);
-    const rulingClauseEn = noHouses ? ` — ${funcEn.housesText}` : ` from this Lagna, ruling ${funcEn.housesText.toLowerCase()}`;
-    const generalClauseEn = classical.branch
-      ? `${stripPeriod(lcFirst(classical.general.en))}; with ${gNameNatal(lord)} ${classical.dignityTier} here, ${lcFirst(classical.branch.en)}`
-      : lcFirst(classical.general.en);
-    const antidoteEn = antidote
-      ? ' — Saravali ch. 44 notes a mitigating condition: a planet in benefic or friendly divisions, aspected by a benefic, at the start of a Dasa can nullify its evils (sl. 1-3).'
-      : '';
-    en = `${gNameNatal(lord)} (natural significator of ${karaka.en}) ${funcEn.label.toLowerCase()}${rulingClauseEn}. ${funnelEn} Classically, during ${gNameNatal(lord)}'s Mahādaśā, ${stripPeriod(generalClauseEn)}.${antidoteEn}`;
-    // Build Spanish
-    LANG = 'es';
-    const funcEs = dashaLordReading(lord, lordships, birthPos, isWaxingMoon);
-    const parentEs = parentLord ? dashaLordReading(parentLord, lordships, birthPos, isWaxingMoon) : null;
-    const funnelEs = dashaFunnelNote(level, funcEs, parentEs, gNameNatal(lord), parentLord ? gNameNatal(parentLord) : null);
-    const rulingClauseEs = noHouses ? ` — ${funcEs.housesText}` : ` desde este Lagna, gobernando ${funcEs.housesText.toLowerCase()}`;
-    const generalClauseEs = classical.branch
-      ? `${stripPeriod(lcFirst(classical.general.es))}; con ${gNameNatal(lord)} ${classical.dignityTier} aquí, ${lcFirst(classical.branch.es)}`
-      : lcFirst(classical.general.es);
-    const antidoteEs = antidote
-      ? ' — Saravali cap. 44 señala una condición mitigadora: un planeta en divisiones benéficas o amistosas, aspectado por un benéfico, al inicio de una Dasa puede anular sus maldades (sl. 1-3).'
-      : '';
-    es = `${gNameNatal(lord)} (significador natural de ${karaka.es}) ${funcEs.label.toLowerCase()}${rulingClauseEs}. ${funnelEs} Clásicamente, durante la Mahādaśā de ${gNameNatal(lord)}, ${stripPeriod(generalClauseEs)}.${antidoteEs}`;
-  } finally {
-    LANG = savedLang;
-  }
-  return { en, es };
-}
 function fmtDashaDate(jd, tz){
   const d = jdToLocalString(jd, tz);
   return `${pad2(d.day)}-${pad2(d.month)}-${d.year} ${pad2(d.hh)}:${pad2(d.mm)}`;
@@ -11300,16 +11160,13 @@ function renderDashaPage(){
 
   const chainRows = chain.map((p,i)=>{
     const reading = dashaLordReading(p.lord, lordships, birthPos, isWaxingMoon);
-    const parentReading = i>0 ? dashaLordReading(chain[i-1].lord, lordships, birthPos, isWaxingMoon) : null;
-    const funnelNote = dashaFunnelNote(i, reading, parentReading, gNameNatal(p.lord), i>0?gNameNatal(chain[i-1].lord):null);
     return `<tr>
       <td class="wide" style="font-size:10.5px; color:var(--slate); text-transform:uppercase;">${T(VIMSHOTTARI_LEVEL_NAMES[i].en,VIMSHOTTARI_LEVEL_NAMES[i].es)}</td>
       <td style="color:${MALEFIC_GRAHAS.includes(p.lord)?'var(--vermilion)':'var(--jade)'}; font-weight:600;">${gNameNatal(p.lord)}</td>
       <td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td>
       <td style="font-size:11px;">${reading.housesText}</td>
       <td><span class="tag ${reading.tag}">${reading.label}</span></td>
-    </tr>
-    <tr><td></td><td colspan="4" style="font-size:11px; font-style:italic; color:var(--slate); padding-top:0; padding-bottom:10px; border-bottom:1px solid var(--line);">${funnelNote}</td></tr>`;
+    </tr>`;
   }).join('');
 
   let muhurtaCrossRef = '';
@@ -11337,16 +11194,6 @@ function renderDashaPage(){
     </div>`;
   }
 
-  const synthSentence = dashaSynthesisSentence(currentMahadashaLord, birthPos, lordships, isWaxingMoon, 0, null);
-  let synthHtml = '';
-  if (synthSentence){
-    synthHtml = `<div class="panel"><div class="hd"><h2>${T('Synthesized Mahādaśā sentence','Síntesis de la Mahādaśā')}</h2><span class="note">${T('one braided sentence: functional + funnel + classical','una oración trenzada: funcional + embudo + clásico')}</span></div>
-      <div class="bd">
-        <blockquote class="verse" style="font-size:13px; line-height:1.7;">${T(synthSentence.en, synthSentence.es)}</blockquote>
-        <div class="hint" style="margin-top:10px; line-height:1.6;">${T("Braids three layers into one: (1) the functional-benefic/malefic verdict from this app\u2019s own house-lordship engine, (2) the funnel note (a nested sub-period\u2019s promise only manifests as far as the coarser period above it allows), and (3) Shanker Adawal\u2019s classical Mah\u0101da\u015B\u0101 clause gated by the lord\u2019s natal dignity. An optional Saravali ch. 44 mitigation clause appears only when a chart condition actually matches it \u2014 it is not generic flavor text.","Tresa tres capas en una: (1) el veredicto ben\u00E9fico/mal\u00E9fico funcional del propio motor de se\u00F1or\u00EDo de casas de esta app, (2) la nota de embudo (la promesa de un subper\u00EDodo anidado solo se manifiesta hasta donde lo permita el per\u00EDodo m\u00E1s grueso que lo contiene), y (3) la cl\u00E1sula cl\u00E1sica de Mah\u0101da\u015B\u0101 de Shanker Adawal condicionada por la dignidad natal del se\u00F1or. Una cl\u00E1usula de mitigaci\u00F3n opcional de Saravali cap. 44 aparece solo cuando una condici\u00F3n de la carta realmente coincide con ella \u2014 no es texto gen\u00E9rico de relleno.")}</div>
-      </div>
-    </div>`;
-  }
 
   container.innerHTML = `
     <div class="panel">
@@ -11359,7 +11206,6 @@ function renderDashaPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Current Daśā stack','Pila de Daśā actual')}</h2><span class="note">${T('as of right now','a partir de ahora mismo')}</span></div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T('Each nested period below is read through the coarser one containing it, not on its own — a benefic Antardaśā inside a malefic Mahādaśā delivers a muted version of its own promise, not its full independent one. The italic line under each row below spells out that specific funnel, computed from the real functional reading each layer carries, not a generic repeated note.','Cada período anidado abajo se lee a través del período más grueso que lo contiene, no por sí solo — una Antardaśā benéfica dentro de una Mahādaśā maléfica entrega una versión atenuada de su propia promesa, no la promesa completa e independiente. La línea en cursiva bajo cada fila explica ese embudo específico, calculado a partir de la lectura funcional real de cada nivel, no una nota genérica repetida.')}</div>
         <div class="tblwrap"><table><thead><tr><th>${T('Level','Nivel')}</th><th>${T('Lord','Señor')}</th><th>${T('Period','Período')}</th><th>${T('Rules (from Lagna)','Gobierna (desde Lagna)')}</th><th>${T('Functional reading','Lectura funcional')}</th></tr></thead><tbody>${chainRows}</tbody></table></div>
         ${muhurtaCrossRef}
         <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The "Rules" and "Functional reading" columns reuse the same house-lordship engine as the General page — a Yogakāraka Daśā lord and a merely functionally-malefic one are meaningfully different, even at the same nesting depth. Rāhu/Ketu own no sign in that scheme, so they\'re shown without a functional reading here, not scored as neutral by omission.','Las columnas "Gobierna" y "Lectura funcional" reutilizan el mismo motor de señorío de casas que la página General — un señor de Daśā Yogakāraka y uno meramente maléfico funcional son significativamente distintos, incluso a la misma profundidad de anidamiento. Rāhu/Ketu no gobiernan ningún signo en ese esquema, así que se muestran sin lectura funcional aquí, no puntuados como neutrales por omisión.')}</div>
@@ -11367,7 +11213,6 @@ function renderDashaPage(){
       </div>
     </div>
     ${classicalHtml}
-    ${synthHtml}
   `;
 }
 
