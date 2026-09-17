@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>PL0 — Sarvato Bhadra Chakra Analyzer</title>
+<title>PL0</title>
 
 <!-- ---- PWA / installable app metadata ---- -->
 <link rel="manifest" href="manifest.json">
@@ -732,11 +732,11 @@
         <button type="button" data-page="pageHorary" data-i18n="navHorary">Horary / Praśna (SBC)</button>
         <button type="button" data-page="pageChintamani" data-i18n="navChintamani">Muhūrta</button>
         <button type="button" data-page="pageMatchmaking" data-i18n="navMatchmaking">Matchmaking</button>
-        <button type="button" data-page="pageTarot" data-i18n="navTarot">Tarot (Shadow)</button>
+        <button type="button" data-page="pageTarot" data-i18n="navTarot">Tarot</button>
               </div>
     </div>
     <div>
-      <h1>PL0 <span class="accent">— Sarvato Bhadra Chakra</span> <span class="ver">v1.65</span></h1>
+      <h1>PL0 <span class="ver">v1.65</span></h1>
       <div class="sub" data-i18n="subtitle">Panchāṅga · Vedha · Nāḍī · Latta — an instrument for reading the quality of a moment</div>
     </div>
   </div>
@@ -1045,7 +1045,7 @@ const I18N = {
   navAshtakavarga: { en:`Ashtakavarga`, es:`Ashtakavarga` },
   navHorary: { en:`Horary / Praśna (SBC)`, es:`Horaria / Praśna (SBC)` },
   navChintamani: { en:`Muhūrta`, es:`Muhūrta` },
-  navTarot: { en:`Tarot (Shadow)`, es:`Tarot (Sombra)` },
+  navTarot: { en:`Tarot`, es:`Tarot` },
   navMatchmaking: { en:`Matchmaking`, es:`Matchmaking` },
   profileLbl: { en:`Saved profile`, es:`Perfil guardado` },
   profileNamePh: { en:`Profile name…`, es:`Nombre del perfil…` },
@@ -1815,37 +1815,6 @@ const GRAHA_VEDHA_READING = {
   Jupiter: "the strongest single blessing available — gain, favour, recognition",
   Venus:   "romance, comfort, aesthetic or relational pleasure"
 };
-
-/* Thematic day-scene narrative (2026-09-15 request): replaces the old
-   pillrow-of-hits under the Pañcaka Vedha breakdown table, which had
-   become a near-duplicate of the SBC panel's own "What this may bring"
-   list above it (same vedha.hits, same GRAHA_VEDHA_READING phrases, just
-   itemized twice). This reads the same real, computed hits as one short
-   atmospheric paragraph instead of a second bullet list — genuinely
-   different register, same underlying data, no invented specifics. */
-function narrateDayTheme(vedha, panch, weekdayName){
-  const hits = vedha.hits;
-  if (!hits.length){
-    return T(
-      `${weekdayName} passes under ${panch.tithiName}, the Moon moving quietly through ${panch.nak.name} — no graha is casting Vedha onto the reference chart right now, so today reads as an unmarked stretch: whatever unfolds will be shaped by circumstance more than by this particular sky.`,
-      `${weekdayName} transcurre bajo ${panch.tithiName}, con la Luna moviéndose en silencio por ${panch.nak.name} — ningún graha lanza Vedha sobre la carta de referencia ahora mismo, así que hoy se lee como un tramo sin marcas: lo que ocurra estará moldeado más por la circunstancia que por este cielo en particular.`
-    );
-  }
-  const uniqueGrahas = [...new Set(hits.map(h=>h.graha))];
-  const grahaPhrase = uniqueGrahas.map(g=>T(g,GRAHA_ES[g])).join(uniqueGrahas.length>1 ? T(' and ',' y ') : '');
-  const flavorPhrase = uniqueGrahas.map(g=>T(GRAHA_VEDHA_READING[g],GRAHA_VEDHA_READING_ES[g])).join(T('; ',' ; '));
-  const strongerBenefic = vedha.beneficHits.length > vedha.maleficHits.length;
-  const strongerMalefic = vedha.maleficHits.length > vedha.beneficHits.length;
-  const overallTone = strongerBenefic
-    ? T('a day that leans toward ease, even where its edges feel unsettled','un día que se inclina hacia la facilidad, incluso donde sus bordes se sienten inquietos')
-    : strongerMalefic
-    ? T('a day carrying real friction under its surface, worth moving through carefully','un día que carga fricción real bajo la superficie, mejor atravesarlo con cuidado')
-    : T('a day pulled two ways at once, its outcome genuinely undecided','un día jalado en dos direcciones a la vez, con un desenlace genuinamente indeciso');
-  return T(
-    `${weekdayName} under ${panch.tithiName}, Moon in ${panch.nak.name}: ${grahaPhrase} ${uniqueGrahas.length>1?'are':'is'} actively casting Vedha onto the reference chart, colouring the day toward ${flavorPhrase}. Altogether, ${overallTone}.`,
-    `${weekdayName} bajo ${panch.tithiName}, Luna en ${panch.nak.name}: ${grahaPhrase} ${uniqueGrahas.length>1?'lanzan':'lanza'} Vedha activamente sobre la carta de referencia, coloreando el día hacia ${flavorPhrase}. En conjunto, ${overallTone}.`
-  );
-}
 
 // ch. "Horary Astrology" (Sarvatobhadra Chakra, M.K. Agarwal, p.27-28) —
 // graduated reading for how many malefics are simultaneously striking a
@@ -10010,39 +9979,6 @@ function renderNatalPage(){
       </div>
     </div>`;
 
-  // Natal Ashtakavarga strength — the same Bhinna/Sarva engine the (former)
-  // Transit Strength page uses, here read at each graha's own NATAL sign:
-  // how many bindus its own Bhinnāṣṭakavarga assigns to the sign it was born
-  // in. A third, independent lens on natal placement strength alongside the
-  // D1/D9 dignity columns (dignity = sign relationship; bindus = the
-  // 8-source contribution count), shown side by side, not merged into either.
-  const natalBhinna = {};
-  ASHTAK_GRAHAS.forEach(g=>{ natalBhinna[g] = computeBhinnashtakavarga(g, birthPos); });
-  const natalSarva = computeSarvashtakavarga(birthPos);
-  const lagnaSignIdx = SIGNS.indexOf(lagnaSign);
-  const ashtakNatalRows = (()=>{
-    let rows = `<tr>
-      <td class="wide">Lagna</td>
-      <td>${lagnaSign}</td>
-      <td>—</td>
-      <td><span class="tag ${sarvaTier(natalSarva[lagnaSignIdx]).tag}">${natalSarva[lagnaSignIdx]}</span></td>
-    </tr>`;
-    GRAHA_LIST.forEach(g=>{
-      const signIdx = Math.floor(norm360(birthPos[g].sidereal)/30);
-      const inAshtak = ASHTAK_GRAHAS.includes(g);
-      const bindus = inAshtak ? natalBhinna[g][signIdx] : null;
-      const bTier = inAshtak ? ashtakBindutier(bindus) : null;
-      const sarvaVal = natalSarva[signIdx];
-      rows += `<tr>
-        <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
-        <td>${SIGNS[signIdx]}</td>
-        <td>${inAshtak ? `<span class="tag ${bTier.tag}">${ashtakBindulabel(bindus)}</span>` : '—'}</td>
-        <td><span class="tag ${sarvaTier(sarvaVal).tag}">${sarvaVal}</span></td>
-      </tr>`;
-    });
-    return rows;
-  })();
-
   container.innerHTML = `
     <div class="panel">
       <div class="hd"><h2>${T('General','General')}</h2><span class="note">D1 + D9 · ${T('initial snapshot','impresión inicial')}</span></div>
@@ -10052,7 +9988,7 @@ function renderNatalPage(){
       </div>
     </div>
 
-    <div class="grid3panel">
+    <div class="grid2">
       <div class="panel"><div class="hd"><h2>${T('D1 (Rāśi) positions','Posiciones D1 (Rāśi)')}</h2><span class="note">${T('natal','natal')}</span></div>
         <div class="bd">
           <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Position','Posición')}</th><th>${T('Dignity','Dignidad')}</th></tr></thead><tbody>${positionRows(birthPos, birthPos._ascSidereal)}</tbody></table></div>
@@ -10063,13 +9999,8 @@ function renderNatalPage(){
           <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Position','Posición')}</th><th>${T('Dignity','Dignidad')}</th></tr></thead><tbody>${positionRows(navPos, navLagnaSidereal)}</tbody></table></div>
         </div>
       </div>
-      <div class="panel"><div class="hd"><h2>${T('Ashtakavarga natal strength','Fuerza natal de Ashtakavarga')}</h2><span class="note">${T('natal','natal')}</span></div>
-        <div class="bd">
-          <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Sign','Signo')}</th><th>${T('Bhinna bindus','Bindus Bhinna')}</th><th>Sarva</th></tr></thead><tbody>${ashtakNatalRows}</tbody></table></div>
-        </div>
-      </div>
     </div>
-    <div class="hint" style="margin:8px 0 0;">${T('(r) = retrograde at birth. Dignity (own/exalted/friend/neutral/enemy/debilitated) is read off the sign each chart places the graha in — the same rule for both D1 and D9. The third table is a separate, independent lens on the same natal placements: how many bindus (0–8) each graha\'s own Bhinnāṣṭakavarga assigns to the sign it was born in (5+ strong, 4 average, 0–3 weak), plus the Sarvāṣṭakavarga total (all 7 grahas\' bindus) for that sign — average 28, above is supportive, below 25 weak. Dignity measures the graha\'s relationship to its sign; bindus count contributions from 8 sources — the two can genuinely disagree about the same placement, which is why they\'re shown side by side rather than merged. Rāhu/Ketu have no Bhinnāṣṭakavarga in this system (7 grahas only), so they show only the Sarva column.','(r) = retrógrado al nacer. La dignidad (propio/exaltado/amigo/neutral/enemigo/debilitado) se lee según el signo en que cada carta ubica al graha — la misma regla para D1 y D9. La tercera tabla es una lente separada e independiente sobre las mismas posiciones natales: cuántos bindus (0–8) asigna el propio Bhinnāṣṭakavarga de cada graha al signo en que nació (5+ fuerte, 4 promedio, 0–3 débil), más el total de Sarvāṣṭakavarga (los bindus de los 7 graha) para ese signo — promedio 28, por encima es favorable, por debajo de 25 débil. La dignidad mide la relación del graha con su signo; los bindus cuentan contribuciones de 8 fuentes — los dos pueden discrepar genuinamente sobre la misma posición, por eso se muestran lado a lado en vez de fusionados. Rāhu/Ketu no tienen Bhinnāṣṭakavarga en este sistema (solo 7 graha), así que muestran solo la columna Sarva.')}</div>
+    <div class="hint" style="margin:8px 0 0;">${T('(r) = retrograde at birth. Dignity (own/exalted/friend/neutral/enemy/debilitated) is read off the sign each chart places the graha in — the same rule for both D1 and D9. For each graha\'s natal Bhinnāṣṭakavarga/Sarvāṣṭakavarga bindu strength (a separate, independent lens from dignity), see menu → <b>Ashtakavarga</b>.','(r) = retrógrado al nacer. La dignidad (propio/exaltado/amigo/neutral/enemigo/debilitado) se lee según el signo en que cada carta ubica al graha — la misma regla para D1 y D9. Para la fuerza de bindus del Bhinnāṣṭakavarga/Sarvāṣṭakavarga natal de cada graha (una lente separada e independiente de la dignidad), ver menú → <b>Ashtakavarga</b>.')}</div>
     <div style="height:8px"></div>
 
     <div class="panel"><div class="hd"><h2>${T('Jaimini Chara Karakas','Chara Karakas de Jaimini')}</h2><span class="note">${T('Ātmakāraka scheme','esquema Ātmakāraka')}</span></div>
@@ -10977,6 +10908,29 @@ function renderAshtakavargaPage(){
   const natalBhinna = {};
   ASHTAK_GRAHAS.forEach(g=>{ natalBhinna[g] = computeBhinnashtakavarga(g, birthPos); });
   const natalSarva = computeSarvashtakavarga(birthPos);
+  const lagnaSignIdx0 = Math.floor(norm360(birthPos._ascSidereal)/30);
+  const ashtakNatalRows = (()=>{
+    let rows = `<tr>
+      <td class="wide">Lagna</td>
+      <td>${SIGNS[lagnaSignIdx0]}</td>
+      <td>—</td>
+      <td><span class="tag ${sarvaTier(natalSarva[lagnaSignIdx0]).tag}">${natalSarva[lagnaSignIdx0]}</span></td>
+    </tr>`;
+    GRAHA_LIST.forEach(g=>{
+      const signIdx = Math.floor(norm360(birthPos[g].sidereal)/30);
+      const inAshtak = ASHTAK_GRAHAS.includes(g);
+      const bindus = inAshtak ? natalBhinna[g][signIdx] : null;
+      const bTier = inAshtak ? ashtakBindutier(bindus) : null;
+      const sarvaVal = natalSarva[signIdx];
+      rows += `<tr>
+        <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
+        <td>${SIGNS[signIdx]}</td>
+        <td>${inAshtak ? `<span class="tag ${bTier.tag}">${ashtakBindulabel(bindus)}</span>` : '—'}</td>
+        <td><span class="tag ${sarvaTier(sarvaVal).tag}">${sarvaVal}</span></td>
+      </tr>`;
+    });
+    return rows;
+  })();
 
   let strongCount=0, weakCount=0;
   const transitRows = ASHTAK_GRAHAS.map(g=>{
@@ -11025,17 +10979,15 @@ function renderAshtakavargaPage(){
 
     <div class="panel"><div class="hd"><h2>${T('What Ashtakavarga measures','Qué mide el Ashtakavarga')}</h2></div>
       <div class="bd">
-        <div class="hint" style="line-height:1.7;">${T('Ashtakavarga is a point-scoring system layered on top of the birth chart, separate from dignity or house-lordship. For each of the seven classical grahas (Sun through Saturn — Rāhu/Ketu are excluded from this system entirely), eight reference points — the graha itself, the other six grahas, and the Lagna — each look out from their own natal position and award one benefic "bindu" (point) to specific signs, following a fixed classical table of rules unique to each reference point. Add up all eight reference points\' contributions for one graha across the twelve signs and you get that graha\'s own <b>Bhinnāṣṭakavarga</b> — a personal 0–8 strength map, sign by sign, of where that specific graha tends to perform well versus poorly. Add all seven grahas\' Bhinnāṣṭakavarga tables together, sign by sign, and you get the <b>Sarvāṣṭakavarga</b> — one combined number per sign (337 points spread across the zodiac, 28/sign on average) describing that sign\'s general vitality regardless of which graha happens to be sitting or transiting there.','Ashtakavarga es un sistema de puntuación superpuesto a la carta natal, independiente de la dignidad o el señorío de casas. Para cada uno de los siete graha clásicos (del Sol a Saturno — Rāhu/Ketu quedan totalmente fuera de este sistema), ocho puntos de referencia — el propio graha, los otros seis graha, y el Lagna — miran cada uno desde su propia posición natal y otorgan un "bindu" (punto) benéfico a signos específicos, siguiendo una tabla clásica fija de reglas propia de cada punto de referencia. Sumando las contribuciones de los ocho puntos de referencia para un graha en los doce signos se obtiene el <b>Bhinnāṣṭakavarga</b> de ese graha — un mapa personal de fuerza 0–8, signo por signo, de dónde tiende a rendir bien o mal ese graha en particular. Sumando las tablas de Bhinnāṣṭakavarga de los siete graha, signo por signo, se obtiene el <b>Sarvāṣṭakavarga</b> — un número combinado por signo (337 puntos repartidos por el zodíaco, 28/signo en promedio) que describe la vitalidad general de ese signo sin importar qué graha esté allí.')}</div>
-        <div class="hint" style="line-height:1.7; margin-top:10px;">${T('What a bindu count means in practice: a HIGH Bhinnāṣṭakavarga count (5–8) for a given graha in a given sign means that when that specific graha occupies or transits that sign, whatever it governs — its natural kāraka significations and the house it happens to rule from the Lagna — tends to find support, cooperation, and favourable timing. A LOW count (0–3) means the opposite: that same graha in that same sign tends toward strain, delay, or under-performance for what it governs, regardless of the graha\'s own dignity by sign lordship. A count of exactly 0 is the classical system\'s single most severe reading for that placement. Sarvāṣṭakavarga works the same way but at the level of the SIGN itself rather than one graha: a sign with a high combined total (above 28, "very good" above 30) tends to support whatever transits through it or whatever house it represents, while a low total (below 25) marks that sign as a generally weaker stage for events — read this independently of, not merged with, Bhinnāṣṭakavarga\'s graha-specific answer.','Qué significa en la práctica un conteo de bindus: un conteo ALTO de Bhinnāṣṭakavarga (5–8) para un graha dado en un signo dado significa que, cuando ese graha específico ocupa o transita ese signo, lo que gobierna — sus significaciones kāraka naturales y la casa que gobierna desde el Lagna — tiende a encontrar apoyo, cooperación y buen momento. Un conteo BAJO (0–3) significa lo contrario: ese mismo graha en ese mismo signo tiende a la tensión, la demora o el bajo rendimiento en lo que gobierna, sin importar la dignidad propia del graha por señorío de signo. Un conteo de exactamente 0 es la lectura más severa del sistema clásico para esa posición. El Sarvāṣṭakavarga funciona igual pero a nivel del SIGNO en sí, no de un graha: un signo con un total combinado alto (por encima de 28, "muy bueno" por encima de 30) tiende a apoyar lo que transite por él o la casa que representa, mientras que un total bajo (por debajo de 25) marca ese signo como un escenario generalmente más débil para los eventos — léase de forma independiente de, no combinado con, la respuesta específica por graha del Bhinnāṣṭakavarga.')}</div>
-        <div class="hint" style="line-height:1.7; margin-top:10px; border-left:2px solid var(--gold); padding-left:10px;">${T('Also included below: the classical "Rāśi Ashtakavarga" — Sarvāṣṭakavarga after two further sign-by-sign reduction passes, Trikoṇa Śodhana and Ekādhipatya Śodhana, that some traditions apply before reading the chart for transit-result predictions specifically. See the dedicated panel further down for what these reductions do and why the numbers differ from the raw Sarvāṣṭakavarga above.','También incluido más abajo: el "Rāśi Ashtakavarga" clásico — el Sarvāṣṭakavarga después de dos pasadas adicionales de reducción signo por signo, Trikoṇa Śodhana y Ekādhipatya Śodhana, que algunas tradiciones aplican antes de leer la carta para predicciones de resultados de tránsito específicamente. Ver el panel dedicado más abajo para qué hacen estas reducciones y por qué los números difieren del Sarvāṣṭakavarga sin reducir de arriba.')}</div>
+        <div class="hint-emphasis" style="line-height:1.6;">${T('Ashtakavarga scores each of the 7 classical grahas (Sun–Saturn; Rāhu/Ketu excluded) sign by sign. 8 reference points — the graha itself, the other six, and the Lagna — each award one benefic "bindu" per sign, by a fixed classical rule per reference point. A graha\'s own 0–8 map is its <b>Bhinnāṣṭakavarga</b>; summing all 7 grahas\' maps sign by sign gives the <b>Sarvāṣṭakavarga</b> (337 points total, 28/sign average).','Ashtakavarga puntúa cada uno de los 7 graha clásicos (Sol–Saturno; Rāhu/Ketu excluidos) signo por signo. 8 puntos de referencia — el propio graha, los otros seis, y el Lagna — otorgan cada uno un "bindu" benéfico por signo, según una regla clásica fija por punto de referencia. El mapa propio 0–8 de un graha es su <b>Bhinnāṣṭakavarga</b>; sumando los mapas de los 7 graha signo por signo se obtiene el <b>Sarvāṣṭakavarga</b> (337 puntos en total, promedio 28/signo).')}</div>
+        <div class="hint-emphasis" style="line-height:1.6; margin-top:8px;">${T('In practice: HIGH Bhinnāṣṭakavarga (5–8) for a graha in a sign means that graha finds support there when it occupies or transits it; LOW (0–3) means strain — independent of the graha\'s own sign-dignity. Sarvāṣṭakavarga works the same way at the SIGN level: above 28 (30+ "very good") supports whatever transits or rules that sign; below 25 is weak.','En la práctica: un Bhinnāṣṭakavarga ALTO (5–8) para un graha en un signo significa que ese graha encuentra apoyo ahí al ocupar o transitarlo; BAJO (0–3) significa tensión — sin importar la dignidad propia del graha por signo. El Sarvāṣṭakavarga funciona igual a nivel de SIGNO: por encima de 28 (30+ "muy bueno") apoya lo que transite o gobierne ese signo; por debajo de 25 es débil.')}</div>
+        <div class="hint-emphasis" style="line-height:1.6; margin-top:8px; border-left:2px solid var(--gold); padding-left:10px;">${T('Also below: the natal Bhinnāṣṭakavarga by graha, the Sarvāṣṭakavarga by sign, the Rāśi Ashtakavarga (Trikoṇa + Ekādhipatya Śodhana reduction), and finally today\'s transit check.','También abajo: el Bhinnāṣṭakavarga natal por graha, el Sarvāṣṭakavarga por signo, el Rāśi Ashtakavarga (reducción Trikoṇa + Ekādhipatya Śodhana), y por último la comprobación de tránsito de hoy.')}</div>
       </div>
     </div>
 
-    <div class="panel"><div class="hd"><h2>${T('Transit check — the muhūrta moment','Comprobación de tránsito — el momento muhūrta')}</h2><span class="note">${T('against the reference person\'s natal Ashtakavarga','contra el Ashtakavarga natal de la persona de referencia')}</span></div>
+    <div class="panel"><div class="hd"><h2>${T('Ashtakavarga at birth — by graha','Ashtakavarga natal — por graha')}</h2><span class="note">${T('natal','natal')}</span></div>
       <div class="bd">
-        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th></th><th>${T('Bhinnāṣṭakavarga bindus here','Bindus de Bhinnāṣṭakavarga aquí')}</th><th>${T('Sarvāṣṭakavarga here','Sarvāṣṭakavarga aquí')}</th></tr></thead><tbody>${transitRows}</tbody></table></div>
-        <div style="margin-top:10px;"><span class="tag ${overallVerdict.cls}">${overallVerdict.label}</span></div>
-        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The source\'s own scale: 0 bindus is its single most severe tier (see footer note); 1–3 weak; 4 average; 5–8 strong — "same results should be expected" for any of the 7 grahas, per the book\'s own generalization from its worked Sun example. Sarvāṣṭakavarga tier follows the same source: average is 28/sign, above 28 is strong, above 30 "very good," below 25 explicitly weak. This is informational only — it does not feed into the SBC score above.','Escala propia de la fuente: 0 bindus es su nivel más extremo (ver nota al pie); 1–3 débil; 4 promedio; 5–8 fuerte — "deben esperarse los mismos resultados" para cualquiera de los 7 graha, según la propia generalización del libro a partir de su ejemplo resuelto del Sol. El nivel de Sarvāṣṭakavarga sigue la misma fuente: el promedio es 28/signo, por encima de 28 es fuerte, por encima de 30 es "muy bueno," por debajo de 25 es explícitamente débil. Esto es solo informativo — no se incorpora a la puntuación SBC de arriba.')}</div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Sign','Signo')}</th><th>${T('Bhinna bindus','Bindus Bhinna')}</th><th>Sarva</th></tr></thead><tbody>${ashtakNatalRows}</tbody></table></div>
       </div>
     </div>
 
@@ -11049,6 +11001,14 @@ function renderAshtakavargaPage(){
       <div class="bd">
         <div class="hint" style="line-height:1.7; margin-bottom:10px;">${T('Some traditions read Sarvāṣṭakavarga for transit-result prediction only after passing each graha\'s own Bhinnāṣṭakavarga through two subtractive reduction passes, applied per-graha before summing: first <b>Trikoṇa Śodhana</b> (each of the four sign-trines loses its own lowest bindu count, all three signs at once), then <b>Ekādhipatya Śodhana</b> (the five sign-pairs sharing one planetary lord — Mars, Venus, Mercury, Jupiter, Saturn — get reduced against each other, protecting whichever sign of a pair is natally occupied by a planet; the Sun\'s and Moon\'s single-owned signs are never touched). The result is always ≤ the raw Sarvāṣṭakavarga shown above, sign by sign — reduction only removes points, never adds them. Source: C. S. Patel, <i>Ashtakavarga System of Prediction</i> (1957 ed.), ch. III, verbatim rules and citations in domains/ashtakavarga-shodhana.md. Patel notes a South Indian/KP variant applies these same two passes directly to the Sarva total instead of per-graha — this app follows the primary BPHS-derived text\'s own per-graha-then-sum order.','Algunas tradiciones leen el Sarvāṣṭakavarga para predicción de resultados de tránsito solo después de pasar el propio Bhinnāṣṭakavarga de cada graha por dos pasadas de reducción sustractivas, aplicadas por graha antes de sumar: primero <b>Trikoṇa Śodhana</b> (cada uno de los cuatro trinos de signos pierde su propio bindu mínimo, los tres signos a la vez), luego <b>Ekādhipatya Śodhana</b> (los cinco pares de signos que comparten un mismo señor planetario — Marte, Venus, Mercurio, Júpiter, Saturno — se reducen entre sí, protegiendo el signo del par que esté ocupado natalmente por un planeta; los signos de señorío único del Sol y la Luna nunca se tocan). El resultado siempre es ≤ el Sarvāṣṭakavarga sin reducir de arriba, signo por signo — la reducción solo quita puntos, nunca añade. Fuente: C. S. Patel, <i>Ashtakavarga System of Prediction</i> (ed. 1957), cap. III, reglas y citas textuales en domains/ashtakavarga-shodhana.md. Patel señala que una variante del sur de la India/KP aplica estas mismas dos pasadas directamente al total Sarva en vez de por graha — esta app sigue el orden propio del texto primario derivado de BPHS: por graha y luego sumar.')}</div>
         <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Raw Sarva','Sarva sin reducir')}</th><th>${T('Rāśi (reduced)','Rāśi (reducido)')}</th><th>${T('Removed','Quitado')}</th></tr></thead><tbody>${rashiSignRows}</tbody></table></div>
+      </div>
+    </div>
+
+    <div class="panel"><div class="hd"><h2>${T('Transit check — the muhūrta moment','Comprobación de tránsito — el momento muhūrta')}</h2><span class="note">${T('against the reference person\'s natal Ashtakavarga','contra el Ashtakavarga natal de la persona de referencia')}</span></div>
+      <div class="bd">
+        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th></th><th>${T('Bhinnāṣṭakavarga bindus here','Bindus de Bhinnāṣṭakavarga aquí')}</th><th>${T('Sarvāṣṭakavarga here','Sarvāṣṭakavarga aquí')}</th></tr></thead><tbody>${transitRows}</tbody></table></div>
+        <div style="margin-top:10px;"><span class="tag ${overallVerdict.cls}">${overallVerdict.label}</span></div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The source\'s own scale: 0 bindus is its single most severe tier (see footer note); 1–3 weak; 4 average; 5–8 strong — "same results should be expected" for any of the 7 grahas, per the book\'s own generalization from its worked Sun example. Sarvāṣṭakavarga tier follows the same source: average is 28/sign, above 28 is strong, above 30 "very good," below 25 explicitly weak. This is informational only — it does not feed into the score above.','Escala propia de la fuente: 0 bindus es su nivel más extremo (ver nota al pie); 1–3 débil; 4 promedio; 5–8 fuerte — "deben esperarse los mismos resultados" para cualquiera de los 7 graha, según la propia generalización del libro a partir de su ejemplo resuelto del Sol. El nivel de Sarvāṣṭakavarga sigue la misma fuente: el promedio es 28/signo, por encima de 28 es fuerte, por encima de 30 es "muy bueno," por debajo de 25 es explícitamente débil. Esto es solo informativo — no se incorpora a la puntuación de arriba.')}</div>
       </div>
     </div>
 
@@ -11425,38 +11385,9 @@ function renderNakshatraPage(){
       </div>
     </div>`;
 
-  // Pañcaka Vedha breakdown (moved from runAnalysis)
-  const vedhaMdt = readDateTime("m");
-  const vedhaAy = document.getElementById('ayanamsaMode') ? document.getElementById('ayanamsaMode').value : 'lahiri';
-  const vedhaPos = computePositions(vedhaMdt.jd, vedhaMdt.lat, vedhaMdt.lon, vedhaAy);
-  const vedhaPanch = computePanchanga(vedhaPos);
-  const vedhaHits = evaluateVedha(vedhaPos, vedhaPanch.nak28, refP);
-  const vedhaNadi = refP.star ? nadiOfStar(refP.star) : null;
-  const vedhaWeekdayName = T(WEEKDAYS[new Date(vedhaMdt.y,vedhaMdt.mo-1,vedhaMdt.da).getDay()], WEEKDAYS_ES[new Date(vedhaMdt.y,vedhaMdt.mo-1,vedhaMdt.da).getDay()]);
-
-  let vrows = "";
-  const pancRows = [
-    {label:T("Star (Janma Nakṣatra)","Estrella (Janma Nakṣatra)"), value:refP.star||"—", type:"Star (Janma Nakṣatra)"},
-    {label:T("Rāśi (Moon sign)","Rāśi (signo lunar)"), value:refP.sign||T("— (needs birth data)","— (requiere datos de nacimiento)"), type:"Rāśi (Moon sign)"},
-    {label:T("Consonant","Consonante"), value:refP.consonant||T("— (needs a name)","— (requiere un nombre)"), type:"Consonant"},
-    {label:T("Vowel","Vocal"), value:(refP.vowel||T("— (needs a name)","— (requiere un nombre)"))+" ⓘ", type:"Vowel"},
-  ];
-  pancRows.forEach(r=>{
-    const hits = vedhaHits.hits.filter(h=>h.struck.includes(r.type));
-    const b = hits.filter(h=>h.benefic).map(h=>GRAHA_ABBR[h.graha]);
-    const m = hits.filter(h=>!h.benefic).map(h=>GRAHA_ABBR[h.graha]);
-    const none = T('none','ninguno');
-    vrows += `<tr><td class="wide">${r.label}</td><td>${r.value}</td>
-      <td>${b.length?`<span class="tag good">${b.join(', ')}</span>`:`<span class="tag neutral">${none}</span>`}</td>
-      <td>${m.length?`<span class="tag bad">${m.join(', ')}</span>`:`<span class="tag neutral">${none}</span>`}</td></tr>`;
-  });
-  let vedhaPanelHtml = `<div class="panel"><div class="hd"><h2>${T('Pañcaka Vedha breakdown','Desglose de Vedha del Pañcaka')}</h2></div>
-    <div class="bd"><div class="tblwrap"><table><thead><tr><th>Pañcaka</th><th>${T('Value','Valor')}</th><th>${T('Benefic Vedha','Vedha benéfico')}</th><th>${T('Malefic Vedha','Vedha maléfico')}</th></tr></thead><tbody>${vrows}</tbody></table></div>
-    <div class="hint" style="margin-top:10px; font-style:italic; line-height:1.7;">${narrateDayTheme(vedhaHits, vedhaPanch, vedhaWeekdayName)}</div>
-    </div></div>`;
-
   // Nāḍī of the reference star
-  vedhaPanelHtml += `<div class="panel"><div class="hd"><h2>${T('Nāḍī of the reference star','Nāḍī de la estrella de referencia')}</h2></div><div class="bd">
+  const vedhaNadi = refP.star ? nadiOfStar(refP.star) : null;
+  let vedhaPanelHtml = `<div class="panel"><div class="hd"><h2>${T('Nāḍī of the reference star','Nāḍī de la estrella de referencia')}</h2></div><div class="bd">
       ${vedhaNadi ? `<div class="kv">
         <div class="k">Nāḍī</div><div class="v">${vedhaNadi.name} (${T('lord','señor')}: ${T(vedhaNadi.lord,GRAHA_ES[vedhaNadi.lord])})</div>
         <div class="k">${T('Character','Carácter')}</div><div class="v">${T(vedhaNadi.gist, NADI_GIST_ES[vedhaNadi.name])}</div>
