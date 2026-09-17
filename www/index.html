@@ -3793,7 +3793,7 @@ const UPAGRAHA_YAMAGHANTAKA_NIGHT = {
  * @param {number} lat, lon, tz - location
  * @returns {number} sidereal longitude (0-360) or null if not computable
  */
-function kalaUpagrahaLongitude(name, year, month1to12, day, hh, mm, lat, lon, tz){
+function kalaUpagrahaLongitude(name, year, month1to12, day, hh, mm, lat, lon, tz, ayanamsaMode){
   const civil = new Date(year, month1to12-1, day, 0, 0, 0);
   civil.setHours(hh, mm||0, 0, 0);
   const wd = WEEKDAYS[civil.getDay()];
@@ -3835,18 +3835,18 @@ function kalaUpagrahaLongitude(name, year, month1to12, day, hh, mm, lat, lon, tz
     ? sunriseHr + partIdx * partLen
     : sunsetHr + partIdx * partLen;
 
-  // Convert local time to sidereal longitude via ascendant
-  // Use the existing ascendant computation if available
-  if (typeof ascendantSidereal === "function"){
-    return ascendantSidereal(year, month1to12, day, startHr, lat, lon, tz);
-  }
-  // Fallback: approximate from Sun's longitude + time offset
-  if (typeof sunSiderealLongitude === "function"){
-    const sunLong = sunSiderealLongitude(year, month1to12, day, startHr, tz);
-    // Rough ascendant ≈ Sun + 90° + time-based offset (very approximate)
-    return (sunLong + 90 + (startHr - 12) * 15) % 360;
-  }
-  return null;
+  // Convert local time to a real sidereal ascendant via this app's own
+  // existing chart-computation pipeline (julianDay -> computePositions ->
+  // ._ascSidereal), the same path every other feature in this file already
+  // uses -- NOT the ascendantSidereal()/sunSiderealLongitude() functions an
+  // earlier pass here assumed existed; neither is defined anywhere in this
+  // codebase, so this function previously always fell through to `return
+  // null` for every call, silently, with no error.
+  const startHh = Math.floor(startHr);
+  const startMm = Math.round((startHr - startHh) * 60);
+  const jd = julianDay(year, month1to12, day, startHh, startMm, 0, tz);
+  const pos = computePositions(jd, lat, lon, ayanamsaMode || 'lahiri');
+  return pos._ascSidereal;
 }
 
 // ---- Chaya Upagrahas: Sun-longitude formulas (BPHS ch. 4) ----
