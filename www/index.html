@@ -708,6 +708,7 @@
 <script src="pl7-yoga-rules-misc.js"></script>
 <script src="pl7-yoga-catalog.js"></script>
 <script src="pl7-yoga-conditions-es.js"></script>
+<script src="dashakoota-engine.js"></script>
 </head>
 <body>
 
@@ -17831,6 +17832,44 @@ function renderMatchmakingConsiderations(ak){
 // Self-contained (only touches #ashtakootaResult), same pattern as
 // updateChintamaniRelocation() -- Person B's <input> elements are never
 // rebuilt on keystroke, only this result div.
+// Dashakoota (ten-kuta, South-Indian pass/fail system) — shown beside the
+// Ashtakoota score. Engine: www/dashakoota-engine.js (each rule sourced there).
+// The engine's own notes quote the source's effect wording; the UI deliberately
+// shows neutral facts (counts, groups, signs) plus a safety note instead.
+function renderDashakootaSection(posA, posB){
+  if (!window.Dashakoota) return '';
+  const D = window.Dashakoota;
+  const r = D.computeDasakoota({ NAK27, SIGNS, SIGN_LORD, ASHTAKOOTA_GANA, ASHTAKOOTA_YONI, nakshatraFromSidereal, norm360 }, posA, posB);
+  const count = D.nakDist(NAK27, r.brideStar, r.groomStar);
+  const signPos = D.signForward(SIGNS, r.brideSign, r.groomSign);
+  const gA = D.rajjuGroupOf(r.brideStar), gB = D.rajjuGroupOf(r.groomStar);
+  const ord = (n, fem) => `${n}${T(ordinalSuffix(n), fem ? '.ª' : '.º')}`;
+  const detail = {
+    Dhinam: T(`Person B's star is ${ord(count)} from Person A's`, `La estrella de la Persona B es la ${ord(count, true)} desde la de la Persona A`),
+    Ganam: T(`${ASHTAKOOTA_GANA[r.brideStar]} / ${ASHTAKOOTA_GANA[r.groomStar]}`, `${ASHTAKOOTA_GANA[r.brideStar]} / ${ASHTAKOOTA_GANA[r.groomStar]}`),
+    Mahendhram: T(`star count ${count} (favourable at 4, 7, 10 … 25)`, `conteo de estrellas ${count} (favorable en 4, 7, 10 … 25)`),
+    'Sthree-Dheergham': T(`star count ${count} (favourable beyond 13)`, `conteo de estrellas ${count} (favorable más allá de 13)`),
+    Yoni: `${ASHTAKOOTA_YONI[r.brideStar]} / ${ASHTAKOOTA_YONI[r.groomStar]}`,
+    Rasi: T(`Person B's Moon sign is ${ord(signPos)} from Person A's`, `El signo lunar de la Persona B es el ${ord(signPos)} desde el de la Persona A`),
+    Rasyadhipathi: T(`${SIGN_LORD[r.brideSign]} / ${SIGN_LORD[r.groomSign]} (Moon-sign lords)`, `${GRAHA_ES[SIGN_LORD[r.brideSign]] || SIGN_LORD[r.brideSign]} / ${GRAHA_ES[SIGN_LORD[r.groomSign]] || SIGN_LORD[r.groomSign]} (señores de los signos lunares)`),
+    Vasyam: `${r.brideSign} / ${r.groomSign}`,
+    Rajju: T(`${gA} / ${gB} group`, `grupo ${gA} / ${gB}`),
+    Vedhai: `${r.brideStar} / ${r.groomStar}`
+  };
+  const tag = v => v === 'favorable' ? `<span class="tag good">${T('agrees','concuerda')}</span>`
+    : v === 'unfavorable' ? `<span class="tag bad">${T('does not agree','no concuerda')}</span>`
+    : `<span class="tag neutral">${T('neutral','neutral')}</span>`;
+  return `
+    <h3 style="margin:16px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Daśakoota — ten-kuta agreement','Daśakoota — acuerdo de diez kutas')}</h3>
+    <div class="okbox"><b>${T('Agreeing','Concordantes')}:</b> ${r.favorableCount} / 10 — <span class="tag ${r.passes ? 'good' : 'bad'}">${r.passes ? T('meets the classical minimum of five','alcanza el mínimo clásico de cinco') : T('below the classical minimum of five','por debajo del mínimo clásico de cinco')}</span>
+      <span class="hint" style="margin-left:6px;">${T('neutral','neutrales')}: ${r.neutralCount}</span></div>
+    <div class="tblwrap" style="margin-top:8px;"><table><thead><tr><th>${T('Kuta','Kuta')}</th><th></th><th></th></tr></thead><tbody>
+      ${r.kootas.map(k => `<tr><td class="wide">${k.label}</td><td>${tag(k.verdict)}</td><td class="hint" style="font-size:11px;">${detail[k.label] || ''}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="hint" style="margin-top:8px; line-height:1.6;">${T('A separate, pass/fail matching system: each kuta either agrees or not, and tradition asks for at least five of the ten. Counts run from Person A\'s star and sign to Person B\'s. One Vedhai pair in the source could not be read reliably and is not checked. Traditional compatibility reading only — not a prediction about the relationship, health or life-span.',
+      'Un sistema de compatibilidad distinto, de sí o no: cada kuta concuerda o no, y la tradición pide al menos cinco de los diez. Los conteos van de la estrella y el signo de la Persona A a los de la Persona B. Un par de Vedhai de la fuente no se pudo leer con fiabilidad y no se revisa. Solo lectura tradicional de compatibilidad — no es una predicción sobre la relación, la salud ni la duración de la vida.')}</div>`;
+}
+
 function updateAshtakootaResult(){
   const resultEl = document.getElementById('ashtakootaResult');
   if (!resultEl) return;
@@ -17884,6 +17923,8 @@ function updateAshtakootaResult(){
       ${ak.kootas.map(k=>`<tr><td class="wide">${k.label}</td><td>${k.points} / ${k.max}</td><td class="hint" style="font-size:11px;">${k.note}</td></tr>`).join('')}
     </tbody></table></div>
     <div class="hint" style="margin-top:8px;">${T('Person A','Persona A')}: ${ak.brideStar} · ${ak.brideSign} — ${T('Person B','Persona B')}: ${ak.groomStar} · ${ak.groomSign}. ${T('Yoni and Bhakoota use a simplified reading of their printed grids; Nāḍī and Gaṇa use the standard classical tables.','Yoni y Bhakoota usan una lectura simplificada de sus tablas impresas; Nāḍī y Gaṇa usan las tablas clásicas estándar.')}</div>
+
+    ${renderDashakootaSection(posA, posB)}
 
     <h3 style="margin:16px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Additional considerations','Consideraciones adicionales')} <span class="tag neutral">${T('read alongside the score','leo junto a la puntuación')}</span></h3>
     <div class="bd" style="padding:10px; background:var(--panel-2); border:1px solid var(--line); border-radius:8px;">
