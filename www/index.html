@@ -8700,17 +8700,20 @@ function renderNatalPage(){
   };
 
   const lordships = houseLordshipsFromLagna(lagnaIdx);
-  const funcRows = GRAHA_LIST.filter(g=>lordships[g]).map(g=>{
+  const funcTable = FUNC_OPTS.mode === 'table';
+  const funcRows = GRAHA_LIST.filter(g=>lordships[g] || funcTable).map(g=>{
     const nature = naturalNatureForLordship(g, birthPos, isWaxingMoon);
-    const v = functionalVerdict(g, lordships[g], nature, birthPos);
-    const overall = v.score>0.5 ? {label:T('Leans functionally benefic','Se inclina funcionalmente benéfico'), cls:'good'}
+    const v = lordships[g] ? functionalVerdict(g, lordships[g], nature, birthPos) : {score:0, tags:[]};
+    const tcls = funcTable ? functionalTableClass(g, lagnaIdx) : null;
+    const overall = funcTable ? {label:functionalTableLabel(tcls), cls:tcls}
+      : v.score>0.5 ? {label:T('Leans functionally benefic','Se inclina funcionalmente benéfico'), cls:'good'}
       : v.score<-0.5 ? {label:T('Leans functionally malefic','Se inclina funcionalmente maléfico'), cls:'bad'}
       : {label:T('Mixed / neutral','Mixto / neutral'), cls:'neutral'};
     return `<tr>
       <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
-      <td style="font-size:11px;">${lordships[g].map(h=>T(h+ordinalSuffix(h), 'casa '+h)).join(', ')}</td>
+      <td style="font-size:11px;">${lordships[g] ? lordships[g].map(h=>T(h+ordinalSuffix(h), 'casa '+h)).join(', ') : '—'}</td>
       <td style="font-size:11px;">${T(nature==='benefic'?'Natural benefic':'Natural malefic', nature==='benefic'?'Benéfico natural':'Maléfico natural')}</td>
-      <td style="font-size:10.5px; color:var(--ink-dim);">${v.tags.map(t=>t.text).join('; ')}</td>
+      <td style="font-size:10.5px; color:var(--ink-dim);">${funcTable ? T('(engine rules not used in table mode)','(reglas del motor no usadas en modo tabla)') : v.tags.map(t=>t.text).join('; ')}</td>
       <td><span class="tag ${overall.cls}">${overall.label}</span></td>
     </tr>`;
   }).join('');
@@ -10475,6 +10478,18 @@ function yogaSafetyLine(num, themeList){
 
     <div class="panel"><div class="hd"><h2>${T('Functional benefic / malefic by house lordship','Benéfico / maléfico funcional por señorío de casas')}</h2></div>
       <div class="bd">
+        <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:10px; font-size:13px; color:var(--ink-dim);">
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Judge by','Juzgar por')}
+            <select onchange="setFuncOpt('mode', this.value)">
+              <option value="engine" ${FUNC_OPTS.mode==='engine'?'selected':''}>${T('House-lordship rules (this chart)','Reglas de señorío de casas (esta carta)')}</option>
+              <option value="table" ${FUNC_OPTS.mode==='table'?'selected':''}>${T('Fixed table by ascendant','Tabla fija por ascendente')}</option>
+            </select></label>
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Moon is a natural malefic','La Luna es maléfico natural')}
+            <select onchange="setFuncOpt('moonRule', this.value)">
+              <option value="waning" ${FUNC_OPTS.moonRule==='waning'?'selected':''}>${T('when waning','cuando mengua')}</option>
+              <option value="lit33" ${FUNC_OPTS.moonRule==='lit33'?'selected':''}>${T('when less than a third lit','cuando está iluminada menos de un tercio')}</option>
+            </select></label>
+        </div>
         <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Rules','Gobierna')}</th><th>${T('Natural','Natural')}</th><th>${T('Applicable rules','Reglas aplicables')}</th><th>${T('Net','Neto')}</th></tr></thead><tbody>${funcRows}</tbody></table></div>
         <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The rule of thumb: 3rd/6th/11th-house lords read malefic; 5th/9th-house lords (fortune houses) read fully benefic; a natural benefic ruling an angle (4th/7th/10th) turns malefic there unless it\'s strong in its own or exalted sign, while a natural malefic ruling an angle turns strongly benefic instead. An 8th-house lord reads as the most malefic of all, softened to half-benefic if it also rules the Ascendant. When one planet rules more than one house, every applicable rule is listed rather than forced into a single number.','La regla general: los señores de casa 3/6/11 se leen maléficos; los de 5/9 (casas de fortuna) se leen totalmente benéficos; un benéfico natural que gobierna un ángulo (4/7/10) se vuelve maléfico ahí salvo que esté fuerte en su propio signo o exaltado, mientras que un maléfico natural que gobierna un ángulo se vuelve fuertemente benéfico. Un señor de casa 8 se lee como el más maléfico de todos, suavizado a mitad benéfico si también gobierna el Ascendente. Cuando un planeta gobierna más de una casa, se listan todas las reglas aplicables en vez de forzar un solo número.')}</div>
       </div>
@@ -11655,6 +11670,10 @@ function setDashaZoom(n){ dashaZoomLevel = n; renderDashaPage(); }
 // functionally-malefic one read differently at every level, not just at
 // the Mahādaśā.
 function dashaLordReading(lord, lordships, birthPos, isWaxingMoon){
+  if ((lord==="Rahu" || lord==="Ketu") && FUNC_OPTS.mode === 'table'){
+    const tcls = functionalTableClass(lord, Math.floor(norm360(birthPos._ascSidereal)/30));
+    return { housesText: T('rules no sign in this scheme','no gobierna ningún signo en este esquema'), tag:tcls, label:functionalTableLabel(tcls) };
+  }
   if (lord==="Rahu" || lord==="Ketu"){
     return { housesText: T('rules no sign in this scheme','no gobierna ningún signo en este esquema'), tag:'neutral', label:T('Not evaluated by house lordship','No evaluado por señorío de casas') };
   }
@@ -11664,6 +11683,10 @@ function dashaLordReading(lord, lordships, birthPos, isWaxingMoon){
   }
   const nature = naturalNatureForLordship(lord, birthPos, isWaxingMoon);
   const v = functionalVerdict(lord, houses, nature, birthPos);
+  if (FUNC_OPTS.mode === 'table'){
+    const tcls = functionalTableClass(lord, Math.floor(norm360(birthPos._ascSidereal)/30));
+    return { housesText: houses.map(h=>T(h+ordinalSuffix(h),'casa '+h)).join(', '), tag:tcls, label:functionalTableLabel(tcls) };
+  }
   const overall = v.score>0.5 ? {label:T('Leans functionally benefic','Se inclina funcionalmente benéfico'), cls:'good'}
     : v.score<-0.5 ? {label:T('Leans functionally malefic','Se inclina funcionalmente maléfico'), cls:'bad'}
     : {label:T('Mixed / neutral','Mixto / neutral'), cls:'neutral'};
@@ -12927,9 +12950,25 @@ function isOwnOrExalt(graha, sid){
 // Mars, Saturn, Rahu & Ketu & Mercury - whenever with a malefic planet.
 // Jupiter, Venus, Mercury - whenever alone & waxing Moon are benefic
 // planets." — needs the birth positions + birth Pakṣa to evaluate Moon/Mercury.
+// Functional-nature options (General page). mode 'engine' = this app's house-lordship ladder (default);
+// 'table' = a fixed benefic/neutral/malefic table per ascendant (PL7's default preset). moonRule: the Moon
+// counts as a natural malefic when waning (default) or only when less than a third lit.
+const FUNC_OPTS = (() => { const d = { mode: 'engine', moonRule: 'waning' }; try { const s = JSON.parse(localStorage.getItem('pl0FuncOpts') || '{}'); return { mode: s.mode === 'table' ? 'table' : 'engine', moonRule: s.moonRule === 'lit33' ? 'lit33' : 'waning' }; } catch (e) { return d; } })();
+function setFuncOpt(k, v){ FUNC_OPTS[k] = v; try { localStorage.setItem('pl0FuncOpts', JSON.stringify(FUNC_OPTS)); } catch (e) {} renderNatalPage(); }
+// Rows = ascendant Aries..Pisces; columns Su Mo Ma Me Ju Ve Sa Ra Ke; B benefic, N neutral, M malefic.
+const FUNC_NATURE_TABLE = ['BNBMBMMMM','BMNBMMBMM','MNMNMBBMM','NBBMBMNMM','BNBMBMMMM','NMMBMBMMM',
+                           'MNMBMNBMM','NBNMBMMMM','BNBMNMMMM','NMMBMBNMM','NMMNMBBMM','MBBMBMMMM'];
+function functionalTableClass(graha, lagnaSignIdx){
+  const c = FUNC_NATURE_TABLE[lagnaSignIdx][["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn","Rahu","Ketu"].indexOf(graha)];
+  return c === 'B' ? 'good' : c === 'M' ? 'bad' : 'neutral';
+}
+function functionalTableLabel(cls){
+  return cls === 'good' ? T('Functional benefic (table)','Benéfico funcional (tabla)') : cls === 'bad' ? T('Functional malefic (table)','Maléfico funcional (tabla)') : T('Neutral (table)','Neutral (tabla)');
+}
+function moonLitFraction(birthPos){ const e = norm360(birthPos.Moon.sidereal - birthPos.Sun.sidereal); return (1 - Math.cos(e * Math.PI / 180)) / 2; }
 function naturalNatureForLordship(graha, birthPos, isWaxingMoon){
   if (["Sun","Mars","Saturn","Rahu","Ketu"].includes(graha)) return "malefic";
-  if (graha === "Moon") return isWaxingMoon ? "benefic" : "malefic";
+  if (graha === "Moon") return FUNC_OPTS.moonRule === 'lit33' ? (moonLitFraction(birthPos) < 1/3 ? "malefic" : "benefic") : (isWaxingMoon ? "benefic" : "malefic");
   if (graha === "Jupiter" || graha === "Venus") return "benefic";
   if (graha === "Mercury"){
     const mercSignIdx = Math.floor(norm360(birthPos.Mercury.sidereal)/30);
