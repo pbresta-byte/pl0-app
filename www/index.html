@@ -11870,6 +11870,70 @@ function ashtakavargaTransitReading(graha, sign, bTierTag){
   const es = `${ges}, significador natural de ${karaka.es}, en ${sign}, ${tailEs}`;
   return {en, es};
 }
+// ---- Transit panel (Ashtakavarga page): sign strip, compact rows, notable notes only ----
+const INGRESS_SCAN = { Moon: [0.1, 4], Sun: [1, 35], Mercury: [0.5, 150], Venus: [1, 170], Mars: [1, 260], Jupiter: [5, 460], Saturn: [10, 1150], Rahu: [10, 620], Ketu: [10, 620] };
+function nextSignChange(g, jd0, lat, lon, ay){
+  const signAt = jd => Math.floor(norm360(computePositions(jd, lat, lon, ay)[g].sidereal) / 30);
+  const s0 = signAt(jd0), [step, maxD] = INGRESS_SCAN[g];
+  let a = jd0, b = null;
+  for (let d = step; d <= maxD; d += step){ if (signAt(jd0 + d) !== s0){ b = jd0 + d; break; } a = jd0 + d; }
+  if (b === null) return null;
+  for (let i = 0; i < 22; i++){ const m = (a + b) / 2; if (signAt(m) === s0) a = m; else b = m; }
+  return { jd: b, sign: signAt(b + 1e-4) };
+}
+function renderTransitPanel(birthPos, mPos, mdt, natalBhinna, natalSarva, ay){
+  const lagna = Math.floor(norm360(birthPos._ascSidereal) / 30), moon0 = Math.floor(norm360(birthPos.Moon.sidereal) / 30);
+  const signOf = g => Math.floor(norm360(mPos[g].sidereal) / 30);
+  const fromMoon = g => ((signOf(g) - moon0 + 12) % 12) + 1;
+  const ABB = { Sun:'Su', Moon:'Mo', Mars:'Ma', Mercury:'Me', Jupiter:'Ju', Venus:'Ve', Saturn:'Sa', Rahu:'Ra', Ketu:'Ke' };
+  // 12-sign strip
+  const cells = SIGNS.map((s, i) => {
+    const v = natalSarva[i], t = sarvaTier(v);
+    const bg = t.tag === 'good' ? 'rgba(46,125,50,.14)' : t.tag === 'bad' ? 'rgba(198,40,40,.12)' : 'transparent';
+    const here = GRAHA_LIST.filter(g => signOf(g) === i).map(g => `<span style="color:${MALEFIC_GRAHAS.includes(g) ? 'var(--vermilion)' : 'var(--jade)'}; font-weight:600;">${ABB[g]}</span>`).join(' ');
+    const marks = [i === lagna ? T('Asc','Asc') : '', i === moon0 ? T('natal ☽','☽ natal') : ''].filter(Boolean).join(' · ');
+    return `<div style="border:1px solid var(--line); border-radius:6px; padding:5px 6px; background:${bg}; min-height:62px;">
+      <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--slate);"><span>${s.slice(0, 3)}</span><span style="font-variant-numeric:tabular-nums;">${v}</span></div>
+      <div style="font-family:var(--mono); font-size:12px; margin-top:3px; min-height:16px;">${here}</div>
+      <div style="font-size:9.5px; color:var(--gold); margin-top:2px;">${marks}</div></div>`;
+  }).join('');
+  // per-graha rows
+  let good = 0, avg = 0, bad = 0;
+  const P = {}; ASHTAK_GRAHAS.forEach(g => { P[g] = prastaraAshtakavarga(g, birthPos); });
+  const rows = GRAHA_LIST.map(g => {
+    const si = signOf(g), inA = ASHTAK_GRAHAS.includes(g);
+    const b = inA ? natalBhinna[g][si] : null, bt = inA ? ashtakBindutier(b) : null;
+    if (bt){ if (bt.tag === 'good') good++; else if (bt.tag === 'bad') bad++; else avg++; }
+    let kk = '';
+    if (inA){ const k = kakshaOf(mPos[g].sidereal), ok = P[g][k.k][k.sign]; kk = `<span title="${T('kakṣyā ruler','regente de kakṣyā')}: ${k.lord === 'Lagna' ? 'Lagna' : gNameNatal(k.lord)}" style="color:${ok ? 'var(--jade)' : 'var(--vermilion)'};">${ok ? '✓' : '✗'}</span>`; }
+    const nx = nextSignChange(g, mdt.jd, mdt.lat, mdt.lon, ay);
+    const nxTxt = nx ? `→ ${SIGNS[nx.sign]} <span style="color:var(--slate);">${fmtDashaDate(nx.jd, mdt.tz)}</span>` : '—';
+    return `<tr><td class="wide" style="color:${MALEFIC_GRAHAS.includes(g) ? 'var(--vermilion)' : 'var(--jade)'}">${gNameNatal(g)}${mPos[g].speed < 0 && g !== 'Rahu' && g !== 'Ketu' ? ` <small style="color:var(--vermilion);">(${T('r','r')})</small>` : ''}</td>
+      <td>${SIGNS[si]}</td><td>${inA ? `<span class="tag ${bt.tag}">${b}</span>` : '—'}</td><td style="text-align:center;">${kk || '—'}</td><td style="font-size:11.5px; white-space:nowrap;">${nxTxt}</td></tr>`;
+  }).join('');
+  // notable notes only
+  const notes = [];
+  const sat = fromMoon('Saturn'), jup = fromMoon('Jupiter'), mo = fromMoon('Moon');
+  if ([12, 1, 2].includes(sat)) notes.push(['bad', T(`Saturn is ${sat === 12 ? '12th from' : sat === 1 ? 'over' : '2nd from'} your natal Moon: part ${sat === 12 ? 1 : sat === 1 ? 2 : 3} of the Sāḍhe-sātī, a stretch traditionally read as asking for patience and steady routines.`,
+    `Saturno está ${sat === 12 ? 'en la 12.ª desde' : sat === 1 ? 'sobre' : 'en la 2.ª desde'} tu Luna natal: parte ${sat === 12 ? 1 : sat === 1 ? 2 : 3} de la Sāḍhe-sātī, un tramo que tradicionalmente pide paciencia y rutinas constantes.`)]);
+  if (sat === 8) notes.push(['bad', T('Saturn is 8th from your natal Moon, traditionally a demanding placement: pace commitments.', 'Saturno está en la 8.ª desde tu Luna natal, una posición tradicionalmente exigente: dosifica los compromisos.')]);
+  if (sat === 4) notes.push(['neutral', T('Saturn is 4th from your natal Moon: home and inner calm may need more attention.', 'Saturno está en la 4.ª desde tu Luna natal: el hogar y la calma interior pueden pedir más atención.')]);
+  if ([2, 5, 7, 9, 11].includes(jup)) notes.push(['good', T(`Jupiter is ${ordT(jup)} from your natal Moon, one of its traditionally supportive positions.`, `Júpiter está en la ${ordT(jup)} desde tu Luna natal, una de sus posiciones tradicionalmente favorables.`)]);
+  if (mo === 8) notes.push(['bad', T('The Moon is 8th from your natal Moon today (Chāndrāṣṭama): a day to keep plans light.', 'La Luna está hoy en la 8.ª desde tu Luna natal (Chāndrāṣṭama): un día para planes ligeros.')]);
+  ['Jupiter', 'Saturn'].forEach(g => { if (signOf(g) === Math.floor(norm360(birthPos[g].sidereal) / 30)) notes.push(['neutral', T(`${gNameNatal(g)} is back in its natal sign (a ${g === 'Jupiter' ? 'Jupiter' : 'Saturn'} return).`, `${gNameNatal(g)} ha vuelto a su signo natal (retorno de ${gNameNatal(g)}).`)]); });
+  const notesHtml = notes.length ? notes.map(([c, t]) => `<div style="border-left:3px solid var(--${c === 'good' ? 'jade' : c === 'bad' ? 'vermilion' : 'slate'}); padding:4px 10px; margin-bottom:6px; font-size:13px;">${t}</div>`).join('')
+    : `<div class="hint">${T('Nothing unusual in the slow transits right now.', 'Nada inusual en los tránsitos lentos ahora mismo.')}</div>`;
+  const when = `${mdt.da}/${mdt.mo}/${mdt.y} ${pad2(mdt.hh)}:${pad2(mdt.mm)}`;
+  return `<div class="panel"><div class="hd"><h2>${T('Transit','Tránsito')}</h2><span class="note">${when}</span></div>
+    <div class="bd">
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(74px,1fr)); gap:5px; margin-bottom:6px;">${cells}</div>
+      <div class="hint" style="margin-bottom:12px;">${T('Each sign shows your natal Sarvāṣṭakavarga (green = well supported, red = thin) and the planets in it now.', 'Cada signo muestra tu Sarvāṣṭakavarga natal (verde = bien apoyado, rojo = escaso) y los planetas que hay ahora en él.')}</div>
+      <div style="font-size:13px; margin-bottom:10px;"><span style="color:var(--jade); font-weight:600;">${good} ${T('supported','apoyados')}</span> · <span style="color:var(--slate);">${avg} ${T('average','promedio')}</span> · <span style="color:var(--vermilion); font-weight:600;">${bad} ${T('thin','escasos')}</span> <span style="color:var(--slate); font-size:12px;">${T('(by each planet\'s own bindus in its current sign)', '(según los bindus propios de cada planeta en su signo actual)')}</span></div>
+      ${notesHtml}
+      <div class="tblwrap" style="margin-top:10px;"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Sign','Signo')}</th><th>${T('Own bindus','Bindus propios')}</th><th title="${T('does the ruler of its current kakṣyā give it a bindu?','¿el regente de su kakṣyā actual le da un bindu?')}">${T('Kakṣyā','Kakṣyā')}</th><th>${T('Next sign','Próximo signo')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div></div>`;
+}
+
 function renderAshtakavargaPage(){
   const container = document.getElementById('ashtakavargaPageContent');
   if (!container) return;
@@ -11907,32 +11971,6 @@ function renderAshtakavargaPage(){
     });
     return rows;
   })();
-
-  let strongCount=0, weakCount=0;
-  const transitRows = ASHTAK_GRAHAS.map(g=>{
-    const sid = norm360(mPos[g].sidereal);
-    const signIdx = Math.floor(sid/30);
-    const sign = SIGNS[signIdx];
-    const bindus = natalBhinna[g][signIdx];
-    const bTier = ashtakBindutier(bindus);
-    const sarvaVal = natalSarva[signIdx];
-    const sTier = sarvaTier(sarvaVal);
-    if (bTier.tag==='good') strongCount++; else if (bTier.tag==='bad') weakCount++;
-    const _reading = ashtakavargaTransitReading(g, sign, bTier.tag);
-    return `<tr>
-      <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
-      <td style="font-size:11px; color:var(--slate);">${T('now in','ahora en')} ${sign}</td>
-      <td><span class="tag ${bTier.tag}">${ashtakBindulabel(bindus)}</span></td>
-      <td><span class="tag ${sTier.tag}">${sarvaVal} <span style="font-size:10px;">(${sTier.label})</span></span></td>
-    </tr>
-    <tr><td colspan="4" style="font-size:11px; line-height:1.5; color:var(--ink-dim); padding:4px 12px 8px 24px; border-bottom:1px solid var(--line-soft);">${T(_reading.en, _reading.es)}</td></tr>`;
-  }).join('');
-
-  const overallVerdict = weakCount>=4
-    ? {label:T('Multiple weak transits right now — a caution worth weighing alongside the SBC reading','Varios tránsitos débiles ahora mismo — una precaución a sopesar junto a la lectura SBC'), cls:'bad'}
-    : strongCount>=4
-    ? {label:T('Multiple strong transits right now — a favourable sign corroborating (or not) the SBC reading','Varios tránsitos fuertes ahora mismo — una señal favorable que corrobora (o no) la lectura SBC'), cls:'good'}
-    : {label:T('Mixed — this system doesn\'t lean strongly either way for this moment','Mixto — este sistema no se inclina con fuerza en ninguna dirección para este momento'), cls:'neutral'};
 
   const sarvaSignRows = SIGNS.map((s,i)=>{
     const val = natalSarva[i];
@@ -11980,13 +12018,7 @@ function renderAshtakavargaPage(){
       </div>
     </div>
 
-    <div class="panel"><div class="hd"><h2>${T('Transit check — the muhūrta moment','Comprobación de tránsito — el momento muhūrta')}</h2><span class="note">${T('against the reference person\'s natal Ashtakavarga','contra el Ashtakavarga natal de la persona de referencia')}</span></div>
-      <div class="bd">
-        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th></th><th>${T('Bhinnāṣṭakavarga bindus here','Bindus de Bhinnāṣṭakavarga aquí')}</th><th>${T('Sarvāṣṭakavarga here','Sarvāṣṭakavarga aquí')}</th></tr></thead><tbody>${transitRows}</tbody></table></div>
-        <div style="margin-top:10px;"><span class="tag ${overallVerdict.cls}">${overallVerdict.label}</span></div>
-        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The source\'s own scale: 0 bindus is its single most severe tier (see footer note); 1–3 weak; 4 average; 5–8 strong — "same results should be expected" for any of the 7 grahas, per the book\'s own generalization from its worked Sun example. Sarvāṣṭakavarga tier follows the same source: average is 28/sign, above 28 is strong, above 30 "very good," below 25 explicitly weak. This is informational only — it does not feed into the score above.','Escala propia de la fuente: 0 bindus es su nivel más extremo (ver nota al pie); 1–3 débil; 4 promedio; 5–8 fuerte — "deben esperarse los mismos resultados" para cualquiera de los 7 graha, según la propia generalización del libro a partir de su ejemplo resuelto del Sol. El nivel de Sarvāṣṭakavarga sigue la misma fuente: el promedio es 28/signo, por encima de 28 es fuerte, por encima de 30 es "muy bueno," por debajo de 25 es explícitamente débil. Esto es solo informativo — no se incorpora a la puntuación de arriba.')}</div>
-      </div>
-    </div>
+    ${renderTransitPanel(birthPos, mPos, mdt, natalBhinna, natalSarva, ay)}
 
     ${(() => {
       const P = {}; ASHTAK_GRAHAS.forEach(g => { P[g] = prastaraAshtakavarga(g, birthPos); });
