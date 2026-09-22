@@ -841,6 +841,11 @@
         <option value="lahiri" data-i18n="ayaLahiri">Lahiri (linear approx.)</option>
         <option value="tropical" data-i18n="ayaTropical">None — tropical zodiac</option>
       </select>
+      <label data-i18n="sunriseLbl">Sunrise</label>
+      <select id="sunriseMode" onchange="try{localStorage.setItem('pl0SunriseMode',this.value)}catch(e){}">
+        <option value="apparent" data-i18n="sunriseApparent">Upper edge of the Sun, with refraction</option>
+        <option value="centre" data-i18n="sunriseCentre">Centre of the Sun's disc on the horizon</option>
+      </select>
       <label class="toggle"><input type="checkbox" id="showAbhijit" checked> <span data-i18n="opt28">use 28-star Abhijit reckoning for SBC panels</span></label>
       <label class="toggle"><input type="checkbox" id="weighTara" checked> <span data-i18n="optTara">include Tārā Bala of today's Moon in score</span></label>
       <label class="toggle"><input type="checkbox" id="weighPP" checked> <span data-i18n="optPP">include Pañcha Pakshi (life bird) state in score</span></label>
@@ -1023,6 +1028,9 @@ const I18N = {
   leg3: { en:`3 · Options`, es:`3 · Opciones` },
   ayaLahiri: { en:`Lahiri (linear approx.)`, es:`Lahiri (aprox. lineal)` },
   ayaTropical: { en:`None — tropical zodiac`, es:`Ninguno — zodiaco trópico` },
+  sunriseLbl: { en:`Sunrise`, es:`Salida del Sol` },
+  sunriseApparent: { en:`Upper edge of the Sun, with refraction`, es:`Borde superior del Sol, con refracción` },
+  sunriseCentre: { en:`Centre of the Sun's disc on the horizon`, es:`Centro del disco solar en el horizonte` },
   opt28: { en:`use 28-star Abhijit reckoning for SBC panels`, es:`usar el cómputo de 28 estrellas con Abhijit para los paneles SBC` },
   optTara: { en:`include Tārā Bala of today's Moon in score`, es:`incluir el Tārā Bala de la Luna de hoy en la puntuación` },
   optPP: { en:`include Pañcha Pakshi (life bird) state in score`, es:`incluir el estado del Pañcha Pakshi (ave vital) en la puntuación` },
@@ -2321,7 +2329,12 @@ function sunriseSunsetLocal(year, month1to12, day, latDeg, lonDegEast, tzOffsetH
   const lambda = sunLongitude(T);
   const delta = Math.asin(sinD(eps)*sinD(lambda)) / DEG; // solar declination, degrees
 
-  const h0 = -0.8333;
+  // Sunrise convention (Options → Sunrise): 'apparent' = upper limb with
+  // standard refraction (modern almanacs, this app's default); 'centre' = the
+  // disc centre on the horizon, no refraction (traditional Hindu reckoning —
+  // matches PL7's sunrise/sunset to within ~30 s). About 4 min apart at mid latitudes.
+  const sunriseModeEl = (typeof document !== 'undefined') ? document.getElementById('sunriseMode') : null;
+  const h0 = sunriseModeEl && sunriseModeEl.value === 'centre' ? 0 : -0.8333;
   const cosH0 = (sinD(h0) - sinD(latDeg)*sinD(delta)) / (cosD(latDeg)*cosD(delta));
   if (cosH0 <= -1 || cosH0 >= 1) return null; // polar day/night at this latitude/date
   const H0 = Math.acos(cosH0) / DEG; // degrees
@@ -4823,11 +4836,30 @@ function birdOfStar(starName, half){
 // each exactly 2h24m (144 min), per the printed column headers (6.00/8.24/10.48/1.12/3.36/6.00 twice over).
 const PP_PERIOD_LEN_HRS = 2.4;
 
-// "Timings of abstract activities" (p.47): within each 2h24m main period, all 5
-// activities recur as finer sub-periods in this fixed order/duration (minutes),
-// identical across all 5 day-periods (and all 5 night-periods) — directly transcribed.
-const PP_DAY_ABSTRACT   = [["Eating",48],["Dying",30],["Sleeping",12],["Ruling",18],["Walking",36]];
-const PP_NIGHT_ABSTRACT = [["Eating",42],["Sleeping",18],["Walking",42],["Dying",24],["Ruling",18]];
+// "Timings of abstract activities": within each 2h24m main period, all 5
+// activities recur as finer sub-periods (minutes per activity). The source
+// gives a DIFFERENT table for each half of the lunar month, each listed in
+// that half's own activity sequence (bright day: a bird that dies eats next;
+// dark day: a bird that walks eats next; and the matching night rules):
+//   bright half — Pulippani & Rao, Biorhythms of Natal Moon, p.46
+//   dark half   — same book, p.120-121
+// (Corrected 2026-09-22: the dark-half table used to be applied to both
+// halves. PL7's bright-half sub-periods reproduce the p.46 table exactly.)
+// Order inside a Yama: "the bird performing the main activity performs its
+// own sub activities first followed by the sub activities of the remaining
+// four birds" (p.35) — i.e. the chain starts at the bird's own main activity
+// and follows that half's sequence; see ppAbstractChain().
+const PP_ABSTRACT = {
+  bright: { day:   [["Eating",30],["Walking",36],["Ruling",48],["Sleeping",18],["Dying",12]],
+            night: [["Eating",30],["Ruling",24],["Dying",36],["Walking",30],["Sleeping",24]] },
+  dark:   { day:   [["Eating",48],["Dying",30],["Sleeping",12],["Ruling",18],["Walking",36]],
+            night: [["Eating",42],["Sleeping",18],["Walking",42],["Dying",24],["Ruling",18]] }
+};
+function ppAbstractChain(half, isDay, startState){
+  const seq = PP_ABSTRACT[half === "dark" ? "dark" : "bright"][isDay ? "day" : "night"];
+  const k = Math.max(0, seq.findIndex(([s]) => s === startState));
+  return seq.slice(k).concat(seq.slice(0, k));
+}
 
 // Build the full day: 10 main periods (headline state per bird) plus 50 finer
 // sub-periods (main state x abstract-activity sub-state, per Table No.5's formula)
@@ -4850,7 +4882,10 @@ const PP_NIGHT_ABSTRACT = [["Eating",42],["Sleeping",18],["Walking",42],["Dying"
 // only a few minutes per day at most near equinox and far less near
 // solstice — treated as negligible, consistent with this app's low-
 // precision philosophy elsewhere).
-function computePanchapakshiDay(weekdayName, half, dayLenHrs, nightLenHrs){
+// forBird (optional): the bird whose sub-period chain is laid out — each Yama's
+// sub-periods start at THAT bird's main activity (source rule above). Callers
+// asking about one bird must pass it; without it the chain starts at Eating.
+function computePanchapakshiDay(weekdayName, half, dayLenHrs, nightLenHrs, forBird){
   if (dayLenHrs == null) dayLenHrs = 12;
   if (nightLenHrs == null) nightLenHrs = 24 - dayLenHrs;
   const dayPeriodLen = dayLenHrs / 5, nightPeriodLen = nightLenHrs / 5;
@@ -4871,7 +4906,8 @@ function computePanchapakshiDay(weekdayName, half, dayLenHrs, nightLenHrs){
 
     const scale = periodLen / PP_PERIOD_LEN_HRS; // proportional Ghatika scaling of the book's fixed-minute sub-table
     let cursor = startHr;
-    (isDay ? PP_DAY_ABSTRACT : PP_NIGHT_ABSTRACT).forEach(([abState, mins])=>{
+    const chainStart = forBird && byBird[forBird] ? byBird[forBird].state : "Eating";
+    ppAbstractChain(half, isDay, chainStart).forEach(([abState, mins])=>{
       const dur = (mins/60) * scale;
       const subByBird = {};
       PP_BIRDS.forEach(bird=>{
@@ -4882,7 +4918,7 @@ function computePanchapakshiDay(weekdayName, half, dayLenHrs, nightLenHrs){
       cursor += dur;
     });
   }
-  return { half, periods, subPeriods, dayLenHrs, nightLenHrs };
+  return { half, periods, subPeriods, dayLenHrs, nightLenHrs, forBird: forBird || null };
 }
 
 // Generic version of the lookup below: a bird's main/abstract state at an
@@ -4901,7 +4937,7 @@ function ppStateForBirdAtInstant(bird, weekdayName, half, hourFromSunrise, dayLe
   const hfs = ((hourFromSunrise % totalLen) + totalLen) % totalLen;
   const dayHalf = hfs < dayLenHrs ? "day" : "night";
   const localHr = dayHalf === "day" ? hfs : hfs - dayLenHrs;
-  const ppDay = computePanchapakshiDay(weekdayName, half, dayLenHrs, nightLenHrs);
+  const ppDay = computePanchapakshiDay(weekdayName, half, dayLenHrs, nightLenHrs, bird);
   const subs = dayHalf==='day' ? ppDay.subPeriods.slice(0,25) : ppDay.subPeriods.slice(25,50);
   const curSub = subs.find(p=>{
     const ls=p.startHr-(dayHalf==='day'?0:dayLenHrs), le=p.endHr-(dayHalf==='day'?0:dayLenHrs);
@@ -6427,14 +6463,14 @@ function ppFindBestSlot(bird, ayanamsaMode, latDeg, lonDegEast, tzOffsetHours){
   const nowHourFromSunrise = (now.getTime() - cycleStart.getTime()) / 3600000;
 
   const todayCtx = ppContextForDate(cycleDate, ayanamsaMode);
-  const todayDay = computePanchapakshiDay(todayCtx.weekdayEN, todayCtx.half, dayLenHrs);
+  const todayDay = computePanchapakshiDay(todayCtx.weekdayEN, todayCtx.half, dayLenHrs, undefined, bird);
   const todayTotalLen = todayDay.dayLenHrs + todayDay.nightLenHrs;
 
   const tomorrowDate = new Date(cycleDate.getTime() + 24*3600*1000);
   const tomorrowSun = sunriseSunsetLocal(tomorrowDate.getFullYear(), tomorrowDate.getMonth()+1, tomorrowDate.getDate(), latDeg, lonDegEast, tzOffsetHours);
   const tomorrowDayLenHrs = tomorrowSun ? ((tomorrowSun.sunsetHr - tomorrowSun.sunriseHr + 24) % 24) : 12;
   const tomorrowCtx = ppContextForDate(tomorrowDate, ayanamsaMode);
-  const tomorrowDay = computePanchapakshiDay(tomorrowCtx.weekdayEN, tomorrowCtx.half, tomorrowDayLenHrs);
+  const tomorrowDay = computePanchapakshiDay(tomorrowCtx.weekdayEN, tomorrowCtx.half, tomorrowDayLenHrs, undefined, bird);
 
   const candidates = [];
   todayDay.subPeriods.forEach(p=>{
@@ -18042,7 +18078,7 @@ function renderPPPanel(){
   }
   ppLastRefStar = refP.star;
 
-  const ppDay = computePanchapakshiDay(live.weekdayEN, live.half, live.dayLenHrs, live.nightLenHrs);
+  const ppDay = computePanchapakshiDay(live.weekdayEN, live.half, live.dayLenHrs, live.nightLenHrs, selectedBird);
   const selectedBirdMax = (live.half === "dark" ? PP_NATURAL_DARK : PP_NATURAL_BRIGHT)[selectedBird];
   const halfStartHr = live.dayHalf === 'day' ? live.sunriseHr : live.sunsetHr;
   const chartSvg = renderPanchapakshi12hChart(ppDay, live.dayHalf, selectedBird, live.localHr, selectedBirdMax, halfStartHr);
@@ -18163,6 +18199,11 @@ function initTheme(){
   let saved = null;
   try{ saved = localStorage.getItem('muhurtaTheme'); }catch(e){}
   applyTheme(THEME_CYCLE.includes(saved) ? saved : "bright");
+  // Sunrise convention (Options) is restored alongside the theme at start-up.
+  try{
+    const sm = localStorage.getItem('pl0SunriseMode'), el = document.getElementById('sunriseMode');
+    if (el && (sm === 'apparent' || sm === 'centre')) el.value = sm;
+  }catch(e){}
 }
 
 const CHART_STYLE_LABEL = {
