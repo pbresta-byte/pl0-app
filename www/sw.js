@@ -1,7 +1,12 @@
-const CACHE = "pl0-app-v3";
+const CACHE = "pl0-app-v4";
 const ASSETS = [
   "./index.html",
   "./manifest.json",
+  "./pl7-yoga-engine.js",
+  "./pl7-yoga-rules-core.js",
+  "./pl7-yoga-rules-arishta.js",
+  "./pl7-yoga-rules-misc.js",
+  "./pl7-yoga-catalog.js",
   "./icons/icon-72.png",
   "./icons/icon-96.png",
   "./icons/icon-128.png",
@@ -37,7 +42,9 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
-  if (event.request.mode === "navigate") {
+  // Scripts (the yoga rule engine files) are network-first like the shell, so a
+  // rule update is never masked by a stale cached copy; offline falls back to cache.
+  if (event.request.mode === "navigate" || event.request.destination === "script") {
     event.respondWith(
       fetch(event.request)
         .then((res) => {
@@ -45,7 +52,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE).then((cache) => cache.put(event.request, copy));
           return res;
         })
-        .catch(() => caches.match(event.request).then((c) => c || caches.match("./index.html")))
+        .catch(() => caches.match(event.request).then((c) => c || (event.request.mode === "navigate" ? caches.match("./index.html") : undefined)))
     );
     return;
   }

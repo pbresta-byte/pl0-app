@@ -701,6 +701,12 @@
     .pp-matrix .m-guide, .pp-matrix .m-name{ color:var(--ink); }
   }
 </style>
+<!-- PL7-derived yoga rule engine (verified against the research engine; see pl7_yoga_difftest.js) -->
+<script src="pl7-yoga-engine.js"></script>
+<script src="pl7-yoga-rules-core.js"></script>
+<script src="pl7-yoga-rules-arishta.js"></script>
+<script src="pl7-yoga-rules-misc.js"></script>
+<script src="pl7-yoga-catalog.js"></script>
 </head>
 <body>
 
@@ -8492,6 +8498,7 @@ function setNatalLordHouse(v){ natalLordHouseSel = parseInt(v,10)||1; renderNata
 //              'supported' = Jupiter in a kendra from Lagna or Moon, joined or aspected
 //                            by a benefic, not debilitated, combust or in an enemy's sign (BPHS 36.3-4)
 let yogaOptsOpen = false; // keeps the options panel open across re-renders
+let pl7SectionOpen = false; // same for the further-combinations list
 const YOGA_OPTS_DEFAULT = { trikala:'open', kemadruma:'plain', gajakesari:'placement' };
 let YOGA_OPTS = (() => {
   try {
@@ -8501,6 +8508,81 @@ let YOGA_OPTS = (() => {
     return out;
   } catch (e) { return { ...YOGA_OPTS_DEFAULT }; }
 })();
+// PL7-derived rule engine (www/pl7-yoga-*.js): reading options, keyed 'p:<param>'.
+// Defaults follow the owner's rule — classical reading first, PL7's behaviour as
+// the alternative — except where no classical default could be established
+// (Rahu/Ketu aspects: PL7's 5-7-9 fit kept) and the dignity-rung match, which
+// follows this app's own cumulative convention used by its other yogas.
+const PL7_YOGA_PARAM_OPTS = {
+  node_aspects: 'full', akriti_include_nodes: false, sankhya_cancelled_by_other_nabhasa: true, title_match: 'at_least',
+  vaiseshikamsa_mode: 'bphs', raja270_require_lagna: true, parivartana_mode: 'planet_signs', rule653_branches: 'both',
+  longevity_686_mode: 'classical_kendra'
+};
+Object.keys(PL7_YOGA_PARAM_OPTS).forEach(k => { YOGA_OPTS_DEFAULT['p:' + k] = String(PL7_YOGA_PARAM_OPTS[k]); });
+const pl7ParamValue = v => v === 'true' ? true : v === 'false' ? false : v;
+YOGA_OPTS_DEFAULT.pl7conj = 'hide';
+(() => { try {
+  const saved = JSON.parse(localStorage.getItem('pl0YogaOpts') || '{}');
+  Object.keys(YOGA_OPTS_DEFAULT).forEach(k => { if (!(k in YOGA_OPTS)) YOGA_OPTS[k] = typeof saved[k] === 'string' ? saved[k] : YOGA_OPTS_DEFAULT[k]; });
+} catch (e) { Object.keys(YOGA_OPTS_DEFAULT).forEach(k => { if (!(k in YOGA_OPTS)) YOGA_OPTS[k] = YOGA_OPTS_DEFAULT[k]; }); } })();
+
+// Sun's altitude at the birth moment decides day/night birth (same test as the
+// research engine: day when the Sun's upper limb is above the horizon).
+function pl7DayBirth(jd, latDeg, lonEastDeg, sunTropical){
+  const d = jd - 2451545.0, eps = (23.4393 - 0.0000004 * d) * DEG, lam = sunTropical * DEG;
+  const ra = Math.atan2(Math.cos(eps) * Math.sin(lam), Math.cos(lam));
+  const dec = Math.asin(Math.sin(eps) * Math.sin(lam));
+  const lst = norm360(280.46061837 + 360.98564736629 * d + lonEastDeg) * DEG;
+  const H = lst - ra, phi = latDeg * DEG;
+  const alt = Math.asin(Math.sin(phi) * Math.sin(dec) + Math.cos(phi) * Math.cos(dec) * Math.cos(H)) / DEG;
+  return alt > -0.833;
+}
+const PL7_POLARITY = { raja: 'positive', 'raja.bhanga': 'negative', 'raja.cancellation': 'negative', dhana: 'positive',
+  pancha_mahapurusha: 'positive', learning: 'positive', spiritual: 'positive', speech: 'positive', jaimini: 'positive',
+  arishta_bhanga: 'positive', nicha_bhanga: 'positive', 'parivartana.maha': 'positive', 'parivartana.dainya': 'negative',
+  'parivartana.khala': 'negative', chandra: 'positive', 'chandra.kemadruma': 'negative', 'chandra.shakata': 'negative',
+  arishta: 'negative', daridra: 'negative', balarishta: 'negative', health: 'negative', unmada: 'negative', bandhana: 'negative',
+  mritaka: 'negative', kemadruma: 'negative', mleccha: 'negative', 'longevity.alpayu': 'negative', 'longevity.yogarishta': 'negative',
+  'longevity.purnayu': 'positive', 'longevity.mahadirghayu': 'positive', 'longevity.munisvara': 'positive',
+  'named.akhanda_samrajya': 'positive' };
+function pl7Polarity(family){
+  const segs = family.split('.');
+  for (let i = segs.length; i > 0; i--) { const k = segs.slice(0, i).join('.'); if (PL7_POLARITY[k]) return PL7_POLARITY[k]; }
+  return 'mixed';
+}
+const PL7_FLAG_THEME = { death_longevity: 'death', health: 'health', financial: 'money', legal_incarceration: 'legal',
+  fertility_family: 'family', sexuality: 'relationship', relationships: 'relationship', violence: 'violence' };
+function pl7CleanCondition(s){
+  // "as 102, and ..." / "same condition as 302" point at another rule: spell it out.
+  const byNo = n => (window.PL7Yoga.RULES.find(r => r.yoga_no === +n) || {}).condition || '';
+  s = s.replace(/^same condition as (\d+)$/, (m, n) => byNo(n)).replace(/^as (\d+), and /, (m, n) => byNo(n) + ', and ');
+  return s.replace(/\s*\((?:[a-z0-9]+_[a-z0-9_]+|param|join per param)\)/g, '')
+    .replace(/;\s*PL7[^;]*$/, '').replace(/\s*\(classical\)/, '')
+    .replace('at least many_planets_min', 'at least ' + window.PL7Yoga.PARAMS.many_planets_min);
+}
+// Evaluates the PL7-derived rules on the birth chart. Returns only rules this
+// app does not already show through its own yoga functions, skipping rules
+// that need Shadbala strength (not computed in this app).
+function pl7YogaHits(birthPos){
+  const E = window.PL7Yoga;
+  if (!E || !E.CATALOG) return { hits: [], evaluated: 0 };
+  E.resetParams();
+  Object.keys(PL7_YOGA_PARAM_OPTS).forEach(k => { E.PARAMS[k] = pl7ParamValue(YOGA_OPTS['p:' + k]); });
+  const K = { Su: 'Sun', Mo: 'Moon', Ma: 'Mars', Me: 'Mercury', Ju: 'Jupiter', Ve: 'Venus', Sa: 'Saturn', Ra: 'Rahu', Ke: 'Ketu' };
+  const lon = {}; Object.keys(K).forEach(k => { lon[k] = norm360(birthPos[K[k]].sidereal); });
+  let day = null;
+  try { const dt = readDateTime('b'); day = pl7DayBirth(dt.jd, dt.lat, dt.lon, birthPos.Sun.tropical); } catch (e) {}
+  const c = new E.Chart(lon, norm360(birthPos._ascSidereal), {}, day);
+  const fired = E.evaluate(c);
+  const showConj = YOGA_OPTS.pl7conj === 'show';
+  const usable = E.RULES.filter(r => !E.CATALOG[r.yoga_no][1] && !E.DUPLICATE_ENTRIES.has(r.yoga_no) && (showConj || !r.family.startsWith('conjunction'))
+    && !/strong|weak|sbOf/.test(r.fn.toString()) && (day !== null || !/day_birth/.test(r.fn.toString())));
+  const hits = usable.filter(r => fired.has(r.yoga_no)).map(r => ({
+    no: r.yoga_no, name: E.CATALOG[r.yoga_no][0], condition: pl7CleanCondition(r.condition), polarity: pl7Polarity(r.family),
+    themes: [...new Set((r.safety_flags || []).map(f => PL7_FLAG_THEME[f]).filter(Boolean))] }));
+  return { hits, evaluated: usable.length };
+}
+
 function setYogaOpt(key, value){
   if (!(key in YOGA_OPTS_DEFAULT)) return;
   YOGA_OPTS[key] = value;
@@ -10141,11 +10223,14 @@ const YOGA_SAFETY_NOTE = {
   death:  ['not a prediction of death or life-span', 'no es una predicción de muerte ni de duración de vida'],
   health: ['not a medical diagnosis (health questions belong with a clinician)', 'no es un diagnóstico médico (las cuestiones de salud corresponden a un profesional sanitario)'],
   money:  ['not a financial forecast or advice', 'no es un pronóstico ni un consejo financiero'],
-  legal:  ['not a legal prediction', 'no es una predicción legal']
+  legal:  ['not a legal prediction', 'no es una predicción legal'],
+  family: ['not a prediction about children or family', 'no es una predicción sobre hijos o familia'],
+  relationship: ['not a prediction about relationships', 'no es una predicción sobre relaciones'],
+  violence: ['not a prediction of violence', 'no es una predicción de violencia']
 };
-function yogaSafetyLine(num){
-  const themes = YOGA_SAFETY_THEMES[num];
-  if (!themes) return '';
+function yogaSafetyLine(num, themeList){
+  const themes = themeList || YOGA_SAFETY_THEMES[num];
+  if (!themes || !themes.length) return '';
   const en = themes.map(t => YOGA_SAFETY_NOTE[t][0]).join('; ');
   const es = themes.map(t => YOGA_SAFETY_NOTE[t][1]).join('; ');
   return `<div style="margin-top:4px; font-size:10.5px; color:var(--muted); font-style:italic;">${T(`Traditional reading only — ${en}. Other factors in the chart can soften or cancel it.`, `Solo lectura tradicional — ${es}. Otros factores de la carta pueden suavizarla o anularla.`)}</div>`;
@@ -10159,6 +10244,31 @@ function yogaSafetyLine(num){
   const masterYogaEntries = allYogaEntries.concat(
     RAMAN_YOGAS.map(y => ({ ...y, polarity: YOGA_POLARITY[y.num] || 'mixed' }))
   );
+  // Further classical combinations from the PL7-derived rule engine — only
+  // yogas the entries above do not already cover. No interpretive text exists
+  // for these (deliberately not copied); each shows the condition that formed it.
+  let pl7Res = { hits: [], evaluated: 0 };
+  try { pl7Res = pl7YogaHits(birthPos); } catch (e) { console.warn('PL7 yoga engine', e); }
+  const pl7SectionHtml = (() => {
+    if (!pl7Res.evaluated) return '';
+    const grp = { positive: [], negative: [], mixed: [] };
+    pl7Res.hits.forEach(h => grp[h.polarity].push(h));
+    const item = h => {
+      const cls = h.polarity === 'negative' ? 'bad' : h.polarity === 'positive' ? 'good' : 'neutral';
+      const style = cls === 'bad' ? 'background:var(--hit-bad-bg); border-color:var(--hit-bad-line); color:var(--hit-bad-ink);' : '';
+      return `<div class="li" style="margin-bottom:7px;">
+        <span class="tag ${cls}" style="${style}">${h.name}</span>
+        <div style="margin-top:3px; color:var(--slate); font-size:11.5px; line-height:1.55;">${T('Forms when','Se forma cuando')}: ${h.condition}.</div>
+        ${yogaSafetyLine(null, h.themes)}
+      </div>`;
+    };
+    const sub = (en, es, list) => list.length ? `<div style="font-size:12px; font-weight:600; color:var(--ink-dim); margin:8px 0 5px;">${T(en, es)} (${list.length})</div>` + list.map(item).join('') : '';
+    return `<details style="margin-top:12px;" ${pl7SectionOpen?'open':''} ontoggle="pl7SectionOpen=this.open"><summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--slate);">${T('Further classical combinations','Otras combinaciones clásicas')} — ${pl7Res.hits.length} ${T('present','presentes')} / ${pl7Res.evaluated} ${T('checked','revisadas')}</summary>
+      <div class="hint" style="margin:6px 0 8px;">${T('Conditions are given in shorthand: L5 = lord of the 5th house; houses are counted whole-sign from the Lagna. Combinations that need planetary strength scores are not checked here.','Las condiciones van abreviadas: L5 = señor de la casa 5; las casas se cuentan por signo entero desde el Lagna. No se revisan aquí las combinaciones que requieren puntuaciones de fuerza planetaria.')}</div>
+      ${sub('Supportive', 'Favorables', grp.positive)}${sub('Cautions', 'Precauciones', grp.negative)}${sub('Mixed or descriptive', 'Mixtas o descriptivas', grp.mixed)}
+      ${pl7Res.hits.length ? '' : `<div class="hint">${T('None of these combinations forms in this chart.','Ninguna de estas combinaciones se forma en esta carta.')}</div>`}
+    </details>`;
+  })();
   const masterYogaActiveCount = masterYogaEntries.filter(y=>y.result.present).length;
   const masterYogaHtml = (() => {
     const filtered = masterYogaEntries.filter(y=>y.result.present);
@@ -10198,12 +10308,36 @@ function yogaSafetyLine(num){
         ${optRow('Gajakesari — what Jupiter needs','Gajakesari — qué necesita Júpiter', optSelect('gajakesari', [
           ['placement','Placement only: a kendra from the Moon','Solo la posición: un kendra desde la Luna'],
           ['supported','Placement plus support: benefic contact, no debility or combustion','Posición más apoyo: contacto benéfico, sin debilidad ni combustión']]))}
+        <div style="font-size:11.5px; font-weight:600; color:var(--ink-dim); margin:6px 0 4px;">${T('Further classical combinations','Otras combinaciones clásicas')}</div>
+        ${optRow('Rahu and Ketu aspects','Aspectos de Rahu y Ketu', optSelect('p:node_aspects', [
+          ['full','5th, 7th and 9th','5.º, 7.º y 9.º'], ['seventh_only','7th only','Solo el 7.º'], ['none','No aspects','Sin aspectos']]))}
+        ${optRow('Shape yogas (planets confined to certain houses)','Yogas de forma (planetas confinados a ciertas casas)', optSelect('p:akriti_include_nodes', [
+          ['false','Count the seven planets only','Contar solo los siete planetas'], ['true','Count Rahu and Ketu too','Contar también Rahu y Ketu']]))}
+        ${optRow('Number yogas (planets spread over N signs)','Yogas de número (planetas repartidos en N signos)', optSelect('p:sankhya_cancelled_by_other_nabhasa', [
+          ['true','Set aside when a shape yoga also forms','Se descartan si también se forma un yoga de forma'], ['false','Stand on their own','Valen por sí mismos']]))}
+        ${optRow('Named dignity rungs (Gopura, Simhāsana…)','Peldaños de dignidad con nombre (Gopura, Siṃhāsana…)', optSelect('p:title_match', [
+          ['at_least','This rung or higher','Este peldaño o uno superior'], ['exact','Exactly this rung','Exactamente este peldaño']]))}
+        ${optRow('Which varga placements count as dignified','Qué posiciones en vargas cuentan como dignas', optSelect('p:vaiseshikamsa_mode', [
+          ['bphs','Own, exaltation, moolatrikona, or signs of lords of kendras from the Arudha Lagna','Propio, exaltación, moolatrikona, o signos de los señores de kendras desde el Arudha Lagna'],
+          ['friend_own_exalt','Own, exaltation or friendly signs','Propio, exaltación o signos amigos']]))}
+        ${optRow('Venus joined by Moon or Jupiter (a Raja yoga)','Venus unida a la Luna o Júpiter (un Raja yoga)', optSelect('p:raja270_require_lagna', [
+          ['true','Only when Venus is in the Lagna','Solo con Venus en el Lagna'], ['false','Wherever Venus is','Dondequiera que esté Venus']]))}
+        ${optRow('Sign exchange (parivartana)','Intercambio de signos (parivartana)', optSelect('p:parivartana_mode', [
+          ['planet_signs','Each lord in a sign of the other','Cada señor en un signo del otro'], ['exact_houses','Each lord in the other\'s exact house','Cada señor en la casa exacta del otro']]))}
+        ${optRow('Birth-time protection by lunar phase','Protección por fase lunar al nacer', optSelect('p:rule653_branches', [
+          ['both','Day birth with waning Moon, or night birth with waxing Moon','Nacimiento diurno con Luna menguante, o nocturno con Luna creciente'],
+          ['day','Day birth with waning Moon only','Solo nacimiento diurno con Luna menguante']]))}
+        ${optRow('Full-life longevity group','Grupo de longevidad plena', optSelect('p:longevity_686_mode', [
+          ['classical_kendra','Lagna lord and benefics in kendras','Señor del Lagna y benéficos en kendras'], ['pl7_panaphara','Lagna lord and benefics in panapharas','Señor del Lagna y benéficos en panapharas']]))}
+        ${optRow('Planetary conjunction entries (two or more planets in one sign)','Entradas de conjunción (dos o más planetas en un signo)', optSelect('pl7conj', [
+          ['hide','Hide','Ocultar'], ['show','Show','Mostrar']]))}
       </div></details>`;
     if (groups.positive.length) html += header(T('Auspicious yogas present','Yogas auspiciosos presentes'), '--jade') + renderGroup(groups.positive);
     if (groups.negative.length) html += header(T('Afflictions and cautions present','Aflicciones y precauciones presentes'), '--vermilion')
       + `<div class="hint" style="margin:-2px 0 8px;">${T('Traditional classifications, not predictions. Read each one against the whole chart — many are softened or cancelled by other factors.','Clasificaciones tradicionales, no predicciones. Lee cada una frente a la carta completa — muchas se suavizan o anulan por otros factores.')}</div>`
       + renderGroup(groups.negative);
     if (groups.mixed.length) html += header(T('Mixed and situational yogas present','Yogas mixtos y situacionales presentes'), '--slate') + renderGroup(groups.mixed);
+    html += pl7SectionHtml;
     return html;
   })();
 
