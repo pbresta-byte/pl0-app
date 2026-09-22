@@ -12230,6 +12230,7 @@ function renderDashaPage(){
     ${renderKalachakraPanel(birthPos, bdt, nowJD, localTz)}
     ${renderKendradiDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderDrigDashaPanel(birthPos, bdt, nowJD, localTz)}
+    ${renderSthiraDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderRectificationPanel(birthPos, bdt)}
   `;
 }
@@ -12798,6 +12799,88 @@ function renderKendradiDashaPanel(birthPos, bdt, nowJD, localTz){
     <div class="bd">
       <div class="hint" style="margin-bottom:8px; line-height:1.6;">${T(`Starts from ${SIGNS[seq.start.sign]} (${seq.start.sign === lagna ? 'Lagna' : '7th house'}), the stronger of the two, counting forward from an odd sign and backward from an even one. Inside each group the signs run from strongest to weakest: the one holding the Ātmakāraka, then more planets, more exalted or own-sign planets, dual over fixed over movable, and so on. Years follow the Chara panel's options.`, `Empieza en ${SIGNS[seq.start.sign]} (${seq.start.sign === lagna ? 'Lagna' : 'casa 7'}), el más fuerte de los dos, contando hacia adelante desde un signo impar y hacia atrás desde uno par. Dentro de cada grupo los signos van del más fuerte al más débil: el que tiene al Ātmakāraka, luego más planetas, más planetas exaltados o en su signo, doble sobre fijo sobre móvil, etc. Los años siguen las opciones del panel Chara.`)}</div>
       <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Group','Grupo')}</th><th>${T('Years','Años')}</th><th>${T('Period','Período')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div></div>`;
+}
+// Sthira dasha, a traditional longevity study. Starts from the sign holding
+// Brahma; 7 / 8 / 9 years for movable / fixed / dual signs. Brahma by the
+// step-by-step rule: the lords of the 6th, 8th and 12th from the stronger of
+// Lagna/7th that sit in an odd sign in the visible half (7th-12th from that
+// sign); the one furthest through its sign wins (Rahu/Ketu counted back from
+// the sign's end). None qualify -> the weaker of Lagna/7th; still none -> drop
+// the visible-half test; then drop the odd-sign test. A lord of the 8th from
+// the Atmakaraka placed in that 8th is also a claimant. Saturn, Rahu, Ketu
+// hand the role to Mars, Mercury, Jupiter. Other manuals weigh the candidates
+// by numeric strength and reach different planets, so Brahma can be set by hand.
+// Direction: odd sign forward / even backward, or always forward.
+const STHIRA_OPTS = (() => { const d = { brahma: 'rule', dir: 'parity' };
+  try { const s = JSON.parse(localStorage.getItem('pl0SthiraOpts') || '{}');
+    return { brahma: ['rule','Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'].includes(s.brahma) ? s.brahma : d.brahma, dir: ['parity','forward'].includes(s.dir) ? s.dir : d.dir };
+  } catch (e) { return d; } })();
+function setSthiraOpt(k, v){ STHIRA_OPTS[k] = v; try { localStorage.setItem('pl0SthiraOpts', JSON.stringify(STHIRA_OPTS)); } catch (e) {} renderDashaPage(); }
+function brahmaGraha(pos, opts){
+  const signOf = g => Math.floor(norm360(pos[g].sidereal) / 30);
+  const degIn = g => { const d = norm360(pos[g].sidereal) % 30; return (g === 'Rahu' || g === 'Ketu') ? 30 - d : d; };
+  const lordsOf = s => CHARA_CO_LORD[s] ? [CHARA_LORD[s], CHARA_CO_LORD[s]] : [CHARA_LORD[s]];
+  const lagna = Math.floor(norm360(pos._ascSidereal) / 30), seventh = (lagna + 6) % 12;
+  const strong = charaStrongerSign(lagna, seventh, pos, opts).sign, weak = strong === lagna ? seventh : lagna;
+  const REPL = { Saturn: 'Mars', Rahu: 'Mercury', Ketu: 'Jupiter' };
+  const tries = [[strong, true, true], [weak, true, true], [strong, false, true], [weak, false, true], [strong, false, false]];
+  let step = -1, pick = null, ref = strong;
+  for (let t = 0; t < tries.length && !pick; t++){
+    const [r, needVisible, needOdd] = tries[t];
+    const cands = [...new Set([5, 7, 11].flatMap(h => lordsOf((r + h) % 12)))].filter(g => {
+      const s = signOf(g), house = ((s - r + 12) % 12) + 1;
+      return (!needOdd || s % 2 === 0) && (!needVisible || house >= 7);
+    });
+    if (cands.length){ pick = cands.reduce((a, b) => degIn(b) > degIn(a) ? b : a); step = t; ref = r; }
+  }
+  // Claimant from the Atmakaraka: lord of the 8th from it, placed in that 8th.
+  const ak = charaAtmakaraka(pos), ak8 = (signOf(ak) + 7) % 12;
+  const akClaim = lordsOf(ak8).find(g => signOf(g) === ak8);
+  let via = 'lords';
+  if (akClaim && (!pick || degIn(akClaim) > degIn(pick))){ pick = akClaim; via = 'ak8'; }
+  const original = pick, planet = REPL[pick] || pick;
+  return { planet, original, replaced: planet !== original, step, ref, via, sign: signOf(planet) };
+}
+function sthiraMahadashas(pos, birthJD, yearDays, opts, sOpts, spanYears){
+  const b = brahmaGraha(pos, opts);
+  const start = sOpts.brahma === 'rule' ? b.sign : Math.floor(norm360(pos[sOpts.brahma].sidereal) / 30);
+  const dir = sOpts.dir === 'forward' || start % 2 === 0 ? 1 : -1;
+  const out = []; let jd = birthJD, i = 0;
+  while ((jd - birthJD) / yearDays < spanYears){
+    const s = m12(start + i * dir), y = 7 + s % 3;
+    out.push({ sign: s, years: y, cycle: Math.floor(i / 12) + 1, startJD: jd, endJD: jd + y * yearDays }); jd += y * yearDays; i++;
+  }
+  return { brahma: b, start, dir, list: out };
+}
+function sthiraAntardashas(md, dir){ const len = (md.endJD - md.startJD) / 12; return Array.from({ length: 12 }, (_, i) => ({ sign: m12(md.sign + i * dir), startJD: md.startJD + i * len, endJD: md.startJD + (i + 1) * len })); }
+function renderSthiraDashaPanel(birthPos, bdt, nowJD, localTz){
+  if (!bdt || bdt.empty || !isFinite(bdt.jd)) return '';
+  const so = STHIRA_OPTS, r = sthiraMahadashas(birthPos, bdt.jd, vimshottariYearDays(), CHARA_OPTS, so, 96);
+  const cur = r.list.find(p => nowJD >= p.startJD && nowJD < p.endJD), b = r.brahma;
+  const rows = r.list.filter(p => p.cycle === 1).map(p => `<tr${p === cur ? ' style="outline:2px solid var(--gold);"' : ''}><td class="wide" style="font-weight:600;">${SIGNS[p.sign]}</td><td>${p.years} ${T('y','a')}</td>
+      <td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td></tr>`).join('');
+  const ad = cur ? sthiraAntardashas(cur, r.dir) : [];
+  const adHtml = cur ? `<h3 style="margin:14px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Sub-periods of','Subperíodos de')} ${SIGNS[cur.sign]}</h3>
+      <div class="tblwrap"><table><tbody>${ad.map(a => `<tr${nowJD >= a.startJD && nowJD < a.endJD ? ' style="outline:2px solid var(--gold);"' : ''}><td>${SIGNS[a.sign]}</td><td style="font-size:11px;">${fmtDashaDate(a.startJD, localTz)} → ${fmtDashaDate(a.endJD, localTz)}</td></tr>`).join('')}</tbody></table></div>` : '';
+  const STEP = [T('first test passed','pasó la primera prueba'), T('from the weaker of Lagna/7th','desde el más débil entre Lagna/7.ª'),
+    T('visible-half test dropped','prueba de mitad visible omitida'), T('visible-half test dropped, weaker side','mitad visible omitida, lado más débil'), T('odd-sign test dropped too','prueba de signo impar omitida también')];
+  const why = so.brahma !== 'rule' ? T(`set by hand to ${gNameNatal(so.brahma)}`, `fijado a mano en ${gNameNatal(so.brahma)}`)
+    : b.via === 'ak8' ? T(`${gNameNatal(b.original)} rules the 8th from the Ātmakāraka and sits in it`, `${gNameNatal(b.original)} rige la 8.ª desde el Ātmakāraka y está en ella`)
+    : T(`${gNameNatal(b.original)}, a lord of the 6th/8th/12th from ${SIGNS[b.ref]} (${STEP[b.step] || ''})`, `${gNameNatal(b.original)}, señor de la 6.ª/8.ª/12.ª desde ${SIGNS[b.ref]} (${STEP[b.step] || ''})`);
+  const repl = so.brahma === 'rule' && b.replaced ? T(`; ${gNameNatal(b.original)} cannot take the role, so ${gNameNatal(b.planet)} does`, `; ${gNameNatal(b.original)} no puede asumir el papel, lo toma ${gNameNatal(b.planet)}`) : '';
+  const sel = (k, pairs) => `<select onchange="setSthiraOpt('${k}', this.value)">${pairs.map(([v, l]) => `<option value="${v}" ${so[k] === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+  return `<div class="panel"><div class="hd"><h2>${T('Sthira daśā','Sthira daśā')}</h2><span class="note">${T('traditional longevity study','estudio tradicional de longevidad')}</span></div>
+    <div class="bd">
+      <div class="hint" style="margin-bottom:10px; line-height:1.6; border-left:3px solid var(--vermilion); padding-left:8px;">${T('This daśā belongs to the classical study of life-span. It is shown for study and comparison only: it is not a prediction of death or life-span, and no single daśā should be read that way. Health questions belong with a doctor.','Esta daśā pertenece al estudio clásico de la duración de la vida. Se muestra solo para estudio y comparación: no es una predicción de muerte ni de duración de vida, y ninguna daśā sola debe leerse así. Las cuestiones de salud corresponden a un médico.')}</div>
+      <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:10px; font-size:13px; color:var(--ink-dim);">
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T('Brahma','Brahma')} ${sel('brahma', [['rule', T('by the placement rules','por las reglas de posición')]].concat(['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'].map(g => [g, gNameNatal(g)])))}</label>
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T('Direction','Dirección')} ${sel('dir', [['parity', T('forward from an odd sign, backward from an even one','adelante desde signo impar, atrás desde uno par')], ['forward', T('always forward','siempre hacia adelante')]])}</label>
+      </div>
+      <div class="hint" style="margin-bottom:8px; line-height:1.6;">${T(`Brahma: ${so.brahma === 'rule' ? gNameNatal(b.planet) : gNameNatal(so.brahma)} — ${why}${repl}. Starts from ${SIGNS[r.start]}, running ${r.dir > 0 ? 'forward' : 'backward'}; 7, 8 or 9 years for movable, fixed or dual signs. Other manuals rank the candidates by numeric strength and can pick a different planet, which is why Brahma can be set by hand.`,
+        `Brahma: ${so.brahma === 'rule' ? gNameNatal(b.planet) : gNameNatal(so.brahma)} — ${why}${repl}. Empieza en ${SIGNS[r.start]}, avanzando ${r.dir > 0 ? 'hacia adelante' : 'hacia atrás'}; 7, 8 o 9 años para signos móviles, fijos o dobles. Otros manuales ordenan a los candidatos por fuerza numérica y pueden elegir otro planeta; por eso Brahma se puede fijar a mano.`)}</div>
+      <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Years','Años')}</th><th>${T('Period','Período')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+      ${adHtml}
     </div></div>`;
 }
 // END CHARA DASHA
