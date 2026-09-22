@@ -12225,6 +12225,7 @@ function renderDashaPage(){
     ${condHtml}
     ${classicalHtml}
     ${renderCharaDashaPanel(birthPos, bdt, nowJD, localTz)}
+    ${renderNarayanaDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderRectificationPanel(birthPos, bdt)}
   `;
 }
@@ -12463,6 +12464,114 @@ function renderCharaDashaPanel(birthPos, bdt, nowJD, localTz){
       ${skipped.length ? `<div class="hint" style="margin-top:6px;">${T('No period (0 years, debilitated lord)','Sin período (0 años, señor debilitado)')}: ${skipped.map(r => SIGNS[r.sign]).join(', ')}</div>` : ''}
       ${adHtml}
       <div class="hint" style="margin-top:8px;">${T("After the twelfth sign the same periods repeat. Years use the Daśā-year length chosen above.","Tras el duodécimo signo se repiten los mismos períodos. Los años usan la duración del año de Daśā elegida arriba.")}</div>
+    </div></div>`;
+}
+// Narayana (Padakrama) dasha. Starts from the stronger of the Lagna and the
+// 7th; direction from the 9th sign from the start (odd-footed = forward).
+// Movable start: consecutive signs. Fixed start: every 6th sign. Dual start:
+// trines, the next trine group beginning either at the 10th from the previous
+// group's first sign (the sutra's wording) or at the next sign in order (the
+// ready-reckoner in one modern manual). Years as in the Chara panel. Sub-periods:
+// consecutive signs from the sign holding the dasha sign's lord, direction from
+// that sign's 9th; one text lets the stronger of that sign and its 7th begin.
+const NARAYANA_OPTS = (() => { const d = { start: 'stronger', dual: 'tenth', antar: 'lord' };
+  try { const s = JSON.parse(localStorage.getItem('pl0NarayanaOpts') || '{}');
+    return { start: ['stronger','lagna','seventh'].includes(s.start) ? s.start : d.start, dual: ['tenth','next'].includes(s.dual) ? s.dual : d.dual,
+      antar: ['lord','stronger'].includes(s.antar) ? s.antar : d.antar };
+  } catch (e) { return d; } })();
+function setNarayanaOpt(k, v){ NARAYANA_OPTS[k] = v; try { localStorage.setItem('pl0NarayanaOpts', JSON.stringify(NARAYANA_OPTS)); } catch (e) {} renderDashaPage(); }
+const CHARA_OWN = { Sun:[4], Moon:[3], Mars:[0,7], Mercury:[2,5], Jupiter:[8,11], Venus:[1,6], Saturn:[9,10], Rahu:[10], Ketu:[7] };
+function charaAtmakaraka(pos){ return ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'].reduce((best, g) => (norm360(pos[g].sidereal) % 30) > (norm360(pos[best].sidereal) % 30) ? g : best, 'Sun'); }
+// Stronger of two signs by the ordinal rules: Atmakaraka in it, more planets, more exalted then own-sign occupants,
+// dual > fixed > movable, lord is the Atmakaraka, lord further advanced in its sign, odd sign with lord in an even sign (and vice versa).
+function charaStrongerSign(a, b, pos, opts){
+  const signOf = g => Math.floor(norm360(pos[g].sidereal) / 30), occ = s => CHARA_GRAHAS.filter(g => signOf(g) === s);
+  const ak = charaAtmakaraka(pos), lordOf = s => charaSignYears(s, pos, opts).lord;
+  const tests = [
+    ['ak', s => occ(s).includes(ak) ? 1 : 0],
+    ['planets', s => occ(s).length],
+    ['exalted', s => occ(s).filter(g => charaDignity(g, pos[g].sidereal, opts) > 0).length],
+    ['ownSign', s => occ(s).filter(g => (CHARA_OWN[g] || []).includes(s)).length],
+    ['nature', s => s % 3],
+    ['lordAK', s => lordOf(s) === ak ? 1 : 0],
+    ['lordDegree', s => norm360(pos[lordOf(s)].sidereal) % 30],
+    ['oddEven', s => (s % 2 === 0) !== (signOf(lordOf(s)) % 2 === 0) ? 1 : 0],
+  ];
+  for (const [rule, f] of tests){ const fa = f(a), fb = f(b); if (fa !== fb) return { sign: fa > fb ? a : b, rule }; }
+  return { sign: a, rule: 'tie' };
+}
+function narayanaSequence(start, dualMode){
+  const dir = charaOddFooted(start + 8) ? 1 : -1, m = n => ((n % 12) + 12) % 12, nature = start % 3;
+  if (nature === 0) return Array.from({ length: 12 }, (_, i) => m(start + i * dir));
+  if (nature === 1) return Array.from({ length: 12 }, (_, i) => m(start + i * 5 * dir));
+  const out = []; let g = start;
+  for (let k = 0; k < 4; k++){ out.push(m(g), m(g + 4 * dir), m(g + 8 * dir)); g += (dualMode === 'next' ? 1 : 9) * dir; }
+  return out;
+}
+function narayanaStart(pos, opts, nOpts){
+  const lagna = Math.floor(norm360(pos._ascSidereal) / 30), seventh = (lagna + 6) % 12;
+  if (nOpts.start === 'lagna') return { sign: lagna, rule: 'chosen' };
+  if (nOpts.start === 'seventh') return { sign: seventh, rule: 'chosen' };
+  return charaStrongerSign(lagna, seventh, pos, opts);
+}
+function narayanaMahadashas(pos, birthJD, yearDays, opts, nOpts, spanYears){
+  const st = narayanaStart(pos, opts, nOpts), seq = narayanaSequence(st.sign, nOpts.dual);
+  const table = seq.map(s => charaSignYears(s, pos, opts));
+  if (!table.some(r => r.years > 0)) return [];
+  const out = []; let jd = birthJD, cycle = 1;
+  while ((jd - birthJD) / yearDays < spanYears){
+    for (const r of table){ if (r.years <= 0) continue; out.push({ ...r, cycle, startJD: jd, endJD: jd + r.years * yearDays }); jd += r.years * yearDays; }
+    cycle++;
+  }
+  return out;
+}
+function narayanaAntardashas(md, pos, opts, nOpts){
+  let first = md.target;
+  if (nOpts.antar === 'stronger') first = charaStrongerSign(md.target, (md.target + 6) % 12, pos, opts).sign;
+  const dir = charaOddFooted(first + 8) ? 1 : -1, len = (md.endJD - md.startJD) / 12;
+  return Array.from({ length: 12 }, (_, i) => ({ sign: (((first + i * dir) % 12) + 12) % 12, startJD: md.startJD + i * len, endJD: md.startJD + (i + 1) * len }));
+}
+function renderNarayanaDashaPanel(birthPos, bdt, nowJD, localTz){
+  if (!bdt || bdt.empty || !isFinite(bdt.jd)) return '';
+  const o = CHARA_OPTS, n = NARAYANA_OPTS, yd = vimshottariYearDays();
+  const st = narayanaStart(birthPos, o, n), mds = narayanaMahadashas(birthPos, bdt.jd, yd, o, n, 120);
+  const cur = mds.find(p => nowJD >= p.startJD && nowJD < p.endJD);
+  const lagna = Math.floor(norm360(birthPos._ascSidereal) / 30), ak = charaAtmakaraka(birthPos);
+  const RULE = {
+    ak: T(`it holds the Ātmakāraka (${gNameNatal(ak)})`, `contiene al Ātmakāraka (${gNameNatal(ak)})`),
+    planets: T('it holds more planets','contiene más planetas'),
+    exalted: T('it holds more exalted planets','contiene más planetas exaltados'),
+    ownSign: T('it holds more planets in their own sign','contiene más planetas en su propio signo'),
+    nature: T('its sign type is stronger (dual over fixed over movable)','su tipo de signo es más fuerte (doble sobre fijo sobre móvil)'),
+    lordAK: T('its lord is the Ātmakāraka','su señor es el Ātmakāraka'),
+    lordDegree: T('its lord is further through its sign','su señor está más avanzado en su signo'),
+    oddEven: T('its lord sits in a sign of the opposite parity','su señor está en un signo de paridad opuesta'),
+    tie: T('no rule separates them; the Lagna is used','ninguna regla los separa; se usa el Lagna'),
+    chosen: T('chosen in the option','elegido en la opción'),
+  };
+  const startWhy = st.sign === lagna ? T('Lagna','Lagna') : T('7th house','casa 7');
+  const rows = mds.filter(p => p.cycle === 1 || p === cur).map(p => `<tr${p === cur ? ' style="outline:2px solid var(--gold);"' : ''}><td class="wide" style="font-weight:600;">${SIGNS[p.sign]}${p.cycle > 1 ? ` <small>(${T('cycle','ciclo')} ${p.cycle})</small>` : ''}</td>
+      <td>${p.years} ${T('y','a')}</td><td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td>
+      <td style="font-size:11px;">${gNameNatal(p.lord)} ${T('in','en')} ${SIGNS[p.target]}</td></tr>`).join('');
+  let adHtml = '';
+  if (cur){
+    const ads = narayanaAntardashas(cur, birthPos, o, n);
+    adHtml = `<h3 style="margin:14px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Sub-periods of','Subperíodos de')} ${SIGNS[cur.sign]}</h3>
+      <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Period','Período')}</th></tr></thead><tbody>${ads.map(a => `<tr${nowJD >= a.startJD && nowJD < a.endJD ? ' style="outline:2px solid var(--gold);"' : ''}><td>${SIGNS[a.sign]}</td><td style="font-size:11px;">${fmtDashaDate(a.startJD, localTz)} → ${fmtDashaDate(a.endJD, localTz)}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  const sel = (k, pairs) => `<select onchange="setNarayanaOpt('${k}', this.value)">${pairs.map(([v, l]) => `<option value="${v}" ${n[k] === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+  return `<div class="panel"><div class="hd"><h2>${T('Nārāyaṇa daśā','Nārāyaṇa daśā')}</h2><span class="note">${T('sign periods from the stronger of Lagna and 7th','períodos de signos desde el más fuerte entre Lagna y 7.ª')}</span></div>
+    <div class="bd">
+      <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:10px; font-size:13px; color:var(--ink-dim);">
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T('Start from','Empezar desde')} ${sel('start', [['stronger', T('the stronger of Lagna and 7th','el más fuerte entre Lagna y 7.ª')], ['lagna', T('the Lagna','el Lagna')], ['seventh', T('the 7th house','la casa 7')]])}</label>
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T('Dual-sign start: next trine begins at','Inicio en signo doble: el siguiente trígono empieza en')} ${sel('dual', [['tenth', T('the 10th from the previous group','la 10.ª desde el grupo anterior')], ['next', T('the next sign in order','el siguiente signo en orden')]])}</label>
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T('Sub-periods start from','Los subperíodos empiezan en')} ${sel('antar', [['lord', T("the sign holding the dasha sign's lord",'el signo que ocupa el señor del signo de daśā')], ['stronger', T('the stronger of that sign and its 7th','el más fuerte entre ese signo y su 7.º')]])}</label>
+      </div>
+      <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T(`Starts from ${SIGNS[st.sign]} (${startWhy}): ${RULE[st.rule]}. A movable starting sign runs through consecutive signs, a fixed one jumps to every 6th sign and a dual one moves by trines. The direction follows the 9th sign from the start. Years follow the "Years of a sign" and exaltation options in the Chara panel.`,
+        `Empieza en ${SIGNS[st.sign]} (${startWhy}): ${RULE[st.rule]}. Un signo inicial móvil recorre signos consecutivos, uno fijo salta cada 6.º signo y uno doble avanza por trígonos. La dirección sigue al 9.º signo desde el inicio. Los años siguen las opciones "Años de un signo" y de exaltación del panel Chara.`)}</div>
+      <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Years','Años')}</th><th>${T('Period','Período')}</th><th>${T('Lord counted to','Señor contado')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+      ${adHtml}
+      <div class="hint" style="margin-top:8px;">${T('After the twelfth sign the same periods repeat.','Tras el duodécimo signo se repiten los mismos períodos.')}</div>
     </div></div>`;
 }
 // END CHARA DASHA
