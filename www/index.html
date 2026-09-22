@@ -3416,11 +3416,22 @@ const BENEFIC_COUNT_READING = {
   4:"Wealth, gain and success together — the best combination the text describes."
 };
 
+// Score weights that are the app's own choices, not sourced values. Each is a
+// setting labelled by what it does; the defaults reproduce the earlier score.
+const SCORE_OPTS = (() => { const d = { dignity: 'free', latta: '2', electional: 'full' };
+  try { const s = JSON.parse(localStorage.getItem('pl0ScoreOpts') || '{}');
+    return { dignity: ['free','half'].includes(s.dignity) ? s.dignity : d.dignity, latta: ['2','1'].includes(s.latta) ? s.latta : d.latta,
+      electional: ['full','cap1'].includes(s.electional) ? s.electional : d.electional };
+  } catch (e) { return d; } })();
+function setScoreOpt(k, v){ SCORE_OPTS[k] = v; try { localStorage.setItem('pl0ScoreOpts', JSON.stringify(SCORE_OPTS)); } catch (e) {} runAnalysis(); }
 function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weighDignity, doshas, windows, chandrashtama, activity, panchaka, classical}){
   let score = 0;
   const reasons = [];
+  const parts = [];                                   // [key, points] for the "how this score is built" breakdown
+  const part = (k, v) => { if (Math.abs(v) > 1e-9) parts.push([k, v]); };
   const mCount = Math.min(5, maleficHits.length), bCount = Math.min(4, beneficHits.length);
-  score += VEDHA_COUNT_POINTS.benefic[bCount]; score -= VEDHA_COUNT_POINTS.malefic[mCount];
+  const vedhaPts = VEDHA_COUNT_POINTS.benefic[bCount] - VEDHA_COUNT_POINTS.malefic[mCount];
+  score += vedhaPts; part('vedha', vedhaPts);
   const maleficReading = T(MALEFIC_COUNT_READING[mCount], MALEFIC_COUNT_READING_ES[mCount]);
   const beneficReading = T(BENEFIC_COUNT_READING[bCount], BENEFIC_COUNT_READING_ES[bCount]);
   if (mCount) reasons.push({sign:"bad", text: T(
@@ -3440,12 +3451,13 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
     const taraGist = T(tara.gist, TARA_GIST_ES[tara.name]);
     const taraText = T(`Today's Moon falls in the ${tara.name} tārā from the reference star — ${taraGist}`,
                         `La Luna de hoy cae en el tārā ${tara.name} desde la estrella de referencia — ${taraGist}`);
-    if (tara.tone==="good"){ score+=1; reasons.push({sign:"good", text:taraText}); }
-    else if (tara.tone==="bad"){ score-=1; reasons.push({sign:"bad", text:taraText}); }
+    if (tara.tone==="good"){ score+=1; part('tara', 1); reasons.push({sign:"good", text:taraText}); }
+    else if (tara.tone==="bad"){ score-=1; part('tara', -1); reasons.push({sign:"bad", text:taraText}); }
     else { reasons.push({sign:"neutral", text:taraText}); }
   }
   if (latta && latta.length){
-    score -= 2*latta.length;
+    const lattaPts = -(+SCORE_OPTS.latta) * latta.length;
+    score += lattaPts; part('latta', lattaPts);
     latta.forEach(l=>{
       const result = T(l.result, LATTA_RESULT_ES[l.graha]);
       reasons.push({sign:"bad", text: T(
@@ -3455,7 +3467,7 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
     });
   }
   if (upagraha){
-    score -= 1;
+    score -= 1; part('upagraha', -1);
     const uResult = T(upagraha.result, UPAGRAHA_RESULT_ES[upagraha.name]);
     reasons.push({sign:"bad", text: T(
       `The reference star coincides with the day's ${upagraha.name} (an Upagraha point counted from the Sun) — ${uResult}.`,
@@ -3473,8 +3485,12 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
     beneficHits.forEach(h=>{ dignityAdj += dignityWeight(h.graha, h.siderealLong, h.dir); });
     maleficHits.forEach(h=>{ dignityAdj -= dignityWeight(h.graha, h.siderealLong, h.dir); });
   }
+  if (SCORE_OPTS.dignity === 'half'){
+    const cap = Math.max(0.5, Math.abs(vedhaPts) / 2);   // dignity may move the vedha result by at most half its size
+    dignityAdj = Math.max(-cap, Math.min(cap, dignityAdj));
+  }
   if (Math.abs(dignityAdj) > 0.01){
-    score += dignityAdj;
+    score += dignityAdj; part('dignity', dignityAdj);
     reasons.push({sign: dignityAdj>0?"good":"bad", text: T(
       `Dignity adjustment (own/friend/neutral/enemy sign-strength and the source's retrograde/speed multipliers, rescaled by this app to sit as a secondary term): ${dignityAdj>=0?'+':''}${dignityAdj.toFixed(2)} — the grahas casting Vedha are, on balance, ${dignityAdj>0?'stronger':'weaker'} than neutral right now.`,
       `Ajuste de dignidad (fuerza de signo propio/amigo/neutral/enemigo y los multiplicadores de retrogradación/velocidad de la fuente, reescalados por esta app como término secundario): ${dignityAdj>=0?'+':''}${dignityAdj.toFixed(2)} — los grahas que lanzan Vedha son, en conjunto, ${dignityAdj>0?'más fuertes':'más débiles'} que lo neutral ahora mismo.`
@@ -3488,7 +3504,7 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
   if (pp){
     const mainW = PP_ACT_FACTOR[pp.mainState] - 0.6, subW = PP_ACT_FACTOR[pp.abstractState] - 0.6;
     const ppScore = 5*mainW + 2.5*subW;
-    score += ppScore;
+    score += ppScore; part('pp', ppScore);
     const mainLabel = T(pp.mainState, PP_STATES_ES[pp.mainState]);
     const subLabel = T(pp.abstractState, PP_STATES_ES[pp.abstractState]);
     reasons.push({sign: ppScore>0.2?"good":ppScore<-0.2?"bad":"neutral", text: T(
@@ -3503,10 +3519,11 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
   // system's central signal — and now carries its own tone (most are a
   // caution, but a Fruitful ascendant is a light plus) and its own source.
     // Classical electional rules (NEWMUHURTA.md R1-R24)
+  let elect = 0;
   if (classical && classical.length){
     classical.forEach(r=>{
       const wgt = r.tone==="good" ? 0.5 : r.tone==="bad" ? -0.5 : 0;
-      if (wgt) score += wgt;
+      if (wgt) elect += wgt;
       reasons.push({sign:r.tone==="good"?"good":r.tone==="bad"?"bad":"neutral",
         text:T(`${r.name}: ${r.detail}`, `${r.name}: ${r.detail}`)});
     });
@@ -3514,7 +3531,7 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
     // Classical day-time windows (Kalaprakasika/Raman)
   if (windows && windows.length){
     windows.forEach(w=>{
-      score += (w.tone === "good") ? 0.6 : -0.8;
+      elect += (w.tone === "good") ? 0.6 : -0.8;
       reasons.push({sign:w.tone==="good"?"good":"bad", text:T(
         `${w.name}: ${w.detail}`,
         `${w.name}: ${w.detail}`
@@ -3523,20 +3540,20 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
   }
   // Chandrashtama (Parasara-hora; neutralization per Raman ch.V)
   if (chandrashtama && chandrashtama.active){
-    score -= chandrashtama.waxing ? 0.4 : 1.2;
+    const cPts = chandrashtama.waxing ? -0.4 : -1.2; score += cPts; part('chandrashtama', cPts);
     reasons.push({sign:"bad", text:T(chandrashtama.note, chandrashtama.note)});
   }
   // Activity/nakshatra-class fit (Brhat Samhita via Raman ch.IV)
   if (activity){
     const wgt = activity.verdict==="good" ? 0.8 : activity.verdict==="bad" ? -1.0 : 0;
-    score += wgt;
+    score += wgt; part('activity', wgt);
     reasons.push({sign: activity.verdict==="good"?"good":activity.verdict==="bad"?"bad":"neutral",
       text:T(`${activity.className.charAt(0).toUpperCase()+activity.className.slice(1)} nakshatra: ${activity.reason}`,
              `${activity.className}: ${activity.reason}`)});
   }
   // Nakshatra Panchaka avoidance
   if (panchaka){
-    score -= 0.6;
+    elect -= 0.6;
     reasons.push({sign:"bad", text:T(
       "Nakshatra Panchaka — avoid southward journeys, house repair, collecting fuel/fodder, and acquiring beds",
       "Nakshatra Panchaka — evitar viajes al sur, reparaciones, recolección de leña y compra de camas")});
@@ -3544,7 +3561,7 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
   if (doshas && doshas.length){
     doshas.forEach(d=>{
       const w = d.tone === "good" ? 0.5 : -0.5;
-      score += w;
+      elect += w;
       reasons.push({sign: d.tone || "bad", text: T(
         `${d.name}: ${d.detail} — ${d.tone==="good"?"a standard muhūrta plus":"a standard muhūrta caution"}.`,
         `${T(d.name, MUHURTA_DOSHA_NAME_ES[d.name]||d.name)}: ${d.detail} — ${d.tone==="good"?"un factor positivo estándar de muhūrta":"una precaución estándar de muhūrta"}.`
@@ -3552,7 +3569,36 @@ function scoreMuhurta({maleficHits, beneficHits, tara, latta, upagraha, pp, weig
     });
   }
 
-  return {score, reasons};
+  if (SCORE_OPTS.electional === 'cap1') elect = Math.max(-1, Math.min(1, elect));
+  score += elect; part('electional', elect);
+  return {score, reasons, parts};
+}
+
+// "How this score is built" — one row per part, largest first, with the weight settings.
+const SCORE_PART_LABEL = {
+  vedha: ['Sarvato Bhadra vedha hits','Golpes de vedha (Sarvato Bhadra)'], dignity: ['Dignity of the striking planets','Dignidad de los planetas que golpean'],
+  tara: ['Tārā (star from your birth star)','Tārā (estrella desde tu estrella natal)'], latta: ['Latta (planet kicking your star)','Latta (planeta que patea tu estrella)'],
+  upagraha: ['Upagraha on your star','Upagraha sobre tu estrella'], pp: ['Pañcha Pakshi (life bird state)','Pañcha Pakshi (estado del ave vital)'],
+  electional: ['Electional checklist (tithi, karaṇa, yoga, horā, windows, doṣas)','Lista electiva (tithi, karaṇa, yoga, horā, ventanas, doṣas)'],
+  chandrashtama: ['Chāndrāṣṭama','Chāndrāṣṭama'], activity: ['Fit of the star for the activity','Idoneidad de la estrella para la actividad']
+};
+function renderScoreBreakdown(parts, score){
+  const rows = parts.slice().sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).map(([k, v]) => {
+    const w = Math.min(100, Math.abs(v) / 4 * 100);
+    return `<tr><td class="wide">${T(SCORE_PART_LABEL[k][0], SCORE_PART_LABEL[k][1])}</td>
+      <td style="text-align:right; font-variant-numeric:tabular-nums; color:${v > 0 ? 'var(--jade)' : 'var(--vermilion)'};">${v > 0 ? '+' : ''}${v.toFixed(2)}</td>
+      <td style="width:40%;"><div style="height:6px; background:var(--line-soft); border-radius:3px;"><div style="height:6px; width:${w.toFixed(0)}%; background:${v > 0 ? 'var(--jade)' : 'var(--vermilion)'}; border-radius:3px;"></div></div></td></tr>`;
+  }).join('');
+  const sel = (k, pairs) => `<select onchange="setScoreOpt('${k}', this.value)" style="width:auto;">${pairs.map(([v, l]) => `<option value="${v}" ${SCORE_OPTS[k] === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+  return `<details class="ref-drop" style="margin:-10px 0 20px;"><summary>${T('How this score is built','Cómo se construye esta puntuación')}</summary><div class="bd">
+    <div class="tblwrap"><table><tbody>${rows}<tr><td class="wide" style="font-weight:600;">${T('Total','Total')}</td><td style="text-align:right; font-weight:600;">${(()=>{ const r = Math.round(score * 10) / 10 || 0; return (r > 0 ? '+' : '') + r.toFixed(1); })()}</td><td></td></tr></tbody></table></div>
+    <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px; font-size:12px; color:var(--ink-dim);">
+      <label style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">${T('Dignity term','Término de dignidad')} ${sel('dignity', [['free', T('adds freely on top of the vedha hits','se suma libremente a los golpes de vedha')], ['half', T('moves the vedha result by at most half its size','mueve el resultado del vedha como mucho la mitad de su tamaño')]])}</label>
+      <label style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">${T('Latta, per kick','Latta, por golpe')} ${sel('latta', [['2', T('−2 (twice a Tārā)','−2 (el doble de un Tārā)')], ['1', T('−1 (same as a Tārā)','−1 (igual que un Tārā)')]])}</label>
+      <label style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">${T('Electional checklist','Lista electiva')} ${sel('electional', [['full', T('each check counted in full','cada comprobación cuenta entera')], ['cap1', T('capped at ±1 in total','limitada a ±1 en total')]])}</label>
+    </div>
+    <div class="hint" style="margin-top:8px; line-height:1.6;">${T('The vedha point table and the tier bands come from the source; the weights set here are the app\'s own choices. The same settings apply to the Calendar and every other score.','La tabla de puntos del vedha y las bandas de nivel vienen de la fuente; los pesos de aquí son elecciones de la app. Los mismos ajustes se aplican al Calendario y a toda otra puntuación.')}</div>
+  </div></details>`;
 }
 
 function tierFor(score){
@@ -8329,7 +8375,7 @@ function runAnalysis(){
   const panchakaFlag = (panch.nak28 && panch.nak28.name) ? panchakaCheck(panch.nak28.name) : false;
   let classical = [];
   try { classical = classicalRules(_wy, _wm, _wd, isFinite(mdt.hh)?mdt.hh:12, isFinite(mdt.mm)?mdt.mm:0, panch, WEEKDAYS[new Date(_wy, _wm-1, _wd).getDay()], null, null, {lat:isFinite(mdt.lat)?mdt.lat:25.76, lon:isFinite(mdt.lon)?mdt.lon:-80.19, tz:isFinite(mdt.tz)?mdt.tz:-4}); } catch(e){}
-  const {score, reasons} = scoreMuhurta({maleficHits:vedha.maleficHits, beneficHits:vedha.beneficHits, tara, latta, upagraha, pp, weighDignity, doshas, windows, chandrashtama, activity, panchaka:panchakaFlag, classical});
+  const {score, reasons, parts:scoreParts} = scoreMuhurta({maleficHits:vedha.maleficHits, beneficHits:vedha.beneficHits, tara, latta, upagraha, pp, weighDignity, doshas, windows, chandrashtama, activity, panchaka:panchakaFlag, classical});
   const tier = tierFor(score);
 
   // Today's score range -- the verdict above is one instant; this samples the
@@ -8413,6 +8459,7 @@ function runAnalysis(){
       }</div>
     </div>
   </div>`;
+  html += renderScoreBreakdown(scoreParts || [], score);
 
   // Moment-gravity headline — see electGravityGraha() for the full method.
   // navPos computed locally (not reusing the later D1/D9-chart navPos below)
