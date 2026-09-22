@@ -731,7 +731,6 @@
         <button type="button" data-page="pageAvastha" data-i18n="navAvastha">Avasthas</button>
         <button type="button" data-page="pageAshtakavarga" data-i18n="navAshtakavarga">Ashtakavarga</button>
         <button type="button" data-page="pagePanchaPakshi" data-i18n="navPanchaPakshi">Pañcha Pakshi</button>
-        <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">World Era</button>
         <button type="button" data-page="pageDasha" data-i18n="navDasha">Vimśottari Daśā</button>
         <button type="button" data-page="pageHouseNature" data-i18n="navHouseNature">Houses, Lords, Varga</button>
         <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
@@ -784,7 +783,7 @@
         <label data-i18n="birthDate">Birth date</label>
         <input type="date" id="bDate">
         <div class="row2">
-          <div><label data-i18n="birthTime">Birth time (local)</label><input type="time" id="bTime" step="60"></div>
+          <div><label data-i18n="birthTime">Birth time (local)</label><input type="time" id="bTime" step="1"></div>
           <div><label data-i18n="utcOffset">UTC offset (hrs)</label><input type="text" inputmode="decimal" id="bTZ" placeholder="e.g. -4"></div>
         </div>
         <div class="hint" data-i18n="utcOffsetWarn" style="margin-top:-6px; margin-bottom:6px;">Double-check this UTC offset yourself — it's an estimate (or your own manual entry) and can be wrong for historical dates or unusual regional rules. A wrong offset shifts every computed position, including the ascendant.</div>
@@ -806,7 +805,7 @@
       <label data-i18n="dateLbl">Date</label>
       <input type="date" id="mDate">
       <div class="row2">
-        <div><label data-i18n="timeLbl">Time (local)</label><input type="time" id="mTime" step="60"></div>
+        <div><label data-i18n="timeLbl">Time (local)</label><input type="time" id="mTime" step="1"></div>
         <div><label data-i18n="utcOffset">UTC offset (hrs)</label><input type="text" inputmode="decimal" id="mTZ" value="-4"></div>
       </div>
       <div class="hint" data-i18n="utcOffsetWarn" style="margin-top:-6px; margin-bottom:6px;">Double-check this UTC offset yourself — it's an estimate (or your own manual entry) and can be wrong for historical dates or unusual regional rules. A wrong offset shifts every computed position, including the ascendant.</div>
@@ -911,6 +910,7 @@
 </div>
 
 <div id="pagePanchaPakshi" class="page">
+  <div class="result-col" id="ppAskNowContent" style="max-width:1000px; margin:0 auto;"></div>
   <div class="result-col" id="panchaPakshiLadderContent" style="max-width:1000px; margin:0 auto;"></div>
   <div class="result-col" style="max-width:1000px; margin:0 auto;">
     <div class="panel"><div class="hd"><h2 data-i18n="ppLiveChartTitle">Pañcha Pakshi — Live Yama Chart</h2><span class="note" data-i18n="liveUpdatesMinute">updates every minute</span></div><div class="bd" id="ppPanelContainer"></div></div>
@@ -4587,8 +4587,8 @@ function renderAnatomyFigure(cfg) {
     s.push(taperedLimb(cx-20,336,18, cx-18,430,11, z("shins")));
     s.push(taperedLimb(cx+20,336,18, cx+18,430,11, z("shins")));
     s.push(label(cx, 388, "SHINS", 5));
-    s.push(`<path d="M${cx-26,450} Q${cx-17,438} ${cx-5,446} Q${cx-1,454} ${cx-9,459} L${cx-24,459} Q${cx-29,455} ${cx-26,450} Z" ${z("feet")}/>`);
-    s.push(`<path d="M${cx+26,450} Q${cx+17,438} ${cx+5,446} Q${cx+1,454} ${cx+9,459} L${cx+24,459} Q${cx+29,455} ${cx+26,450} Z" ${z("feet")}/>`);
+    s.push(`<path d="M${cx-26},450 Q${cx-17},438 ${cx-5},446 Q${cx-1},454 ${cx-9},459 L${cx-24},459 Q${cx-29},455 ${cx-26},450 Z" ${z("feet")}/>`);
+    s.push(`<path d="M${cx+26},450 Q${cx+17},438 ${cx+5},446 Q${cx+1},454 ${cx+9},459 L${cx+24},459 Q${cx+29},455 ${cx+26},450 Z" ${z("feet")}/>`);
     s.push(label(cx-15, 472, "FEET", 5)); s.push(label(cx+15, 472, "FEET", 5));
     return s.join("");
   }
@@ -4621,8 +4621,8 @@ function renderAnatomyFigure(cfg) {
     s.push(taperedLimb(cx-20,336,18, cx-18,430,11, z("calves")));
     s.push(taperedLimb(cx+20,336,18, cx+18,430,11, z("calves")));
     s.push(label(cx, 388, "CALVES", 5));
-    s.push(`<path d="M${cx-25,450} Q${cx-17,440} ${cx-5,447} Q${cx-1,454} ${cx-8,458} L${cx-23,458} Q${cx-28,455} ${cx-25,450} Z" ${z("feet")}/>`);
-    s.push(`<path d="M${cx+25,450} Q${cx+17,440} ${cx+5,447} Q${cx+1,454} ${cx+8,458} L${cx+23,458} Q${cx+28,455} ${cx+25,450} Z" ${z("feet")}/>`);
+    s.push(`<path d="M${cx-25},450 Q${cx-17},440 ${cx-5},447 Q${cx-1},454 ${cx-8},458 L${cx-23},458 Q${cx-28},455 ${cx-25},450 Z" ${z("feet")}/>`);
+    s.push(`<path d="M${cx+25},450 Q${cx+17},440 ${cx+5},447 Q${cx+1},454 ${cx+8},458 L${cx+23},458 Q${cx+28},455 ${cx+25},450 Z" ${z("feet")}/>`);
     return s.join("");
   }
 
@@ -8054,7 +8054,7 @@ function fmtHM(hrDecimal){
 }
 function nowLocalParts(){
   const d = new Date();
-  return { date:`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`, time:`${pad2(d.getHours())}:${pad2(d.getMinutes())}` };
+  return { date:`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`, time:`${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}` };
 }
 function localTZOffsetHours(){ return -new Date().getTimezoneOffset()/60; }
 
@@ -8114,7 +8114,7 @@ function populateProfileSelect(){
 
 function readDateTime(prefix, dateOverride){
   const dEl = document.getElementById(prefix+"Date")?.value || dateOverride;
-  const t = document.getElementById(prefix+"Time").value || "12:00";
+  const t = document.getElementById(prefix+"Time").value || "00:00";
   const tz = parseFloat(document.getElementById(prefix+"TZ").value || "0");
   const lat = parseFloat(document.getElementById(prefix+"Lat").value || "0");
   const lon = parseFloat(document.getElementById(prefix+"Lon").value || "0");
@@ -8126,11 +8126,12 @@ function readDateTime(prefix, dateOverride){
   // every page that calls getReferencePanchaka() before birth data exists
   // -- callers that don't explicitly guard for it just cascade to NaN
   // output instead of a blank/broken page.
-  if (!dEl) return {jd:NaN, lat, lon, y:NaN, mo:NaN, da:NaN, hh:NaN, mm:NaN, tz, empty:true};
+  if (!dEl) return {jd:NaN, lat, lon, y:NaN, mo:NaN, da:NaN, hh:NaN, mm:NaN, ss:NaN, tz, empty:true};
   const [y,mo,da] = dEl.split("-").map(Number);
-  const [hh,mm] = t.split(":").map(Number);
-  const jd = julianDay(y,mo,da,hh,mm,0, tz);
-  return {jd, lat, lon, y,mo,da,hh,mm,tz};
+  const [hh,mm,ss0] = t.split(":").map(Number);
+  const ss = isFinite(ss0) ? ss0 : 0;
+  const jd = julianDay(y,mo,da,hh,mm,ss, tz);
+  return {jd, lat, lon, y,mo,da,hh,mm,ss,tz};
 }
 
 function getReferencePanchaka(){
@@ -8265,7 +8266,7 @@ function runAnalysis(){
   if (document.getElementById('useNow').checked){
     const n = new Date();
     document.getElementById('mDate').value = `${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;
-    document.getElementById('mTime').value = `${pad2(n.getHours())}:${pad2(n.getMinutes())}`;
+    document.getElementById('mTime').value = `${pad2(n.getHours())}:${pad2(n.getMinutes())}:${pad2(n.getSeconds())}`;
   }
   mdt = readDateTime("m");
   const ay = document.getElementById('ayanamsaMode').value;
@@ -8352,7 +8353,7 @@ function runAnalysis(){
     if (dayRangeMax===null || r.score > dayRangeMax){ dayRangeMax = r.score; dayRangeMaxHh = hh; }
   }
   const dayRangeFlat = dayRangeMin.toFixed(1) === dayRangeMax.toFixed(1);
-  const fmtDayScore = s => `${s>0?'+':''}${s.toFixed(1)}`;
+  const fmtDayScore = s => { const r = Math.round(s * 10) / 10 || 0; return `${r>0?'+':''}${r.toFixed(1)}`; };   // || 0 turns -0 into 0 (no "-0.0")
   const fmtDayHr = hh => `${pad2(Math.floor(hh%24))}:00`;
 
   const hitStarSet = new Set();
@@ -8392,18 +8393,18 @@ function runAnalysis(){
     doshas.length ? `<span class="tag ${doshas.some(d=>d.tone==='bad')?'bad':'good'}">${doshas.length} ${T('doṣa flag(s)','marca(s) de doṣa')}</span>` : `<span class="tag good">${T('No doṣa flags','Sin marcas de doṣa')}</span>`
   ].filter(Boolean).join(' ');
 
-  html += (askNowHtml ? `<div class="pp-asknow-wrap" style="margin-bottom:12px;">${askNowHtml}</div>` : '');
+  // The life-bird "ask now" strip lives on the Pancha Pakshi page (renderPPAskNow).
   html += `<div class="verdict">
     <div class="ribbon" style="background:${tier.color}"></div>
     <div class="body">
-      <div class="tier"><small>${T('Verdict for','Veredicto para')} ${mdt.mo}/${mdt.da}/${mdt.y} · ${weekdayName}, ${mdt.hh}:${pad2(mdt.mm)} ${T('local','hora local')}</small>${tierLabel} <span style="color:${tier.color}">— ${tier.name}</span> <span class="tag neutral" style="font-size:10px; vertical-align:middle;" title="${T('This headline verdict is the SBC (Sarvato Bhadra Chakra) score specifically — Pañcha Pakshi and the other checks below are separate systems, shown in their own panels.','Este veredicto es específicamente la puntuación SBC (Sarvato Bhadra Chakra) — Pañcha Pakshi y las demás comprobaciones de abajo son sistemas aparte, mostrados en sus propios paneles.')}">SBC</span></div>
+      <div class="tier"><small>${T('Outlook for','Panorama para')} ${mdt.mo}/${mdt.da}/${mdt.y} · ${weekdayName}, ${mdt.hh}:${pad2(mdt.mm)}${mdt.ss ? ':' + pad2(mdt.ss) : ''} ${T('local','hora local')}</small>${tierLabel} <span style="color:${tier.color}">— ${tier.name}</span> <span class="tag neutral" style="font-size:10px; vertical-align:middle;" title="${T('This headline outlook is the SBC (Sarvato Bhadra Chakra) score specifically — Pañcha Pakshi and the other checks below are separate systems, shown in their own panels.','Este panorama es específicamente la puntuación SBC (Sarvato Bhadra Chakra) — Pañcha Pakshi y las demás comprobaciones de abajo son sistemas aparte, mostrados en sus propios paneles.')}">SBC</span></div>
       <div class="desc">
         <div class="hint" style="margin-top:4px;">${T('Other classical checks feeding this score — each detailed further down this page:','Otras comprobaciones clásicas que alimentan esta puntuación — cada una detallada más abajo en esta página:')}</div>
         <div class="pillrow" style="margin-top:6px;">${componentChips}</div>
       </div>
     </div>
     <div class="score">
-      <div class="n" style="color:${tier.color}">${score>0?'+':''}${score.toFixed(1)}</div>
+      <div class="n" style="color:${tier.color}">${fmtDayScore(score)}</div>
       <div class="l">${T('SBC score','Puntuación SBC')}</div>
       <div class="range" title="${T('Sampled every 2h from today\'s real sunrise','Muestreado cada 2h desde el amanecer real de hoy')}">${dayRangeFlat
         ? `<span class="t">${T('flat today','sin variación hoy')}</span>`
@@ -8549,7 +8550,7 @@ function runAnalysis(){
         <div class="grid2" style="margin-top:16px; padding-top:14px; border-top:1px solid var(--line);">
         <div>
           <h3 style="margin:0 0 8px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('General SBC reading','Lectura general SBC')}</h3>
-          <div class="hint" style="margin-bottom:8px; line-height:1.6;">${T('A plain count of what\'s landing on the ring right now — a graha counts the same here whether it\'s exalted or debilitated. Separate from the dignity-weighted SBC score in the verdict above; the two can disagree.','Un recuento simple de lo que está cayendo en el anillo ahora mismo — un graha cuenta igual aquí sea exaltado o debilitado. Es independiente de la puntuación SBC ponderada por dignidad del veredicto de arriba; ambas pueden discrepar.')}</div>
+          <div class="hint" style="margin-bottom:8px; line-height:1.6;">${T('A plain count of what\'s landing on the ring right now — a graha counts the same here whether it\'s exalted or debilitated. Separate from the dignity-weighted SBC score in the outlook above; the two can disagree.','Un recuento simple de lo que está cayendo en el anillo ahora mismo — un graha cuenta igual aquí sea exaltado o debilitado. Es independiente de la puntuación SBC ponderada por dignidad del panorama de arriba; ambas pueden discrepar.')}</div>
           <div class="pillrow">
             <span class="tag good">${vedha.beneficHits.length} ${T('benefic hit(s)','golpe(s) benéfico(s)')}</span>
             <span class="tag bad">${vedha.maleficHits.length} ${T('malefic hit(s)','golpe(s) maléfico(s)')}</span>
@@ -8593,8 +8594,8 @@ function runAnalysis(){
             const vedhaTone = vedha.beneficHits.length>vedha.maleficHits.length ? 'good' : vedha.maleficHits.length>vedha.beneficHits.length ? 'bad' : 'mixed';
             const agree = vedhaTone===western.tone;
             return agree
-              ? T('This tropical read lands on the same side as the SBC verdict above — two independent systems, one direction.','Esta lectura trópica cae del mismo lado que el veredicto SBC de arriba — dos sistemas independientes, una misma dirección.')
-              : T('This tropical read diverges from the SBC verdict above — worth weighing both rather than treating either as the whole picture.','Esta lectura trópica diverge del veredicto SBC de arriba — conviene sopesar ambas en vez de tomar una sola como el cuadro completo.');
+              ? T('This tropical read lands on the same side as the SBC reading above — two independent systems, one direction.','Esta lectura trópica cae del mismo lado que la lectura SBC de arriba — dos sistemas independientes, una misma dirección.')
+              : T('This tropical read diverges from the SBC reading above — worth weighing both rather than treating either as the whole picture.','Esta lectura trópica diverge de la lectura SBC de arriba — conviene sopesar ambas en vez de tomar una sola como el cuadro completo.');
           })()}</div>
         </div>
         </div>
@@ -8602,8 +8603,8 @@ function runAnalysis(){
     </div>
     <div class="panel"><div class="hd"><h2>${T('Planet, sign, dignity, rulership, friendship etc.','Planeta, signo, dignidad, señorío, amistad, etc.')}</h2><span class="note">${T('Current Transit','Tránsito Actual')}</span></div>
       <div class="bd">
-        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>D1</th><th>D9</th><th></th></tr></thead><tbody>${navStrengthRows}</tbody></table></div>
-        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('This table is advisory, not a point formula the way Vedha grading below gives explicit numbers — shown for context only, and does NOT feed into the SBC score. A graha strong here but weak in D1 (or vice versa) is worth weighing yourself when reading the verdict. Vargottama (gold row) = same sign in both D1 and D9, classically a real strength marker.','Esta tabla es orientativa, no una fórmula de puntos como la que da la gradación de Vedha de abajo con números explícitos — se muestra solo como contexto, y NO se incorpora a la puntuación SBC. Un graha fuerte aquí pero débil en D1 (o viceversa) conviene sopesarlo tú al leer el veredicto. Vargottama (fila dorada) = mismo signo en D1 y D9, clásicamente un indicador real de fuerza.')}</div>
+        <div class="tblwrap"><table style="white-space:nowrap;"><thead><tr><th>${T('Graha','Graha')}</th><th>D1</th><th>D9</th><th></th></tr></thead><tbody>${navStrengthRows}</tbody></table></div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('This table is advisory, not a point formula the way Vedha grading below gives explicit numbers — shown for context only, and does NOT feed into the SBC score. A graha strong here but weak in D1 (or vice versa) is worth weighing yourself when reading the outlook. Vargottama (gold row) = same sign in both D1 and D9, classically a real strength marker.','Esta tabla es orientativa, no una fórmula de puntos como la que da la gradación de Vedha de abajo con números explícitos — se muestra solo como contexto, y NO se incorpora a la puntuación SBC. Un graha fuerte aquí pero débil en D1 (o viceversa) conviene sopesarlo tú al leer el panorama. Vargottama (fila dorada) = mismo signo en D1 y D9, clásicamente un indicador real de fuerza.')}</div>
       </div>
     </div>
   </div>`;
@@ -8625,14 +8626,14 @@ function runAnalysis(){
     <b>Method:</b> a graha's Vedha direction (Front/Right/Left) follows its own daily motion; the star it strikes comes from a fixed
     aspect table keyed to that direction. A hit on the Janma Nakṣatra, Rāśi, Consonant or Vowel is scored by type; Tārā Bala,
     Latta and Upagraha add classical cautionary/favourable weight on top. This is a rules skeleton, not a substitute for a qualified
-    Jyotiṣī's judgment — treat the verdict as a starting point for reading the chart yourself.`,
+    Jyotiṣī's judgment — treat this reading as a starting point for reading the chart yourself.`,
     `<b>Vedha de vocal (ⓘ):</b> aún no modelado — las vocales se vinculan a celdas de esquina específicas de la cuadrícula completa
     de 81 celdas en vez de a una regla por estrella, y necesitan la cuadrícula completa (no solo el perímetro) para calcularse correctamente.
     El Vedha de Estrella, Rāśi y Consonante sí está activo.<br>
     <b>Método:</b> la dirección del Vedha de un graha (Frente/Derecha/Izquierda) sigue su propio movimiento diario; la estrella que
     golpea proviene de una tabla de aspecto fija según esa dirección. Un golpe sobre la Janma Nakṣatra, Rāśi, Consonante o Vocal se puntúa según su
     tipo; el Tārā Bala, Latta y Upagraha añaden peso cautelar/favorable clásico encima. Esto es un esqueleto de
-    reglas, no un sustituto del juicio de un Jyotiṣī cualificado — trata el veredicto como un punto de partida para leer la carta tú mismo.`)}
+    reglas, no un sustituto del juicio de un Jyotiṣī cualificado — trata esta lectura como un punto de partida para leer la carta tú mismo.`)}
   </footer>`;
 
   document.getElementById('results').innerHTML = html;
@@ -8687,7 +8688,7 @@ function showPage(pageId){
   if (PAGES_NEEDING_BIRTH_DATA[pageId]) renderPageOrBirthDataPlaceholder(pageId);
   if (pageId === 'pageAntara') renderAntaraChakraPage();
   if (pageId === 'pageHorary') renderHoraryPage();
-  if (pageId === 'pagePanchaPakshi'){ renderPanchaPakshiLadder(); renderPPPanel(); }
+  if (pageId === 'pagePanchaPakshi'){ renderPPAskNow(); renderPanchaPakshiLadder(); renderPPPanel(); }
 }
 
 // ---- House Lord Results (panel on the Natal General Reading page) ----
@@ -10758,7 +10759,6 @@ function yogaSafetyLine(num, themeList){
       </div>
     </div>
 
-    ${houseLordPanel}
   `;
 }
 function gNameNatal(g){ return T(g, GRAHA_ES[g]); }
@@ -11508,7 +11508,7 @@ function renderVargaPage(){
             <option value="portion" ${VARGA_OPTS.d60Class==='portion'?'selected':''}>${T('By the list of harsh portions','Por la lista de porciones duras')}</option>
             <option value="named" ${VARGA_OPTS.d60Class==='named'?'selected':''}>${T('By each named portion','Por cada porción nombrada')}</option>
           </select></label>
-          <div class="hint" style="margin-bottom:10px;">${T('The 60 portion names and their benefic / malefic classes are thinly attested. The two classical lists disagree on 12 of the 60 portions, and where they do, the other list is shown beside the tag. Take the class as a hint, not a verdict. Each portion is only half a degree wide, so a few minutes of birth time, or the lunar node model (mean or true), can move a planet into the next one. The name depends only on the degree, whichever counting is chosen above.','Los 60 nombres de porción y su clase benéfica / maléfica están poco documentados. Las dos listas clásicas discrepan en 12 de las 60 porciones, y donde discrepan, la otra lista se muestra junto a la etiqueta. Toma la clase como indicio, no como veredicto. Cada porción mide solo medio grado, así que unos minutos de hora de nacimiento, o el modelo del nodo lunar (medio o verdadero), pueden llevar un planeta a la siguiente. El nombre depende solo del grado, sea cual sea el cómputo elegido arriba.')}</div>` : ''}
+          <div class="hint" style="margin-bottom:10px;">${T('The 60 portion names and their benefic / malefic classes are thinly attested. The two classical lists disagree on 12 of the 60 portions, and where they do, the other list is shown beside the tag. Take the class as a hint, not a ruling. Each portion is only half a degree wide, so a few minutes of birth time, or the lunar node model (mean or true), can move a planet into the next one. The name depends only on the degree, whichever counting is chosen above.','Los 60 nombres de porción y su clase benéfica / maléfica están poco documentados. Las dos listas clásicas discrepan en 12 de las 60 porciones, y donde discrepan, la otra lista se muestra junto a la etiqueta. Toma la clase como indicio, no como dictamen. Cada porción mide solo medio grado, así que unos minutos de hora de nacimiento, o el modelo del nodo lunar (medio o verdadero), pueden llevar un planeta a la siguiente. El nombre depende solo del grado, sea cual sea el cómputo elegido arriba.')}</div>` : ''}
         <div class="tblwrap"><table><thead><tr><th>${T('Body','Cuerpo')}</th>${vargaHeaderCells}</tr></thead><tbody>${planetRows}${upagrahaRows}</tbody></table></div>
         <div class="hint" style="margin-top:10px;">${T(`Showing ${def.key} (${def.name} — ${def.purpose.en.toLowerCase()}) only, alongside the D1 position. Change the dropdown above to read a different division; the chart and the readings below update to match. Purpose names: D1 body · D2 wealth · D3 siblings · D4 fortune/property · D7 children · D9 spouse/dharma · D10 career/power · D12 parents · D16 vehicles · D20 spiritual · D24 education · D27 strengths · D30 misfortunes · D40 maternal · D45 paternal · D60 all matters.`,`Mostrando solo ${def.key} (${def.name} — ${def.purpose.es.toLowerCase()}), junto a la posición D1. Cambia el desplegable de arriba para leer otra división; la carta y las lecturas de abajo se actualizan para coincidir. Propósitos: D1 cuerpo · D2 riqueza · D3 hermanos · D4 fortuna/propiedad · D7 hijos · D9 cónyuge/dharma · D10 carrera/poder · D12 padres · D16 vehículos · D20 espiritual · D24 educación · D27 fortalezas · D30 desgracias · D40 materno · D45 paterno · D60 todos los asuntos.`)}</div>
       </div>
@@ -11842,9 +11842,9 @@ function renderAshtakavargaPage(){
   }).join('');
 
   const overallVerdict = weakCount>=4
-    ? {label:T('Multiple weak transits right now — a caution worth weighing alongside the SBC verdict','Varios tránsitos débiles ahora mismo — una precaución a sopesar junto al veredicto SBC'), cls:'bad'}
+    ? {label:T('Multiple weak transits right now — a caution worth weighing alongside the SBC reading','Varios tránsitos débiles ahora mismo — una precaución a sopesar junto a la lectura SBC'), cls:'bad'}
     : strongCount>=4
-    ? {label:T('Multiple strong transits right now — a favourable sign corroborating (or not) the SBC verdict','Varios tránsitos fuertes ahora mismo — una señal favorable que corrobora (o no) el veredicto SBC'), cls:'good'}
+    ? {label:T('Multiple strong transits right now — a favourable sign corroborating (or not) the SBC reading','Varios tránsitos fuertes ahora mismo — una señal favorable que corrobora (o no) la lectura SBC'), cls:'good'}
     : {label:T('Mixed — this system doesn\'t lean strongly either way for this moment','Mixto — este sistema no se inclina con fuerza en ninguna dirección para este momento'), cls:'neutral'};
 
   const sarvaSignRows = SIGNS.map((s,i)=>{
@@ -12232,6 +12232,7 @@ function renderDashaPage(){
     ${renderDrigDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderSthiraDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderRectificationPanel(birthPos, bdt)}
+    ${renderJupiterCyclesPanel()}
   `;
 }
 
@@ -12978,6 +12979,38 @@ function renderBsLimbTable(highlight){
   return `<div class="tblwrap"><table><thead><tr><th>${T('Limb','Miembro')}</th><th>${T('Star(s)','Estrella(s)')}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
+
+// Bṛhaspati (Jupiter) cycles panel — live, person-independent; shown on the Dasha page.
+function renderJupiterCyclesPanel(){
+  const n = new Date();
+  const jd = julianDay(n.getFullYear(), n.getMonth()+1, n.getDate(), n.getHours(), n.getMinutes(), n.getSeconds(), -n.getTimezoneOffset()/60);
+  const ay = document.getElementById('ayanamsaMode') ? document.getElementById('ayanamsaMode').value : 'lahiri';
+  const pos = computePositions(jd, 0, 0, ay);
+  const jupVatsara = jupiterVatsaraForNakshatra(nakshatraFromSidereal(norm360(pos.Jupiter.sidereal), false).name);
+  const j60 = computeJupiter60Cycle(jd);
+  const [j60name, j60pred] = j60.entry.split(' — ');
+  return `
+    <div class="panel"><div class="hd"><h2>${T('Bṛhaspati (Jupiter) Cycles','Ciclos de Bṛhaspati (Júpiter)')}</h2><span class="note">${T('live','en vivo')}</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px;">${T('Two nested cycles from the source\'s own chapter on Jupiter — always live, independent of any reference person.','Dos ciclos anidados del propio capítulo de la fuente sobre Júpiter — siempre en vivo, independiente de cualquier persona de referencia.')}</div>
+        <h3 style="margin:0 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('12-year Vatsara (from Jupiter\'s current Nakṣatra)','Vatsara de 12 años (según el Nakṣatra actual de Júpiter)')}</h3>
+        ${jupVatsara ? `<div class="kv">
+          <div class="k">${T('Jupiter in','Júpiter en')}</div><div class="v">${nakshatraFromSidereal(norm360(pos.Jupiter.sidereal), false).name}</div>
+          <div class="k">${T('Vatsara year','Año Vatsara')}</div><div class="v"><b style="color:var(--gold);">${jupVatsara.name}</b></div>
+        </div>
+        <div class="effect-box"><div class="effect-label">${T('What the source says happens this Vatsara year','Lo que dice la fuente que sucede este año Vatsara')}</div><div class="effect-text">${jupVatsara.text}</div></div>` : `<div class="hint">${T('Could not resolve — please report this.','No se pudo resolver — por favor repórtalo.')}</div>`}
+
+        <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('60-year cycle','Ciclo de 60 años')}</h3>
+        <div class="kv">
+          <div class="k">${T('This year','Este año')}</div><div class="v"><b style="color:var(--gold);">${j60name}</b> <span style="color:var(--slate);">(${T('year','año')} ${j60.pos+1} ${T('of 60','de 60')})</span></div>
+          <div class="k">Yuga</div><div class="v">${j60.yugaIdx+1}/12 — ${T(j60.yugaDeity,j60.yugaDeity)}</div>
+          <div class="k">${T('Generic name','Nombre genérico')}</div><div class="v">${j60.subYear.name} <span style="color:var(--slate);">(${T('sacred to','sagrado a')} ${j60.subYear.deity})</span></div>
+        </div>
+        <div class="effect-box"><div class="effect-label">${T('What the source says happens in a year named','Lo que dice la fuente que sucede en un año llamado')} ${j60name}</div><div class="effect-text">${j60pred}</div></div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The 60-year count is anchored on a fixed historical epoch ("Kaliyuga commenced in Vijaya, the 27th year from Prabhava") plus a standard solar-to-Jupiter-year conversion factor.','El conteo de 60 años está anclado en una época histórica fija ("Kaliyuga comenzó en Vijaya, el año 27 desde Prabhava") más un factor estándar de conversión de años solares a años de Júpiter.')}</div>
+      </div>
+    </div>`;
+}
 function renderNakshatraPage(){
   const container = document.getElementById('nakshatraPageContent');
   if (!container) return;
@@ -13042,26 +13075,7 @@ function renderNakshatraPage(){
       </div>
     </div>
 
-    <div class="panel"><div class="hd"><h2>${T('Bṛhaspati (Jupiter) Cycles','Ciclos de Bṛhaspati (Júpiter)')}</h2><span class="note">${T('live','en vivo')}</span></div>
-      <div class="bd">
-        <div class="hint" style="margin-bottom:10px;">${T('Two nested cycles from the source\'s own chapter on Jupiter — always live, independent of any reference person.','Dos ciclos anidados del propio capítulo de la fuente sobre Júpiter — siempre en vivo, independiente de cualquier persona de referencia.')}</div>
-        <h3 style="margin:0 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('12-year Vatsara (from Jupiter\'s current Nakṣatra)','Vatsara de 12 años (según el Nakṣatra actual de Júpiter)')}</h3>
-        ${jupVatsara ? `<div class="kv">
-          <div class="k">${T('Jupiter in','Júpiter en')}</div><div class="v">${nakshatraFromSidereal(norm360(pos.Jupiter.sidereal), false).name}</div>
-          <div class="k">${T('Vatsara year','Año Vatsara')}</div><div class="v"><b style="color:var(--gold);">${jupVatsara.name}</b></div>
-        </div>
-        <div class="effect-box"><div class="effect-label">${T('What the source says happens this Vatsara year','Lo que dice la fuente que sucede este año Vatsara')}</div><div class="effect-text">${jupVatsara.text}</div></div>` : `<div class="hint">${T('Could not resolve — please report this.','No se pudo resolver — por favor repórtalo.')}</div>`}
-
-        <h3 style="margin:16px 0 6px; font-size:12px; letter-spacing:0.03em; color:var(--gold); text-transform:uppercase;">${T('60-year cycle','Ciclo de 60 años')}</h3>
-        <div class="kv">
-          <div class="k">${T('This year','Este año')}</div><div class="v"><b style="color:var(--gold);">${j60name}</b> <span style="color:var(--slate);">(${T('year','año')} ${j60.pos+1} ${T('of 60','de 60')})</span></div>
-          <div class="k">Yuga</div><div class="v">${j60.yugaIdx+1}/12 — ${T(j60.yugaDeity,j60.yugaDeity)}</div>
-          <div class="k">${T('Generic name','Nombre genérico')}</div><div class="v">${j60.subYear.name} <span style="color:var(--slate);">(${T('sacred to','sagrado a')} ${j60.subYear.deity})</span></div>
-        </div>
-        <div class="effect-box"><div class="effect-label">${T('What the source says happens in a year named','Lo que dice la fuente que sucede en un año llamado')} ${j60name}</div><div class="effect-text">${j60pred}</div></div>
-        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The 60-year count is anchored on a fixed historical epoch ("Kaliyuga commenced in Vijaya, the 27th year from Prabhava") plus a standard solar-to-Jupiter-year conversion factor.','El conteo de 60 años está anclado en una época histórica fija ("Kaliyuga comenzó en Vijaya, el año 27 desde Prabhava") más un factor estándar de conversión de años solares a años de Júpiter.')}</div>
-      </div>
-    </div>`;
+`;
 
   // Live star-and-lunar-day reading. lat/lon are 0 here, which is fine —
   // nakṣatra and tithi both come from ecliptic longitude alone, and nothing
@@ -13470,7 +13484,7 @@ function openCalendarMoment(year, month1to12, day, hh){
   const d = new Date(year, month1to12-1, day, 0, 0, 0);
   d.setHours(hh, 0, 0, 0); // rolls over correctly for hh >= 24 (night-half samples)
   document.getElementById('mDate').value = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-  document.getElementById('mTime').value = `${pad2(d.getHours())}:00`;
+  document.getElementById('mTime').value = `${pad2(d.getHours())}:00:00`;
   showPage('pageMuhurta');
   runAnalysis();
 }
@@ -18441,7 +18455,7 @@ function renderChintamaniPage(){
     activityBodyHtml = `
       <label>${T('Which reckoning to apply','Qué cómputo aplicar')}</label>
       <select id="chintamaniMarriageRules">${ruleOptions.map(([v,l])=>`<option value="${v}" ${rs===v?'selected':''}>${l}</option>`).join('')}</select>
-      <div class="okbox" style="margin:12px 0;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+      <div class="okbox" style="margin:12px 0;"><b>${T('Outlook','Panorama')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
       ${starChecks ? (rs==='both'?sub(T('Star & lunar-day rules','Reglas de estrella y día lunar')):'') + tbl(starChecks) : ''}
       ${houseChecks ? (rs==='both'?sub(T('Rising-sign & house rules','Reglas de signo ascendente y casas')):'') + tbl(houseChecks) : ''}
       ${houseChecks ? `<div class="hint" style="margin-top:10px; line-height:1.6;">${T('Two clauses of this reckoning are not scored above, because they need both people rather than a moment: the bride\'s and groom\'s birth signs should not fall 2nd/12th, 5th/9th or 6th/8th from the elected Moon\'s sign, and the groom\'s Sun and the bride\'s Moon should both be well placed in transit. The two-person panel further down this page is where that comparison belongs. One placement below also departs from the usual rule — malefics are welcomed in the 8th here alongside the ordinary 3rd, 6th and 11th, and it is left as given rather than quietly corrected.','Dos cláusulas de este cómputo no se puntúan arriba, porque necesitan a ambas personas y no solo un momento: los signos natales de la novia y el novio no deben caer 2.º/12.º, 5.º/9.º ni 6.º/8.º desde el signo de la Luna elegida, y el Sol del novio y la Luna de la novia deben estar bien situados en tránsito. El panel de dos personas más abajo es donde corresponde esa comparación. Una colocación de abajo también se aparta de la regla habitual — aquí se admiten maléficos en la 8.ª junto a las ordinarias 3.ª, 6.ª y 11.ª, y se deja tal cual en vez de corregirlo en silencio.')}</div>` : ''}
@@ -18455,7 +18469,7 @@ function renderChintamaniPage(){
     activityBodyHtml = `
       <label>${T('Direction of travel (optional)','Dirección del viaje (opcional)')}</label>
       <select id="chintamaniDirection">${['','North','Northeast','East','Southeast','South','Southwest','West','Northwest'].map(d=>`<option value="${d}" ${direction===d?'selected':''}>${d||T('— not set —','— sin definir —')}</option>`).join('')}</select>
-      <div class="okbox" style="margin:12px 0;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+      <div class="okbox" style="margin:12px 0;"><b>${T('Outlook','Panorama')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
       <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
   } else if (chintamaniActivity === 'relocation'){
     const personName = document.getElementById('chintamaniPersonName')?.value ?? (document.getElementById('bName').value || '');
@@ -18476,14 +18490,14 @@ function renderChintamaniPage(){
     activityBodyHtml = `
       <label>${T('Direction the door faces (optional)','Dirección a la que mira la puerta (opcional)')}</label>
       <select id="chintamaniDirection">${['','North','South','East','West'].map(d=>`<option value="${d}" ${direction===d?'selected':''}>${d||T('— not set —','— sin definir —')}</option>`).join('')}</select>
-      <div class="okbox" style="margin:12px 0;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+      <div class="okbox" style="margin:12px 0;"><b>${T('Outlook','Panorama')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
       <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>
       ${kumbhaHtml}`;
   } else if (chintamaniActivity === 'yajna'){
     const checks = chintamaniYajnaGuideline(pos, panch);
     const failCount = checks.filter(c=>!c.ok).length;
     const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=2 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
-    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Outlook','Panorama')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
       <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
   } else if (chintamaniActivity === 'shaving'){
     const localHr = mdt.hh + (mdt.mm||0)/60;
@@ -18491,7 +18505,7 @@ function renderChintamaniPage(){
     const failCount = checks.filter(c=>!c.ok).length;
     const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=1 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
     activityBodyHtml = `
-      <div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+      <div class="okbox" style="margin-bottom:12px;"><b>${T('Outlook','Panorama')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
       <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>
       <div class="hint" style="margin-top:10px; line-height:1.6;">${T(`The rest of the rule is about <b>state, not sky</b>, so it cannot be scored from a chart and is left to you: shaving is barred straight after a bath or a meal, once you are already dressed and ornamented, just before setting out on a journey, while seated on nothing, and on the ninth day after your last shave. Cutting the other way, every restriction above lifts — any star will do — when the occasion itself compels it: ${BS_SHAVE_OVERRIDES.en}.`,
         `El resto de la regla trata del <b>estado, no del cielo</b>, así que no puede calcularse desde una carta y queda a tu criterio: se prohíbe afeitarse justo después del baño o de comer, ya vestido y adornado, justo antes de emprender un viaje, sentado sobre nada, y al noveno día del afeitado anterior. En sentido contrario, toda restricción de arriba se levanta — sirve cualquier estrella — cuando la ocasión misma lo exige: ${BS_SHAVE_OVERRIDES.es}.`)}</div>`;
@@ -18499,34 +18513,34 @@ function renderChintamaniPage(){
     const checks = bsWarGuideline(pos, panch, weekdayName);
     const failCount = checks.filter(c=>!c.ok).length;
     const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=1 ? {label:T('Medium','Medio'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
-    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div><div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
+    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Outlook','Panorama')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div><div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
   } else if (chintamaniActivity === 'weapons'){
     const checks = bsWeaponsGuideline(panch);
     const failCount = checks.filter(c=>!c.ok).length;
     const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=1 ? {label:T('Medium','Medio'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
-    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div><div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
+    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Outlook','Panorama')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div><div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
   } else if (chintamaniActivity === 'nails'){
     const checks = bsNailsGuideline(panch, weekdayName);
     const failCount = checks.filter(c=>!c.ok).length;
     const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=1 ? {label:T('Medium','Medio'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
-    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div><div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
+    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Outlook','Panorama')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div><div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
   } else if (chintamaniActivity === 'coronation'){
     const checks = bsCoronationGuideline(pos, panch, weekdayName);
     const failCount = checks.filter(c=>!c.ok).length;
     const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=1 ? {label:T('Medium','Medio'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
-    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div><div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
+    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Outlook','Panorama')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div><div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
   } else if (chintamaniActivity === 'trade'){
     const checks = bsTradeGuideline(pos, panch, weekdayName);
     const failCount = checks.filter(c=>!c.ok).length;
     const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=1 ? {label:T('Medium','Medio'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
-    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div><div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
+    activityBodyHtml = `<div class="okbox" style="margin-bottom:12px;"><b>${T('Outlook','Panorama')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div><div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>`;
   } else if (chintamaniActivity === 'general'){
     const checks = bsGeneralUndertakingGuideline(pos, panch);
     const failCount = checks.filter(c=>!c.ok).length;
     const verdict = failCount===0 ? {label:T('Auspicious','Auspicioso'),cls:'good'} : failCount<=2 ? {label:T('Medium — some doṣas present','Medio — hay algunos doṣas'),cls:'neutral'} : {label:T('Inauspicious','Desfavorable'),cls:'bad'};
     const entryOk = panch.ascSign === BS_HOUSE_ENTRY_ASC;
     activityBodyHtml = `
-      <div class="okbox" style="margin-bottom:12px;"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
+      <div class="okbox" style="margin-bottom:12px;"><b>${T('Outlook','Panorama')}:</b> <span class="tag ${verdict.cls}">${verdict.label}</span></div>
       <div class="tblwrap"><table><tbody>${checks.map(c=>`<tr><td class="wide">${c.label}${c.info?`<div class="hint" style="margin-top:2px;">${c.info}</div>`:''}</td><td><span class="tag ${c.ok?'good':'bad'}">${c.ok?T('OK','OK'):T('flagged','señalado')}</span></td></tr>`).join('')}</tbody></table></div>
       <div class="hint" style="margin-top:10px; line-height:1.6;">${T('This one is not tied to a particular undertaking. The claim is that <i>any</i> venture succeeds when the grid is clean this way — the angles and the two houses of loss held free of harm, the harmful planets pushed into the three houses where their pressure is said to work for you rather than against you, and a benefic standing guard on the rising sign or an angle. Read it as a floor under whatever else you are judging, not as a replacement for the activity-specific readings above.','Esta no está atada a una empresa concreta. La afirmación es que <i>cualquier</i> empresa prospera cuando la retícula está limpia así — los ángulos y las dos casas de pérdida libres de daño, los planetas dañinos empujados a las tres casas donde se dice que su presión obra a tu favor y no en tu contra, y un benéfico montando guardia en el signo ascendente o en un ángulo. Léelo como un suelo bajo lo que sea que estés juzgando, no como sustituto de las lecturas por actividad de arriba.')}</div>
       <div class="hint" style="margin-top:10px; line-height:1.6;">${T(`<b style="color:var(--muted)">Building or entering a house?</b> The same rule adds a rider there: the rising sign should be both settled and fixed, and once the exclusions are applied only <b>Taurus</b> survives as a permitted ascendant. Right now ${panch.ascSign} is rising, so that rider is ${entryOk?'<b style="color:var(--jade)">met</b>':'<b style="color:var(--vermilion)">not met</b>'}. It bears only on houses, so it is left out of the count above. The rider also asks that neither the rising sign nor the Moon\'s sign be 8th or 12th from the owner\'s own birth ascendant and Moon — which needs the owner\'s chart, not this moment.`,
@@ -18537,7 +18551,7 @@ function renderChintamaniPage(){
     <div class="panel">
       <div class="hd"><h2>${T('Muhūrta','Muhūrta')}</h2></div>
       <div class="bd">
-        <div class="hint">${T('A second classical muhūrta source alongside the SBC engine above. Deliberately kept separate from the SBC score — everything below is its own outright auspicious/inauspicious read, not a number added to the verdict elsewhere on this app. Region-locked variants from the source (e.g. rules the text itself scopes to a specific province) are skipped rather than applied universally.','Una segunda fuente clásica de muhūrta junto al motor SBC de arriba. Se mantiene deliberadamente separada de la puntuación SBC — todo lo de abajo es su propia lectura auspiciosa/desfavorable directa, no un número que se suma al veredicto de otra parte de esta app. Las variantes de doṣa limitadas a una región (p. ej. reglas que el propio texto restringe a una provincia específica) se omiten en vez de aplicarse universalmente.')}</div>
+        <div class="hint">${T('A second classical muhūrta source alongside the SBC engine above. Deliberately kept separate from the SBC score — everything below is its own outright auspicious/inauspicious read, not a number added to the outlook elsewhere on this app. Region-locked variants from the source (e.g. rules the text itself scopes to a specific province) are skipped rather than applied universally.','Una segunda fuente clásica de muhūrta junto al motor SBC de arriba. Se mantiene deliberadamente separada de la puntuación SBC — todo lo de abajo es su propia lectura auspiciosa/desfavorable directa, no un número que se suma al panorama de otra parte de esta app. Las variantes de doṣa limitadas a una región (p. ej. reglas que el propio texto restringe a una provincia específica) se omiten en vez de aplicarse universalmente.')}</div>
       </div>
     </div>
 
@@ -18694,10 +18708,11 @@ function updateAshtakootaResult(){
   const dtA = readDateTime('b');
   const posA = computePositions(dtA.jd, dtA.lat, dtA.lon, ay);
   const [py,pmo,pda] = chintamaniPersonB.date.split('-').map(Number);
-  const [phh,pmm] = chintamaniPersonB.time.split(':').map(Number);
+  const [phh,pmm,pss0] = chintamaniPersonB.time.split(':').map(Number);
+  const pss = isFinite(pss0) ? pss0 : 0;
   const ptz = parseFloat(chintamaniPersonB.tz || '0');
   const plat = parseFloat(chintamaniPersonB.lat || '0'), plon = parseFloat(chintamaniPersonB.lon || '0');
-  const jdB = julianDay(py,pmo,pda,phh,pmm,0,ptz);
+  const jdB = julianDay(py,pmo,pda,phh,pmm,pss,ptz);
   const posB = computePositions(jdB, plat, plon, ay);
 
   const ak = computeAshtakoota(posA, posB);
@@ -18739,8 +18754,8 @@ function updateAshtakootaResult(){
       ${kujaRow(T('Person A','Persona A'), kujaA)}
       ${kujaRow(T('Person B','Persona B'), kujaB)}
     </tbody></table></div>
-    <div class="hint" style="margin-top:8px; line-height:1.6;">${T(`This app can't verify a standalone classical basis for "Maṅgala Doṣa" as its own named doctrine — the underlying text is about Mars\'s house placement, and the doṣa framing is a later, widely-taught reading of it. Jupiter's aspect or conjunction on Mars is traditionally said to lift this affliction; that claim is genuinely disputed even within the tradition, so it's shown below without a verdict.`,
-      `Esta app no puede verificar una base clásica independiente para "Maṅgala Doṣa" como doctrina propia con nombre — el verso subyacente trata de la ubicación de Marte por casa, y el encuadre como doṣa es una lectura posterior y muy difundida de él. Se dice tradicionalmente que el aspecto o conjunción de Júpiter sobre Marte levanta esta aflicción; esa afirmación está genuinamente disputada incluso dentro de la tradición, así que se muestra abajo sin veredicto.`)}
+    <div class="hint" style="margin-top:8px; line-height:1.6;">${T(`This app can't verify a standalone classical basis for "Maṅgala Doṣa" as its own named doctrine — the underlying text is about Mars\'s house placement, and the doṣa framing is a later, widely-taught reading of it. Jupiter's aspect or conjunction on Mars is traditionally said to lift this affliction; that claim is genuinely disputed even within the tradition, so it's shown below without a ruling.`,
+      `Esta app no puede verificar una base clásica independiente para "Maṅgala Doṣa" como doctrina propia con nombre — el verso subyacente trata de la ubicación de Marte por casa, y el encuadre como doṣa es una lectura posterior y muy difundida de él. Se dice tradicionalmente que el aspecto o conjunción de Júpiter sobre Marte levanta esta aflicción; esa afirmación está genuinamente disputada incluso dentro de la tradición, así que se muestra abajo sin dictamen.`)}
       ${T('Jupiter on Mars right now','Júpiter sobre Marte ahora mismo')}: <span class="tag neutral">${kujaA.jupiterOnMars?T('yes (Person A\'s chart)','sí (carta de la Persona A)'):T('no (Person A\'s chart)','no (carta de la Persona A)')}</span></div>
 
     <h3 style="margin:16px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Vimśopaka Bala — Person A\'s current placements','Vimśopaka Bala — posiciones actuales de la Persona A')}</h3>
@@ -18772,7 +18787,7 @@ function renderMatchmakingPage(){
           <div><label>${T('Birth date','Fecha de nacimiento')}</label><input type="date" id="pbDate" value="${chintamaniPersonB.date}"></div>
         </div>
         <div class="row2">
-          <div><label>${T('Birth time (local)','Hora de nacimiento (local)')}</label><input type="time" id="pbTime" value="${chintamaniPersonB.time}" step="60"></div>
+          <div><label>${T('Birth time (local)','Hora de nacimiento (local)')}</label><input type="time" id="pbTime" value="${chintamaniPersonB.time}" step="1"></div>
           <div><label>${T('UTC offset (hrs)','Desfase UTC (hrs)')}</label><input type="text" inputmode="decimal" id="pbTZ" value="${chintamaniPersonB.tz}" placeholder="${T('e.g. -4','p. ej. -4')}"></div>
         </div>
         <div class="hint" style="margin-top:-6px; margin-bottom:6px;">${T("Double-check this UTC offset yourself — it's an estimate (or your own manual entry) and can be wrong for historical dates or unusual regional rules. A wrong offset shifts every computed position, including the ascendant.", "Verifica tú mismo este desfase UTC — es una estimación (o tu propia entrada manual) y puede ser incorrecta en fechas históricas o reglas regionales inusuales. Un desfase incorrecto desplaza todas las posiciones calculadas, incluido el ascendente.")}</div>
@@ -18826,7 +18841,7 @@ function updateChintamaniRelocation(){
     return;
   }
   resultEl.innerHTML = `
-    <div class="okbox"><b>${T('Verdict','Veredicto')}:</b> <span class="tag ${rel.auspicious?'good':'bad'}">${rel.auspicious?T('Auspicious placement','Ubicación auspiciosa'):T('Inauspicious — ','Desfavorable — ')+(rel.effect?T(rel.effect.en,rel.effect.es):T('no stated effect for this house','sin efecto indicado para esta casa'))}</span></div>
+    <div class="okbox"><b>${T('Outlook','Panorama')}:</b> <span class="tag ${rel.auspicious?'good':'bad'}">${rel.auspicious?T('Auspicious placement','Ubicación auspiciosa'):T('Inauspicious — ','Desfavorable — ')+(rel.effect?T(rel.effect.en,rel.effect.es):T('no stated effect for this house','sin efecto indicado para esta casa'))}</span></div>
     <div class="kv" style="margin-top:8px;">
       <div class="k">${T('Person\'s name-Rāśi','Rāśi del nombre de la persona')}</div><div class="v">${rel.personRashi}</div>
       <div class="k">${T('City\'s name-Rāśi','Rāśi del nombre de la ciudad')}</div><div class="v">${rel.cityRashi}</div>
@@ -18897,6 +18912,16 @@ function renderPanchaPakshiLadder(){
 }
 
 let ppLastRefStar, ppLastAutoBird = null;
+// Life-bird "ask now" strip at the top of the Pancha Pakshi page (moved from At a Glance).
+function renderPPAskNow(){
+  const el = document.getElementById('ppAskNowContent');
+  if (!el) return;
+  try {
+    const refP = getReferencePanchaka().panch;
+    const h = refP && refP.lifeBird ? renderAskNowCallout(refP) : '';
+    el.innerHTML = h ? `<div class="pp-asknow-wrap" style="margin-bottom:12px;">${h}</div>` : '';
+  } catch (e) { el.innerHTML = ''; }
+}
 function renderPPPanel(){
   const container = document.getElementById('ppPanelContainer');
   const checkbox = document.getElementById('chartPanchapakshi');
@@ -19150,7 +19175,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     });
     if (document.getElementById('pageAntara').classList.contains('active')) renderAntaraChakraPage();
     if (document.getElementById('pageHorary').classList.contains('active')) renderHoraryPage();
-    if (document.getElementById('pagePanchaPakshi').classList.contains('active')){ renderPanchaPakshiLadder(); renderPPPanel(); }
+    if (document.getElementById('pagePanchaPakshi').classList.contains('active')){ renderPPAskNow(); renderPanchaPakshiLadder(); renderPPPanel(); }
     renderNameToBird();
   });
   document.getElementById('chartPanchapakshi').addEventListener('change', renderPPPanel);
