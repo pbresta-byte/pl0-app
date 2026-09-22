@@ -15,7 +15,7 @@ vm.runInContext([
   'var LANG = "en";',
   pick(/const VARGA_OPTS = [^\n]*/) ,
   core,
-  'this.VARGA_DEFS = VARGA_DEFS; this.vargaSignForKey = vargaSignForKey; this.VARGA_OPTS = VARGA_OPTS;',
+  'this.VARGA_DEFS = VARGA_DEFS; this.vargaSignForKey = vargaSignForKey; this.shashtiamshaOf = shashtiamshaOf; this.VARGA_OPTS = VARGA_OPTS;',
 ].join('\n'), ctx);
 
 // ---- reference, straight from the PL7 table wording ----
@@ -64,11 +64,10 @@ function run(label, opts) {
     if (bad && !(label.startsWith('default') && KNOWN_DEFAULT_DIFFS.includes(k))) fails++;
   }
 }
-// D30 even signs: the app's default is the owner-specified Cancer-based sequence; the PL7/classical
-// one is offered as an option. Under the PL7 preset every varga must match PL7 exactly.
-const KNOWN_DEFAULT_DIFFS = ['D30'];
+// Defaults must reproduce PL7 exactly. The 'owner' D30 option (Cancer-based run) may differ only in D30.
+const KNOWN_DEFAULT_DIFFS = [];
 run('default', {});
-run('pl7-preset', { d30Even: 'classical', d60Count: 'occupied' });
+KNOWN_DEFAULT_DIFFS.push('D30'); run('default+owner-d30', { d30Even: 'owner' });
 
 // D60 alternative (count from Aries) must be the literal alternative, not something else.
 ctx.VARGA_OPTS.d60Count = 'aries';
@@ -81,6 +80,10 @@ const FX = { Su: 163.851503014899, Mo: 297.552753879638, Ma: 47.94563142948, Me:
   Ve: 155.578325164177, Sa: 265.029666333896, Ra: 281.705528912309, Ke: 101.705528912309, Asc: 319.537516008015 };
 const D9_PL7 = { Su: 'Tau', Mo: 'Vir', Ma: 'Gem', Me: 'Sag', Ju: 'Sco', Ve: 'Aqu', Sa: 'Sco', Ra: 'Ari', Ke: 'Lib', Asc: 'Pis' };
 for (const [b, want] of Object.entries(D9_PL7)) { const got = S3(app('D9', FX[b])); if (got !== want) { fails++; report.push(`fixture D9 ${b}: app ${got}, PL7 ${want}`); } }
+// D60 names + classes seen in PL7 for the test chart (portion list = default)
+const D60_PL7 = { Su: ['Davagni', 'M'], Mo: ['Yaksha', 'B'], Ma: ['Deva', 'B'], Me: ['Amrita', 'B'], Ju: ['Mrityu', 'M'],
+  Ve: ['Chandramukhi', 'B'], Sa: ['Kalapavaka', 'M'], Ra: ['Sudha', 'B'], Ke: ['Sudha', 'B'] };
+for (const [b, [nm, cl]] of Object.entries(D60_PL7)) { const a = ctx.shashtiamshaOf(FX[b]); if (a.name !== nm || a.cls !== cl) { fails++; report.push(`fixture D60 ${b}: app ${a.name} ${a.cls}, PL7 ${nm} ${cl}`); } }
 const table = Object.keys(REF).map(k => k.padEnd(4) + Object.keys(FX).map(b => S3(app(k, FX[b]))).join(' ')).join('\n');
 
 console.log(`points ${pts.length} x ${Object.keys(REF).length} vargas`);

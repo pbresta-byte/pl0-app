@@ -10693,9 +10693,9 @@ function renderAvasthaPage(){
 // ---- Divisional Varga page (16 classical divisions) ----
 // Pure-math core below is bracket-marked so a headless regression can extract
 // and unit-test it without a DOM. It depends only on SIGNS and norm360().
-// Varga reading options (varga page). Defaults keep the app's existing behaviour; the alternatives are
-// the other readings in use (d30Even 'classical' + d60Count 'occupied' reproduces PL7 exactly — pl7_varga_test.js).
-const VARGA_OPTS = (() => { try { const s = JSON.parse(localStorage.getItem('pl0VargaOpts') || '{}'); return { d30Even: s.d30Even === 'classical' ? 'classical' : 'owner', d60Count: s.d60Count === 'aries' ? 'aries' : 'occupied' }; } catch (e) { return { d30Even: 'owner', d60Count: 'occupied' }; } })();
+// Varga reading options (varga page). Defaults reproduce PL7 exactly (pl7_varga_test.js); owner decision 2026-09-21:
+// D30 even signs follow PL7 / the lords' own even signs, the earlier Cancer-to-Scorpio run stays as an option.
+const VARGA_OPTS = (() => { const d = { d30Even: 'classical', d60Count: 'occupied', d60Class: 'portion' }; try { const s = JSON.parse(localStorage.getItem('pl0VargaOpts') || '{}'); return { d30Even: s.d30Even === 'owner' ? 'owner' : 'classical', d60Count: s.d60Count === 'aries' ? 'aries' : 'occupied', d60Class: s.d60Class === 'named' ? 'named' : 'portion' }; } catch (e) { return d; } })();
 function setVargaOpt(k, v){ VARGA_OPTS[k] = v; try { localStorage.setItem('pl0VargaOpts', JSON.stringify(VARGA_OPTS)); } catch (e) {} renderVargaPage(); }
 // ==== BEGIN VARGA CORE ====
 function vargaBase(sid){
@@ -10767,15 +10767,15 @@ const VARGA_DEFS = [
   {key:"D30", name:"Triṁśāṁśa", span:"5°/5°/8°/7°/5°",
    purpose:{en:"misfortunes / evils",es:"desgracias / maleficios"},
    calc:sid=>{
-     // App-owner-specified convention: odd signs run Mars/Saturn/Jupiter/Mercury/Venus
-     // spans in their own signs; even signs reverse the span order starting from Cancer.
+     // Odd signs run Mars/Saturn/Jupiter/Mercury/Venus spans in their own signs. Even signs reverse the
+     // span order; default = the lords' own even signs (as PL7), option 'owner' = the run starting from Cancer.
      // Deliberately separate from trimsamshaSignIdx() above (the moment-gravity engine
      // uses the Taurus/Virgo/Pisces even-sign variant) — both traditions exist; never merged.
      const b = vargaBase(sid);
      // VARGA_OPTS.d30Even 'classical': even signs use the lords' own even signs (Taurus/Virgo/Pisces/Capricorn/Scorpio), as PL7 does.
      const spans = vIsOddSign(b.signIdx)
        ? [["Mars",5,"Aries"],["Saturn",5,"Aquarius"],["Jupiter",8,"Sagittarius"],["Mercury",7,"Gemini"],["Venus",5,"Libra"]]
-       : VARGA_OPTS.d30Even === 'classical'
+       : VARGA_OPTS.d30Even !== 'owner'
          ? [["Venus",5,"Taurus"],["Mercury",7,"Virgo"],["Jupiter",8,"Pisces"],["Saturn",5,"Capricorn"],["Mars",5,"Scorpio"]]
          : [["Venus",5,"Cancer"],["Mercury",7,"Leo"],["Jupiter",8,"Virgo"],["Saturn",5,"Libra"],["Mars",5,"Scorpio"]];
      let acc=0;
@@ -10814,6 +10814,29 @@ function dignityTierInSign(graha, signIdx){
 function vargaSignForKey(key, sid){
   const def = VARGA_DEFS.find(d=>d.key===key);
   return def ? def.calc(sid) : null;
+}
+// Shashtiamsha (D60) portion names, odd-sign order; even signs count from the end (portion 61-k), which
+// reproduces every PL7 label seen. Each row: [name, class by the portion list, class by the named list].
+// The two classical lists disagree on 12 portions; PL7 follows the portion list. Research: pl7.table.d60_classification.
+const D60_AMSHAS = [
+  ['Ghora','M','M'],['Rakshasa','M','M'],['Deva','B','B'],['Kubera','B','B'],['Yaksha','B','B'],['Kinnara','B','B'],
+  ['Bhrashta','B','M'],['Kulaghna','M','M'],['Garala','M','M'],['Vahni','M','M'],['Maya','M','M'],['Purishaka','M','M'],
+  ['Apampati','B','B'],['Marutvan','B','B'],['Kala','M','M'],['Sarpa','M','B'],['Amrita','B','B'],['Indu','B','B'],
+  ['Mridu','B','B'],['Komala','B','B'],['Heramba','B','B'],['Brahma','B','B'],['Vishnu','B','B'],['Maheshvara','B','B'],
+  ['Deva','B','B'],['Ardra','B','B'],['Kalinasha','B','M'],['Kshitisha','B','B'],['Kamalakara','B','B'],['Gulika','M','M'],
+  ['Mrityu','M','M'],['Kala','M','M'],['Davagni','M','M'],['Ghora','M','M'],['Yama','M','M'],['Kantaka','B','M'],
+  ['Sudha','B','B'],['Amrita','B','B'],['Purnachandra','M','B'],['Vishadagdha','M','M'],['Kulanasha','B','M'],['Vamshakshaya','M','B'],
+  ['Utpata','M','M'],['Kala','M','M'],['Saumya','B','B'],['Komala','B','B'],['Sheetala','B','B'],['Karaladamshtra','M','B'],
+  ['Chandramukhi','B','M'],['Praveena','B','M'],['Kalapavaka','M','B'],['Dandayudha','M','M'],['Nirmala','B','B'],['Saumya','B','B'],
+  ['Krura','B','M'],['Atisheetala','B','B'],['Amrita','B','B'],['Payodhi','B','B'],['Bhramana','M','M'],['Chandrarekha','B','B']
+];
+function shashtiamshaOf(sid){
+  const b = vargaBase(sid);
+  const k = Math.min(59, Math.floor(b.degIn*2)) + 1;           // 1..60 counted in an odd sign
+  const idx = vIsOddSign(b.signIdx) ? k : 61 - k;
+  const [name, byPortion, byName] = D60_AMSHAS[idx-1];
+  const named = VARGA_OPTS.d60Class === 'named';
+  return { idx, name, cls: named ? byName : byPortion, other: named ? byPortion : byName, disagree: byPortion !== byName };
 }
 // ==== END VARGA CORE ====
 
@@ -11009,8 +11032,20 @@ function renderVargaPage(){
   const spanDeg = def.parts ? 30/def.parts : 30;
   function vargaDegInSign(sid){
     const degInSign = sid % 30;
+    if (def.key === 'D30'){ // unequal spans: position inside the span, scaled to 30°
+      const spans = vIsOddSign(Math.floor(sid/30)) ? [5,5,8,7,5] : [5,7,8,5,5];
+      let a = 0; for (const w of spans){ if (degInSign < a + w) return (degInSign - a) * 30 / w; a += w; }
+      return 30;
+    }
     return (degInSign % spanDeg) * (30/spanDeg);
   }
+  const d60Cell = sid => {
+    if (def.key !== 'D60') return '';
+    const a = shashtiamshaOf(sid);
+    const tag = c => c === 'B' ? `<span class="tag good">${T('benefic','benéfico')}</span>` : `<span class="tag bad">${T('malefic','maléfico')}</span>`;
+    const alt = a.disagree ? ` <small style="color:var(--mut);">${T('other list:','otra lista:')} ${a.other === 'B' ? T('benefic','benéfico') : T('malefic','maléfico')}</small>` : '';
+    return `<td>${a.idx}. ${a.name} ${tag(a.cls)}${alt}</td>`;
+  };
 
   function buildRow(b, label, retroTag, color){
     const vSign = SIGNS[vargaTable[b][def.key]];
@@ -11018,7 +11053,7 @@ function renderVargaPage(){
       <td class="wide" style="color:${color}">${label}</td>
       <td>${SIGNS[Math.floor(sidOf[b]/30)]} ${fmtDeg(sidOf[b]%30)}${retroTag}</td>
       <td style="color:var(--gold); font-weight:700;">${SIGN_ABBR[vSign]} <span style="font-weight:normal; color:var(--mut);">· ${vSign}</span></td>
-      <td>${fmtDeg(vargaDegInSign(sidOf[b]))}</td>
+      <td>${fmtDeg(vargaDegInSign(sidOf[b]))}</td>${d60Cell(sidOf[b])}
     </tr>`;
   }
 
@@ -11047,7 +11082,7 @@ function renderVargaPage(){
       dhuma:"Dhūma", vyatipata:"Vyatipāta", parivesha:"Pariveṣa", indrachapa:"Indrachāpa", upaketu:"Upaketu"
     };
 
-    const separatorRow = `<tr><td colspan="4" style="border-top:2px solid var(--gold); padding:4px 0;"></td></tr>`;
+    const separatorRow = `<tr><td colspan="${def.key==='D60'?5:4}" style="border-top:2px solid var(--gold); padding:4px 0;"></td></tr>`;
 
     kalaSorted.forEach(u=>{
       const sid = u.sid;
@@ -11058,7 +11093,7 @@ function renderVargaPage(){
         <td class="wide" style="color:var(--ink-dim);"><span title="${T('Kala-family Upagraha','Upagraha familia Kala')}">↑</span> ${u.name}</td>
         <td>${SIGNS[Math.floor(sid/30)]} ${fmtDeg(sid%30)}</td>
         <td style="color:var(--gold); font-weight:700;">${SIGN_ABBR[vSign]} <span style="font-weight:normal; color:var(--mut);">· ${vSign}</span></td>
-        <td>${fmtDeg(vargaDegInSign(sid))}</td>
+        <td>${fmtDeg(vargaDegInSign(sid))}</td>${d60Cell(sid)}
       </tr>`;
     });
 
@@ -11072,13 +11107,13 @@ function renderVargaPage(){
         <td class="wide" style="color:var(--ink-dim);"><span title="${T('Chaya Upagraha (from Sun)','Upagraha Chaya (del Sol)')}">◌</span> ${chayaLabel[cn]}</td>
         <td>${SIGNS[Math.floor(sid/30)]} ${fmtDeg(sid%30)}</td>
         <td style="color:var(--gold); font-weight:700;">${SIGN_ABBR[vSign]} <span style="font-weight:normal; color:var(--mut);">· ${vSign}</span></td>
-        <td>${fmtDeg(vargaDegInSign(sid))}</td>
+        <td>${fmtDeg(vargaDegInSign(sid))}</td>${d60Cell(sid)}
       </tr>`;
     });
   }
 
   const vargaHeaderCells =
-    `<th>${T('D1 position','Posición D1')}</th><th title="${T(def.purpose.en,def.purpose.es)}">${def.key} ${def.name}</th><th>${T('degree in sign','grado en signo')}</th>`;
+    `<th>${T('D1 position','Posición D1')}</th><th title="${T(def.purpose.en,def.purpose.es)}">${def.key} ${def.name}</th><th>${T('degree in sign','grado en signo')}</th>${def.key==='D60' ? `<th>${T('Shashtiamsha','Shashtiamsha')}</th>` : ''}`;
 
   container.innerHTML = `
     <div class="panel">
@@ -11116,14 +11151,20 @@ function renderVargaPage(){
         </label>
         ${def.key==='D30' ? `<label style="display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:13px; color:var(--ink-dim); flex-wrap:wrap;">${T('D30 in even signs','D30 en signos pares')}
           <select onchange="setVargaOpt('d30Even', this.value)">
-            <option value="owner" ${VARGA_OPTS.d30Even==='owner'?'selected':''}>${T('Run Cancer → Scorpio','Serie Cáncer → Escorpio')}</option>
             <option value="classical" ${VARGA_OPTS.d30Even==='classical'?'selected':''}>${T("Each lord's own even sign (Taurus, Virgo, Pisces, Capricorn, Scorpio)",'Signo par propio de cada regente (Tauro, Virgo, Piscis, Capricornio, Escorpio)')}</option>
+            <option value="owner" ${VARGA_OPTS.d30Even==='owner'?'selected':''}>${T('Run Cancer → Scorpio','Serie Cáncer → Escorpio')}</option>
           </select></label>` : ''}
         ${def.key==='D60' ? `<label style="display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:13px; color:var(--ink-dim); flex-wrap:wrap;">${T('D60 count','Cómputo D60')}
           <select onchange="setVargaOpt('d60Count', this.value)">
             <option value="occupied" ${VARGA_OPTS.d60Count==='occupied'?'selected':''}>${T('From the occupied sign','Desde el signo ocupado')}</option>
             <option value="aries" ${VARGA_OPTS.d60Count==='aries'?'selected':''}>${T('From Aries','Desde Aries')}</option>
-          </select></label>` : ''}
+          </select>
+          <span style="margin-left:8px;">${T('Benefic / malefic','Benéfico / maléfico')}</span>
+          <select onchange="setVargaOpt('d60Class', this.value)">
+            <option value="portion" ${VARGA_OPTS.d60Class==='portion'?'selected':''}>${T('By the list of harsh portions','Por la lista de porciones duras')}</option>
+            <option value="named" ${VARGA_OPTS.d60Class==='named'?'selected':''}>${T('By each named portion','Por cada porción nombrada')}</option>
+          </select></label>
+          <div class="hint" style="margin-bottom:10px;">${T('The 60 portion names and their benefic / malefic classes are thinly attested. The two classical lists disagree on 12 of the 60 portions, and where they do, the other list is shown beside the tag. Take the class as a hint, not a verdict. Each portion is only half a degree wide, so a few minutes of birth time, or the lunar node model (mean or true), can move a planet into the next one. The name depends only on the degree, whichever counting is chosen above.','Los 60 nombres de porción y su clase benéfica / maléfica están poco documentados. Las dos listas clásicas discrepan en 12 de las 60 porciones, y donde discrepan, la otra lista se muestra junto a la etiqueta. Toma la clase como indicio, no como veredicto. Cada porción mide solo medio grado, así que unos minutos de hora de nacimiento, o el modelo del nodo lunar (medio o verdadero), pueden llevar un planeta a la siguiente. El nombre depende solo del grado, sea cual sea el cómputo elegido arriba.')}</div>` : ''}
         <div class="tblwrap"><table><thead><tr><th>${T('Body','Cuerpo')}</th>${vargaHeaderCells}</tr></thead><tbody>${planetRows}${upagrahaRows}</tbody></table></div>
         <div class="hint" style="margin-top:10px;">${T(`Showing ${def.key} (${def.name} — ${def.purpose.en.toLowerCase()}) only, alongside the D1 position. Change the dropdown above to read a different division; the chart and the readings below update to match. Purpose names: D1 body · D2 wealth · D3 siblings · D4 fortune/property · D7 children · D9 spouse/dharma · D10 career/power · D12 parents · D16 vehicles · D20 spiritual · D24 education · D27 strengths · D30 misfortunes · D40 maternal · D45 paternal · D60 all matters.`,`Mostrando solo ${def.key} (${def.name} — ${def.purpose.es.toLowerCase()}), junto a la posición D1. Cambia el desplegable de arriba para leer otra división; la carta y las lecturas de abajo se actualizan para coincidir. Propósitos: D1 cuerpo · D2 riqueza · D3 hermanos · D4 fortuna/propiedad · D7 hijos · D9 cónyuge/dharma · D10 carrera/poder · D12 padres · D16 vehículos · D20 espiritual · D24 educación · D27 fortalezas · D30 desgracias · D40 materno · D45 paterno · D60 todos los asuntos.`)}</div>
       </div>
