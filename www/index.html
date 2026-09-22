@@ -10693,6 +10693,10 @@ function renderAvasthaPage(){
 // ---- Divisional Varga page (16 classical divisions) ----
 // Pure-math core below is bracket-marked so a headless regression can extract
 // and unit-test it without a DOM. It depends only on SIGNS and norm360().
+// Varga reading options (varga page). Defaults keep the app's existing behaviour; the alternatives are
+// the other readings in use (d30Even 'classical' + d60Count 'occupied' reproduces PL7 exactly — pl7_varga_test.js).
+const VARGA_OPTS = (() => { try { const s = JSON.parse(localStorage.getItem('pl0VargaOpts') || '{}'); return { d30Even: s.d30Even === 'classical' ? 'classical' : 'owner', d60Count: s.d60Count === 'aries' ? 'aries' : 'occupied' }; } catch (e) { return { d30Even: 'owner', d60Count: 'occupied' }; } })();
+function setVargaOpt(k, v){ VARGA_OPTS[k] = v; try { localStorage.setItem('pl0VargaOpts', JSON.stringify(VARGA_OPTS)); } catch (e) {} renderVargaPage(); }
 // ==== BEGIN VARGA CORE ====
 function vargaBase(sid){
   const L = norm360(sid);
@@ -10768,9 +10772,12 @@ const VARGA_DEFS = [
      // Deliberately separate from trimsamshaSignIdx() above (the moment-gravity engine
      // uses the Taurus/Virgo/Pisces even-sign variant) — both traditions exist; never merged.
      const b = vargaBase(sid);
+     // VARGA_OPTS.d30Even 'classical': even signs use the lords' own even signs (Taurus/Virgo/Pisces/Capricorn/Scorpio), as PL7 does.
      const spans = vIsOddSign(b.signIdx)
        ? [["Mars",5,"Aries"],["Saturn",5,"Aquarius"],["Jupiter",8,"Sagittarius"],["Mercury",7,"Gemini"],["Venus",5,"Libra"]]
-       : [["Venus",5,"Cancer"],["Mercury",7,"Leo"],["Jupiter",8,"Virgo"],["Saturn",5,"Libra"],["Mars",5,"Scorpio"]];
+       : VARGA_OPTS.d30Even === 'classical'
+         ? [["Venus",5,"Taurus"],["Mercury",7,"Virgo"],["Jupiter",8,"Pisces"],["Saturn",5,"Capricorn"],["Mars",5,"Scorpio"]]
+         : [["Venus",5,"Cancer"],["Mercury",7,"Leo"],["Jupiter",8,"Virgo"],["Saturn",5,"Libra"],["Mars",5,"Scorpio"]];
      let acc=0;
      for (const [,span,sign] of spans){ acc+=span; if (b.degIn<acc) return SIGNS.indexOf(sign); }
      return SIGNS.indexOf(spans[spans.length-1][2]);
@@ -10783,7 +10790,7 @@ const VARGA_DEFS = [
    calc:sid=>vargaStepped(sid,45,si=>[0,4,8][vModality(si)],1)}, // movable→Ar fixed→Le dual→Sg
   {key:"D60", name:"Shashtiāṁśa", span:"0°30'",
    purpose:{en:"all matters / karma",es:"todos los asuntos / karma"}, parts:60,
-   calc:sid=>vargaStepped(sid,60,si=>si,1)} // count of 60 amsas starts from the planet's own D1 sign, not Aries
+   calc:sid=>vargaStepped(sid,60,si=>VARGA_OPTS.d60Count==='aries'?0:si,1)} // default: count starts from the planet's own D1 sign (as PL7); option: from Aries
 ];
 
 /* Dignity tier of a graha given a SIGN INDEX (varga output), not a longitude.
@@ -11107,6 +11114,16 @@ function renderVargaPage(){
           <input type="checkbox" onchange="toggleVargaUpagrahas(this.checked)" ${vargaShowUpagrahas?'checked':''}>
           ${T('Include shadow points (Upagrahas)','Incluir puntos sombra (Upagrahas)')}
         </label>
+        ${def.key==='D30' ? `<label style="display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:13px; color:var(--ink-dim); flex-wrap:wrap;">${T('D30 in even signs','D30 en signos pares')}
+          <select onchange="setVargaOpt('d30Even', this.value)">
+            <option value="owner" ${VARGA_OPTS.d30Even==='owner'?'selected':''}>${T('Run Cancer → Scorpio','Serie Cáncer → Escorpio')}</option>
+            <option value="classical" ${VARGA_OPTS.d30Even==='classical'?'selected':''}>${T("Each lord's own even sign (Taurus, Virgo, Pisces, Capricorn, Scorpio)",'Signo par propio de cada regente (Tauro, Virgo, Piscis, Capricornio, Escorpio)')}</option>
+          </select></label>` : ''}
+        ${def.key==='D60' ? `<label style="display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:13px; color:var(--ink-dim); flex-wrap:wrap;">${T('D60 count','Cómputo D60')}
+          <select onchange="setVargaOpt('d60Count', this.value)">
+            <option value="occupied" ${VARGA_OPTS.d60Count==='occupied'?'selected':''}>${T('From the occupied sign','Desde el signo ocupado')}</option>
+            <option value="aries" ${VARGA_OPTS.d60Count==='aries'?'selected':''}>${T('From Aries','Desde Aries')}</option>
+          </select></label>` : ''}
         <div class="tblwrap"><table><thead><tr><th>${T('Body','Cuerpo')}</th>${vargaHeaderCells}</tr></thead><tbody>${planetRows}${upagrahaRows}</tbody></table></div>
         <div class="hint" style="margin-top:10px;">${T(`Showing ${def.key} (${def.name} — ${def.purpose.en.toLowerCase()}) only, alongside the D1 position. Change the dropdown above to read a different division; the chart and the readings below update to match. Purpose names: D1 body · D2 wealth · D3 siblings · D4 fortune/property · D7 children · D9 spouse/dharma · D10 career/power · D12 parents · D16 vehicles · D20 spiritual · D24 education · D27 strengths · D30 misfortunes · D40 maternal · D45 paternal · D60 all matters.`,`Mostrando solo ${def.key} (${def.name} — ${def.purpose.es.toLowerCase()}), junto a la posición D1. Cambia el desplegable de arriba para leer otra división; la carta y las lecturas de abajo se actualizan para coincidir. Propósitos: D1 cuerpo · D2 riqueza · D3 hermanos · D4 fortuna/propiedad · D7 hijos · D9 cónyuge/dharma · D10 carrera/poder · D12 padres · D16 vehículos · D20 espiritual · D24 educación · D27 fortalezas · D30 desgracias · D40 materno · D45 paterno · D60 todos los asuntos.`)}</div>
       </div>
