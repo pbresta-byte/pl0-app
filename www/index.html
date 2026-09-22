@@ -707,6 +707,7 @@
 <script src="pl7-yoga-rules-arishta.js"></script>
 <script src="pl7-yoga-rules-misc.js"></script>
 <script src="pl7-yoga-catalog.js"></script>
+<script src="pl7-yoga-conditions-es.js"></script>
 </head>
 <body>
 
@@ -8609,7 +8610,8 @@ function pl7YogaHits(birthPos){
   const usable = E.RULES.filter(r => !E.CATALOG[r.yoga_no][1] && !E.DUPLICATE_ENTRIES.has(r.yoga_no) && (showConj || !r.family.startsWith('conjunction'))
     && !/strong|weak|sbOf/.test(r.fn.toString()) && (day !== null || !/day_birth/.test(r.fn.toString())));
   const hits = usable.filter(r => fired.has(r.yoga_no)).map(r => ({
-    no: r.yoga_no, name: E.CATALOG[r.yoga_no][0], condition: pl7CleanCondition(r.condition), polarity: pl7Polarity(r.family),
+    no: r.yoga_no, name: E.CATALOG[r.yoga_no][0], condition: (E.COND_EN && E.COND_EN[r.yoga_no]) || (E.condConjEN && E.condConjEN(r.condition)) || pl7CleanCondition(r.condition),
+    conditionEs: (E.COND_ES && E.COND_ES[r.yoga_no]) || (E.condConjES && E.condConjES(r.condition)) || null, polarity: pl7Polarity(r.family),
     themes: [...new Set((r.safety_flags || []).map(f => PL7_FLAG_THEME[f]).filter(Boolean))] }));
   return { hits, evaluated: usable.length };
 }
@@ -10321,7 +10323,7 @@ function yogaSafetyLine(num, themeList){
       const style = cls === 'bad' ? 'background:var(--hit-bad-bg); border-color:var(--hit-bad-line); color:var(--hit-bad-ink);' : '';
       return `<div class="li" style="margin-bottom:7px;">
         <span class="tag ${cls}" style="${style}">${h.name}</span>
-        <div style="margin-top:3px; color:var(--slate); font-size:11.5px; line-height:1.55;">${T('Forms when','Se forma cuando')}: ${h.condition}.</div>
+        <div style="margin-top:3px; color:var(--slate); font-size:11.5px; line-height:1.55;">${T('Forms when','Se forma cuando')}: ${T(h.condition, h.conditionEs || h.condition)}.</div>
         ${yogaSafetyLine(null, h.themes)}
       </div>`;
     };
