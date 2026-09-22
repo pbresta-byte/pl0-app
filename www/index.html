@@ -2988,6 +2988,103 @@ function moonAtLongitudeJD(target, guessJD){
   return t;
 }
 // END VIMSHOTTARI OPTS
+// BEGIN CONDITIONAL DASHAS
+// Conditional nakshatra daśās (Dwisaptati ... Ashtottari). Spec + sources: docs/research/dasha/conditional-dashas-spec.md
+// (every system checked in at least two texts). Single-star systems count on the 27 stars; the two grouped systems
+// use 28 stars with Abhijit (ABHIJIT_START..ABHIJIT_END, U.Shada and Shravana shortened). Test: pl7_conditional_dasha_test.js.
+const COND_OPTS = (() => { const d = { dwisaptati: 'either', ashtottari: 'either', ashtottariStart: 'ardra', show: '' }; try { const s = JSON.parse(localStorage.getItem('pl0CondOpts') || '{}'); return { dwisaptati: ['either','lagnaOr7','exchange'].includes(s.dwisaptati) ? s.dwisaptati : 'either', ashtottari: ['either','rahu','paksha'].includes(s.ashtottari) ? s.ashtottari : 'either', ashtottariStart: s.ashtottariStart === 'lagnaPlanet' ? 'lagnaPlanet' : 'ardra', show: typeof s.show === 'string' ? s.show : '' }; } catch (e) { return d; } })();
+function setCondOpt(k, v){ COND_OPTS[k] = v; try { localStorage.setItem('pl0CondOpts', JSON.stringify(COND_OPTS)); } catch (e) {} renderDashaPage(); }
+const COND_DASHAS = {
+  dwisaptati:    { name:'Dwisaptati-sama',   start:18, dir:1,  lords:['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu'], years:[9,9,9,9,9,9,9,9] },
+  shattrimsha:   { name:'Shattrimsha-sama',  start:21, dir:1,  lords:['Moon','Sun','Jupiter','Mars','Mercury','Saturn','Venus','Rahu'], years:[1,2,3,4,5,6,7,8] },
+  dwadashottari: { name:'Dwadashottari',     start:26, dir:-1, lords:['Sun','Jupiter','Ketu','Mercury','Rahu','Mars','Saturn','Moon'], years:[7,9,11,13,15,17,19,21] },
+  chaturashiti:  { name:'Chaturashiti-sama', start:14, dir:1,  lords:['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'], years:[12,12,12,12,12,12,12] },
+  shatabdika:    { name:'Shatabdika',        start:26, dir:1,  lords:['Sun','Moon','Venus','Mercury','Jupiter','Mars','Saturn'], years:[5,5,10,10,20,20,30] },
+  shodashottari: { name:'Shodashottari',     start:7,  dir:1,  lords:['Sun','Mars','Jupiter','Saturn','Ketu','Moon','Mercury','Venus'], years:[11,12,13,14,15,16,17,18] },
+  panchottari:   { name:'Panchottari',       start:16, dir:1,  lords:['Sun','Mercury','Saturn','Mars','Venus','Moon','Jupiter'], years:[12,13,14,15,16,17,18] },
+  // grouped: start = index on the 28-star wheel (Abhijit = 21), groups = stars per lord
+  shashtihayani: { name:'Shashtihayani',     start28:0, groups:[3,4,3,4,3,4,3,4], lords:['Jupiter','Sun','Mars','Moon','Mercury','Venus','Saturn','Rahu'], years:[10,10,10,6,6,6,6,6] },
+  ashtottari:    { name:'Ashtottari',        start28:5, groups:[4,3,4,3,4,3,4,3], lords:['Sun','Moon','Mars','Mercury','Saturn','Jupiter','Rahu','Venus'], years:[6,15,8,17,10,19,12,21] }
+};
+// 28-star wheel: index 0..20 as usual (Ashwini..U.Shada), 21 Abhijit, 22 Shravana .. 27 Revati; returns {idx, start, end}.
+function nak28Of(sid){
+  const L = norm360(sid), w = 40/3;
+  if (L >= ABHIJIT_START && L < ABHIJIT_END) return { idx:21, start:ABHIJIT_START, end:ABHIJIT_END };
+  const i27 = Math.floor(L / w);
+  if (i27 === 20) return { idx:20, start:20*w, end:ABHIJIT_START };
+  if (i27 === 21) return { idx:22, start:ABHIJIT_END, end:22*w };
+  return { idx: i27 < 20 ? i27 : i27 + 1, start:i27*w, end:(i27+1)*w };
+}
+// Share of the Moon's star (span start..end) already covered at birth: by degree, or by time (VIM_OPTS.balance).
+function condElapsedFrac(moonSid, start, end, birthJD){
+  let f = (norm360(moonSid) - start) / (end - start);
+  if (typeof VIM_OPTS !== 'undefined' && VIM_OPTS.balance === 'time' && typeof moonAtLongitudeJD === 'function' && isFinite(birthJD)){
+    const e0 = moonAtLongitudeJD(start, birthJD - (norm360(moonSid) - start) / 13.2), e1 = moonAtLongitudeJD(end % 360, birthJD + (end - norm360(moonSid)) / 13.2);
+    if (isFinite(e0) && isFinite(e1) && e1 > e0) f = (birthJD - e0) / (e1 - e0);
+  }
+  return Math.min(1, Math.max(0, f));
+}
+// Opening lord index + years already spent of it at birth.
+function condDashaOpening(key, moonSid, birthJD, opts){
+  const s = COND_DASHAS[key], n = s.lords.length;
+  if (s.groups){
+    let start28 = s.start28;
+    if (key === 'ashtottari' && opts && opts.krittikaStart) start28 = 2;
+    const st = nak28Of(moonSid), pos = (st.idx - start28 + 28) % 28;
+    let acc = 0, g = 0; while (pos >= acc + s.groups[g]) { acc += s.groups[g]; g++; }
+    const share = s.years[g] / s.groups[g];
+    const spent = (pos - acc) * share + condElapsedFrac(moonSid, st.start, st.end, birthJD) * share;
+    return { lordIdx:g, spentYears:spent };
+  }
+  const w = 40/3, i27 = Math.floor(norm360(moonSid) / w);
+  const count = s.dir > 0 ? ((i27 - s.start + 27) % 27) + 1 : ((s.start - i27 + 27) % 27) + 1;
+  const lordIdx = (count % n + n - 1) % n;                  // remainder 1 -> first lord, 0 -> last
+  return { lordIdx, spentYears: condElapsedFrac(moonSid, i27*w, (i27+1)*w, birthJD) * s.years[lordIdx] };
+}
+// Mahadashas from birth until at least `spanYears` after birth. Each: {lord, startJD, endJD, years}.
+function condMahadashas(key, moonSid, birthJD, yearDays, spanYears, opts){
+  const s = COND_DASHAS[key], n = s.lords.length, o = condDashaOpening(key, moonSid, birthJD, opts);
+  const out = []; let i = o.lordIdx, t = birthJD - o.spentYears * yearDays;
+  while (t < birthJD + spanYears * yearDays){
+    const y = s.years[i % n], end = t + y * yearDays;
+    out.push({ lord:s.lords[i % n], startJD:t, endJD:end, years:y }); t = end; i++;
+  }
+  return out;
+}
+function condSubPeriods(key, parent){
+  const s = COND_DASHAS[key], n = s.lords.length, total = s.years.reduce((a, b) => a + b, 0);
+  let i = s.lords.indexOf(parent.lord), t = parent.startJD; const len = parent.endJD - parent.startJD, out = [];
+  for (let k = 0; k < n; k++, i++){ const d = len * s.years[i % n] / total; out.push({ lord:s.lords[i % n], startJD:t, endJD:t + d }); t += d; }
+  return out;
+}
+// Which systems apply to a chart. ctx: {signOf(g)->0..11, lagnaIdx, d9LagnaIdx, d12LagnaIdx, ascSid, waxing, dayBirth}
+function condDashaEligibility(ctx){
+  const lordOf = si => SIGN_LORD[SIGNS[si]];
+  const houseOf = g => ((ctx.signOf(g) - ctx.lagnaIdx + 12) % 12) + 1;
+  const L1 = lordOf(ctx.lagnaIdx), L7 = lordOf((ctx.lagnaIdx + 6) % 12), L10 = lordOf((ctx.lagnaIdx + 9) % 12);
+  const hora = horaLordOfPosition(ctx.ascSid), gn = g => (typeof gNameNatal === 'function' ? gNameNatal(g) : g);
+  const r = {};
+  { const a = houseOf(L1) === 7, b = houseOf(L7) === 1, c = houseOf(L1) === 1;
+    const ok = COND_OPTS.dwisaptati === 'exchange' ? (a && b) : COND_OPTS.dwisaptati === 'lagnaOr7' ? (a || c) : (a || b);
+    r.dwisaptati = { ok, why: T(`Lagna lord ${gn(L1)} in house ${houseOf(L1)}; 7th lord ${gn(L7)} in house ${houseOf(L7)}`, `Señor del Lagna ${gn(L1)} en casa ${houseOf(L1)}; señor de la 7ª ${gn(L7)} en casa ${houseOf(L7)}`) }; }
+  r.shattrimsha = { ok: (ctx.dayBirth === true && hora === 'Sun') || (ctx.dayBirth === false && hora === 'Moon'),
+    why: T(`${ctx.dayBirth === null ? 'Day/night unknown' : ctx.dayBirth ? 'Day birth' : 'Night birth'}; Lagna in the ${hora === 'Sun' ? "Sun's" : "Moon's"} hora`, `${ctx.dayBirth === null ? 'Día/noche desconocido' : ctx.dayBirth ? 'Nacimiento diurno' : 'Nacimiento nocturno'}; Lagna en la hora del ${hora === 'Sun' ? 'Sol' : 'la Luna'}`) };
+  r.dwadashottari = { ok: ctx.d9LagnaIdx === 1 || ctx.d9LagnaIdx === 6, why: T(`Navāṁśa Lagna ${SIGNS[ctx.d9LagnaIdx]} (needs Taurus or Libra)`, `Lagna Navāṁśa ${SIGNS[ctx.d9LagnaIdx]} (necesita Tauro o Libra)`) };
+  r.chaturashiti = { ok: houseOf(L10) === 10, why: T(`10th lord ${gn(L10)} in house ${houseOf(L10)}`, `Señor de la 10ª ${gn(L10)} en casa ${houseOf(L10)}`) };
+  r.shatabdika = { ok: ctx.d9LagnaIdx === ctx.lagnaIdx, why: T(`Lagna ${SIGNS[ctx.lagnaIdx]}, Navāṁśa Lagna ${SIGNS[ctx.d9LagnaIdx]} (needs the same sign)`, `Lagna ${SIGNS[ctx.lagnaIdx]}, Lagna Navāṁśa ${SIGNS[ctx.d9LagnaIdx]} (necesita el mismo signo)`) };
+  r.shodashottari = { ok: (!ctx.waxing && hora === 'Moon') || (ctx.waxing && hora === 'Sun'),
+    why: T(`${ctx.waxing ? 'Waxing' : 'Waning'} Moon; Lagna in the ${hora === 'Sun' ? "Sun's" : "Moon's"} hora`, `Luna ${ctx.waxing ? 'creciente' : 'menguante'}; Lagna en la hora del ${hora === 'Sun' ? 'Sol' : 'la Luna'}`) };
+  r.panchottari = { ok: ctx.lagnaIdx === 3 && ctx.d12LagnaIdx === 3, why: T(`Lagna ${SIGNS[ctx.lagnaIdx]}, Dvādaśāṁśa Lagna ${SIGNS[ctx.d12LagnaIdx]} (needs Cancer in both)`, `Lagna ${SIGNS[ctx.lagnaIdx]}, Lagna Dvādaśāṁśa ${SIGNS[ctx.d12LagnaIdx]} (necesita Cáncer en ambos)`) };
+  r.shashtihayani = { ok: houseOf('Sun') === 1, why: T(`Sun in house ${houseOf('Sun')}`, `Sol en casa ${houseOf('Sun')}`) };
+  { const rahuFromL1 = ((ctx.signOf('Rahu') - ctx.signOf(L1) + 12) % 12) + 1;
+    const rahuOk = houseOf('Rahu') !== 1 && [1,4,7,10,5,9].includes(rahuFromL1);
+    const pakOk = (ctx.dayBirth === true && !ctx.waxing) || (ctx.dayBirth === false && ctx.waxing);
+    const ok = COND_OPTS.ashtottari === 'rahu' ? rahuOk : COND_OPTS.ashtottari === 'paksha' ? pakOk : (rahuOk || pakOk);
+    r.ashtottari = { ok, why: T(`Rahu in house ${houseOf('Rahu')}, ${rahuFromL1}${ordinalSuffix(rahuFromL1)} from the Lagna lord ${gn(L1)}${rahuOk ? ' (fits)' : ''}; ${ctx.dayBirth === null ? 'day/night unknown' : ctx.dayBirth ? 'day' : 'night'} birth, ${ctx.waxing ? 'waxing' : 'waning'} Moon${pakOk ? ' (fits)' : ''}`,
+      `Rahu en casa ${houseOf('Rahu')}, ${rahuFromL1}ª desde el señor del Lagna ${gn(L1)}${rahuOk ? ' (cumple)' : ''}; nacimiento ${ctx.dayBirth === null ? 'día/noche desconocido' : ctx.dayBirth ? 'diurno' : 'nocturno'}, Luna ${ctx.waxing ? 'creciente' : 'menguante'}${pakOk ? ' (cumple)' : ''}`) }; }
+  return r;
+}
+// END CONDITIONAL DASHAS
 const VIMSHOTTARI_LEVEL_NAMES = [
   {en:"Mahādaśā", es:"Mahādaśā"}, {en:"Antardaśā", es:"Antardaśā"}, {en:"Pratyantardaśā", es:"Pratyantardaśā"},
   {en:"Sūkṣma-daśā", es:"Sūkṣma-daśā"}, {en:"Prāṇa-daśā", es:"Prāṇa-daśā"}
@@ -11860,6 +11957,43 @@ function renderDashaPage(){
     const t = taraFrom(mdLord, adLord);
     taraPairText = `<div class="hint" style="margin-bottom:10px;">${T(`Current pair: the Antardaśā lord ${gNameNatal(adLord)} sits in the <b style="color:${toneColor(t.tone)}">${t.name}</b> tārā counted from the Mahādaśā lord ${gNameNatal(mdLord)}'s birth star — ${t.gist}`, `Par actual: el señor de la Antardaśā ${gNameNatal(adLord)} está en la tārā <b style="color:${toneColor(t.tone)}">${t.name}</b> contada desde la estrella natal del señor de la Mahādaśā ${gNameNatal(mdLord)} — ${TARA_GIST_ES[t.name] || t.gist}`)}</div>`;
   }
+  // Conditional daśās: which of the nine apply to this chart (and why), plus any one of them opened.
+  let condHtml = '';
+  try {
+    const ascSid = norm360(birthPos._ascSidereal), lagnaI = Math.floor(ascSid/30);
+    let dayB = null; try { dayB = pl7DayBirth(bdt.jd, bdt.lat, bdt.lon, birthPos.Sun.tropical); } catch (e) {}
+    const cctx = { signOf: g => Math.floor(norm360(birthPos[g].sidereal)/30), lagnaIdx: lagnaI, d9LagnaIdx: vargaSignForKey('D9', ascSid),
+      d12LagnaIdx: vargaSignForKey('D12', ascSid), ascSid, waxing: norm360(birthPos.Moon.sidereal - birthPos.Sun.sidereal) < 180, dayBirth: dayB };
+    const elig = condDashaEligibility(cctx), keys = Object.keys(COND_DASHAS);
+    const applying = keys.filter(k => elig[k].ok);
+    const showKey = keys.includes(COND_OPTS.show) ? COND_OPTS.show : (applying[0] || 'shodashottari');
+    const cycle = k => COND_DASHAS[k].years.reduce((a,b)=>a+b,0);
+    const listRows = keys.map(k => `<tr${k===showKey?' style="background:var(--bg-2);"':''}><td class="wide"><a href="javascript:void(0)" onclick="setCondOpt('show','${k}')">${COND_DASHAS[k].name}</a></td>
+      <td><span class="tag ${elig[k].ok?'good':'neutral'}">${elig[k].ok?T('applies','aplica'):T('not met','no se cumple')}</span></td>
+      <td style="font-size:11px;">${elig[k].why}</td><td style="font-size:11px;">${cycle(k)} ${T('y','a')}</td></tr>`).join('');
+    const lagnaEmpty = !GRAHA_LIST.some(g => cctx.signOf(g) === lagnaI);
+    const opts = { krittikaStart: COND_OPTS.ashtottariStart === 'lagnaPlanet' && lagnaEmpty };
+    const yd = vimshottariYearDays();
+    const mds = condMahadashas(showKey, birthPos.Moon.sidereal, bdt.jd, yd, 120, opts);
+    const curMd = mds.find(p => nowJD >= p.startJD && nowJD < p.endJD);
+    const curAd = curMd ? condSubPeriods(showKey, curMd).find(p => nowJD >= p.startJD && nowJD < p.endJD) : null;
+    const mdRows = mds.map(p => `<tr${p===curMd?' style="outline:2px solid var(--gold);"':''}><td style="color:${MALEFIC_GRAHAS.includes(p.lord)?'var(--vermilion)':'var(--jade)'}; font-weight:600;">${gNameNatal(p.lord)}</td>
+      <td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td><td style="font-size:11px;">${p.years} ${T('y','a')}</td></tr>`).join('');
+    const sel = (k, pairs) => `<select onchange="setCondOpt('${k}', this.value)">${pairs.map(([v,l]) => `<option value="${v}" ${COND_OPTS[k]===v?'selected':''}>${l}</option>`).join('')}</select>`;
+    condHtml = `<div class="panel"><div class="hd"><h2>${T('Conditional daśās','Daśās condicionales')}</h2><span class="note">${applying.length ? applying.map(k=>COND_DASHAS[k].name).join(', ') : T('none apply to this chart','ninguna aplica a esta carta')}</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px;">${T('Nine further nakshatra daśās are meant only for charts that meet a stated condition. Each row says whether this chart meets it and why. Click a name to open that daśā; it follows the daśā year and birth-balance choices above.','Nueve daśās de nakshatra adicionales son solo para cartas que cumplen una condición declarada. Cada fila dice si esta carta la cumple y por qué. Pulsa un nombre para abrir esa daśā; sigue las opciones de año de daśā y saldo al nacer de arriba.')}</div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Daśā','Daśā')}</th><th></th><th>${T('Condition here','Condición aquí')}</th><th>${T('Cycle','Ciclo')}</th></tr></thead><tbody>${listRows}</tbody></table></div>
+        <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin:12px 0; font-size:13px; color:var(--ink-dim);">
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Dwisaptati applies when','Dwisaptati aplica cuando')} ${sel('dwisaptati', [['either',T('Lagna lord in the 7th, or 7th lord in the Lagna','Señor del Lagna en la 7ª, o señor de la 7ª en el Lagna')],['lagnaOr7',T('Lagna lord in the Lagna or the 7th','Señor del Lagna en el Lagna o en la 7ª')],['exchange',T('Lagna and 7th lords exchange houses','Señores del Lagna y de la 7ª intercambian casas')]])}</label>
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Ashtottari applies when','Ashtottari aplica cuando')} ${sel('ashtottari', [['either',T('either test below','cualquiera de las dos')],['rahu',T('Rahu angular or trinal to the Lagna lord','Rahu en ángulo o trígono al señor del Lagna')],['paksha',T('day birth waning, or night birth waxing','nacimiento diurno en menguante, o nocturno en creciente')]])}</label>
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Ashtottari count starts','Ashtottari cuenta desde')} ${sel('ashtottariStart', [['ardra',T('from Ardra','desde Ardra')],['lagnaPlanet',T('from Krittika when the Lagna is empty','desde Krittika si el Lagna está vacío')]])}</label>
+        </div>
+        <div style="margin-bottom:6px;"><b>${COND_DASHAS[showKey].name}</b> ${elig[showKey].ok ? '' : `<span class="tag neutral">${T('condition not met — shown for study','condición no cumplida — se muestra para estudio')}</span>`}
+          ${curMd ? `<span style="font-size:12px; color:var(--ink-dim);"> · ${T('now','ahora')}: ${gNameNatal(curMd.lord)}${curAd ? ' → ' + gNameNatal(curAd.lord) + ' (' + fmtDashaDate(curAd.startJD, localTz) + ' → ' + fmtDashaDate(curAd.endJD, localTz) + ')' : ''}</span>` : ''}</div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Lord','Señor')}</th><th>${T('Period','Período')}</th><th>${T('Length','Duración')}</th></tr></thead><tbody>${mdRows}</tbody></table></div>
+      </div></div>`;
+  } catch (e) { console.error('conditional dashas', e); condHtml = ''; }
   const taraHtml = `<div class="panel"><div class="hd"><h2>${T('Nakshatra relations (tārā)','Relaciones de nakshatra (tārā)')}</h2><span class="note">${T('row = counted from · column = counted to','fila = contado desde · columna = contado hasta')}</span></div>
     <div class="bd">${taraPairText}
       <div class="tblwrap"><table><thead><tr><th></th>${taraHead}</tr></thead><tbody>${taraRows}</tbody></table></div>
@@ -11897,6 +12031,7 @@ function renderDashaPage(){
       </div>
     </div>
     ${taraHtml}
+    ${condHtml}
     ${classicalHtml}
   `;
 }
