@@ -2832,6 +2832,27 @@ const ASHTAK_CONTRIB = {
   Venus:   { Sun:[8,11,12], Moon:[1,2,3,4,5,8,9,11,12], Mars:[3,5,6,9,11,12], Mercury:[3,5,6,9,11], Jupiter:[5,8,9,10,11], Venus:[1,2,3,4,5,8,9,10,11], Saturn:[3,4,5,8,9,10,11], Lagna:[1,2,3,4,5,8,9,11] },
   Saturn:  { Sun:[1,2,4,7,8,10,11], Moon:[3,6,11], Mars:[3,5,6,10,11,12], Mercury:[6,8,9,10,11,12], Jupiter:[5,6,11,12], Venus:[6,11,12], Saturn:[3,5,6,11], Lagna:[1,3,4,6,10,11] }
 };
+// Kakshas (1/8 of a sign, 3°45' each). Rulers in order of decreasing speed —
+// Saturn, Jupiter, Mars, Sun, Venus, Mercury, Moon, Lagna (three ashtakavarga
+// texts agree; PL7's prastara tables use the same order). A planet transiting
+// a kaksha is favourable when that kaksha's ruler gave a bindu to the sign in
+// the planet's own natal Bhinnashtakavarga (the Prastara 0/1 table).
+const KAKSHA_LORDS = ['Saturn','Jupiter','Mars','Sun','Venus','Mercury','Moon','Lagna'];
+function prastaraAshtakavarga(graha, pos){
+  const contributors = ASHTAK_CONTRIB[graha];
+  return KAKSHA_LORDS.map(src => {
+    const row = new Array(12).fill(0);
+    const offsets = contributors[src]; if (!offsets) return row;
+    const from = Math.floor(norm360(src === 'Lagna' ? pos._ascSidereal : pos[src].sidereal) / 30);
+    offsets.forEach(h => { row[(from + h - 1) % 12] = 1; });
+    return row;
+  });
+}
+function kakshaOf(sid){
+  const L = norm360(sid), sign = Math.floor(L / 30), k = Math.min(7, Math.floor((L - sign * 30) / 3.75));
+  return { sign, k, lord: KAKSHA_LORDS[k] };
+}
+
 // pos: {Sun:{sidereal}, ..., Saturn:{sidereal}, _ascSidereal}. Returns a
 // 12-element array (index 0 = Aries) of bindu counts for one graha's own
 // Bhinnāṣṭakavarga.
@@ -11879,6 +11900,43 @@ function renderAshtakavargaPage(){
         <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The source\'s own scale: 0 bindus is its single most severe tier (see footer note); 1–3 weak; 4 average; 5–8 strong — "same results should be expected" for any of the 7 grahas, per the book\'s own generalization from its worked Sun example. Sarvāṣṭakavarga tier follows the same source: average is 28/sign, above 28 is strong, above 30 "very good," below 25 explicitly weak. This is informational only — it does not feed into the score above.','Escala propia de la fuente: 0 bindus es su nivel más extremo (ver nota al pie); 1–3 débil; 4 promedio; 5–8 fuerte — "deben esperarse los mismos resultados" para cualquiera de los 7 graha, según la propia generalización del libro a partir de su ejemplo resuelto del Sol. El nivel de Sarvāṣṭakavarga sigue la misma fuente: el promedio es 28/signo, por encima de 28 es fuerte, por encima de 30 es "muy bueno," por debajo de 25 es explícitamente débil. Esto es solo informativo — no se incorpora a la puntuación de arriba.')}</div>
       </div>
     </div>
+
+    ${(() => {
+      const P = {}; ASHTAK_GRAHAS.forEach(g => { P[g] = prastaraAshtakavarga(g, birthPos); });
+      const rows = ASHTAK_GRAHAS.map(g => {
+        const kk = kakshaOf(mPos[g].sidereal), bindu = P[g][kk.k][kk.sign];
+        const lordName = kk.lord === 'Lagna' ? 'Lagna' : gNameNatal(kk.lord);
+        return `<tr><td class="wide">${gNameNatal(g)}${mPos[g].speed < 0 ? ` <small style="color:var(--vermilion);">(${T('r','r')})</small>` : ''}</td><td>${SIGNS[kk.sign]}</td>
+          <td>${kk.k + 1} · ${lordName}</td><td><span class="tag ${bindu ? 'good' : 'bad'}">${bindu ? T('bindu — supports','bindu — apoya') : T('no bindu','sin bindu')}</span></td>
+          <td>${natalBhinna[g][kk.sign]}</td><td>${natalSarva[kk.sign]}</td></tr>`;
+      }).join('');
+      // Moon's kaksha changes over the next 48 hours from the judged moment (sampled every 20 min, refined by bisection).
+      const moonAt = jd => computePositions(jd, mdt.lat, mdt.lon, ay).Moon.sidereal;
+      const steps = [], stepD = 1 / 72; let prevK = kakshaOf(moonAt(mdt.jd)), prevJ = mdt.jd;
+      for (let jd = mdt.jd + stepD; jd <= mdt.jd + 2 + 1e-9 && steps.length < 14; jd += stepD){
+        const kk = kakshaOf(moonAt(jd));
+        if (kk.k !== prevK.k || kk.sign !== prevK.sign){
+          let a = prevJ, b = jd;
+          for (let it = 0; it < 12; it++){ const m = (a + b) / 2, km = kakshaOf(moonAt(m)); if (km.k === prevK.k && km.sign === prevK.sign) a = m; else b = m; }
+          steps.push({ jd: b, kk }); prevK = kk;
+        }
+        prevJ = jd;
+      }
+      const t0 = kakshaOf(mPos.Moon.sidereal);
+      const fmtT = jd => { const d = jdToLocalString(jd, mdt.tz); return `${d.day}/${d.month} ${pad2(d.hh)}:${pad2(d.mm)}`; };
+      const tl = [{ jd: mdt.jd, kk: t0, now: true }].concat(steps).map(x => {
+        const b = P.Moon[x.kk.k][x.kk.sign];
+        return `<tr><td style="font-family:var(--mono); font-size:11.5px;">${x.now ? T('judged moment','momento juzgado') : fmtT(x.jd)}</td><td>${SIGNS[x.kk.sign]}</td><td>${x.kk.k + 1} · ${x.kk.lord === 'Lagna' ? 'Lagna' : gNameNatal(x.kk.lord)}</td>
+          <td><span class="tag ${b ? 'good' : 'bad'}">${b ? T('bindu','bindu') : T('no bindu','sin bindu')}</span></td></tr>`;
+      }).join('');
+      return `<div class="panel"><div class="hd"><h2>${T('Kakṣyā transits','Tránsitos por Kakṣyā')}</h2><span class="note">${T('at the judged moment','en el momento juzgado')}</span></div>
+        <div class="bd">
+          <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Sign','Signo')}</th><th>${T('Kakṣyā · ruler','Kakṣyā · regente')}</th><th>${T("Ruler's point",'Punto del regente')}</th><th>${T('Own bindus in sign','Bindus propios en el signo')}</th><th>${T('Sarva','Sarva')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+          <h3 style="margin:14px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Moon — next 48 hours','Luna — próximas 48 horas')}</h3>
+          <div class="tblwrap"><table><thead><tr><th>${T('From','Desde')}</th><th>${T('Sign','Signo')}</th><th>${T('Kakṣyā · ruler','Kakṣyā · regente')}</th><th>${T("Ruler's point",'Punto del regente')}</th></tr></thead><tbody>${tl}</tbody></table></div>
+          <div class="hint" style="margin-top:8px; line-height:1.6;">${T("Each sign is divided into eight kakṣyās of 3°45', ruled in order by Saturn, Jupiter, Mars, the Sun, Venus, Mercury, the Moon and the Lagna. A transiting graha gives its results while it crosses a kakṣyā whose ruler contributed a bindu to that sign in the graha's own natal Aṣṭakavarga; without that bindu the transit is traditionally read as fruitless. Times use the judged moment's time zone.","Cada signo se divide en ocho kakṣyās de 3°45', regidas en orden por Saturno, Júpiter, Marte, el Sol, Venus, Mercurio, la Luna y el Lagna. Un graha en tránsito da sus resultados mientras cruza una kakṣyā cuyo regente aportó un bindu a ese signo en el Aṣṭakavarga natal del propio graha; sin ese bindu el tránsito se lee tradicionalmente como infructuoso. Las horas usan la zona horaria del momento juzgado.")}</div>
+        </div></div>`;
+    })()}
 
     <footer class="notes" style="line-height:1.8;">
        ${T('Not implemented: the classical method\'s Shodhya Piṇḍa reduction (a further weighting of each Bhinnāṣṭakavarga used for longevity and, notably, for timing death via a Nakṣatra-derived calculation) — that crosses from a strength reading into individualized fatality prediction, which this app won\'t automate. The 0-bindu tier above is shown as a strong caution, not as the classical method\'s own literal reading for that tier.','No implementado: la reducción de Shodhya Piṇḍa del método clásico (una ponderación adicional de cada Bhinnāṣṭakavarga usada para la longevidad y, en particular, para cronometrar la muerte mediante un cálculo derivado de Nakṣatra) — eso cruza de una lectura de fuerza a una predicción individualizada de fatalidad, algo que esta app no automatizará. El nivel de 0 bindus de arriba se muestra como una precaución fuerte, no como la lectura literal del método clásico para ese nivel.')}
