@@ -12224,6 +12224,7 @@ function renderDashaPage(){
     ${taraHtml}
     ${condHtml}
     ${classicalHtml}
+    ${renderCharaDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderRectificationPanel(birthPos, bdt)}
   `;
 }
@@ -12237,7 +12238,7 @@ function renderDashaPage(){
 const RECT_OPTS = (() => { const d = { step: '2', span: '10', system: 'vimshottari', depth: '3' };
   try { const s = JSON.parse(localStorage.getItem('pl0RectOpts') || '{}');
     return { step: ['1','2','4','5','10'].includes(s.step) ? s.step : '2', span: ['5','10','15','20','30'].includes(s.span) ? s.span : '10',
-      system: ['vimshottari','yogini','ashtottari'].includes(s.system) ? s.system : 'vimshottari', depth: ['1','2','3','4','5'].includes(s.depth) ? s.depth : '3' };
+      system: ['vimshottari','yogini','ashtottari','chara'].includes(s.system) ? s.system : 'vimshottari', depth: ['1','2','3','4','5'].includes(s.depth) ? s.depth : '3' };
   } catch (e) { return d; } })();
 function setRectOpt(k, v){ RECT_OPTS[k] = v; try { localStorage.setItem('pl0RectOpts', JSON.stringify(RECT_OPTS)); } catch (e) {} renderDashaPage(); }
 // Events are kept per birth chart (keyed by the reference person's birth date/time) on this device.
@@ -12254,6 +12255,13 @@ function rectRemoveEvent(i){ const a = rectLoadEvents(); a.splice(i, 1); rectSav
 const RECT_ABBR = { Sun:'Su', Moon:'Mo', Mars:'Ma', Mercury:'Me', Jupiter:'Ju', Venus:'Ve', Saturn:'Sa', Rahu:'Ra', Ketu:'Ke' };
 function rectDashaPath(system, pos, birthJD, targetJD, depth){
   if (system === 'vimshottari') return vimshottariChainAt(pos, birthJD, targetJD, depth).map(p => p.lord);
+  if (system === 'chara'){ // sign periods: main sign and, from level 2, the sub-period sign (two levels only)
+    const md = charaMahadashas(pos, birthJD, vimshottariYearDays(), CHARA_OPTS, 150).find(p => targetJD >= p.startJD && targetJD < p.endJD);
+    if (!md) return [];
+    const path = [SIGNS[md.sign].slice(0, 3)];
+    if (depth > 1){ const ad = charaAntardashas(md, CHARA_OPTS).find(p => targetJD >= p.startJD && targetJD < p.endJD); if (ad) path.push(SIGNS[ad.sign].slice(0, 3)); }
+    return path;
+  }
   const lagnaI = Math.floor(norm360(pos._ascSidereal) / 30);
   const lagnaEmpty = !GRAHA_LIST.some(g => Math.floor(norm360(pos[g].sidereal) / 30) === lagnaI);
   const opts = { krittikaStart: system === 'ashtottari' && COND_OPTS.ashtottariStart === 'lagnaPlanet' && lagnaEmpty };
@@ -12285,7 +12293,7 @@ function renderRectificationPanel(birthPos, bdt){
   }
   const opt = (k, vals) => vals.map(([v, l]) => `<option value="${v}" ${RECT_OPTS[k] === v ? 'selected' : ''}>${l}</option>`).join('');
   const controls = `<div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; font-size:12.5px; color:var(--ink-dim);">
-      <label>${T('System','Sistema')} <select onchange="setRectOpt('system', this.value)">${opt('system', [['vimshottari','Vimśottari'],['yogini','Yogini'],['ashtottari','Aṣṭottarī']])}</select></label>
+      <label>${T('System','Sistema')} <select onchange="setRectOpt('system', this.value)">${opt('system', [['vimshottari','Vimśottari'],['yogini','Yogini'],['ashtottari','Aṣṭottarī'],['chara','Chara']])}</select></label>
       <label>${T('Levels','Niveles')} <select onchange="setRectOpt('depth', this.value)">${opt('depth', [['1','1'],['2','2'],['3','3'],['4','4'],['5','5']])}</select></label>
       <label>${T('Step','Paso')} <select onchange="setRectOpt('step', this.value)">${opt('step', ['1','2','4','5','10'].map(v => [v, v + ' min']))}</select></label>
       <label>${T('Rows each side','Filas a cada lado')} <select onchange="setRectOpt('span', this.value)">${opt('span', ['5','10','15','20','30'].map(v => [v, v]))}</select></label>
@@ -12316,6 +12324,148 @@ function renderRectificationPanel(birthPos, bdt){
       `Cada celda es el camino de daśā vigente en ese evento (Mahādaśā/Antardaśā/…; Su Mo Ma Me Ju Ve Sa Ra Ke). Una línea dorada marca dónde el camino cambia respecto a la fila de arriba — la hora de nacimiento decide a qué lado de ese límite cae el evento. ◀ es la hora registrada. Vimśottari sigue las opciones de estrella inicial y año de arriba. Las horas de los eventos usan la zona horaria del nacimiento.`)}</div></div></div>`;
 }
 // END RECTIFICATION
+// BEGIN CHARA DASHA
+// Chara (sign) dasha. Mahadashas run from the Lagna sign, forward when the 9th
+// sign from the Lagna is odd-footed (Aries-Gemini, Libra-Sagittarius) and
+// backward otherwise. A sign's years = count from it to its lord (forward for
+// odd-footed signs, backward for even-footed ones) minus one; lord at home = 12.
+// Scorpio (Mars/Ketu) and Aquarius (Saturn/Rahu) count to the stronger co-lord.
+// Two methods: 'parashara' (+1 year for an exalted lord, -1 for a debilitated
+// one; co-lord strength by exalted occupant, planet count, sign nature, then
+// more years) and 'rao' (no adjustment; co-lord strength by planets with it,
+// then higher degree). The cycle repeats with the same years.
+const CHARA_OPTS = (() => { const d = { method: 'parashara', antar: 'next', rahuEx: 'taurus', mercEx: 'degree' };
+  try { const s = JSON.parse(localStorage.getItem('pl0CharaOpts') || '{}');
+    return { method: ['parashara','rao'].includes(s.method) ? s.method : d.method, antar: ['next','self'].includes(s.antar) ? s.antar : d.antar,
+      rahuEx: ['taurus','gemini'].includes(s.rahuEx) ? s.rahuEx : d.rahuEx, mercEx: ['degree','sign'].includes(s.mercEx) ? s.mercEx : d.mercEx };
+  } catch (e) { return d; } })();
+function setCharaOpt(k, v){ CHARA_OPTS[k] = v; try { localStorage.setItem('pl0CharaOpts', JSON.stringify(CHARA_OPTS)); } catch (e) {} renderDashaPage(); }
+const CHARA_LORD = ['Mars','Venus','Mercury','Moon','Sun','Mercury','Venus','Mars','Jupiter','Saturn','Saturn','Jupiter'];
+const CHARA_CO_LORD = { 7: 'Ketu', 10: 'Rahu' };
+const CHARA_GRAHAS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu'];
+const charaOddFooted = s => [0,1,2,6,7,8].includes(((s % 12) + 12) % 12);
+function charaExaltSign(g, opts){
+  if (g === 'Rahu') return opts.rahuEx === 'gemini' ? 2 : 1;
+  if (g === 'Ketu') return opts.rahuEx === 'gemini' ? 8 : 7;
+  return { Sun:0, Moon:1, Mars:9, Mercury:5, Jupiter:3, Venus:11, Saturn:6 }[g];
+}
+// +1 exalted, -1 debilitated, 0 otherwise. Mercury 'degree': exalted only in the first 15° of Virgo (debilitated in the first 15° of Pisces).
+function charaDignity(g, sid, opts){
+  const L = norm360(sid), s = Math.floor(L / 30), deg = L - s * 30, ex = charaExaltSign(g, opts);
+  const inPart = g === 'Mercury' && opts.mercEx === 'degree' ? deg < 15 : true;
+  if (s === ex && inPart) return 1;
+  if (s === (ex + 6) % 12 && inPart) return -1;
+  return 0;
+}
+function charaCount(from, to){ // inclusive count from sign `from` to sign `to`, direction by `from`'s footing
+  return charaOddFooted(from) ? ((to - from + 12) % 12) + 1 : ((from - to + 12) % 12) + 1;
+}
+// Years for one sign, with the reasoning. pos: {graha: {sidereal}}.
+function charaSignYears(sign, pos, opts){
+  const signOf = g => Math.floor(norm360(pos[g].sidereal) / 30);
+  const inSign = s => CHARA_GRAHAS.filter(g => signOf(g) === s);
+  const yearsTo = t => { const c = charaCount(sign, t); return c === 1 ? 12 : c - 1; };
+  let lord = CHARA_LORD[sign], why = '';
+  const co = CHARA_CO_LORD[sign];
+  if (co){
+    const a = lord, b = co, sa = signOf(a), sb = signOf(b);
+    if (sa === sign && sb === sign){ why = 'both'; }
+    else if (sa === sign){ lord = b; why = 'otherHome'; }
+    else if (sb === sign){ lord = a; why = 'otherHome'; }
+    else if (sa === sb){ why = 'together'; }
+    else if (opts.method === 'rao'){
+      const na = inSign(sa).length, nb = inSign(sb).length;
+      if (na !== nb){ lord = na > nb ? a : b; why = 'morePlanets'; }
+      else { const da = norm360(pos[a].sidereal) - sa * 30, db = norm360(pos[b].sidereal) - sb * 30; lord = da >= db ? a : b; why = 'higherDegree'; }
+    } else {
+      const exA = inSign(sa).some(g => charaDignity(g, pos[g].sidereal, opts) > 0), exB = inSign(sb).some(g => charaDignity(g, pos[g].sidereal, opts) > 0);
+      const na = inSign(sa).length, nb = inSign(sb).length, rank = s => [0, 1, 2][s % 3];
+      if (exA !== exB){ lord = exA ? a : b; why = 'exaltedThere'; }
+      else if (na !== nb){ lord = na > nb ? a : b; why = 'morePlanets'; }
+      else if (rank(sa) !== rank(sb)){ lord = rank(sa) > rank(sb) ? a : b; why = 'signNature'; }
+      else { lord = yearsTo(sa) >= yearsTo(sb) ? a : b; why = 'moreYears'; }
+    }
+  }
+  const target = signOf(lord), count = charaCount(sign, target);
+  let years = count === 1 ? 12 : count - 1, adj = 0;
+  if (opts.method === 'parashara'){ adj = charaDignity(lord, pos[lord].sidereal, opts); years += adj; }
+  return { sign, lord, target, count, forward: charaOddFooted(sign), adj, why, years: Math.max(0, years) };
+}
+function charaSequence(start){ const step = charaOddFooted(start + 8) ? 1 : -1; return Array.from({ length: 12 }, (_, i) => (((start + i * step) % 12) + 12) % 12); }
+// Mahadashas from birth until `spanYears` have passed (cycles repeat with the same years). Zero-year signs are skipped.
+function charaMahadashas(pos, birthJD, yearDays, opts, spanYears){
+  const lagna = Math.floor(norm360(pos._ascSidereal) / 30), seq = charaSequence(lagna);
+  const table = seq.map(s => charaSignYears(s, pos, opts));
+  if (!table.some(r => r.years > 0)) return [];
+  const out = []; let jd = birthJD, cycle = 1;
+  while ((jd - birthJD) / yearDays < spanYears){
+    for (const r of table){
+      if (r.years <= 0) continue;
+      out.push({ ...r, cycle, startJD: jd, endJD: jd + r.years * yearDays });
+      jd += r.years * yearDays;
+    }
+    cycle++;
+  }
+  return out;
+}
+// Antardashas: twelve equal parts in the main sign's own order; 'next' starts from the sign after it (main sign last), 'self' from the main sign.
+function charaAntardashas(md, opts){
+  const seq = charaSequence(md.sign), order = opts.antar === 'self' ? seq : seq.slice(1).concat(seq[0]);
+  const len = (md.endJD - md.startJD) / 12;
+  return order.map((s, i) => ({ sign: s, startJD: md.startJD + i * len, endJD: md.startJD + (i + 1) * len }));
+}
+function renderCharaDashaPanel(birthPos, bdt, nowJD, localTz){
+  if (!bdt || bdt.empty || !isFinite(bdt.jd)) return '';
+  const o = CHARA_OPTS, yd = vimshottariYearDays();
+  const mds = charaMahadashas(birthPos, bdt.jd, yd, o, 120);
+  const cur = mds.find(p => nowJD >= p.startJD && nowJD < p.endJD);
+  const lagna = Math.floor(norm360(birthPos._ascSidereal) / 30), ninth = (lagna + 8) % 12;
+  const WHY = {
+    both: T('both lords at home: 12','ambos señores en casa: 12'),
+    otherHome: T('one lord at home, so the count goes to the other','un señor en casa, se cuenta hasta el otro'),
+    together: T('both lords in the same sign','ambos señores en el mismo signo'),
+    morePlanets: T('the co-lord with more planets beside it','el co-señor con más planetas junto a él'),
+    higherDegree: T('equal company; the co-lord further through its sign','igual compañía; el co-señor más avanzado en su signo'),
+    exaltedThere: T('the co-lord sharing a sign with an exalted planet','el co-señor que comparte signo con un planeta exaltado'),
+    signNature: T('the co-lord in the stronger sign (dual over fixed over movable)','el co-señor en el signo más fuerte (doble sobre fijo sobre móvil)'),
+    moreYears: T('equal strength; the count giving more years','igual fuerza; la cuenta que da más años'),
+  };
+  const reason = r => {
+    const dir = r.forward ? T('forward','hacia adelante') : T('backward','hacia atrás');
+    let s = r.count === 1 ? T(`${gNameNatal(r.lord)} in the sign itself: 12`,`${gNameNatal(r.lord)} en el propio signo: 12`)
+      : `${dir} ${T('to','hasta')} ${gNameNatal(r.lord)} ${T('in','en')} ${SIGNS[r.target]}: ${r.count} − 1 = ${r.count - 1}`;
+    if (r.adj > 0) s += `; ${T('exalted lord +1','señor exaltado +1')}`;
+    if (r.adj < 0) s += `; ${T('debilitated lord −1','señor debilitado −1')}`;
+    if (r.why) s += ` <span style="color:var(--ink-dim);">· ${WHY[r.why]}</span>`;
+    return s;
+  };
+  const rows = mds.filter(p => p.cycle === 1 || p === cur).map(p => `<tr${p === cur ? ' style="outline:2px solid var(--gold);"' : ''}><td class="wide" style="font-weight:600;">${SIGNS[p.sign]}${p.cycle > 1 ? ` <small>(${T('cycle','ciclo')} ${p.cycle})</small>` : ''}</td>
+      <td>${p.years} ${T('y','a')}</td><td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td><td style="font-size:11px;">${reason(p)}</td></tr>`).join('');
+  const skipped = charaSequence(lagna).map(s => charaSignYears(s, birthPos, o)).filter(r => r.years <= 0);
+  let adHtml = '';
+  if (cur){
+    const ads = charaAntardashas(cur, o);
+    adHtml = `<h3 style="margin:14px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Sub-periods of','Subperíodos de')} ${SIGNS[cur.sign]}</h3>
+      <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Period','Período')}</th></tr></thead><tbody>${ads.map(a => `<tr${nowJD >= a.startJD && nowJD < a.endJD ? ' style="outline:2px solid var(--gold);"' : ''}><td>${SIGNS[a.sign]}</td><td style="font-size:11px;">${fmtDashaDate(a.startJD, localTz)} → ${fmtDashaDate(a.endJD, localTz)}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  const sel = (k, pairs) => `<select onchange="setCharaOpt('${k}', this.value)">${pairs.map(([v, l]) => `<option value="${v}" ${o[k] === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+  return `<div class="panel"><div class="hd"><h2>${T('Chara daśā','Chara daśā')}</h2><span class="note">${T('sign periods from the Lagna','períodos de signos desde el Lagna')}</span></div>
+    <div class="bd">
+      <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:10px; font-size:13px; color:var(--ink-dim);">
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T('Years of a sign','Años de un signo')} ${sel('method', [['parashara', T('count to the lord −1, ±1 for an exalted or debilitated lord','cuenta hasta el señor −1, ±1 si el señor está exaltado o debilitado')], ['rao', T('count to the lord −1, no exaltation adjustment','cuenta hasta el señor −1, sin ajuste por exaltación')]])}</label>
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T('Sub-periods start from','Los subperíodos empiezan en')} ${sel('antar', [['next', T('the next sign (main sign last)','el signo siguiente (el principal al final)')], ['self', T('the main sign itself','el propio signo principal')]])}</label>
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T("Rahu's exaltation",'Exaltación de Rahu')} ${sel('rahuEx', [['taurus', T('Taurus (Ketu in Scorpio)','Tauro (Ketu en Escorpio)')], ['gemini', T('Gemini (Ketu in Sagittarius)','Géminis (Ketu en Sagitario)')]])}</label>
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T("Mercury's exaltation",'Exaltación de Mercurio')} ${sel('mercEx', [['degree', T('first 15° of Virgo only','solo los primeros 15° de Virgo')], ['sign', T('anywhere in Virgo','en cualquier parte de Virgo')]])}</label>
+      </div>
+      <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T(`The daśās start from the Lagna (${SIGNS[lagna]}) and run ${charaOddFooted(ninth) ? 'forward' : 'backward'} because the 9th sign, ${SIGNS[ninth]}, is ${charaOddFooted(ninth) ? 'odd-footed' : 'even-footed'}. Each sign's years are counted from it to its lord, forward for Aries, Taurus, Gemini, Libra, Scorpio and Sagittarius and backward for the rest. Scorpio and Aquarius each have two lords, and the stronger one is used. The exaltation options only matter when the years get the ±1 adjustment.`,
+        `Las daśās empiezan en el Lagna (${SIGNS[lagna]}) y avanzan ${charaOddFooted(ninth) ? 'hacia adelante' : 'hacia atrás'} porque el 9.º signo, ${SIGNS[ninth]}, es ${charaOddFooted(ninth) ? 'de pie impar' : 'de pie par'}. Los años de cada signo se cuentan desde él hasta su señor, hacia adelante en Aries, Tauro, Géminis, Libra, Escorpio y Sagitario y hacia atrás en los demás. Escorpio y Acuario tienen dos señores y se usa el más fuerte. Las opciones de exaltación solo cuentan cuando los años llevan el ajuste de ±1.`)}</div>
+      <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Years','Años')}</th><th>${T('Period','Período')}</th><th>${T('How the years are counted','Cómo se cuentan los años')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+      ${skipped.length ? `<div class="hint" style="margin-top:6px;">${T('No period (0 years, debilitated lord)','Sin período (0 años, señor debilitado)')}: ${skipped.map(r => SIGNS[r.sign]).join(', ')}</div>` : ''}
+      ${adHtml}
+      <div class="hint" style="margin-top:8px;">${T("After the twelfth sign the same periods repeat. Years use the Daśā-year length chosen above.","Tras el duodécimo signo se repiten los mismos períodos. Los años usan la duración del año de Daśā elegida arriba.")}</div>
+    </div></div>`;
+}
+// END CHARA DASHA
 
 // Nakṣatra Categories page — a fixed property of the reference person's own
 // horoscope (Janma Nakṣatra, same refP used for Tārā Bala/Nāḍī on the main
