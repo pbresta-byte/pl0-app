@@ -12166,8 +12166,98 @@ function renderDashaPage(){
     ${taraHtml}
     ${condHtml}
     ${classicalHtml}
+    ${renderRectificationPanel(birthPos, bdt)}
   `;
 }
+
+// BEGIN RECTIFICATION
+// Birth-time rectification grid: rows = candidate birth times (recorded time
+// ± span × step minutes), columns = the native's dated life events, each cell
+// = the dasha path (1-5 levels) running at that event if the birth were at
+// that row's time. A path change between neighbouring rows marks a boundary:
+// events that should fall in a given period narrow the plausible birth time.
+const RECT_OPTS = (() => { const d = { step: '2', span: '10', system: 'vimshottari', depth: '3' };
+  try { const s = JSON.parse(localStorage.getItem('pl0RectOpts') || '{}');
+    return { step: ['1','2','4','5','10'].includes(s.step) ? s.step : '2', span: ['5','10','15','20','30'].includes(s.span) ? s.span : '10',
+      system: ['vimshottari','yogini','ashtottari'].includes(s.system) ? s.system : 'vimshottari', depth: ['1','2','3','4','5'].includes(s.depth) ? s.depth : '3' };
+  } catch (e) { return d; } })();
+function setRectOpt(k, v){ RECT_OPTS[k] = v; try { localStorage.setItem('pl0RectOpts', JSON.stringify(RECT_OPTS)); } catch (e) {} renderDashaPage(); }
+// Events are kept per birth chart (keyed by the reference person's birth date/time) on this device.
+function rectEventsKey(){ const d = document.getElementById('bDate')?.value || '', t = document.getElementById('bTime')?.value || ''; return 'pl0RectEvents:' + d + 'T' + t; }
+function rectLoadEvents(){ try { const a = JSON.parse(localStorage.getItem(rectEventsKey()) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+function rectSaveEvents(a){ try { localStorage.setItem(rectEventsKey(), JSON.stringify(a)); } catch (e) {} }
+function rectAddEvent(){
+  const d = document.getElementById('rectEvDate')?.value, t = document.getElementById('rectEvTime')?.value || '12:00', l = (document.getElementById('rectEvLabel')?.value || '').trim();
+  if (!d) return;
+  const a = rectLoadEvents(); a.push({ date: d, time: t, label: l.slice(0, 40) }); a.sort((x, y) => (x.date + x.time).localeCompare(y.date + y.time));
+  rectSaveEvents(a); renderDashaPage();
+}
+function rectRemoveEvent(i){ const a = rectLoadEvents(); a.splice(i, 1); rectSaveEvents(a); renderDashaPage(); }
+const RECT_ABBR = { Sun:'Su', Moon:'Mo', Mars:'Ma', Mercury:'Me', Jupiter:'Ju', Venus:'Ve', Saturn:'Sa', Rahu:'Ra', Ketu:'Ke' };
+function rectDashaPath(system, pos, birthJD, targetJD, depth){
+  if (system === 'vimshottari') return vimshottariChainAt(pos, birthJD, targetJD, depth).map(p => p.lord);
+  const lagnaI = Math.floor(norm360(pos._ascSidereal) / 30);
+  const lagnaEmpty = !GRAHA_LIST.some(g => Math.floor(norm360(pos[g].sidereal) / 30) === lagnaI);
+  const opts = { krittikaStart: system === 'ashtottari' && COND_OPTS.ashtottariStart === 'lagnaPlanet' && lagnaEmpty };
+  let level = condMahadashas(system, pos.Moon.sidereal, birthJD, vimshottariYearDays(), 150, opts);
+  const path = [];
+  for (let d = 1; d <= depth; d++){
+    const active = level.find(p => targetJD >= p.startJD && targetJD < p.endJD);
+    if (!active) break;
+    path.push(active.lord);
+    if (d < depth) level = condSubPeriods(system, active);
+  }
+  return path;
+}
+function renderRectificationPanel(birthPos, bdt){
+  if (!bdt || bdt.empty || !isFinite(bdt.jd)) return '';
+  const events = rectLoadEvents();
+  const ay = document.getElementById('ayanamsaMode')?.value || 'lahiri';
+  const step = +RECT_OPTS.step, span = +RECT_OPTS.span, depth = +RECT_OPTS.depth, sys = RECT_OPTS.system;
+  const evJDs = events.map(e => { const [y, mo, da] = e.date.split('-').map(Number), [hh, mm] = (e.time || '12:00').split(':').map(Number); return julianDay(y, mo, da, hh, mm, 0, bdt.tz); });
+  const base = bdt.hh * 60 + bdt.mm;
+  const rows = [];
+  for (let k = -span; k <= span; k++){
+    const jd = bdt.jd + k * step / 1440;
+    const pos = computePositions(jd, bdt.lat, bdt.lon, ay);
+    const lag = SIGNS[Math.floor(norm360(pos._ascSidereal) / 30)];
+    const nav = SIGNS[Math.floor(norm360(navamsaSidereal(pos._ascSidereal)) / 30)];
+    const mins = ((base + k * step) % 1440 + 1440) % 1440;
+    rows.push({ k, label: `${pad2(Math.floor(mins / 60))}:${pad2(mins % 60)}`, lag, nav, paths: evJDs.map(ej => ej > jd ? rectDashaPath(sys, pos, jd, ej, depth) : null) });
+  }
+  const opt = (k, vals) => vals.map(([v, l]) => `<option value="${v}" ${RECT_OPTS[k] === v ? 'selected' : ''}>${l}</option>`).join('');
+  const controls = `<div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; font-size:12.5px; color:var(--ink-dim);">
+      <label>${T('System','Sistema')} <select onchange="setRectOpt('system', this.value)">${opt('system', [['vimshottari','Vimśottari'],['yogini','Yogini'],['ashtottari','Aṣṭottarī']])}</select></label>
+      <label>${T('Levels','Niveles')} <select onchange="setRectOpt('depth', this.value)">${opt('depth', [['1','1'],['2','2'],['3','3'],['4','4'],['5','5']])}</select></label>
+      <label>${T('Step','Paso')} <select onchange="setRectOpt('step', this.value)">${opt('step', ['1','2','4','5','10'].map(v => [v, v + ' min']))}</select></label>
+      <label>${T('Rows each side','Filas a cada lado')} <select onchange="setRectOpt('span', this.value)">${opt('span', ['5','10','15','20','30'].map(v => [v, v]))}</select></label>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px; font-size:12.5px;">
+      <input type="date" id="rectEvDate" style="width:auto;"> <input type="time" id="rectEvTime" value="12:00" style="width:auto;">
+      <input type="text" id="rectEvLabel" maxlength="40" placeholder="${T('event (e.g. marriage)','evento (p. ej. boda)')}" style="width:auto; min-width:180px;">
+      <button type="button" onclick="rectAddEvent()">${T('Add event','Añadir evento')}</button>
+    </div>`;
+  if (!events.length) return `<div class="panel"><div class="hd"><h2>${T('Birth-time rectification','Rectificación de la hora de nacimiento')}</h2><span class="note">${T('dasha path at each event','camino de daśā en cada evento')}</span></div><div class="bd">${controls}
+      <div class="hint" style="margin-top:10px;">${T('Add a few dated life events (marriage, children, moves, career changes). The grid then shows, for birth times a few minutes either side of the recorded one, which dasha periods those events would fall in — a change between neighbouring rows marks where the birth time decides the period.','Añade algunos eventos fechados (boda, hijos, mudanzas, cambios de carrera). La tabla muestra entonces, para horas de nacimiento unos minutos antes y después de la registrada, en qué períodos de daśā caerían esos eventos — un cambio entre filas vecinas marca dónde la hora de nacimiento decide el período.')}</div></div></div>`;
+  const head = `<tr><th>${T('Birth time','Hora de nacimiento')}</th><th>${T('Lagna · D9','Lagna · D9')}</th>${events.map((e, i) => `<th style="font-size:11px;">${e.label ? e.label + '<br>' : ''}${e.date}<br><a href="javascript:void(0)" onclick="rectRemoveEvent(${i})" style="font-weight:400;">${T('remove','quitar')}</a></th>`).join('')}</tr>`;
+  const body = rows.map((r, idx) => {
+    const prev = rows[idx - 1];
+    const lagChanged = prev && (prev.lag !== r.lag || prev.nav !== r.nav);
+    const cells = r.paths.map((p, j) => {
+      if (!p) return `<td class="hint" style="font-size:11px;">${T('before birth','antes del nacimiento')}</td>`;
+      const txt = p.map(l => RECT_ABBR[l] || l).join('/');
+      const changed = prev && prev.paths[j] && prev.paths[j].join() !== p.join();
+      return `<td style="font-family:var(--mono); font-size:11px;${changed ? ' border-top:2px solid var(--gold); font-weight:700;' : ''}">${txt}</td>`;
+    }).join('');
+    return `<tr${r.k === 0 ? ' style="background:var(--bg-2);"' : ''}><td style="font-family:var(--mono); font-size:11.5px;">${r.label}${r.k === 0 ? ' ◀' : ''}</td>
+      <td style="font-size:11px;${lagChanged ? ' border-top:2px solid var(--gold); font-weight:700;' : ''}">${r.lag} · ${r.nav}</td>${cells}</tr>`;
+  }).join('');
+  return `<div class="panel"><div class="hd"><h2>${T('Birth-time rectification','Rectificación de la hora de nacimiento')}</h2><span class="note">${T('dasha path at each event','camino de daśā en cada evento')}</span></div><div class="bd">${controls}
+    <div class="tblwrap" style="margin-top:10px;"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
+    <div class="hint" style="margin-top:8px; line-height:1.6;">${T(`Each cell is the dasha path running at that event (Mahādaśā/Antardaśā/…; Su Mo Ma Me Ju Ve Sa Ra Ke). A gold line marks where the path changes from the row above — the birth time decides which side of that boundary the event falls. ◀ is the recorded time. Vimśottari follows the starting-star and year options above. Event times use the birth time zone.`,
+      `Cada celda es el camino de daśā vigente en ese evento (Mahādaśā/Antardaśā/…; Su Mo Ma Me Ju Ve Sa Ra Ke). Una línea dorada marca dónde el camino cambia respecto a la fila de arriba — la hora de nacimiento decide a qué lado de ese límite cae el evento. ◀ es la hora registrada. Vimśottari sigue las opciones de estrella inicial y año de arriba. Las horas de los eventos usan la zona horaria del nacimiento.`)}</div></div></div>`;
+}
+// END RECTIFICATION
 
 // Nakṣatra Categories page — a fixed property of the reference person's own
 // horoscope (Janma Nakṣatra, same refP used for Tārā Bala/Nāḍī on the main
