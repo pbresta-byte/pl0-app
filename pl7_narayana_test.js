@@ -41,5 +41,14 @@ const h2 = mk(['Ar', 1], { Sun:['Ar',5], Moon:['Li',3], Mars:['Li',4], Mercury:[
 r = ctx.charaStrongerSign(S.Ar, S.Li, h2, rao); if (r.sign !== S.Li || r.rule !== 'planets') bad(`planets rule ${N[r.sign]} ${r.rule}`);
 r = ctx.charaStrongerSign(S.Cn, S.Pi, h2, rao); if (r.sign !== S.Pi || r.rule !== 'nature') bad(`both exalted -> sign type ${N[r.sign]} ${r.rule}`);
 r = ctx.charaStrongerSign(S.Cn, S.Ta, h2, rao); if (r.sign !== S.Cn || r.rule !== 'exalted') bad(`exalted rule ${N[r.sign]} ${r.rule}`);
-console.log(fails ? `${fails} failure(s)` : 'PASS — Rath Table 2.7 (12 rows), Goel ready table (10 rows), Gandhi order+years, AK start rule, Putin antardashas, ladder');
+// Shoola: BPHS example (Aquarius Lagna, 2nd Pisces stronger by its lord): Pisces backward, 9 8 7 9 8 7 ...
+const bp = mk(['Aq', 16.47], { Sun:['Cp',29.6], Moon:['Ge',22.1], Mars:['Ta',0.94], Mercury:['Aq',13.1], Jupiter:['Aq',13.7], Venus:['Aq',20.07], Saturn:['Sc',13.4], Rahu:['Ge',13.93], Ketu:['Sg',13.93] });
+const sh = ctx.shoolaMahadashas(bp, 0, 365.25, rao, 'second', 90);
+if (N[sh.start.sign] !== 'Pi' || sh.dir !== -1) bad(`BPHS shoola start ${N[sh.start.sign]} dir ${sh.dir}`);
+if (sh.list.slice(0, 6).map(r => N[r.sign] + r.years).join(' ') !== 'Pi9 Aq8 Cp7 Sg9 Sc8 Li7') bad('BPHS shoola seq ' + sh.list.slice(0, 6).map(r => N[r.sign] + r.years).join(' '));
+// Jaimini reckoning: forward, 9 years each; sub-periods from the dasha sign forward (Goel's Gemini table).
+const sj = ctx.shoolaMahadashas(ig, 0, 365.25, rao, 'lagna', 108);
+if (sj.list.slice(0, 3).map(r => N[r.sign] + r.years).join(' ') !== 'Cn9 Le9 Vi9') bad('Jaimini shoola seq');
+if (ctx.shoolaAntardashas({ sign: S.Ge, startJD: 0, endJD: 9 * 365.25 }).map(a => N[a.sign]).join(' ') !== 'Ge Cn Le Vi Li Sc Sg Cp Aq Pi Ar Ta') bad('shoola antardashas');
+console.log(fails ? `${fails} failure(s)` : 'PASS — Rath Table 2.7 (12 rows), Goel ready table (10 rows), Gandhi order+years, AK start rule, Putin antardashas, ladder, Shoola (BPHS example + Jaimini)');
 process.exit(fails ? 1 : 0);

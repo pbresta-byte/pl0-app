@@ -12226,6 +12226,7 @@ function renderDashaPage(){
     ${classicalHtml}
     ${renderCharaDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderNarayanaDashaPanel(birthPos, bdt, nowJD, localTz)}
+    ${renderShoolaDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderRectificationPanel(birthPos, bdt)}
   `;
 }
@@ -12572,6 +12573,52 @@ function renderNarayanaDashaPanel(birthPos, bdt, nowJD, localTz){
       <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Years','Años')}</th><th>${T('Period','Período')}</th><th>${T('Lord counted to','Señor contado')}</th></tr></thead><tbody>${rows}</tbody></table></div>
       ${adHtml}
       <div class="hint" style="margin-top:8px;">${T('After the twelfth sign the same periods repeat.','Tras el duodécimo signo se repiten los mismos períodos.')}</div>
+    </div></div>`;
+}
+// Shoola (Niryana Shoola) dasha, a traditional longevity study. Two readings:
+// 'lagna' — the stronger of the Lagna and the 7th, always forward, 9 years each,
+// sub-periods from the dasha sign forward in ninths; 'second' — the stronger
+// of the 2nd and the 8th, forward from an odd sign and backward from an even
+// one, 7/8/9 years by sign type (movable/fixed/dual).
+const SHOOLA_OPTS = (() => { try { const s = JSON.parse(localStorage.getItem('pl0ShoolaOpts') || '{}'); return { mode: ['lagna','second'].includes(s.mode) ? s.mode : 'lagna' }; } catch (e) { return { mode: 'lagna' }; } })();
+function setShoolaOpt(k, v){ SHOOLA_OPTS[k] = v; try { localStorage.setItem('pl0ShoolaOpts', JSON.stringify(SHOOLA_OPTS)); } catch (e) {} renderDashaPage(); }
+function shoolaMahadashas(pos, birthJD, yearDays, opts, mode, spanYears){
+  const lagna = Math.floor(norm360(pos._ascSidereal) / 30);
+  const pair = mode === 'second' ? [(lagna + 1) % 12, (lagna + 7) % 12] : [lagna, (lagna + 6) % 12];
+  const st = charaStrongerSign(pair[0], pair[1], pos, opts);
+  const dir = mode === 'second' && st.sign % 2 === 1 ? -1 : 1;
+  const out = []; let jd = birthJD, i = 0;
+  while ((jd - birthJD) / yearDays < spanYears){
+    const sign = (((st.sign + i * dir) % 12) + 12) % 12, years = mode === 'second' ? 7 + sign % 3 : 9;
+    out.push({ sign, years, cycle: Math.floor(i / 12) + 1, startJD: jd, endJD: jd + years * yearDays });
+    jd += years * yearDays; i++;
+  }
+  return { start: st, dir, list: out };
+}
+function shoolaAntardashas(md){ const len = (md.endJD - md.startJD) / 12; return Array.from({ length: 12 }, (_, i) => ({ sign: (md.sign + i) % 12, startJD: md.startJD + i * len, endJD: md.startJD + (i + 1) * len })); }
+function renderShoolaDashaPanel(birthPos, bdt, nowJD, localTz){
+  if (!bdt || bdt.empty || !isFinite(bdt.jd)) return '';
+  const mode = SHOOLA_OPTS.mode, r = shoolaMahadashas(birthPos, bdt.jd, vimshottariYearDays(), CHARA_OPTS, mode, 108);
+  const cur = r.list.find(p => nowJD >= p.startJD && nowJD < p.endJD);
+  const rows = r.list.filter(p => p.cycle === 1).map(p => `<tr${p === cur ? ' style="outline:2px solid var(--gold);"' : ''}><td class="wide" style="font-weight:600;">${SIGNS[p.sign]}</td><td>${p.years} ${T('y','a')}</td>
+      <td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td></tr>`).join('');
+  const ad = cur && mode === 'lagna' ? shoolaAntardashas(cur) : null;
+  const adHtml = ad ? `<h3 style="margin:14px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Sub-periods of','Subperíodos de')} ${SIGNS[cur.sign]}</h3>
+      <div class="tblwrap"><table><tbody>${ad.map(a => `<tr${nowJD >= a.startJD && nowJD < a.endJD ? ' style="outline:2px solid var(--gold);"' : ''}><td>${SIGNS[a.sign]}</td><td style="font-size:11px;">${fmtDashaDate(a.startJD, localTz)} → ${fmtDashaDate(a.endJD, localTz)}</td></tr>`).join('')}</tbody></table></div>` : '';
+  const which = mode === 'second' ? T(r.start.sign === (Math.floor(norm360(birthPos._ascSidereal) / 30) + 1) % 12 ? '2nd house' : '8th house', r.start.sign === (Math.floor(norm360(birthPos._ascSidereal) / 30) + 1) % 12 ? 'casa 2' : 'casa 8')
+    : T(r.start.sign === Math.floor(norm360(birthPos._ascSidereal) / 30) ? 'Lagna' : '7th house', r.start.sign === Math.floor(norm360(birthPos._ascSidereal) / 30) ? 'Lagna' : 'casa 7');
+  return `<div class="panel"><div class="hd"><h2>${T('Śūla daśā','Śūla daśā')}</h2><span class="note">${T('traditional longevity study','estudio tradicional de longevidad')}</span></div>
+    <div class="bd">
+      <div class="hint" style="margin-bottom:10px; line-height:1.6; border-left:3px solid var(--vermilion); padding-left:8px;">${T('This daśā belongs to the classical study of life-span. It is shown for study and comparison only: it is not a prediction of death or life-span, and no single daśā should be read that way. Health questions belong with a doctor.','Esta daśā pertenece al estudio clásico de la duración de la vida. Se muestra solo para estudio y comparación: no es una predicción de muerte ni de duración de vida, y ninguna daśā sola debe leerse así. Las cuestiones de salud corresponden a un médico.')}</div>
+      <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:10px; font-size:13px; color:var(--ink-dim);">
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T('Reckoning','Cálculo')} <select onchange="setShoolaOpt('mode', this.value)">
+          <option value="lagna" ${mode === 'lagna' ? 'selected' : ''}>${T('stronger of Lagna and 7th, always forward, 9 years each','el más fuerte entre Lagna y 7.ª, siempre hacia adelante, 9 años cada uno')}</option>
+          <option value="second" ${mode === 'second' ? 'selected' : ''}>${T('stronger of 2nd and 8th, direction by odd/even sign, 7/8/9 years by sign type','el más fuerte entre 2.ª y 8.ª, dirección por signo impar/par, 7/8/9 años por tipo de signo')}</option>
+        </select></label>
+      </div>
+      <div class="hint" style="margin-bottom:8px;">${T(`Starts from ${SIGNS[r.start.sign]} (${which}) and runs ${r.dir > 0 ? 'forward' : 'backward'}.`, `Empieza en ${SIGNS[r.start.sign]} (${which}) y avanza ${r.dir > 0 ? 'hacia adelante' : 'hacia atrás'}.`)}</div>
+      <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Years','Años')}</th><th>${T('Period','Período')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+      ${adHtml}
     </div></div>`;
 }
 // END CHARA DASHA
