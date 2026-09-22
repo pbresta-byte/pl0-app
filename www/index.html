@@ -8328,7 +8328,7 @@ function runAnalysis(){
   const activity = (actSel && actSel.value && panch.nak28 && panch.nak28.name) ? gradeActivity(actSel.value, panch.nak28.name) : null;
   const panchakaFlag = (panch.nak28 && panch.nak28.name) ? panchakaCheck(panch.nak28.name) : false;
   let classical = [];
-  try { classical = classicalRules(_wy, _wm, _wd, mdt.hh||12, mdt.mm||0, panch, WEEKDAYS[new Date(_wy, _wm-1, _wd).getDay()], null, null, {lat:mdt.lat||25.76, lon:mdt.lon||-80.19, tz:mdt.tz||-4}); } catch(e){}
+  try { classical = classicalRules(_wy, _wm, _wd, isFinite(mdt.hh)?mdt.hh:12, isFinite(mdt.mm)?mdt.mm:0, panch, WEEKDAYS[new Date(_wy, _wm-1, _wd).getDay()], null, null, {lat:isFinite(mdt.lat)?mdt.lat:25.76, lon:isFinite(mdt.lon)?mdt.lon:-80.19, tz:isFinite(mdt.tz)?mdt.tz:-4}); } catch(e){}
   const {score, reasons} = scoreMuhurta({maleficHits:vedha.maleficHits, beneficHits:vedha.beneficHits, tara, latta, upagraha, pp, weighDignity, doshas, windows, chandrashtama, activity, panchaka:panchakaFlag, classical});
   const tier = tierFor(score);
 
