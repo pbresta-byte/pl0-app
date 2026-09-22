@@ -2962,6 +2962,31 @@ const VIMSHOTTARI_ORDER = ["Ketu","Venus","Sun","Moon","Mars","Rahu","Jupiter","
 const VIMSHOTTARI_YEARS = {Ketu:7, Venus:20, Sun:6, Moon:10, Mars:7, Rahu:18, Jupiter:16, Saturn:19, Mercury:17};
 const VIMSHOTTARI_TOTAL_YEARS = 120;
 const VIMSHOTTARI_YEAR_DAYS = 365.25;
+// Daśā options (Daśā page): year length and how the birth balance is taken. Defaults = PL7's defaults
+// (365.25-day year, balance by the Moon's degree). 'time' = share of the Moon's actual transit time through
+// its birth nakshatra already elapsed. Checked against PL7's dates: pl7_vimshottari_test.js.
+// BEGIN VIMSHOTTARI OPTS
+const VIM_OPTS = (() => { const d = { yearDays: '365.25', balance: 'degree' }; try { const s = JSON.parse(localStorage.getItem('pl0VimOpts') || '{}'); return { yearDays: ['360','365.25','327.85'].includes(s.yearDays) ? s.yearDays : '365.25', balance: s.balance === 'time' ? 'time' : 'degree' }; } catch (e) { return d; } })();
+function setVimOpt(k, v){ VIM_OPTS[k] = v; try { localStorage.setItem('pl0VimOpts', JSON.stringify(VIM_OPTS)); } catch (e) {} renderDashaPage(); }
+function vimshottariYearDays(){ return parseFloat(VIM_OPTS.yearDays) || VIMSHOTTARI_YEAR_DAYS; }
+// Moon's sidereal longitude at any JD, same model as computePositions().
+function moonSiderealAt(jd){
+  const T = centuriesJ2000(jd);
+  const mode = (typeof document !== 'undefined' && document.getElementById('ayanamsaMode')) ? document.getElementById('ayanamsaMode').value : 'lahiri';
+  return norm360(moonLongitude(T) - (mode === 'tropical' ? 0 : lahiriAyanamsa(T)));
+}
+// JD at which the Moon's sidereal longitude equals `target`, nearest to `guessJD` (Newton on the Moon's own motion).
+function moonAtLongitudeJD(target, guessJD){
+  const rel = jd => { let d = norm360(moonSiderealAt(jd) - target); return d > 180 ? d - 360 : d; };
+  let t = guessJD;
+  for (let i = 0; i < 12; i++){
+    const f = rel(t), speed = (rel(t + 0.01) - rel(t - 0.01)) / 0.02;
+    const step = f / (speed > 1 ? speed : 13.2);
+    t -= step; if (Math.abs(step) < 1e-6) break;
+  }
+  return t;
+}
+// END VIMSHOTTARI OPTS
 const VIMSHOTTARI_LEVEL_NAMES = [
   {en:"Mahādaśā", es:"Mahādaśā"}, {en:"Antardaśā", es:"Antardaśā"}, {en:"Pratyantardaśā", es:"Pratyantardaśā"},
   {en:"Sūkṣma-daśā", es:"Sūkṣma-daśā"}, {en:"Prāṇa-daśā", es:"Prāṇa-daśā"}
@@ -2989,11 +3014,17 @@ function vimshottariMahadashas(birthPos, birthJD){
   const moonSid = norm360(birthPos.Moon.sidereal);
   const nak = nakshatraFromSidereal(moonSid, false);
   const startLord = NAK27.find(s=>s.n===nak.name).lord;
-  const elapsedFrac = (moonSid - nak.spanStart) / (nak.spanEnd - nak.spanStart);
+  let elapsedFrac = (moonSid - nak.spanStart) / (nak.spanEnd - nak.spanStart);
+  if (VIM_OPTS.balance === 'time'){
+    const entry = moonAtLongitudeJD(nak.spanStart, birthJD - (moonSid - nak.spanStart) / 13.2);
+    const exit = moonAtLongitudeJD(nak.spanEnd % 360, birthJD + (nak.spanEnd - moonSid) / 13.2);
+    if (isFinite(entry) && isFinite(exit) && exit > entry) elapsedFrac = Math.min(1, Math.max(0, (birthJD - entry) / (exit - entry)));
+  }
   const seq = vimshottariSequenceFrom(startLord);
   let cursor = birthJD;
+  const yearDays = vimshottariYearDays();
   return seq.map((lord,i)=>{
-    const fullDays = VIMSHOTTARI_YEARS[lord]*VIMSHOTTARI_YEAR_DAYS;
+    const fullDays = VIMSHOTTARI_YEARS[lord]*yearDays;
     const dur = i===0 ? fullDays*(1-elapsedFrac) : fullDays;
     const period = {lord, startJD:cursor, endJD:cursor+dur};
     cursor += dur;
@@ -11749,7 +11780,7 @@ function renderDashaPage(){
       <div class="bd">
         <div class="effect-box"><div class="effect-label">${T('General effects, any dignity','Efectos generales, cualquier dignidad')}</div><div class="effect-text">${T(classicalReading.general.en, classicalReading.general.es)}</div></div>
         ${branchHtml}
-        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('Source: Shanker Adawal, <i>Encyclopedia of Vedic Astrology: Dasa Systems</i>, ch. 2 — a genuinely different layer from the functional reading above: that one derives from this app\'s own Lagna-based house-lordship engine, this is the source\'s own stated Mahādaśā effects, gated only by the lord\'s natal dignity. Shown for the current Mahādaśā only (not Antardaśā and below).','Fuente: Shanker Adawal, <i>Encyclopedia of Vedic Astrology: Dasa Systems</i>, cap. 2 — una capa genuinamente distinta de la lectura funcional de arriba: aquella se deriva del propio motor de señorío de casas basado en el Lagna de esta app, esta es la formulación propia de la fuente sobre los efectos de la Mahādaśā, condicionada solo por la dignidad natal del señor. Se muestra solo para la Mahādaśā actual, no para Antardaśā ni niveles inferiores.')}</div>
+        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('A genuinely different layer from the functional reading above: that one derives from this app\'s own Lagna-based house-lordship engine, this one gives the classical stated Mahādaśā effects, gated only by the lord\'s natal dignity. Shown for the current Mahādaśā only (not Antardaśā and below).','Una capa genuinamente distinta de la lectura funcional de arriba: aquella se deriva del propio motor de señorío de casas basado en el Lagna de esta app, esta da los efectos clásicos declarados de la Mahādaśā, condicionada solo por la dignidad natal del señor. Se muestra solo para la Mahādaśā actual, no para Antardaśā ni niveles inferiores.')}</div>
       </div>
     </div>`;
   }
@@ -11761,6 +11792,19 @@ function renderDashaPage(){
       <div class="bd">
         <div class="hint">${T('The standard Parāśarī timing system, independent of SBC and Ashtakavarga: the Moon\'s Nakṣatra at birth fixes the starting lord and how much of that first period is already spent; the 9 grahas (Sun–Saturn plus Rāhu/Ketu, in a fixed order — Ketu·Venus·Sun·Moon·Mars·Rāhu·Jupiter·Saturn·Mercury — with fixed lengths 7·20·6·10·7·18·16·19·17 years, totalling 120) then run in sequence. Each period divides into sub-periods in the same proportions, starting with its own lord — Mahādaśā → Antardaśā → Pratyantardaśā → Sūkṣma-daśā → Prāṇa-daśā. Pick a zoom depth below to see that many nested levels of whichever period contains the current moment.','El sistema de cronometría Parāśarī estándar, independiente del SBC y del Ashtakavarga: el Nakṣatra de la Luna al nacer fija el señor inicial y cuánto de ese primer período ya transcurrió; los 9 graha (Sol–Saturno más Rāhu/Ketu, en orden fijo — Ketu·Venus·Sol·Luna·Marte·Rāhu·Júpiter·Saturno·Mercurio — con duraciones fijas 7·20·6·10·7·18·16·19·17 años, sumando 120) corren luego en secuencia. Cada período se divide en subperíodos con las mismas proporciones, empezando por su propio señor — Mahādaśā → Antardaśā → Pratyantardaśā → Sūkṣma-daśā → Prāṇa-daśā. Elige una profundidad de zoom abajo para ver esa cantidad de niveles anidados del período que contiene el momento actual.')}</div>
         <div style="margin-top:14px;">${zoomButtons}</div>
+        <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; font-size:13px; color:var(--ink-dim);">
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Daśā year','Año de daśā')}
+            <select onchange="setVimOpt('yearDays', this.value)">
+              <option value="365.25" ${VIM_OPTS.yearDays==='365.25'?'selected':''}>${T('365.25 days (solar)','365,25 días (solar)')}</option>
+              <option value="360" ${VIM_OPTS.yearDays==='360'?'selected':''}>${T('360 days (savana)','360 días (sāvana)')}</option>
+              <option value="327.85" ${VIM_OPTS.yearDays==='327.85'?'selected':''}>${T('327.85 days (12 sidereal months)','327,85 días (12 meses siderales)')}</option>
+            </select></label>
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Birth balance','Saldo al nacer')}
+            <select onchange="setVimOpt('balance', this.value)">
+              <option value="degree" ${VIM_OPTS.balance==='degree'?'selected':''}>${T("By the Moon's degree in its nakshatra",'Por el grado de la Luna en su nakshatra')}</option>
+              <option value="time" ${VIM_OPTS.balance==='time'?'selected':''}>${T("By the Moon's time in its nakshatra",'Por el tiempo de la Luna en su nakshatra')}</option>
+            </select></label>
+        </div>
       </div>
     </div>
 
