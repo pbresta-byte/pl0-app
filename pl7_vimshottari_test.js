@@ -16,7 +16,7 @@ vm.runInContext([
   block(/function nakshatraFromSidereal\(long, use28\)\{/), block(/function julianDay\(y,m,d,hh,mm,ss, utcOffsetHours\)\{/),
   block(/function centuriesJ2000\(jd\)\{/), block(/function lahiriAyanamsa\(T\)\{/), block(/function moonLongitude\(T\)\{/),
   block(/const VIMSHOTTARI_ORDER = \[/), block(/const VIMSHOTTARI_YEARS = \{/), 'const VIMSHOTTARI_TOTAL_YEARS = 120; const VIMSHOTTARI_YEAR_DAYS = 365.25;',
-  opts, block(/function vimshottariSequenceFrom\(startLord\)\{/), block(/function vimshottariSubPeriods\(parentLord, startJD, lengthDays\)\{/),
+  opts, block(/const VIM_SEED_SHIFT = \{/), 'const NAK_SPAN_DEG = 40/3;', block(/function vimSeedChoice\(birthPos\)\{/), block(/function vimshottariSequenceFrom\(startLord\)\{/), block(/function vimshottariSubPeriods\(parentLord, startJD, lengthDays\)\{/),
   block(/function vimshottariMahadashas\(birthPos, birthJD\)\{/),
   'this.api = { VIM_OPTS, julianDay, vimshottariMahadashas, vimshottariSubPeriods, moonSiderealAt, moonAtLongitudeJD };',
 ].join('\n'), ctx);

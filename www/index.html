@@ -2981,7 +2981,8 @@ const VIMSHOTTARI_YEAR_DAYS = 365.25;
 // (365.25-day year, balance by the Moon's degree). 'time' = share of the Moon's actual transit time through
 // its birth nakshatra already elapsed. Checked against PL7's dates: pl7_vimshottari_test.js.
 // BEGIN VIMSHOTTARI OPTS
-const VIM_OPTS = (() => { const d = { yearDays: '365.25', balance: 'degree' }; try { const s = JSON.parse(localStorage.getItem('pl0VimOpts') || '{}'); return { yearDays: ['360','365.25','327.85'].includes(s.yearDays) ? s.yearDays : '365.25', balance: s.balance === 'time' ? 'time' : 'degree' }; } catch (e) { return d; } })();
+const VIM_SEEDS = ['moon', 'lagna', 'strongest', 'kshema', 'utpanna', 'adhana'];
+const VIM_OPTS = (() => { const d = { yearDays: '365.25', balance: 'degree', seed: 'moon', readVarga: 'D1' }; try { const s = JSON.parse(localStorage.getItem('pl0VimOpts') || '{}'); return { yearDays: ['360','365.25','327.85'].includes(s.yearDays) ? s.yearDays : '365.25', balance: s.balance === 'time' ? 'time' : 'degree', seed: VIM_SEEDS.includes(s.seed) ? s.seed : 'moon', readVarga: typeof s.readVarga === 'string' ? s.readVarga : 'D1' }; } catch (e) { return d; } })();
 function setVimOpt(k, v){ VIM_OPTS[k] = v; try { localStorage.setItem('pl0VimOpts', JSON.stringify(VIM_OPTS)); } catch (e) {} renderDashaPage(); }
 function vimshottariYearDays(){ return parseFloat(VIM_OPTS.yearDays) || VIMSHOTTARI_YEAR_DAYS; }
 // Moon's sidereal longitude at any JD, same model as computePositions().
@@ -3130,16 +3131,64 @@ function vimshottariSubPeriods(parentLord, startJD, lengthDays){
     return period;
   });
 }
+// Starting star of the Vimshottari cycle (Dasha page option VIM_OPTS.seed).
+// Sourced variants (research: docs/research/dasha claims vim.seed.*):
+//   moon  — Janma nakshatra, the usual default;
+//   lagna — the nakshatra of the rising degree ("Lagna Vimshottari");
+//   kshema / utpanna / adhana — the 4th / 5th / 8th nakshatra from the Moon's,
+//           the classical longevity (ayur) variants; the Moon's elapsed share of
+//           its own star carries over to the shifted star;
+//   strongest — the strongest of the Lagna, Moon and Utpanna stars: more planets
+//           in kendras to the star's sign wins; ties go to the star whose sign is
+//           joined or aspected by Jupiter, Mercury or the star's lord; still tied,
+//           the Moon (as the rule says to prefer it when in doubt).
+const VIM_SEED_SHIFT = { kshema: 3, utpanna: 4, adhana: 7 };
+const NAK_SPAN_DEG = 40 / 3;
+function vimSeedStrength(birthPos, sid){
+  const signIdx = Math.floor(norm360(sid) / 30);
+  const inKendra = GRAHA_LIST.filter(g => [0, 3, 6, 9].includes((Math.floor(norm360(birthPos[g].sidereal) / 30) - signIdx + 12) % 12)).length;
+  const lord = NAK27.find(s => s.n === nakshatraFromSidereal(norm360(sid), false).name).lord;
+  const helpers = [...new Set(['Jupiter', 'Mercury', lord])].filter(g => {
+    const gs = Math.floor(norm360(birthPos[g].sidereal) / 30);
+    return gs === signIdx || aspectsSignWholeSign(g, gs, signIdx);
+  });
+  return { inKendra, helpers, signIdx };
+}
+function vimSeedChoice(birthPos){
+  const moonSid = norm360(birthPos.Moon.sidereal);
+  const seed = VIM_OPTS.seed;
+  if (seed === 'lagna') return { key: 'lagna', sid: norm360(birthPos._ascSidereal) };
+  if (VIM_SEED_SHIFT[seed]) return { key: seed, sid: norm360(moonSid + VIM_SEED_SHIFT[seed] * NAK_SPAN_DEG), fromMoon: true };
+  if (seed === 'strongest'){
+    const cands = [
+      { key: 'moon', sid: moonSid, fromMoon: true },
+      { key: 'lagna', sid: norm360(birthPos._ascSidereal) },
+      { key: 'utpanna', sid: norm360(moonSid + 4 * NAK_SPAN_DEG), fromMoon: true }
+    ].map(c => ({ ...c, ...vimSeedStrength(birthPos, c.sid) }));
+    const best = Math.max(...cands.map(c => c.inKendra));
+    let pool = cands.filter(c => c.inKendra === best);
+    if (pool.length > 1){
+      const h = Math.max(...pool.map(c => c.helpers.length));
+      pool = pool.filter(c => c.helpers.length === h);
+    }
+    const chosen = pool.find(c => c.key === 'moon') || pool[0];
+    return { ...chosen, auto: true, candidates: cands };
+  }
+  return { key: 'moon', sid: moonSid, fromMoon: true };
+}
 // Level-1 (Mahādaśā) list from birth: starting lord + balance from the
-// Moon's own Nakṣatra position at birth, then the full 9-lord cycle.
+// chosen starting star (default: the Moon's own Nakṣatra), then the full 9-lord cycle.
 function vimshottariMahadashas(birthPos, birthJD){
   const moonSid = norm360(birthPos.Moon.sidereal);
-  const nak = nakshatraFromSidereal(moonSid, false);
+  const seed = vimSeedChoice(birthPos);
+  const nak = nakshatraFromSidereal(seed.sid, false);
   const startLord = NAK27.find(s=>s.n===nak.name).lord;
-  let elapsedFrac = (moonSid - nak.spanStart) / (nak.spanEnd - nak.spanStart);
-  if (VIM_OPTS.balance === 'time'){
-    const entry = moonAtLongitudeJD(nak.spanStart, birthJD - (moonSid - nak.spanStart) / 13.2);
-    const exit = moonAtLongitudeJD(nak.spanEnd % 360, birthJD + (nak.spanEnd - moonSid) / 13.2);
+  let elapsedFrac = (seed.sid - nak.spanStart) / (nak.spanEnd - nak.spanStart);
+  if (seed.fromMoon && VIM_OPTS.balance === 'time'){
+    // Time share is measured on the Moon's own star (it carries over to a shifted star).
+    const mNak = nakshatraFromSidereal(moonSid, false);
+    const entry = moonAtLongitudeJD(mNak.spanStart, birthJD - (moonSid - mNak.spanStart) / 13.2);
+    const exit = moonAtLongitudeJD(mNak.spanEnd % 360, birthJD + (mNak.spanEnd - moonSid) / 13.2);
     if (isFinite(entry) && isFinite(exit) && exit > entry) elapsedFrac = Math.min(1, Math.max(0, (birthJD - entry) / (exit - entry)));
   }
   const seq = vimshottariSequenceFrom(startLord);
@@ -11943,6 +11992,31 @@ function renderDashaPage(){
   const localTz = -now.getTimezoneOffset()/60;
 
   const chain = vimshottariChainAt(birthPos, bdt.jd, nowJD, dashaZoomLevel);
+  const seedInfo = vimSeedChoice(birthPos);
+  const seedNak = nakshatraFromSidereal(seedInfo.sid, false);
+  const SEED_LABEL = {
+    moon: [`Moon's nakshatra (Janma)`, `Nakshatra de la Luna (Janma)`],
+    lagna: [`Lagna's nakshatra`, `Nakshatra del Lagna`],
+    strongest: [`Strongest of Moon, Lagna and 5th star`, `La más fuerte: Luna, Lagna o 5.ª estrella`],
+    kshema: [`4th star from the Moon (Kshema) — longevity study`, `4.ª estrella desde la Luna (Kshema) — estudio de longevidad`],
+    utpanna: [`5th star from the Moon (Utpanna) — longevity study`, `5.ª estrella desde la Luna (Utpanna) — estudio de longevidad`],
+    adhana: [`8th star from the Moon (Adhana) — longevity study`, `8.ª estrella desde la Luna (Adhana) — estudio de longevidad`]
+  };
+  const seedLine = (() => {
+    const lord = NAK27.find(x => x.n === seedNak.name).lord;
+    let t = T(`Starting star: ${seedNak.name} (lord ${gNameNatal(lord)})`, `Estrella inicial: ${seedNak.name} (señor ${gNameNatal(lord)})`);
+    if (seedInfo.auto) {
+      const nm = k => T(SEED_LABEL[k][0].split(' (')[0], SEED_LABEL[k][1].split(' (')[0]);
+      t += ' — ' + T('chosen automatically', 'elegida automáticamente') + ': ' + seedInfo.candidates.map(c =>
+        `${nm(c.key)}: ${c.inKendra} ${T('planets in kendras','planetas en kendras')}${c.helpers.length ? T(', supported by ', ', apoyada por ') + c.helpers.map(gNameNatal).join('/') : ''}`).join('; ')
+        + '. ' + T("More planets in kendras wins; ties go to Jupiter, Mercury or the star's lord; still tied, the Moon.", 'Gana la que tiene más planetas en kendras; en empate, la apoyada por Júpiter, Mercurio o el señor de la estrella; si sigue el empate, la Luna.');
+    }
+    if (VIM_SEED_SHIFT[seedInfo.key]) t += ' ' + T('These starting points are a traditional technique for studying longevity — not a prediction of life-span.', 'Estos puntos de partida son una técnica tradicional para estudiar la longevidad — no una predicción de la duración de la vida.');
+    return t;
+  })();
+  const readVargaKey = VARGA_DEFS.some(d => d.key === VIM_OPTS.readVarga) ? VIM_OPTS.readVarga : 'D1';
+  const vLagna = vargaSignForKey(readVargaKey, birthPos._ascSidereal);
+  const vargaHouseOf = lord => { const vs = vargaSignForKey(readVargaKey, birthPos[lord].sidereal); return { house: ((vs - vLagna + 12) % 12) + 1, sign: SIGNS[vs] }; };
 
   const zoomButtons = [1,2,3,4,5].map(n=>
     `<button type="button" onclick="setDashaZoom(${n})" style="padding:6px 12px; margin-right:6px; border-radius:var(--radius-sm); border:1px solid var(--line); cursor:pointer; font-family:var(--mono); font-size:12px; background:${dashaZoomLevel===n?'var(--gold)':'var(--bg-2)'}; color:${dashaZoomLevel===n?'var(--bg)':'var(--ink)'};">${n} — ${T(VIMSHOTTARI_LEVEL_NAMES[n-1].en, VIMSHOTTARI_LEVEL_NAMES[n-1].es)}</button>`
@@ -11956,6 +12030,7 @@ function renderDashaPage(){
       <td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td>
       <td style="font-size:11px;">${reading.housesText}</td>
       <td><span class="tag ${reading.tag}">${reading.label}</span></td>
+      <td style="font-size:11px;">${(() => { const v = vargaHouseOf(p.lord); return `${v.house}${T(ordinalSuffix(v.house), '.ª')} · ${v.sign}`; })()}</td>
     </tr>`;
   }).join('');
 
@@ -12067,13 +12142,22 @@ function renderDashaPage(){
               <option value="degree" ${VIM_OPTS.balance==='degree'?'selected':''}>${T("By the Moon's degree in its nakshatra",'Por el grado de la Luna en su nakshatra')}</option>
               <option value="time" ${VIM_OPTS.balance==='time'?'selected':''}>${T("By the Moon's time in its nakshatra",'Por el tiempo de la Luna en su nakshatra')}</option>
             </select></label>
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Starting star','Estrella inicial')}
+            <select onchange="setVimOpt('seed', this.value)">
+              ${VIM_SEEDS.map(k => `<option value="${k}" ${VIM_OPTS.seed===k?'selected':''}>${T(SEED_LABEL[k][0], SEED_LABEL[k][1])}</option>`).join('')}
+            </select></label>
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Read lords in','Leer señores en')}
+            <select onchange="setVimOpt('readVarga', this.value)">
+              ${VARGA_DEFS.map(d => `<option value="${d.key}" ${readVargaKey===d.key?'selected':''}>${d.key} ${d.name}</option>`).join('')}
+            </select></label>
         </div>
+        <div class="hint" style="margin-top:8px;">${seedLine}</div>
       </div>
     </div>
 
     <div class="panel"><div class="hd"><h2>${T('Current Daśā stack','Pila de Daśā actual')}</h2><span class="note">${T('as of right now','a partir de ahora mismo')}</span></div>
       <div class="bd">
-        <div class="tblwrap"><table><thead><tr><th>${T('Level','Nivel')}</th><th>${T('Lord','Señor')}</th><th>${T('Period','Período')}</th><th>${T('Rules (from Lagna)','Gobierna (desde Lagna)')}</th><th>${T('Functional reading','Lectura funcional')}</th></tr></thead><tbody>${chainRows}</tbody></table></div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Level','Nivel')}</th><th>${T('Lord','Señor')}</th><th>${T('Period','Período')}</th><th>${T('Rules (from Lagna)','Gobierna (desde Lagna)')}</th><th>${T('Functional reading','Lectura funcional')}</th><th>${T(`House in ${readVargaKey}`,`Casa en ${readVargaKey}`)}</th></tr></thead><tbody>${chainRows}</tbody></table></div>
         ${muhurtaCrossRef}
         <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The "Rules" and "Functional reading" columns reuse the same house-lordship engine as the General page — a Yogakāraka Daśā lord and a merely functionally-malefic one are meaningfully different, even at the same nesting depth. Rāhu/Ketu own no sign in that scheme, so they\'re shown without a functional reading here, not scored as neutral by omission.','Las columnas "Gobierna" y "Lectura funcional" reutilizan el mismo motor de señorío de casas que la página General — un señor de Daśā Yogakāraka y uno meramente maléfico funcional son significativamente distintos, incluso a la misma profundidad de anidamiento. Rāhu/Ketu no gobiernan ningún signo en ese esquema, así que se muestran sin lectura funcional aquí, no puntuados como neutrales por omisión.')}</div>
         <div class="hint" style="margin-top:6px;">${T('Boundary dates can drift by a few days from other software\'s — a few arcminutes of difference in the birth Moon\'s exact degree shifts how much of the first Daśā period is already elapsed, and that shift then carries forward at constant size through every later period.','Las fechas límite pueden variar unos días respecto a otro software — unos pocos minutos de arco de diferencia en el grado exacto de la Luna natal desplazan cuánto del primer período de Daśā ya transcurrió, y ese desplazamiento se traslada luego, con tamaño constante, a través de cada período posterior.')}</div>
