@@ -12227,6 +12227,7 @@ function renderDashaPage(){
     ${renderCharaDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderNarayanaDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderShoolaDashaPanel(birthPos, bdt, nowJD, localTz)}
+    ${renderKalachakraPanel(birthPos, bdt, nowJD, localTz)}
     ${renderRectificationPanel(birthPos, bdt)}
   `;
 }
@@ -12618,6 +12619,75 @@ function renderShoolaDashaPanel(birthPos, bdt, nowJD, localTz){
       </div>
       <div class="hint" style="margin-bottom:8px;">${T(`Starts from ${SIGNS[r.start.sign]} (${which}) and runs ${r.dir > 0 ? 'forward' : 'backward'}.`, `Empieza en ${SIGNS[r.start.sign]} (${which}) y avanza ${r.dir > 0 ? 'hacia adelante' : 'hacia atrás'}.`)}</div>
       <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Years','Años')}</th><th>${T('Period','Período')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+      ${adHtml}
+    </div></div>`;
+}
+// Kalachakra dasha. Each nakshatra pada (3°20') has a fixed run of nine signs.
+// Savya padas: Ashwini-type (Ashwini, Krittika, Punarvasu, Ashlesha, Hasta,
+// Swati, Moola, U.Ashadha, P.Bhadra, Revati) and Bharani-type (Bharani, Pushya,
+// Chitra, P.Ashadha, U.Bhadra). Apasavya padas run the savya ones backwards:
+// Rohini-type (Rohini, Magha, Vishakha, Shravana) = Bharani pada 5-k reversed,
+// Mrigashira-type (the other eight) = Ashwini pada 5-k reversed. Years per sign
+// from its lord: Sun 5, Moon 21, Mars 7, Mercury 9, Jupiter 10, Venus 16,
+// Saturn 4; a pada's total (100/85/83/86) is its full span. The Moon's elapsed
+// share of the birth pada fixes how much of that span has passed. Sub-periods:
+// the pada's nine signs starting from the dasha sign, each in proportion.
+const KCD_OPTS = (() => { try { const s = JSON.parse(localStorage.getItem('pl0KcdOpts') || '{}'); return { cont: ['next','same'].includes(s.cont) ? s.cont : 'next' }; } catch (e) { return { cont: 'next' }; } })();
+function setKcdOpt(k, v){ KCD_OPTS[k] = v; try { localStorage.setItem('pl0KcdOpts', JSON.stringify(KCD_OPTS)); } catch (e) {} renderDashaPage(); }
+const KCD_YEARS = [7,16,9,21,5,9,16,7,10,4,4,10];
+const KCD_SAVYA_A = [[0,1,2,3,4,5,6,7,8],[9,10,11,7,6,5,3,4,2],[1,0,11,10,9,8,0,1,2],[3,4,5,6,7,8,9,10,11]];
+const KCD_SAVYA_B = [[7,6,5,3,4,2,1,0,11],[10,9,8,0,1,2,3,4,5],[6,7,8,9,10,11,7,6,5],[3,4,2,1,0,11,10,9,8]];
+// pada index 0..107 -> { signs (dasha order), savya, deha, jeeva }
+function kcdPada(padaIdx){
+  const nak = Math.floor(padaIdx / 4), p = padaIdx % 4, r = nak % 3, odd = Math.floor(nak / 3) % 2 === 1;
+  let signs, savya = !odd;
+  if (!odd) signs = (r === 1 ? KCD_SAVYA_B : KCD_SAVYA_A)[p];
+  else signs = (r === 0 ? KCD_SAVYA_B : KCD_SAVYA_A)[3 - p].slice().reverse();
+  const deha = savya ? signs[0] : signs[8], jeeva = savya ? signs[8] : signs[0];
+  return { padaIdx, signs, savya, deha, jeeva, total: signs.reduce((a, s) => a + KCD_YEARS[s], 0) };
+}
+function kcdMahadashas(moonSid, birthJD, yearDays, opts, spanYears){
+  const L = norm360(moonSid), padaIdx = Math.floor(L / (40 / 12)), frac = (L - padaIdx * (40 / 12)) / (40 / 12);
+  const out = []; let pi = padaIdx, pd = kcdPada(pi), elapsed = frac * pd.total, jd = birthJD, first = true;
+  while ((jd - birthJD) / yearDays < spanYears){
+    for (const s of pd.signs){
+      let yrs = KCD_YEARS[s];
+      if (first){ if (elapsed >= yrs){ elapsed -= yrs; continue; } yrs -= elapsed; }
+      out.push({ sign: s, pada: pd, years: yrs, fullYears: KCD_YEARS[s], partial: first && elapsed > 0, startJD: jd, endJD: jd + yrs * yearDays });
+      jd += yrs * yearDays; first = false;
+    }
+    if (opts.cont === 'next') pi = (pi + 1) % 108;
+    pd = kcdPada(pi);
+  }
+  return out;
+}
+function kcdAntardashas(md){
+  const seq = md.pada.signs, i0 = seq.indexOf(md.sign), order = seq.slice(i0).concat(seq.slice(0, i0));
+  const fullEnd = md.endJD, fullLen = md.fullYears * (md.endJD - md.startJD) / md.years, fullStart = fullEnd - fullLen;
+  let jd = fullStart;
+  return order.map(s => { const len = fullLen * KCD_YEARS[s] / md.pada.total, a = { sign: s, startJD: jd, endJD: jd + len }; jd += len; return a; }).filter(a => a.endJD > md.startJD + 1e-9);
+}
+function renderKalachakraPanel(birthPos, bdt, nowJD, localTz){
+  if (!bdt || bdt.empty || !isFinite(bdt.jd)) return '';
+  const mds = kcdMahadashas(birthPos.Moon.sidereal, bdt.jd, vimshottariYearDays(), KCD_OPTS, 120), pd = mds[0].pada;
+  const cur = mds.find(p => nowJD >= p.startJD && nowJD < p.endJD);
+  const nk = nakshatraFromSidereal(norm360(birthPos.Moon.sidereal), false), padaNo = pd.padaIdx % 4 + 1;
+  const rows = mds.map(p => `<tr${p === cur ? ' style="outline:2px solid var(--gold);"' : ''}><td class="wide" style="font-weight:600;">${SIGNS[p.sign]}${p.sign === p.pada.deha ? ` <small>(${T('Deha','Deha')})</small>` : p.sign === p.pada.jeeva ? ` <small>(${T('Jeeva','Jīva')})</small>` : ''}</td>
+      <td>${+p.years.toFixed(2)} ${T('y','a')}</td><td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td><td style="font-size:11px;">${p.pada === pd ? T('birth pada','pada natal') : T('following pada','pada siguiente')}</td></tr>`).join('');
+  const ads = cur ? kcdAntardashas(cur) : [];
+  const adHtml = cur ? `<h3 style="margin:14px 0 6px; font-size:13px; color:var(--gold); text-transform:uppercase; letter-spacing:.03em;">${T('Sub-periods of','Subperíodos de')} ${SIGNS[cur.sign]}</h3>
+      <div class="tblwrap"><table><tbody>${ads.map(a => `<tr${nowJD >= a.startJD && nowJD < a.endJD ? ' style="outline:2px solid var(--gold);"' : ''}><td>${SIGNS[a.sign]}</td><td style="font-size:11px;">${fmtDashaDate(Math.max(a.startJD, cur.startJD), localTz)} → ${fmtDashaDate(a.endJD, localTz)}</td></tr>`).join('')}</tbody></table></div>` : '';
+  return `<div class="panel"><div class="hd"><h2>${T('Kālacakra daśā','Kālacakra daśā')}</h2><span class="note">${T('from the Moon\'s nakshatra pada','desde el pada del nakshatra de la Luna')}</span></div>
+    <div class="bd">
+      <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:10px; font-size:13px; color:var(--ink-dim);">
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T('After the ninth sign','Tras el noveno signo')} <select onchange="setKcdOpt('cont', this.value)">
+          <option value="next" ${KCD_OPTS.cont === 'next' ? 'selected' : ''}>${T('continue with the following pada','continuar con el pada siguiente')}</option>
+          <option value="same" ${KCD_OPTS.cont === 'same' ? 'selected' : ''}>${T('repeat the birth pada','repetir el pada natal')}</option>
+        </select></label>
+      </div>
+      <div class="hint" style="margin-bottom:10px; line-height:1.6;">${T(`The Moon is in ${nk.name} pada ${padaNo}, ${pd.savya ? 'a savya (forward)' : 'an apasavya (backward)'} pada whose nine signs span ${pd.total} years. Deha (body) is ${SIGNS[pd.deha]} and Jīva (life) is ${SIGNS[pd.jeeva]}. The share of the pada the Moon had already crossed at birth is taken off the start. Each sign runs for its lord's years (Sun 5, Moon 21, Mars 7, Mercury 9, Jupiter 10, Venus 16, Saturn 4).`,
+        `La Luna está en ${nk.name} pada ${padaNo}, un pada ${pd.savya ? 'savya (hacia adelante)' : 'apasavya (hacia atrás)'} cuyos nueve signos suman ${pd.total} años. Deha (cuerpo) es ${SIGNS[pd.deha]} y Jīva (vida) es ${SIGNS[pd.jeeva]}. La parte del pada que la Luna ya había recorrido al nacer se descuenta del inicio. Cada signo dura los años de su señor (Sol 5, Luna 21, Marte 7, Mercurio 9, Júpiter 10, Venus 16, Saturno 4).`)}</div>
+      <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Years','Años')}</th><th>${T('Period','Período')}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
       ${adHtml}
     </div></div>`;
 }
