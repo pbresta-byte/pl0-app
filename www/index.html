@@ -11786,6 +11786,31 @@ function renderDashaPage(){
   }
 
 
+  // Nakshatra spatial matrix: tara of each body's birth nakshatra counted from every other body's (1st = Janma).
+  // Used to judge a daśā-lord pair: the sub-lord's star counted from the main lord's star.
+  const taraBodies = ["Lagna"].concat(GRAHA_LIST);
+  const nakIdxOf = b => Math.floor(norm360(b==="Lagna" ? birthPos._ascSidereal : birthPos[b].sidereal) / (360/27));
+  const taraFrom = (from, to) => taraForOffset(((nakIdxOf(to) - nakIdxOf(from) + 27) % 27) + 1);
+  const toneColor = t => t==='good' ? 'var(--jade)' : t==='bad' ? 'var(--vermilion)' : 'var(--gold)';
+  const pairChain = vimshottariChainAt(birthPos, bdt.jd, nowJD, 2), mdLord = pairChain[0].lord, adLord = pairChain[1].lord;
+  const taraLabel = b => b==="Lagna" ? T('Lagna','Lagna') : gNameNatal(b);
+  const taraHead = taraBodies.map(b=>`<th style="font-size:10.5px;">${taraLabel(b).slice(0,3)}</th>`).join('');
+  const taraRows = taraBodies.map(r=>`<tr><td class="wide" style="font-size:11px;">${taraLabel(r)} <small style="color:var(--mut);">${NAK27[nakIdxOf(r)].n}</small></td>${taraBodies.map(c=>{
+      if (r===c) return `<td style="color:var(--mut);">·</td>`;
+      const t = taraFrom(r, c), hit = r===mdLord && c===adLord;
+      return `<td style="font-size:11px; color:${toneColor(t.tone)};${hit?' outline:2px solid var(--gold); font-weight:700;':''}" title="${taraLabel(c)} ${T('counted from','contado desde')} ${taraLabel(r)}">${t.name}</td>`;
+    }).join('')}</tr>`).join('');
+  let taraPairText = '';
+  if (mdLord && adLord && mdLord !== adLord){
+    const t = taraFrom(mdLord, adLord);
+    taraPairText = `<div class="hint" style="margin-bottom:10px;">${T(`Current pair: the Antardaśā lord ${gNameNatal(adLord)} sits in the <b style="color:${toneColor(t.tone)}">${t.name}</b> tārā counted from the Mahādaśā lord ${gNameNatal(mdLord)}'s birth star — ${t.gist}`, `Par actual: el señor de la Antardaśā ${gNameNatal(adLord)} está en la tārā <b style="color:${toneColor(t.tone)}">${t.name}</b> contada desde la estrella natal del señor de la Mahādaśā ${gNameNatal(mdLord)} — ${TARA_GIST_ES[t.name] || t.gist}`)}</div>`;
+  }
+  const taraHtml = `<div class="panel"><div class="hd"><h2>${T('Nakshatra relations (tārā)','Relaciones de nakshatra (tārā)')}</h2><span class="note">${T('row = counted from · column = counted to','fila = contado desde · columna = contado hasta')}</span></div>
+    <div class="bd">${taraPairText}
+      <div class="tblwrap"><table><thead><tr><th></th>${taraHead}</tr></thead><tbody>${taraRows}</tbody></table></div>
+      <div class="hint" style="margin-top:10px;">${T('Each cell counts the column body\'s birth nakshatra from the row body\'s (its own star = Janma), in cycles of nine. Green tārās support, red ones obstruct, gold is Janma. The outlined cell is the running Mahādaśā → Antardaśā pair.','Cada celda cuenta el nakshatra natal del cuerpo de la columna desde el de la fila (su propia estrella = Janma), en ciclos de nueve. Las tārās verdes apoyan, las rojas obstruyen, el dorado es Janma. La celda recuadrada es el par Mahādaśā → Antardaśā en curso.')}</div>
+    </div></div>`;
+
   container.innerHTML = `
     <div class="panel">
       <div class="hd"><h2>${T('Vimśottari Daśā','Vimśottari Daśā')}</h2><span class="note">${T('120-year cycle','ciclo de 120 años')}</span></div>
@@ -11816,6 +11841,7 @@ function renderDashaPage(){
         <div class="hint" style="margin-top:6px;">${T('Boundary dates can drift by a few days from other software\'s — a few arcminutes of difference in the birth Moon\'s exact degree shifts how much of the first Daśā period is already elapsed, and that shift then carries forward at constant size through every later period.','Las fechas límite pueden variar unos días respecto a otro software — unos pocos minutos de arco de diferencia en el grado exacto de la Luna natal desplazan cuánto del primer período de Daśā ya transcurrió, y ese desplazamiento se traslada luego, con tamaño constante, a través de cada período posterior.')}</div>
       </div>
     </div>
+    ${taraHtml}
     ${classicalHtml}
   `;
 }
