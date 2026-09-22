@@ -12100,22 +12100,7 @@ function renderDashaPage(){
     muhurtaCrossRef = `<div class="hint" style="margin-top:10px;">${T(`The muhūrta moment set on the main page falls in: <b style="color:var(--ink);">${chainLabel}</b> Daśā.`,`El momento muhūrta fijado en la página principal cae en: <b style="color:var(--ink);">${chainLabel}</b> Daśā.`)}</div>`;
   }
 
-  const currentMahadashaLord = chain[0].lord;
-  const classicalReading = mahadashaClassicalReading(currentMahadashaLord, birthPos);
-  let classicalHtml = '';
-  if (classicalReading){
-    const dignityLabel = classicalReading.dignityTier==='—' ? T('not exalted or in its own sign','ni exaltado ni en signo propio') : T(classicalReading.dignityTier, classicalReading.dignityTier);
-    const branchHtml = classicalReading.branch
-      ? `<div class="effect-box" style="margin-top:10px;"><div class="effect-label">${classicalReading.branchTag==='strong' ? T('Since this lord is well-dignified here','Ya que este señor está bien dignificado aquí') : T('Since this lord is poorly dignified here','Ya que este señor está mal dignificado aquí')}</div><div class="effect-text">${T(classicalReading.branch.en, classicalReading.branch.es)}</div></div>`
-      : `<div class="hint" style="margin-top:10px;">${T('This lord\'s natal dignity here is neutral — neither the source\'s strong-placement nor weak-placement branch applies cleanly, so only the general paragraph above is shown.','La dignidad natal de este señor aquí es neutral — no aplica claramente ni la rama de ubicación fuerte ni la de ubicación débil de la fuente, así que solo se muestra el párrafo general de arriba.')}</div>`;
-    classicalHtml = `<div class="panel"><div class="hd"><h2>${T('Classical Mahādaśā effects','Efectos clásicos de la Mahādaśā')}</h2><span class="note">${gNameNatal(currentMahadashaLord)} — ${dignityLabel}</span></div>
-      <div class="bd">
-        <div class="effect-box"><div class="effect-label">${T('General effects, any dignity','Efectos generales, cualquier dignidad')}</div><div class="effect-text">${T(classicalReading.general.en, classicalReading.general.es)}</div></div>
-        ${branchHtml}
-        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('A genuinely different layer from the functional reading above: that one derives from this app\'s own Lagna-based house-lordship engine, this one gives the classical stated Mahādaśā effects, gated only by the lord\'s natal dignity. Shown for the current Mahādaśā only (not Antardaśā and below).','Una capa genuinamente distinta de la lectura funcional de arriba: aquella se deriva del propio motor de señorío de casas basado en el Lagna de esta app, esta da los efectos clásicos declarados de la Mahādaśā, condicionada solo por la dignidad natal del señor. Se muestra solo para la Mahādaśā actual, no para Antardaśā ni niveles inferiores.')}</div>
-      </div>
-    </div>`;
-  }
+
 
 
   // Nakshatra spatial matrix: tara of each body's birth nakshatra counted from every other body's (1st = Janma).
@@ -12223,7 +12208,7 @@ function renderDashaPage(){
     </div>
     ${taraHtml}
     ${condHtml}
-    ${classicalHtml}
+    ${renderDashaReadingPanel(birthPos, bdt, nowJD, localTz)}
     ${renderCharaDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderNarayanaDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderShoolaDashaPanel(birthPos, bdt, nowJD, localTz)}
@@ -12236,6 +12221,166 @@ function renderDashaPage(){
   `;
 }
 
+// BEGIN DASHA READING
+// Daśā reading: stacked, clickable Vimśottari timelines (Mahā > Antar >
+// Pratyantar > Sūkṣma) with a composed reading for the selected path. The
+// text is assembled from this chart's own facts, not canned per-pair
+// passages: each lord's natural significations, the houses it rules and
+// occupies from the Lagna, its dignity, and for each deeper level where its
+// lord sits counted from the lord one level up (kendra/trikona supportive,
+// 3/11 productive, 2 mixed, 6/8/12 strained) plus their natural friendship.
+// Rāhu/Ketu act through the lord of the sign they occupy.
+const DASHA_TOPIC = {
+  1:['self and health','uno mismo y la salud'], 2:['money and family','el dinero y la familia'], 3:['initiative and siblings','la iniciativa y los hermanos'],
+  4:['home and peace of mind','el hogar y la paz interior'], 5:['creativity, children and study','la creatividad, los hijos y el estudio'],
+  6:['work routines and disputes','las rutinas de trabajo y las disputas'], 7:['partnerships','las asociaciones y la pareja'],
+  8:['sudden change and hidden matters','los cambios súbitos y los asuntos ocultos'], 9:['fortune, teachers and beliefs','la fortuna, los maestros y las creencias'],
+  10:['career and standing','la carrera y la posición'], 11:['gains and friends','las ganancias y las amistades'], 12:['expenses, travel and retreat','los gastos, los viajes y el retiro']
+};
+const DASHA_KARAKA = {
+  Sun:['confidence, recognition and dealings with authority','la confianza, el reconocimiento y el trato con la autoridad'],
+  Moon:['feelings, home life and the public','los sentimientos, la vida doméstica y el público'],
+  Mars:['drive, courage and property','el impulso, el coraje y la propiedad'],
+  Mercury:['learning, communication and trade','el aprendizaje, la comunicación y el comercio'],
+  Jupiter:['growth, guidance and good counsel','el crecimiento, la guía y el buen consejo'],
+  Venus:['love, comfort and the arts','el amor, la comodidad y las artes'],
+  Saturn:['discipline, patience and hard work','la disciplina, la paciencia y el trabajo duro'],
+  Rahu:['ambition and the unconventional','la ambición y lo poco convencional'],
+  Ketu:['detachment and inner work','el desapego y el trabajo interior']
+};
+const DASHA_ABBR = { Sun:'Su', Moon:'Mo', Mars:'Ma', Mercury:'Me', Jupiter:'Ju', Venus:'Ve', Saturn:'Sa', Rahu:'Ra', Ketu:'Ke' };
+let DASHA_READ = { path: null, depth: 3 };   // path = selected index per level; null = follow the present moment
+function setDashaRead(level, idx){
+  const cur = (DASHA_READ.path || DASHA_READ._now || []).slice(0, level);
+  cur[level] = idx; DASHA_READ.path = cur; renderDashaPage();
+}
+function setDashaReadDepth(d){ DASHA_READ.depth = d; renderDashaPage(); }
+function dashaReadNow(){ DASHA_READ.path = null; renderDashaPage(); }
+function dashaLordFacts(lord, birthPos){
+  const lagna = Math.floor(norm360(birthPos._ascSidereal) / 30);
+  const signOf = g => Math.floor(norm360(birthPos[g].sidereal) / 30);
+  const houseOf = g => ((signOf(g) - lagna + 12) % 12) + 1;
+  const node = lord === 'Rahu' || lord === 'Ketu';
+  const actor = node ? SIGN_LORD[SIGNS[signOf(lord)]] : lord;          // nodes act through their sign lord
+  const rules = (houseLordshipsFromLagna(lagna)[actor] || []).slice().sort((a, b) => a - b);
+  const placed = houseOf(lord);
+  const tier = node ? '' : dignityTier(lord, birthPos[lord].sidereal);
+  let score = 0;
+  rules.forEach(h => { score += [1,5,9].includes(h) ? 2 : [4,7,10].includes(h) ? 1 : [2,11].includes(h) ? 0.5 : [6,8,12].includes(h) ? -1.5 : 0; });
+  score += [1,4,5,7,9,10].includes(placed) ? 1 : [6,8,12].includes(placed) ? -1 : 0;
+  score += ({ Exalted: 1.5, Moolatrikona: 1.2, Own: 1, Friend: 0.5, Enemy: -0.5, Debilitated: -1.5 })[tier] || 0;
+  return { lord, actor, node, rules, placed, tier, score, sign: signOf(lord) };
+}
+function dashaTopics(houses){ return houses.map(h => T(DASHA_TOPIC[h][0], DASHA_TOPIC[h][1])); }
+function topicList(houses){ return dashaTopics(houses).join('; '); }
+function listJoin(a){ if (a.length <= 1) return a.join(''); return a.slice(0, -1).join(', ') + ' ' + T('and','y') + ' ' + a[a.length - 1]; }
+function ordT(n){ return T(n + ordinalSuffix(n), n + '.ª'); }
+const DASHA_TONES = [
+  [['These areas tend to open up and reward the effort put into them.','Estas áreas tienden a abrirse y a recompensar el esfuerzo.'],
+   ['Results come, but unevenly: some areas move forward while others ask for patience.','Los resultados llegan, pero de forma desigual: unas áreas avanzan y otras piden paciencia.'],
+   ['These areas ask for care and steady effort; progress tends to follow some friction.','Estas áreas piden cuidado y esfuerzo constante; el avance suele llegar tras cierta fricción.']],
+  [['A stretch where plans in these areas can gain real traction.','Un tramo en que los planes en estas áreas pueden tomar impulso real.'],
+   ['A give-and-take stretch: worth pacing commitments rather than forcing them.','Un tramo de dar y recibir: conviene dosificar los compromisos en vez de forzarlos.'],
+   ['A stretch to keep things simple and avoid overextending.','Un tramo para simplificar y no sobreextenderse.']],
+  [['Good timing for small, concrete steps.','Buen momento para pasos pequeños y concretos.'],
+   ['Fine for routine; weigh new starts with care.','Bien para la rutina; sopesa con cuidado los nuevos comienzos.'],
+   ['Better for review and finishing than for launching.','Mejor para revisar y terminar que para lanzar.']],
+  [['A brief favourable window.','Una ventana breve y favorable.'],['A neutral few days.','Unos días neutros.'],['A brief window to tread lightly.','Una ventana breve para ir con cuidado.']]
+];
+function dashaToneLine(score, level){
+  const set = DASHA_TONES[Math.min(level || 0, 3)], i = score >= 2.5 ? 0 : score >= 0.5 ? 1 : 2;
+  return T(set[i][0], set[i][1]);
+}
+const DASHA_DIG = {
+  Exalted:['It is exalted here, so it can deliver these themes well.','Aquí está exaltado, así que puede dar bien estos temas.'],
+  Own:['It is in its own sign, steady and self-reliant.','Está en su propio signo, estable y autosuficiente.'],
+  Friend:['It sits in a friendly sign, which helps.','Está en un signo amigo, lo que ayuda.'],
+  Enemy:['It sits in an unfriendly sign, so its themes meet some resistance.','Está en un signo enemigo, así que sus temas encuentran cierta resistencia.'],
+  Debilitated:['It is debilitated here, so its themes take more effort to come right.','Aquí está debilitado, así que sus temas cuestan más esfuerzo.']
+};
+function dashaLordSentence(f){
+  const name = gNameNatal(f.lord);
+  const kar = T(DASHA_KARAKA[f.lord][0], DASHA_KARAKA[f.lord][1]);
+  const dig = DASHA_DIG[f.tier] ? ' ' + T(DASHA_DIG[f.tier][0], DASHA_DIG[f.tier][1]) : '';
+  const hs = f.rules.length ? `${listJoin(f.rules.map(ordT))} (${topicList(f.rules)})` : '';
+  const sits = `${ordT(f.placed)} (${topicList([f.placed])})`;
+  const text = f.node
+    ? T(`works through ${gNameNatal(f.actor)}, the lord of its sign${hs ? `, taking on your ${hs}` : ''}, and sits in your ${sits}.`,
+        `actúa a través de ${gNameNatal(f.actor)}, señor de su signo${hs ? `, asumiendo tu ${hs}` : ''}, y está en tu ${sits}.`)
+    : T(`${hs ? `rules your ${hs} and ` : ''}sits in your ${sits}.${dig}`, `${hs ? `rige tu ${hs} y ` : ''}está en tu ${sits}.${dig}`);
+  return { name, kar, text };
+}
+function dashaPairLine(upper, lower, birthPos){
+  const d = ((lower.sign - upper.sign + 12) % 12) + 1;
+  const pos = [1,4,5,7,9,10].includes(d) ? 'good' : [3,11].includes(d) ? 'work' : d === 2 ? 'mixed' : 'strain';
+  const rel = upper.lord === lower.lord ? 'self' : naisargikaRelOf(upper.actor, lower.actor);
+  const posTxt = {
+    good: T('a supportive angle, so the two periods tend to pull the same way', 'un ángulo de apoyo: ambos períodos suelen tirar en la misma dirección'),
+    work: T('a productive angle, so effort in this stretch pays back', 'un ángulo productivo: el esfuerzo en este tramo rinde'),
+    mixed: T('a mixed angle, useful for resources but not always smooth', 'un ángulo mixto: útil para los recursos, aunque no siempre fluido'),
+    strain: T('a strained angle, so expect some friction between what each period wants', 'un ángulo tenso: cabe esperar fricción entre lo que pide cada período')
+  }[pos];
+  const relTxt = rel === 'self' ? T('It is the main lord\'s own sub-period, so its themes are at their purest.', 'Es el subperíodo del propio señor principal: sus temas se muestran con más pureza.')
+    : rel === 'friend' ? T('They are natural friends, which eases the combination.', 'Son amigos naturales, lo que suaviza la combinación.')
+    : rel === 'enemy' ? T('They are natural enemies, which adds tension to the combination.', 'Son enemigos naturales, lo que añade tensión a la combinación.')
+    : T('They are neutral to each other.', 'Son neutrales entre sí.');
+  const pScore = { good: 1, work: 0.7, mixed: 0, strain: -1 }[pos] + (rel === 'friend' ? 0.5 : rel === 'enemy' ? -0.5 : 0);
+  return { text: T(`${gNameNatal(lower.lord)} sits ${ordT(d)} from ${gNameNatal(upper.lord)}: ${posTxt}. `, `${gNameNatal(lower.lord)} está en la ${ordT(d)} desde ${gNameNatal(upper.lord)}: ${posTxt}. `) + relTxt, score: pScore };
+}
+function renderDashaReadingPanel(birthPos, bdt, nowJD, localTz){
+  if (!bdt || bdt.empty || !isFinite(bdt.jd)) return '';
+  const depth = DASHA_READ.depth, levels = [], path = [], nowPath = [];
+  let list = vimshottariMahadashas(birthPos, bdt.jd);
+  for (let k = 0; k < depth; k++){
+    const nowIdx = list.findIndex(p => nowJD >= p.startJD && nowJD < p.endJD);
+    nowPath.push(nowIdx);
+    let idx = DASHA_READ.path && DASHA_READ.path[k] != null ? DASHA_READ.path[k] : (nowIdx >= 0 ? nowIdx : 0);
+    if (DASHA_READ.path && DASHA_READ.path[k] == null) idx = nowIdx >= 0 ? nowIdx : 0;
+    idx = Math.min(idx, list.length - 1);
+    levels.push(list); path.push(idx);
+    if (k < depth - 1){ const p = list[idx]; list = vimshottariSubPeriods(p.lord, p.startJD, p.endJD - p.startJD); }
+  }
+  DASHA_READ._now = nowPath;
+  const LV = [T('Mahādaśā','Mahādaśā'), T('Antardaśā','Antardaśā'), T('Pratyantardaśā','Pratyantardaśā'), T('Sūkṣma','Sūkṣma')];
+  const bars = levels.map((lst, k) => {
+    const t0 = lst[0].startJD, span = lst[lst.length - 1].endJD - t0;
+    const segs = lst.map((p, i) => {
+      const w = Math.max(1.5, 100 * (p.endJD - p.startJD) / span), sel = i === path[k], now = nowJD >= p.startJD && nowJD < p.endJD;
+      return `<button type="button" onclick="setDashaRead(${k},${i})" title="${gNameNatal(p.lord)}: ${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}"
+        style="flex:0 0 ${w.toFixed(2)}%; min-width:0; padding:6px 0; border:1px solid var(--line); border-radius:4px; cursor:pointer; font-family:var(--mono); font-size:11px; overflow:hidden;
+        background:${sel ? 'var(--gold)' : 'var(--bg-2)'}; color:${sel ? '#fff' : MALEFIC_GRAHAS.includes(p.lord) ? 'var(--vermilion)' : 'var(--jade)'}; ${now ? 'box-shadow:inset 0 -3px 0 var(--ink);' : ''}">${DASHA_ABBR[p.lord]}</button>`;
+    }).join('');
+    return `<div style="margin-bottom:8px;"><div style="font-size:11px; color:var(--ink-dim); margin-bottom:3px; text-transform:uppercase; letter-spacing:.04em;">${LV[k]}</div><div style="display:flex; gap:2px;">${segs}</div></div>`;
+  }).join('');
+  const chosen = path.map((i, k) => levels[k][i]);
+  const facts = chosen.map(p => dashaLordFacts(p.lord, birthPos));
+  const crumbs = chosen.map((p, k) => `<a href="javascript:void(0)" onclick="setDashaRead(${k},${path[k]})" style="font-weight:600; color:var(--ink);">${gNameNatal(p.lord)}</a>`).join(' <span style="color:var(--slate);">›</span> ');
+  const last = chosen[chosen.length - 1];
+  const isNow = path.every((i, k) => i === nowPath[k]);
+  // reading paragraphs
+  const paras = chosen.map((p, k) => {
+    const f = facts[k], s = dashaLordSentence(f), dates = `${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}`;
+    if (k === 0){
+      return `<p style="margin:0 0 10px;"><b>${T(`${s.name}'s major period`, `Período mayor de ${s.name}`)}</b> <span style="color:var(--slate); font-size:12px;">(${dates})</span> ${T(`puts ${s.kar} in the foreground. In this chart ${s.name} ${s.text}`, `pone en primer plano ${s.kar}. En esta carta ${s.name} ${s.text}`)} ${dashaToneLine(f.score, 0)}</p>`;
+    }
+    const pair = dashaPairLine(facts[k - 1], f, birthPos);
+    const head = k === 1 ? T(`Within it, ${s.name}'s sub-period`, `Dentro de él, el subperíodo de ${s.name}`) : k === 2 ? T(`Inside that, ${s.name}'s phase`, `Dentro de eso, la fase de ${s.name}`) : T(`And ${s.name}'s shortest cycle`, `Y el ciclo más breve de ${s.name}`);
+    return `<p style="margin:0 0 10px;"><b>${head}</b> <span style="color:var(--slate); font-size:12px;">(${dates})</span> ${T(`brings in ${s.kar}. ${s.name} ${s.text}`, `trae ${s.kar}. ${s.name} ${s.text}`)} ${pair.text} ${dashaToneLine(f.score * 0.6 + pair.score * 1.5, k)}</p>`;
+  }).join('');
+  const depthBtns = [2, 3, 4].map(d => `<button type="button" onclick="setDashaReadDepth(${d})" style="padding:4px 10px; border-radius:4px; border:1px solid var(--line); background:${depth === d ? 'var(--ink)' : 'transparent'}; color:${depth === d ? 'var(--bg)' : 'var(--ink-dim)'}; cursor:pointer; font-size:12px;">${[, , T('2 levels','2 niveles'), T('3 levels','3 niveles'), T('4 levels','4 niveles')][d]}</button>`).join(' ');
+  return `<div class="panel"><div class="hd"><h2>${T('Daśā reading','Lectura de la daśā')}</h2><span class="note">${isNow ? T('running now','en curso ahora') : T('selected period','período elegido')}</span></div>
+    <div class="bd">
+      <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:12px;">
+        <div style="font-size:15px;">${crumbs} <span style="color:var(--slate); font-size:12px;">· ${fmtDashaDate(last.startJD, localTz)} → ${fmtDashaDate(last.endJD, localTz)}</span></div>
+        <div style="display:flex; gap:6px; align-items:center;">${depthBtns}${isNow ? '' : ` <button type="button" onclick="dashaReadNow()" style="padding:4px 10px; border-radius:4px; border:1px solid var(--gold); background:transparent; color:var(--gold); cursor:pointer; font-size:12px;">${T('Back to now','Volver a ahora')}</button>`}</div>
+      </div>
+      ${bars}
+      <div class="hint" style="margin:4px 0 12px;">${T('Tap any block to zoom into it; the dark underline marks the period running now.','Toca cualquier bloque para ampliarlo; el subrayado oscuro marca el período en curso.')}</div>
+      <div style="font-size:14px; line-height:1.7; color:var(--ink);">${paras}</div>
+      <div class="hint" style="margin-top:6px; line-height:1.6;">${T('Built from this chart: each lord\'s houses, placement and dignity, and how each sub-lord sits from the lord above it. A reading of tendencies to reflect on, not a forecast of events.','Construida a partir de esta carta: casas, posición y dignidad de cada señor, y cómo se sitúa cada subseñor respecto al señor superior. Una lectura de tendencias para reflexionar, no un pronóstico de hechos.')}</div>
+    </div></div>`;
+}
+// END DASHA READING
 // BEGIN RECTIFICATION
 // Birth-time rectification grid: rows = candidate birth times (recorded time
 // ± span × step minutes), columns = the native's dated life events, each cell
