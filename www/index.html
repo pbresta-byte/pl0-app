@@ -12228,6 +12228,8 @@ function renderDashaPage(){
     ${renderNarayanaDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderShoolaDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderKalachakraPanel(birthPos, bdt, nowJD, localTz)}
+    ${renderKendradiDashaPanel(birthPos, bdt, nowJD, localTz)}
+    ${renderDrigDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderRectificationPanel(birthPos, bdt)}
   `;
 }
@@ -12689,6 +12691,113 @@ function renderKalachakraPanel(birthPos, bdt, nowJD, localTz){
         `La Luna está en ${nk.name} pada ${padaNo}, un pada ${pd.savya ? 'savya (hacia adelante)' : 'apasavya (hacia atrás)'} cuyos nueve signos suman ${pd.total} años. Deha (cuerpo) es ${SIGNS[pd.deha]} y Jīva (vida) es ${SIGNS[pd.jeeva]}. La parte del pada que la Luna ya había recorrido al nacer se descuenta del inicio. Cada signo dura los años de su señor (Sol 5, Luna 21, Marte 7, Mercurio 9, Júpiter 10, Venus 16, Saturno 4).`)}</div>
       <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Years','Años')}</th><th>${T('Period','Período')}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
       ${adHtml}
+    </div></div>`;
+}
+// Drig dasha. Two readings of the same sutra:
+//  'trines'  - the 9th sign and its 5th and 9th, then the 10th, 11th and
+//              12th signs each with their trines (12 distinct signs).
+//  'aspects' - the 9th, 10th and 11th signs, each followed by the three
+//              signs it aspects by sign (movable -> fixed except the next
+//              sign, fixed -> movable except the previous, dual -> other
+//              duals). The order inside a group follows either the sign's
+//              footing (odd-footed forward) or its type (movable backward,
+//              fixed forward, dual: odd forward / even backward). When the
+//              9th sign is fixed this reading repeats signs; repeats are
+//              dropped and the signs it never reaches are reported.
+// Years: 7 / 8 / 9 by sign type (movable / fixed / dual), or 9 each.
+const DRIG_OPTS = (() => { const d = { mode: 'trines', order: 'footing', years: 'type' };
+  try { const s = JSON.parse(localStorage.getItem('pl0DrigOpts') || '{}');
+    return { mode: ['trines','aspects'].includes(s.mode) ? s.mode : d.mode, order: ['footing','type'].includes(s.order) ? s.order : d.order,
+      years: ['type','nine'].includes(s.years) ? s.years : d.years };
+  } catch (e) { return d; } })();
+function setDrigOpt(k, v){ DRIG_OPTS[k] = v; try { localStorage.setItem('pl0DrigOpts', JSON.stringify(DRIG_OPTS)); } catch (e) {} renderDashaPage(); }
+const m12 = n => ((n % 12) + 12) % 12;
+function rasiAspects(s){
+  const t = s % 3;
+  if (t === 0) return [1, 4, 7, 10].filter(x => x !== m12(s + 1));
+  if (t === 1) return [0, 3, 6, 9].filter(x => x !== m12(s - 1));
+  return [2, 5, 8, 11].filter(x => x !== s);
+}
+function drigSequence(lagna, opts){
+  if (opts.mode === 'trines'){
+    const out = [];
+    for (let k = 8; k <= 11; k++){ const h = m12(lagna + k); out.push(h, m12(h + 4), m12(h + 8)); }
+    return { signs: out, repeats: [], missing: [] };
+  }
+  const out = [], repeats = [];
+  for (let k = 8; k <= 10; k++){
+    const h = m12(lagna + k), asp = rasiAspects(h);
+    const dir = opts.order === 'footing' ? (charaOddFooted(h) ? 1 : -1)
+      : (h % 3 === 0 ? -1 : h % 3 === 1 ? 1 : (h % 2 === 0 ? 1 : -1));
+    const group = [h];
+    for (let j = 1; j < 12; j++){ const s = m12(h + j * dir); if (asp.includes(s)) group.push(s); }
+    group.forEach(s => { if (out.includes(s)) repeats.push(s); else out.push(s); });
+  }
+  const missing = [...Array(12).keys()].filter(s => !out.includes(s));
+  return { signs: out, repeats, missing };
+}
+function drigMahadashas(pos, birthJD, yearDays, opts, spanYears){
+  const lagna = Math.floor(norm360(pos._ascSidereal) / 30), seq = drigSequence(lagna, opts);
+  const yrs = s => opts.years === 'nine' ? 9 : 7 + s % 3;
+  const out = []; let jd = birthJD, cycle = 1;
+  while ((jd - birthJD) / yearDays < spanYears){
+    for (const s of seq.signs){ const y = yrs(s); out.push({ sign: s, years: y, cycle, startJD: jd, endJD: jd + y * yearDays }); jd += y * yearDays; }
+    cycle++;
+  }
+  return { seq, list: out };
+}
+function renderDrigDashaPanel(birthPos, bdt, nowJD, localTz){
+  if (!bdt || bdt.empty || !isFinite(bdt.jd)) return '';
+  const o = DRIG_OPTS, r = drigMahadashas(birthPos, bdt.jd, vimshottariYearDays(), o, 120);
+  const cur = r.list.find(p => nowJD >= p.startJD && nowJD < p.endJD);
+  const rows = r.list.filter(p => p.cycle === 1).map(p => `<tr${p === cur ? ' style="outline:2px solid var(--gold);"' : ''}><td class="wide" style="font-weight:600;">${SIGNS[p.sign]}</td><td>${p.years} ${T('y','a')}</td>
+      <td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td></tr>`).join('');
+  const sel = (k, pairs) => `<select onchange="setDrigOpt('${k}', this.value)">${pairs.map(([v, l]) => `<option value="${v}" ${o[k] === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+  const gap = r.seq.missing.length ? `<div class="hint" style="margin-top:6px; color:var(--vermilion);">${T(`With this chart the aspect reading repeats ${r.seq.repeats.map(s => SIGNS[s]).join(', ')} and never reaches ${r.seq.missing.map(s => SIGNS[s]).join(', ')}. That happens whenever the 9th sign is fixed; the trine reading has no such gap.`, `Con esta carta la lectura por aspectos repite ${r.seq.repeats.map(s => SIGNS[s]).join(', ')} y nunca llega a ${r.seq.missing.map(s => SIGNS[s]).join(', ')}. Ocurre siempre que el 9.º signo es fijo; la lectura por trígonos no tiene ese hueco.`)}</div>` : '';
+  return `<div class="panel"><div class="hd"><h2>${T('Dṛg daśā','Dṛg daśā')}</h2><span class="note">${T('sign periods from the 9th house','períodos de signos desde la casa 9')}</span></div>
+    <div class="bd">
+      <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:10px; font-size:13px; color:var(--ink-dim);">
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T('Sequence','Secuencia')} ${sel('mode', [['trines', T('9th to 12th, each with its trines','de la 9.ª a la 12.ª, cada una con sus trígonos')], ['aspects', T('9th, 10th, 11th, each with the signs it aspects','9.ª, 10.ª, 11.ª, cada una con los signos que aspecta')]])}</label>
+        ${o.mode === 'aspects' ? `<label style="display:inline-flex; gap:6px; align-items:center;">${T('Order inside a group','Orden dentro de un grupo')} ${sel('order', [['footing', T('by the sign\'s footing (odd-footed forward)','por el pie del signo (pie impar hacia adelante)')], ['type', T('by sign type (movable back, fixed forward, dual by odd/even)','por tipo de signo (móvil atrás, fijo adelante, doble por impar/par)')]])}</label>` : ''}
+        <label style="display:inline-flex; gap:6px; align-items:center;">${T('Years','Años')} ${sel('years', [['type', T('7 / 8 / 9 by sign type','7 / 8 / 9 por tipo de signo')], ['nine', T('9 for every sign','9 para cada signo')]])}</label>
+      </div>
+      <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Years','Años')}</th><th>${T('Period','Período')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+      ${gap}
+      <div class="hint" style="margin-top:8px;">${T('The texts give no sub-period rule for this daśā, so none is shown.','Los textos no dan regla de subperíodos para esta daśā, así que no se muestra ninguno.')}</div>
+    </div></div>`;
+}
+
+// Kendradi (Lagna Kendradi) dasha. Starts from the stronger of the Lagna and
+// the 7th; then its other kendras in order of strength, then the panapara
+// group, then the apoklima group, each ranked by strength. Years as in the
+// Chara panel. Houses are counted forward from an odd starting sign and
+// backward from an even one (which swaps the 2/5/8/11 and 3/6/9/12 groups).
+function rankSigns(signs, pos, opts){
+  const a = signs.slice();
+  for (let i = 1; i < a.length; i++){ let j = i; while (j > 0 && charaStrongerSign(a[j], a[j - 1], pos, opts).sign === a[j]){ [a[j], a[j - 1]] = [a[j - 1], a[j]]; j--; } }
+  return a;
+}
+function kendradiSequence(pos, opts){
+  const st = narayanaStart(pos, opts, { start: 'stronger' }), s0 = st.sign;
+  const dir = s0 % 2 === 1 ? -1 : 1;                                        // index 0 = Aries (odd sign)
+  const grp = offs => offs.map(k => m12(s0 + k * dir));
+  const kendras = [s0].concat(rankSigns(grp([3, 6, 9]), pos, opts));
+  return { start: st, signs: kendras.concat(rankSigns(grp([1, 4, 7, 10]), pos, opts), rankSigns(grp([2, 5, 8, 11]), pos, opts)) };
+}
+function renderKendradiDashaPanel(birthPos, bdt, nowJD, localTz){
+  if (!bdt || bdt.empty || !isFinite(bdt.jd)) return '';
+  const o = CHARA_OPTS, seq = kendradiSequence(birthPos, o), yd = vimshottariYearDays();
+  const list = []; let jd = bdt.jd;
+  seq.signs.map(s => charaSignYears(s, birthPos, o)).forEach(r => { if (r.years <= 0) return; list.push({ ...r, startJD: jd, endJD: jd + r.years * yd }); jd += r.years * yd; });
+  const cur = list.find(p => nowJD >= p.startJD && nowJD < p.endJD);
+  const grpName = i => i < 4 ? T('kendra','kendra') : i < 8 ? T('panapara','panapara') : T('apoklima','apoklima');
+  const rows = list.map(p => `<tr${p === cur ? ' style="outline:2px solid var(--gold);"' : ''}><td class="wide" style="font-weight:600;">${SIGNS[p.sign]}</td><td style="font-size:11px;">${grpName(seq.signs.indexOf(p.sign))}</td><td>${p.years} ${T('y','a')}</td>
+      <td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td></tr>`).join('');
+  const lagna = Math.floor(norm360(birthPos._ascSidereal) / 30);
+  return `<div class="panel"><div class="hd"><h2>${T('Kendrādi daśā','Kendrādi daśā')}</h2><span class="note">${T('kendras, then panaparas, then apoklimas','kendras, luego panaparas, luego apoklimas')}</span></div>
+    <div class="bd">
+      <div class="hint" style="margin-bottom:8px; line-height:1.6;">${T(`Starts from ${SIGNS[seq.start.sign]} (${seq.start.sign === lagna ? 'Lagna' : '7th house'}), the stronger of the two, counting forward from an odd sign and backward from an even one. Inside each group the signs run from strongest to weakest: the one holding the Ātmakāraka, then more planets, more exalted or own-sign planets, dual over fixed over movable, and so on. Years follow the Chara panel's options.`, `Empieza en ${SIGNS[seq.start.sign]} (${seq.start.sign === lagna ? 'Lagna' : 'casa 7'}), el más fuerte de los dos, contando hacia adelante desde un signo impar y hacia atrás desde uno par. Dentro de cada grupo los signos van del más fuerte al más débil: el que tiene al Ātmakāraka, luego más planetas, más planetas exaltados o en su signo, doble sobre fijo sobre móvil, etc. Los años siguen las opciones del panel Chara.`)}</div>
+      <div class="tblwrap"><table><thead><tr><th>${T('Sign','Signo')}</th><th>${T('Group','Grupo')}</th><th>${T('Years','Años')}</th><th>${T('Period','Período')}</th></tr></thead><tbody>${rows}</tbody></table></div>
     </div></div>`;
 }
 // END CHARA DASHA
