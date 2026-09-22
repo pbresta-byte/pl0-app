@@ -10695,7 +10695,7 @@ function renderAvasthaPage(){
 // and unit-test it without a DOM. It depends only on SIGNS and norm360().
 // Varga reading options (varga page). Defaults reproduce PL7 exactly (pl7_varga_test.js); owner decision 2026-09-21:
 // D30 even signs follow PL7 / the lords' own even signs, the earlier Cancer-to-Scorpio run stays as an option.
-const VARGA_OPTS = (() => { const d = { d30Even: 'classical', d60Count: 'occupied', d60Class: 'portion' }; try { const s = JSON.parse(localStorage.getItem('pl0VargaOpts') || '{}'); return { d30Even: s.d30Even === 'owner' ? 'owner' : 'classical', d60Count: s.d60Count === 'aries' ? 'aries' : 'occupied', d60Class: s.d60Class === 'named' ? 'named' : 'portion' }; } catch (e) { return d; } })();
+const VARGA_OPTS = (() => { const d = { d30Even: 'classical', d60Count: 'occupied', d60Class: 'portion', d2Deity: 'lord' }; try { const s = JSON.parse(localStorage.getItem('pl0VargaOpts') || '{}'); return { d30Even: s.d30Even === 'owner' ? 'owner' : 'classical', d60Count: s.d60Count === 'aries' ? 'aries' : 'occupied', d60Class: s.d60Class === 'named' ? 'named' : 'portion', d2Deity: s.d2Deity === 'half' ? 'half' : 'lord' }; } catch (e) { return d; } })();
 function setVargaOpt(k, v){ VARGA_OPTS[k] = v; try { localStorage.setItem('pl0VargaOpts', JSON.stringify(VARGA_OPTS)); } catch (e) {} renderVargaPage(); }
 // ==== BEGIN VARGA CORE ====
 function vargaBase(sid){
@@ -10837,6 +10837,52 @@ function shashtiamshaOf(sid){
   const [name, byPortion, byName] = D60_AMSHAS[idx-1];
   const named = VARGA_OPTS.d60Class === 'named';
   return { idx, name, cls: named ? byName : byPortion, other: named ? byPortion : byName, disagree: byPortion !== byName };
+}
+// Presiding deity of the division a longitude falls in (classical Shodashavarga deity lists; two translations agree).
+// D1 shows the nakshatra deity. D60 has its own portion names (shashtiamshaOf). Returns null when not defined.
+const NAK_DEITIES = ['Ashvini Kumara','Yama','Agni','Brahma','Chandra','Rudra','Aditi','Brihaspati','Sarpa','Pitri','Bhaga','Aryaman',
+  'Surya','Tvashtri','Vayu','Indragni','Mitra','Indra','Nirriti','Apas','Vishvedeva','Vishnu','Vasu','Varuna','Aja Ekapada','Ahirbudhnya','Pushan'];
+const VARGA_DEITY_LISTS = {
+  D3: ['Narada','Agastya','Durvasa'],
+  D4: ['Sanaka','Sananda','Kumara','Sanatana'],
+  D7: ['Kshara','Kshira','Dadhi','Ghrita','Ikshu-rasa','Madya','Shuddha-jala'],
+  D10: ['Indra','Agni','Yama','Rakshasa','Varuna','Vayu','Kubera','Ishana','Brahma','Ananta'],
+  D12: ['Ganesha','Ashvini Kumara','Yama','Sarpa'],
+  D16: ['Brahma','Vishnu','Shiva','Surya'],
+  D20odd: ['Kali','Gauri','Jaya','Lakshmi','Vijaya','Vimala','Sati','Tara','Jvalamukhi','Shveta','Lalita','Bagalamukhi','Pratyangira','Shachi','Raudri','Bhavani','Varada','Jaya','Tripura','Sumukhi'],
+  D20even: ['Daya','Medha','Chinnashirsha','Pishachini','Dhumavati','Matangi','Bala','Bhadra','Aruna','Anala','Pingala','Chuchuka','Ghora','Varahi','Vaishnavi','Sita','Bhuvaneshvari','Bhairavi','Mangala','Aparajita'],
+  D24: ['Skanda','Parashudhara','Anala','Vishvakarma','Bhaga','Mitra','Maya','Antaka','Vrishadhvaja','Govinda','Madana','Bhima'],
+  D30: ['Agni','Vayu','Indra','Kubera','Varuna'],   // for the Mars, Saturn, Jupiter, Mercury, Venus portions
+  D40: ['Vishnu','Chandra','Marichi','Tvashtri','Dhata','Shiva','Ravi','Yama','Yaksha','Gandharva','Kala','Varuna'],
+  D9: [['Deva','Manushya','Rakshasa'],['Manushya','Rakshasa','Deva'],['Rakshasa','Manushya','Deva']],   // movable / fixed / dual
+  D45: [['Brahma','Shiva','Vishnu'],['Shiva','Vishnu','Brahma'],['Vishnu','Brahma','Shiva']]
+};
+function vargaDeityOf(key, sid){
+  const b = vargaBase(sid), odd = vIsOddSign(b.signIdx), L = VARGA_DEITY_LISTS;
+  const part = n => vargaPartOf(sid, n).part;
+  const cyc = (list, p) => list[p % list.length];
+  switch (key){
+    case 'D1': return NAK_DEITIES[Math.min(26, Math.floor(b.L / (360/27)))];
+    case 'D2': { const first = b.degIn < 15, sunHora = odd ? first : !first;
+                 return (VARGA_OPTS.d2Deity === 'half' ? first : sunHora) ? 'Deva' : 'Pitri'; }
+    case 'D3': return L.D3[part(3)];
+    case 'D4': return L.D4[part(4)];
+    case 'D7': { const p = part(7); return L.D7[odd ? p : 6 - p]; }
+    case 'D9': return cyc(L.D9[vModality(b.signIdx)], part(9));
+    case 'D10': { const p = part(10); return L.D10[odd ? p : 9 - p]; }
+    case 'D12': return cyc(L.D12, part(12));
+    case 'D16': { const p = part(16); return cyc(L.D16, odd ? p : 15 - p); }
+    case 'D20': return (odd ? L.D20odd : L.D20even)[part(20)];
+    case 'D24': { const p = part(24); return cyc(L.D24, odd ? p : 23 - p); }
+    case 'D27': { const p = part(27); return NAK_DEITIES[odd ? p : 26 - p]; }
+    case 'D30': { // deity follows the portion's lord; even signs reverse the spans, lords and deities
+      const spans = odd ? [5,5,8,7,5] : [5,7,8,5,5];
+      let a = 0, i = 0; for (; i < 4; i++){ a += spans[i]; if (b.degIn < a) break; }
+      return L.D30[odd ? i : 4 - i]; }
+    case 'D40': return cyc(L.D40, part(40));
+    case 'D45': return cyc(L.D45[vModality(b.signIdx)], part(45));
+    default: return null;
+  }
 }
 // ==== END VARGA CORE ====
 
@@ -11039,6 +11085,7 @@ function renderVargaPage(){
     }
     return (degInSign % spanDeg) * (30/spanDeg);
   }
+  const deityCell = sid => def.key === 'D60' ? '' : `<td>${vargaDeityOf(def.key, sid) || '—'}</td>`;
   const d60Cell = sid => {
     if (def.key !== 'D60') return '';
     const a = shashtiamshaOf(sid);
@@ -11053,7 +11100,7 @@ function renderVargaPage(){
       <td class="wide" style="color:${color}">${label}</td>
       <td>${SIGNS[Math.floor(sidOf[b]/30)]} ${fmtDeg(sidOf[b]%30)}${retroTag}</td>
       <td style="color:var(--gold); font-weight:700;">${SIGN_ABBR[vSign]} <span style="font-weight:normal; color:var(--mut);">· ${vSign}</span></td>
-      <td>${fmtDeg(vargaDegInSign(sidOf[b]))}</td>${d60Cell(sidOf[b])}
+      <td>${fmtDeg(vargaDegInSign(sidOf[b]))}</td>${deityCell(sidOf[b])}${d60Cell(sidOf[b])}
     </tr>`;
   }
 
@@ -11082,7 +11129,7 @@ function renderVargaPage(){
       dhuma:"Dhūma", vyatipata:"Vyatipāta", parivesha:"Pariveṣa", indrachapa:"Indrachāpa", upaketu:"Upaketu"
     };
 
-    const separatorRow = `<tr><td colspan="${def.key==='D60'?5:4}" style="border-top:2px solid var(--gold); padding:4px 0;"></td></tr>`;
+    const separatorRow = `<tr><td colspan="5" style="border-top:2px solid var(--gold); padding:4px 0;"></td></tr>`;
 
     kalaSorted.forEach(u=>{
       const sid = u.sid;
@@ -11093,7 +11140,7 @@ function renderVargaPage(){
         <td class="wide" style="color:var(--ink-dim);"><span title="${T('Kala-family Upagraha','Upagraha familia Kala')}">↑</span> ${u.name}</td>
         <td>${SIGNS[Math.floor(sid/30)]} ${fmtDeg(sid%30)}</td>
         <td style="color:var(--gold); font-weight:700;">${SIGN_ABBR[vSign]} <span style="font-weight:normal; color:var(--mut);">· ${vSign}</span></td>
-        <td>${fmtDeg(vargaDegInSign(sid))}</td>${d60Cell(sid)}
+        <td>${fmtDeg(vargaDegInSign(sid))}</td>${deityCell(sid)}${d60Cell(sid)}
       </tr>`;
     });
 
@@ -11107,13 +11154,13 @@ function renderVargaPage(){
         <td class="wide" style="color:var(--ink-dim);"><span title="${T('Chaya Upagraha (from Sun)','Upagraha Chaya (del Sol)')}">◌</span> ${chayaLabel[cn]}</td>
         <td>${SIGNS[Math.floor(sid/30)]} ${fmtDeg(sid%30)}</td>
         <td style="color:var(--gold); font-weight:700;">${SIGN_ABBR[vSign]} <span style="font-weight:normal; color:var(--mut);">· ${vSign}</span></td>
-        <td>${fmtDeg(vargaDegInSign(sid))}</td>${d60Cell(sid)}
+        <td>${fmtDeg(vargaDegInSign(sid))}</td>${deityCell(sid)}${d60Cell(sid)}
       </tr>`;
     });
   }
 
   const vargaHeaderCells =
-    `<th>${T('D1 position','Posición D1')}</th><th title="${T(def.purpose.en,def.purpose.es)}">${def.key} ${def.name}</th><th>${T('degree in sign','grado en signo')}</th>${def.key==='D60' ? `<th>${T('Shashtiamsha','Shashtiamsha')}</th>` : ''}`;
+    `<th>${T('D1 position','Posición D1')}</th><th title="${T(def.purpose.en,def.purpose.es)}">${def.key} ${def.name}</th><th>${T('degree in sign','grado en signo')}</th><th>${def.key==='D60' ? T('Shashtiamsha','Shashtiamsha') : (def.key==='D1' ? T('Nakshatra deity','Deidad del nakshatra') : T('Deity','Deidad'))}</th>`;
 
   container.innerHTML = `
     <div class="panel">
@@ -11149,6 +11196,11 @@ function renderVargaPage(){
           <input type="checkbox" onchange="toggleVargaUpagrahas(this.checked)" ${vargaShowUpagrahas?'checked':''}>
           ${T('Include shadow points (Upagrahas)','Incluir puntos sombra (Upagrahas)')}
         </label>
+        ${def.key==='D2' ? `<label style="display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:13px; color:var(--ink-dim); flex-wrap:wrap;">${T('D2 deity','Deidad D2')}
+          <select onchange="setVargaOpt('d2Deity', this.value)">
+            <option value="lord" ${VARGA_OPTS.d2Deity==='lord'?'selected':''}>${T("Deva in the Sun's hora, Pitri in the Moon's",'Deva en la hora del Sol, Pitri en la de la Luna')}</option>
+            <option value="half" ${VARGA_OPTS.d2Deity==='half'?'selected':''}>${T('Deva in the first half of every sign, Pitri in the second','Deva en la primera mitad de cada signo, Pitri en la segunda')}</option>
+          </select></label>` : ''}
         ${def.key==='D30' ? `<label style="display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:13px; color:var(--ink-dim); flex-wrap:wrap;">${T('D30 in even signs','D30 en signos pares')}
           <select onchange="setVargaOpt('d30Even', this.value)">
             <option value="classical" ${VARGA_OPTS.d30Even==='classical'?'selected':''}>${T("Each lord's own even sign (Taurus, Virgo, Pisces, Capricorn, Scorpio)",'Signo par propio de cada regente (Tauro, Virgo, Piscis, Capricornio, Escorpio)')}</option>

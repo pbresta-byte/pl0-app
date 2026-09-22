@@ -15,7 +15,7 @@ vm.runInContext([
   'var LANG = "en";',
   pick(/const VARGA_OPTS = [^\n]*/) ,
   core,
-  'this.VARGA_DEFS = VARGA_DEFS; this.vargaSignForKey = vargaSignForKey; this.shashtiamshaOf = shashtiamshaOf; this.VARGA_OPTS = VARGA_OPTS;',
+  'this.VARGA_DEFS = VARGA_DEFS; this.vargaSignForKey = vargaSignForKey; this.shashtiamshaOf = shashtiamshaOf; this.vargaDeityOf = vargaDeityOf; this.VARGA_OPTS = VARGA_OPTS;',
 ].join('\n'), ctx);
 
 // ---- reference, straight from the PL7 table wording ----
@@ -84,6 +84,24 @@ for (const [b, want] of Object.entries(D9_PL7)) { const got = S3(app('D9', FX[b]
 const D60_PL7 = { Su: ['Davagni', 'M'], Mo: ['Yaksha', 'B'], Ma: ['Deva', 'B'], Me: ['Amrita', 'B'], Ju: ['Mrityu', 'M'],
   Ve: ['Chandramukhi', 'B'], Sa: ['Kalapavaka', 'M'], Ra: ['Sudha', 'B'], Ke: ['Sudha', 'B'] };
 for (const [b, [nm, cl]] of Object.entries(D60_PL7)) { const a = ctx.shashtiamshaOf(FX[b]); if (a.name !== nm || a.cls !== cl) { fails++; report.push(`fixture D60 ${b}: app ${a.name} ${a.cls}, PL7 ${nm} ${cl}`); } }
+// Deities: defined for every varga except D60 at every point; hand-worked cases (sign start + deg).
+for (const k of Object.keys(REF)) if (k !== 'D60') {
+  let miss = 0; for (const L of pts) if (typeof ctx.vargaDeityOf(k, L) !== 'string') miss++;
+  if (miss) { fails++; report.push(`deity ${k}: undefined at ${miss} points`); }
+}
+const DEITY_CASES = [  // [varga, longitude, expected, note]
+  ['D1', 0.5, 'Ashvini Kumara', 'Ashvini'], ['D1', 359.5, 'Pushan', 'Revati'],
+  ['D2', 5, 'Deva', 'Aries 1st half = Sun hora'], ['D2', 35, 'Pitri', 'Taurus 1st half = Moon hora'],
+  ['D3', 25, 'Durvasa', '3rd drekkana'], ['D4', 50, 'Kumara', 'Taurus 3rd quarter'],
+  ['D7', 31, 'Shuddha-jala', 'even sign reversed, 1st part'], ['D9', 241, 'Rakshasa', 'Sagittarius (dual) 1st'],
+  ['D9', 34, 'Rakshasa', 'Taurus (fixed) 2nd'], ['D10', 31, 'Ananta', 'even 1st'], ['D12', 29.9, 'Sarpa', '12th'],
+  ['D16', 31, 'Surya', 'even 1st'], ['D20', 31, 'Daya', 'even list 1st'], ['D24', 31, 'Bhima', 'even 1st'],
+  ['D24', 29.9, 'Bhima', 'odd 24th'], ['D27', 31, 'Pushan', 'even 1st'], ['D30', 2, 'Agni', 'odd Mars'],
+  ['D30', 32, 'Varuna', 'even Venus'], ['D30', 58, 'Agni', 'even Mars'], ['D40', 9.1, 'Vishnu', '13th = 1st again'],
+  ['D45', 120.5, 'Shiva', 'Leo (fixed) 1st'],
+];
+for (const [k, L, want, note] of DEITY_CASES) { const got = ctx.vargaDeityOf(k, L); if (got !== want) { fails++; report.push(`deity ${k} @${L} (${note}): ${got}, want ${want}`); } }
+ctx.VARGA_OPTS.d2Deity = 'half'; if (ctx.vargaDeityOf('D2', 35) !== 'Deva') { fails++; report.push('D2 half option wrong'); } delete ctx.VARGA_OPTS.d2Deity;
 const table = Object.keys(REF).map(k => k.padEnd(4) + Object.keys(FX).map(b => S3(app(k, FX[b]))).join(' ')).join('\n');
 
 console.log(`points ${pts.length} x ${Object.keys(REF).length} vargas`);
