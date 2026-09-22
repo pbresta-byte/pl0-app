@@ -8721,6 +8721,35 @@ function renderNatalPage(){
   // Plain-English gloss for the houses Raja Yoga cares about, so the panel
   // below can explain a hit by what it actually governs rather than by
   // house number + Sanskrit term alone.
+  let relocHtml = '';
+  {
+    const bdtR = readDateTime("b");
+    const ayR = document.getElementById('ayanamsaMode')?.value || 'lahiri';
+    const places = WORLD_PLACES.map(p=>`<option value="${p[0]}, ${p[1]}"></option>`).join('');
+    let body = `<div class="hint">${T('Pick a place to see this birth moment as if it had happened there. Only the Lagna and everything counted from it change; planet signs, nakshatras and the Vimśottari periods stay as at birth.','Elige un lugar para ver este momento de nacimiento como si hubiera ocurrido allí. Solo cambian el Lagna y todo lo contado desde él; los signos de los planetas, los nakshatras y los períodos Vimśottari quedan como al nacer.')}</div>`;
+    if (RELOC && !bdtR.empty){
+      const rp = computePositions(bdtR.jd, RELOC.lat, RELOC.lon, ayR);
+      const rAsc = norm360(rp._ascSidereal), rIdx = Math.floor(rAsc/30);
+      const rNav = vargaSignForKey('D9', rAsc), nNav = vargaSignForKey('D9', norm360(birthPos._ascSidereal));
+      const houseOf = (g, li) => ((Math.floor(norm360(birthPos[g].sidereal)/30) - li + 12) % 12) + 1;
+      const rows = GRAHA_LIST.map(g=>{ const a = houseOf(g, lagnaIdx), b = houseOf(g, rIdx);
+        return `<tr><td class="wide">${gNameNatal(g)}</td><td>${a}</td><td style="${a!==b?'color:var(--gold); font-weight:700;':''}">${b}</td></tr>`; }).join('');
+      body += `<div style="margin:10px 0;">${T('Lagna','Lagna')}: <b>${SIGNS[rIdx]} ${fmtDeg(rAsc%30)}</b> <small style="color:var(--mut);">(${T('birth','nacimiento')}: ${lagnaSign} ${fmtDeg(norm360(birthPos._ascSidereal)%30)})</small> · ${T('Navāṁśa Lagna','Lagna Navāṁśa')}: <b>${SIGNS[rNav]}</b> <small style="color:var(--mut);">(${T('birth','nacimiento')}: ${SIGNS[nNav]})</small></div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('House at birth place','Casa en el lugar de nacimiento')}</th><th>${T('House here','Casa aquí')}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+    relocHtml = `<div class="panel"><div class="hd"><h2>${T('Relocation','Relocalización')}</h2><span class="note">${RELOC ? (RELOC.label || `${RELOC.lat.toFixed(2)}, ${RELOC.lon.toFixed(2)}`) : T('no place chosen','sin lugar elegido')}</span></div>
+      <div class="bd">
+        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:10px; font-size:13px;">
+          <input list="relocPlaces" placeholder="${T('City, country…','Ciudad, país…')}" value="${RELOC && RELOC.label ? RELOC.label.replace(/"/g,'&quot;') : ''}" onchange="setRelocFromPlace(this.value)" style="min-width:200px;">
+          <datalist id="relocPlaces">${places}</datalist>
+          <input type="number" step="0.0001" placeholder="${T('Latitude (+N)','Latitud (+N)')}" value="${RELOC ? RELOC.lat : ''}" id="relocLat" style="width:130px;">
+          <input type="number" step="0.0001" placeholder="${T('Longitude (+E)','Longitud (+E)')}" value="${RELOC ? RELOC.lon : ''}" id="relocLon" style="width:130px;">
+          <button type="button" onclick="setReloc(document.getElementById('relocLat').value, document.getElementById('relocLon').value, '')">${T('Use coordinates','Usar coordenadas')}</button>
+          ${RELOC ? `<button type="button" onclick="setReloc(NaN, NaN)">${T('Clear','Borrar')}</button>` : ''}
+        </div>
+        ${body}
+      </div></div>`;
+  }
   const rajYoga = checkRajYoga(lordships, birthPos);
   const rajYogaEntries = buildRajaYogaEntries(rajYoga, lordships);
 
@@ -10476,6 +10505,7 @@ function yogaSafetyLine(num, themeList){
       </div>
     </div>
 
+    ${relocHtml}
     <div class="panel"><div class="hd"><h2>${T('Functional benefic / malefic by house lordship','Benéfico / maléfico funcional por señorío de casas')}</h2></div>
       <div class="bd">
         <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:10px; font-size:13px; color:var(--ink-dim);">
@@ -12950,6 +12980,19 @@ function isOwnOrExalt(graha, sid){
 // Mars, Saturn, Rahu & Ketu & Mercury - whenever with a malefic planet.
 // Jupiter, Venus, Mercury - whenever alone & waxing Moon are benefic
 // planets." — needs the birth positions + birth Pakṣa to evaluate Moon/Mercury.
+// Relocation (General page): the birth moment recomputed for another place. Only the Lagna and what is counted
+// from it change; planet signs, nakshatras and Vimshottari stay as at birth. Saved in localStorage (pl0Reloc).
+let RELOC = (() => { try { const r = JSON.parse(localStorage.getItem('pl0Reloc') || 'null'); return r && isFinite(r.lat) && isFinite(r.lon) ? r : null; } catch (e) { return null; } })();
+function setReloc(lat, lon, label){
+  lat = parseFloat(lat); lon = parseFloat(lon);
+  RELOC = (isFinite(lat) && isFinite(lon) && Math.abs(lat) < 90 && Math.abs(lon) <= 180) ? { lat, lon, label: label || '' } : null;
+  try { RELOC ? localStorage.setItem('pl0Reloc', JSON.stringify(RELOC)) : localStorage.removeItem('pl0Reloc'); } catch (e) {}
+  renderNatalPage();
+}
+function setRelocFromPlace(text){
+  const hit = WORLD_PLACES.find(p => `${p[0]}, ${p[1]}` === text) || searchPlaces(text, 1)[0] || searchPlaces(String(text).split(',')[0], 1)[0];
+  if (hit) setReloc(hit[2], hit[3], `${hit[0]}, ${hit[1]}`);
+}
 // Functional-nature options (General page). mode 'engine' = this app's house-lordship ladder (default);
 // 'table' = a fixed benefic/neutral/malefic table per ascendant (PL7's default preset). moonRule: the Moon
 // counts as a natural malefic when waning (default) or only when less than a third lit.
