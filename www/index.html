@@ -8839,6 +8839,81 @@ function setYogaOpt(key, value){
 }
 function lordPosRetroTag(g, pos){ return pos[g] && pos[g].speed<0 ? ` <small style="color:var(--vermilion);">(${T('r','r')})</small>` : ''; }
 
+// ---- Yoga grid: yogas organised by graha, category chips, strength-ranked ----
+let YOGA_VIEW = { graha: null, cat: 'all' };
+function setYogaView(k, v){ YOGA_VIEW[k] = v; renderNatalPage(); }
+const YOGA_CATS = [
+  ['all', 'All', 'Todas'], ['raja', 'Rāja', 'Rāja'], ['dhana', 'Dhana', 'Dhana'], ['mahapurusha', 'Mahāpuruṣa', 'Mahāpuruṣa'],
+  ['nabhasa', 'Nābhasa', 'Nābhasa'], ['luminaries', 'Moon & Sun', 'Luna y Sol'], ['caution', 'Cautions', 'Precauciones'], ['other', 'Other', 'Otras']
+];
+const NABHASA_RX = /rajju|musala|nala|mala|sarpa|gada|sakata|shakata|vihaga|sringataka|shringataka|hala|vajra|yava|kamala|vapi|yupa|sara\b|shara|sakti|shakti|danda|nauka|kuta|chatra|chhatra|chapa|ardha|chakra|samudra|vallaki|veena|vina|dama|pasa|pasha|kedara|sula|shula|yuga|gola|nabhasa/i;
+function yogaCategory(name, polarity){
+  const n = name.toLowerCase();
+  if (/ruchaka|bhadra|hamsa|malavya|sasa|shasha|mahapurusha|mahāpuruṣa/.test(n)) return 'mahapurusha';
+  if (/raja|rāja/.test(n)) return 'raja';
+  if (/dhana|lakshmi|lakṣmī|wealth/.test(n)) return 'dhana';
+  if (/sunapha|sunaphā|anapha|anaphā|durudhara|durdhara|kemadruma|vesi|veshi|vasi|voshi|ubhayachari|ubhayacari|adhi|gajakesari|gaja kesari|chandra|chandra|surya|sūrya|budha-aditya|budhaditya/.test(n)) return 'luminaries';
+  if (NABHASA_RX.test(n)) return 'nabhasa';
+  return polarity === 'negative' ? 'caution' : 'other';
+}
+function yogaPlanetsFrom(text, lagnaIdx){
+  const out = new Set();
+  text = String(text).replace(/\((?:except|excl\.?|other than)[^)]*\)/gi, ' ').replace(/\b(?:except|excl\.?|other than)\s+(?:the\s+)?[A-Z][a-zé]+/g, ' ');
+  GRAHA_LIST.forEach(g => { const es = GRAHA_ES[g]; if (new RegExp('\\b' + g + '\\b').test(text) || (es && es !== g && new RegExp('\\b' + es + '\\b').test(text))) out.add(g); });
+  (text.match(/\bL(1[0-2]|[1-9])\b/g) || []).forEach(t => { const h = +t.slice(1); out.add(SIGN_LORD[SIGNS[(lagnaIdx + h - 1) % 12]]); });
+  return [...out];
+}
+function yogaGraahaStrength(g, birthPos){
+  if (g === 'Rahu' || g === 'Ketu') return 0.5;
+  return ({ Exalted: 2, Own: 1.5, Friend: 1, Neutral: 0.5, Enemy: 0, Debilitated: -1 })[dignityTier(g, birthPos[g].sidereal)] ?? 0.5;
+}
+function renderYogaGrid(items, birthPos){
+  const V = YOGA_VIEW;
+  const catOk = y => V.cat === 'all' || (V.cat === 'caution' ? y.polarity === 'negative' : y.category === V.cat);
+  const shown = items.filter(catOk);
+  const keys = GRAHA_LIST.concat(['_chart']);
+  const byG = {}; keys.forEach(k => byG[k] = []);
+  shown.forEach(y => { (y.planets.length ? y.planets : ['_chart']).forEach(g => byG[g] && byG[g].push(y)); });
+  keys.forEach(k => byG[k].sort((a, b) => b.strength - a.strength || (a.polarity === 'positive' ? -1 : 1)));
+  let sel = V.graha && byG[V.graha] ? V.graha : null;
+  if (!sel || !byG[sel].length) sel = keys.slice().sort((a, b) => byG[b].filter(y => y.polarity === 'positive').length - byG[a].filter(y => y.polarity === 'positive').length || byG[b].length - byG[a].length)[0];
+  const cls = p => p === 'negative' ? 'bad' : p === 'positive' ? 'good' : 'neutral';
+  const gName = k => k === '_chart' ? T('Whole chart', 'Carta entera') : gNameNatal(k);
+  const chips = YOGA_CATS.map(([k, en, es]) => { const n = k === 'all' ? items.length : items.filter(y => k === 'caution' ? y.polarity === 'negative' : y.category === k).length;
+    return n || k === 'all' ? `<button type="button" onclick="setYogaView('cat','${k}')" style="padding:4px 10px; border-radius:14px; border:1px solid ${V.cat === k ? 'var(--gold)' : 'var(--line)'}; background:${V.cat === k ? 'var(--gold)' : 'transparent'}; color:${V.cat === k ? '#fff' : 'var(--ink-dim)'}; cursor:pointer; font-size:12px;">${T(en, es)} ${n}</button>` : ''; }).join(' ');
+  const standouts = shown.filter(y => y.polarity === 'positive').sort((a, b) => b.strength - a.strength).slice(0, 3);
+  const standoutHtml = standouts.length ? `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:8px; margin:10px 0 14px;">${standouts.map(y => `
+    <div style="border:1px solid var(--line); border-left:3px solid var(--jade); border-radius:6px; padding:8px 10px;">
+      <div style="font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--slate);">${T('Standout','Destacado')}</div>
+      <div style="font-weight:600; margin:2px 0;">${y.name}</div>
+      <div style="font-size:11.5px; color:var(--ink-dim);">${y.planets.length ? y.planets.map(gNameNatal).join(' · ') : T('whole chart', 'carta entera')}</div>
+    </div>`).join('')}</div>` : '';
+  const cards = keys.filter(k => k !== '_chart' || byG[k].length).map(k => {
+    const list = byG[k], pos = list.filter(y => y.polarity === 'positive').length, neg = list.filter(y => y.polarity === 'negative').length, mix = list.length - pos - neg;
+    const dig = k !== '_chart' && k !== 'Rahu' && k !== 'Ketu' ? dignityTier(k, birthPos[k].sidereal) : '';
+    const on = k === sel;
+    return `<button type="button" onclick="setYogaView('graha','${k}')" ${list.length ? '' : 'disabled'} style="text-align:left; padding:8px 10px; border-radius:8px; cursor:${list.length ? 'pointer' : 'default'};
+      border:${on ? '2px solid var(--gold)' : '1px solid var(--line)'}; background:${on ? 'var(--bg-2)' : 'transparent'}; opacity:${list.length ? 1 : 0.45};">
+      <div style="font-weight:600; color:${MALEFIC_GRAHAS.includes(k) ? 'var(--vermilion)' : k === '_chart' ? 'var(--ink)' : 'var(--jade)'};">${gName(k)}</div>
+      ${dig ? `<div style="font-size:10.5px; color:var(--slate);">${T(dig, trDignity(dig))}</div>` : `<div style="font-size:10.5px; color:var(--slate);">&nbsp;</div>`}
+      <div style="font-size:11.5px; margin-top:4px;"><span style="color:var(--jade);">${pos}</span> · <span style="color:var(--vermilion);">${neg}</span> · <span style="color:var(--slate);">${mix}</span></div>
+    </button>`;
+  }).join('');
+  const bar = s => { const w = Math.max(6, Math.min(100, (s + 1) / 3 * 100)); return `<span title="${T('strength from the dignity of the planets involved','fuerza según la dignidad de los planetas implicados')}" style="display:inline-block; width:54px; height:6px; background:var(--line); border-radius:3px; vertical-align:middle; margin-left:6px;"><span style="display:block; width:${w.toFixed(0)}%; height:100%; background:var(--gold); border-radius:3px;"></span></span>`; };
+  const rows = (byG[sel] || []).map(y => `<div class="li" style="margin-bottom:9px;">
+      <span class="tag ${cls(y.polarity)}" ${y.polarity === 'negative' ? 'style="background:var(--hit-bad-bg); border-color:var(--hit-bad-line); color:var(--hit-bad-ink);"' : ''}>${y.name}</span>${bar(y.strength)}
+      ${y.planets.length > 1 ? `<span style="font-size:11px; color:var(--slate); margin-left:6px;">${T('with','con')} ${y.planets.filter(g => g !== sel).map(gNameNatal).join(', ')}</span>` : ''}
+      ${y.body}
+    </div>`).join('');
+  return `<div style="display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 4px;">${chips}</div>
+    ${standoutHtml}
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:8px; margin-bottom:12px;">${cards}</div>
+    <div style="font-size:11px; color:var(--slate); margin:-4px 0 10px;">${T('Counts: supportive · caution · mixed. Tap a card to list its yogas, strongest first.','Recuento: favorables · precaución · mixtas. Toca una tarjeta para ver sus yogas, del más fuerte al más débil.')}</div>
+    <div style="font-size:13px; font-weight:600; margin:0 0 8px;">${gName(sel)} — ${(byG[sel] || []).length} ${T('yoga(s)','yoga(s)')}</div>
+    ${rows || `<div class="hint">${T('No yogas in this category for this planet.','No hay yogas de esta categoría para este planeta.')}</div>`}
+    <div class="hint" style="margin-top:8px;">${T('Traditional combinations, not predictions: read each one against the whole chart; many are softened or cancelled by other factors.','Combinaciones tradicionales, no predicciones: léelas con la carta completa; muchas se suavizan o anulan por otros factores.')}</div>`;
+}
+
 // ---- Natal General Reading (D1 + D9) ----
 // Reads the Lagna, and therefore house-lordships and the Navāṁśa chart,
 // from the birth date/time/place entered in field 1. This page is entirely
@@ -10549,7 +10624,7 @@ function yogaSafetyLine(num, themeList){
       ${pl7Res.hits.length ? '' : `<div class="hint">${T('None of these combinations forms in this chart.','Ninguna de estas combinaciones se forma en esta carta.')}</div>`}
     </details>`;
   })();
-  const masterYogaActiveCount = masterYogaEntries.filter(y=>y.result.present).length;
+  const masterYogaActiveCount = masterYogaEntries.filter(y=>y.result.present).length + (pl7Res.hits || []).length;
   const masterYogaHtml = (() => {
     const filtered = masterYogaEntries.filter(y=>y.result.present);
     const groups = { positive: [], negative: [], mixed: [] };
@@ -10612,12 +10687,24 @@ function yogaSafetyLine(num, themeList){
         ${optRow('Planetary conjunction entries (two or more planets in one sign)','Entradas de conjunción (dos o más planetas en un signo)', optSelect('pl7conj', [
           ['hide','Hide','Ocultar'], ['show','Show','Mostrar']]))}
       </div></details>`;
-    if (groups.positive.length) html += header(T('Auspicious yogas present','Yogas auspiciosos presentes'), '--jade') + renderGroup(groups.positive);
-    if (groups.negative.length) html += header(T('Afflictions and cautions present','Aflicciones y precauciones presentes'), '--vermilion')
-      + `<div class="hint" style="margin:-2px 0 8px;">${T('Traditional classifications, not predictions. Read each one against the whole chart — many are softened or cancelled by other factors.','Clasificaciones tradicionales, no predicciones. Lee cada una frente a la carta completa — muchas se suavizan o anulan por otros factores.')}</div>`
-      + renderGroup(groups.negative);
-    if (groups.mixed.length) html += header(T('Mixed and situational yogas present','Yogas mixtos y situacionales presentes'), '--slate') + renderGroup(groups.mixed);
-    html += pl7SectionHtml;
+    // Unified list (app yogas + further classical combinations) -> graha grid.
+    const stripTags = h => String(h || '').replace(/<[^>]*>/g, ' ');
+    const items = filtered.map(y => {
+      const reasonArg = y.num ? y.result : y.result.reasons;
+      const reasonHtml = y.reasonLine(reasonArg);
+      const planets = yogaPlanetsFrom(`${y.nameEn} ${y.glossEn} ${stripTags(reasonHtml)}`, lagnaIdx);
+      const nm = T(y.nameEn, y.nameEs);
+      return { name: nm, polarity: y.polarity, category: yogaCategory(y.nameEn, y.polarity), planets,
+        strength: planets.length ? planets.reduce((t, g) => t + yogaGraahaStrength(g, birthPos), 0) / planets.length : 0.5,
+        body: `<div style="margin-top:4px; color:var(--slate); font-size:11.5px; line-height:1.6;">${T(y.glossEn, y.glossEs)}</div>${y.num ? yogaSafetyLine(y.num) : ''}
+          <div style="margin-top:5px; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); line-height:1.5; border-left:2px solid var(--line-soft); padding-left:8px;">${reasonHtml}</div>` };
+    }).concat((pl7Res.hits || []).map(h => {
+      const planets = yogaPlanetsFrom(h.condition, lagnaIdx);
+      return { name: h.name, polarity: h.polarity, category: yogaCategory(h.name, h.polarity), planets,
+        strength: planets.length ? planets.reduce((t, g) => t + yogaGraahaStrength(g, birthPos), 0) / planets.length : 0.5,
+        body: `<div style="margin-top:3px; color:var(--slate); font-size:11.5px; line-height:1.55;">${T('Forms when','Se forma cuando')}: ${T(h.condition, h.conditionEs || h.condition)}.</div>${yogaSafetyLine(null, h.themes)}` };
+    }));
+    html += renderYogaGrid(items, birthPos);
     return html;
   })();
 
