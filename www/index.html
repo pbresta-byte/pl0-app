@@ -8,8 +8,13 @@
 
 <!-- ---- PWA / installable app metadata ---- -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#96690f" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f0e1a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4efe4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141722" media="(prefers-color-scheme: dark)">
+<!-- Almanac type: Fraunces for answers and titles, Manrope for everything read and tapped.
+     Offline (APK without network) falls back to the system stacks in --display / --serif. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -175,6 +180,79 @@
     --btn-a:#3a3260; --btn-b:#221f3c; --btn-a-h:#423a6e; --btn-b-h:#262244;
     --shadow:0 1px 2px rgba(0,0,0,0.3), 0 10px 24px -14px rgba(0,0,0,0.6);
   }
+  /* ================= ALMANAC LOOK (2026-09-23, owner-approved overhaul) =================
+     These three blocks sit after the original palettes and supersede them by cascade order:
+     Light -> "Almanac" (warm paper, ink, one saffron accent), Soft -> "Temple stone" (calm,
+     lower contrast), Night -> "Night sky". Only the shared tokens are re-set; the chart-,
+     zone- and calendar-specific tokens above still apply. Type and shape are theme-wide. */
+  :root{
+    --bg:#f4efe4; --bg-2:#ffffff; --panel:#ffffff; --panel-2:#faf6ee;
+    --line:#e0d8c6; --line-soft:#ece5d6;
+    --ink:#1e2230; --ink-dim:#3a3f50; --muted:#5b6072; --slate:#6e7285;
+    --gold:#9a5b00; --gold-dim:#e0a13a; --brass:#8a5a12;
+    --vermilion:#b04a30; --vermilion-dim:#e8b3a4;
+    --jade:#23775a; --jade-dim:#a9d3c0;
+    --glow-a:rgba(224,161,58,0.10); --glow-b:rgba(47,143,107,0.06);
+    --chart-bg:#fffdf8; --cell-bg:#faf6ee;
+    --btn-a:#fffdf8; --btn-b:#f3ead8; --btn-a-h:#ffffff; --btn-b-h:#eadcbf;
+    /* accent fill + the Now hero's own surfaces */
+    --accent:#e0a13a; --accent-ink:#1e2230;
+    --hero-dark:#1e2230; --hero-dark-ink:#f4efe4; --hero-dark-dim:#c9c3b4;
+    --good-bg:#e6f1eb; --good-ink:#1f5e43; --mid-bg:#f8eed8; --mid-ink:#7a4a00;
+    --plain-bg:#efeae0; --plain-ink:#3a3f50; --bad-bg:#f7e4df; --bad-ink:#8a2b1a;
+    --track:#e7e0d1;
+    /* type: Fraunces for answers and titles, Manrope for reading; --code keeps a true monospace */
+    --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --serif: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --code: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --radius:14px; --radius-sm:9px; --radius-pill:999px;
+    --shadow:0 1px 2px rgba(30,34,48,0.06), 0 12px 28px -18px rgba(30,34,48,0.35);
+  }
+  :root[data-theme="soft"]{
+    --bg:#eef1ec; --bg-2:#f7f9f5; --panel:#f8faf6; --panel-2:#e9eee6;
+    --line:#d5ddd3; --line-soft:#e2e8df;
+    --ink:#26332c; --ink-dim:#3f4d45; --muted:#56625a; --slate:#6f7b72;
+    --gold:#86601c; --gold-dim:#b8862b; --brass:#86601c;
+    --vermilion:#a64b32; --vermilion-dim:#dcb3a6;
+    --jade:#3e7d5c; --jade-dim:#b5d1c1;
+    --glow-a:rgba(184,134,43,0.06); --glow-b:rgba(62,125,92,0.05);
+    --chart-bg:#fafcf8; --cell-bg:#e9eee6;
+    --btn-a:#f8faf6; --btn-b:#e3e9e0; --btn-a-h:#ffffff; --btn-b-h:#d8e0d4;
+    --accent:#b8862b; --accent-ink:#ffffff;
+    --hero-dark:#26332c; --hero-dark-ink:#eef1ec; --hero-dark-dim:#b9c4bb;
+    --good-bg:#dfece4; --good-ink:#2c5e44; --mid-bg:#f1e8d4; --mid-ink:#6e4d10;
+    --plain-bg:#e4e9e1; --plain-ink:#3f4d45; --bad-bg:#f1e0da; --bad-ink:#83341f;
+    --track:#dde4da;
+    --shadow:0 1px 2px rgba(38,51,44,0.05), 0 12px 28px -20px rgba(38,51,44,0.28);
+  }
+  :root[data-theme="dark"]{
+    --bg:#141722; --bg-2:#1a1e2c; --panel:#1f2536; --panel-2:#252c40;
+    --line:#2f364b; --line-soft:#262c3e;
+    --ink:#ede7da; --ink-dim:#cfc8b9; --muted:#aaa497; --slate:#8f8a80;
+    --gold:#e8b454; --gold-dim:#9a7a3a; --brass:#d0a050;
+    --vermilion:#e07a5f; --vermilion-dim:#6e3426;
+    --jade:#5bb79a; --jade-dim:#2c5a4a;
+    --glow-a:rgba(232,180,84,0.05); --glow-b:rgba(91,183,154,0.04);
+    --chart-bg:#1a1f2e; --cell-bg:#232a3d;
+    --btn-a:#2a3148; --btn-b:#1f2536; --btn-a-h:#313954; --btn-b-h:#242b3f;
+    --accent:#e8b454; --accent-ink:#141722;
+    --hero-dark:#0d1018; --hero-dark-ink:#ede7da; --hero-dark-dim:#aaa497;
+    --good-bg:rgba(91,183,154,0.16); --good-ink:#8fd8bf; --mid-bg:rgba(232,180,84,0.14); --mid-ink:#f0cb86;
+    --plain-bg:rgba(237,231,218,0.08); --plain-ink:#cfc8b9; --bad-bg:rgba(224,122,95,0.16); --bad-ink:#f2a893;
+    --track:#2f364b;
+  }
+  /* titles and answers in the display face */
+  .plaque h1, .panel > .hd h2, .verdict .tier, .hamburger-menu-head span, .gravity-banner .gname{
+    font-family:var(--display); font-weight:600; letter-spacing:0;
+  }
+  legend, label, .panel > .hd .note, .theme-toggle, .btn{ font-weight:600; }
+  table{ font-variant-numeric:tabular-nums; }
+  .btn{ border-radius:12px; }
+  .btn:not(.ghost){ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); letter-spacing:0.06em; }
+  .btn:not(.ghost):hover{ filter:brightness(1.05); background:var(--accent); border-color:var(--accent); }
+  input[type=checkbox], input[type=radio], input[type=range]{ accent-color:var(--jade); }
+
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
@@ -368,6 +446,44 @@
       flex-direction:row; justify-content:space-between; align-items:baseline; text-align:left; width:100%;
     }
   }
+
+  /* ---------- "Now" hero (Almanac) ---------- */
+  .now-hero{ display:flex; flex-direction:column; gap:14px; margin-bottom:22px; max-width:820px; }
+  .now-top{ display:flex; justify-content:flex-end; font-size:13px; color:var(--muted); }
+  .now-card{ background:var(--panel); border:1px solid var(--line-soft); border-radius:20px; box-shadow:var(--shadow); padding:18px 20px; }
+  .now-answer{ display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center; padding:22px 22px 18px; }
+  .now-label{ font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .now-gauge{ max-width:100%; height:auto; }
+  .now-word{ font-family:var(--display); font-size:34px; font-weight:600; line-height:1.1; margin-top:-34px; }
+  .now-word.good{ color:var(--good-ink); } .now-word.mid{ color:var(--mid-ink); } .now-word.bad{ color:var(--bad-ink); }
+  .now-skt{ font-size:12.5px; color:var(--muted); letter-spacing:.04em; }
+  .now-teach{ font-size:15.5px; line-height:1.6; color:var(--ink-dim); max-width:60ch; margin:4px 0 2px; }
+  .now-chips{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+  .now-chips .tag{ font-family:var(--serif); font-size:12px; font-weight:600; padding:5px 11px; border-radius:999px; border:none; }
+  .now-chips .tag.good{ background:var(--good-bg); color:var(--good-ink); }
+  .now-chips .tag.bad{ background:var(--bad-bg); color:var(--bad-ink); }
+  .now-chips .tag.neutral, .now-chips .now-why{ background:var(--plain-bg); color:var(--plain-ink); }
+  .now-chips .now-why{ cursor:pointer; color:var(--gold); }
+  .now-hint{ font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:6px; }
+  .now-window{ background:var(--hero-dark); color:var(--hero-dark-ink); border-radius:18px; padding:16px 18px;
+    display:flex; justify-content:space-between; align-items:center; gap:14px; }
+  .now-window .now-label{ color:var(--hero-dark-dim); }
+  .now-win-time{ font-family:var(--display); font-size:22px; margin-top:3px; }
+  .now-win-sub{ display:block; font-family:var(--serif); font-size:13px; color:var(--hero-dark-dim); margin-top:4px; line-height:1.5; }
+  .now-plan{ flex:none; background:var(--accent); color:var(--accent-ink); font:700 14px var(--serif); padding:12px 16px; border:none; border-radius:12px; cursor:pointer; }
+  .now-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:14px; align-items:start; }
+  @media (max-width:760px){ .now-grid{ grid-template-columns:1fr; } }
+  .now-p{ font-size:14px; line-height:1.6; color:var(--ink-dim); margin:8px 0 4px; }
+  .now-sub{ font-size:12.5px; font-weight:700; color:var(--ink-dim); margin:10px 0 6px; }
+  .now-acts{ display:flex; flex-wrap:wrap; gap:6px; }
+  .now-act{ font:600 12.5px var(--serif); padding:8px 12px; border-radius:12px; border:1px solid var(--line); background:var(--panel); cursor:pointer; }
+  .now-act.good{ color:var(--good-ink); } .now-act.ok{ color:var(--plain-ink); } .now-act.bad{ color:var(--bad-ink); }
+  .now-act.sel{ border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); background:var(--mid-bg); }
+  .now-row{ display:flex; justify-content:space-between; gap:10px; font-size:14px; padding:7px 0; border-bottom:1px solid var(--line-soft); }
+  .now-row:last-child{ border-bottom:none; }
+  .now-row span:last-child{ color:var(--ink-dim); text-align:right; }
+  .now-row small{ display:block; color:var(--muted); font-size:11.5px; }
+  .now-sky .now-label{ margin-bottom:4px; }
 
   /* ---------- Moment-gravity headline (Kala Bala office election) ---------- */
   .gravity-banner{
@@ -752,7 +868,7 @@
     <span data-i18n="citation">Chart layout after Standard format. Positions computed, not looked up — see methodology note.</span>
     <div style="margin-top:8px; text-align:right; display:flex; gap:6px; justify-content:flex-end;">
       <button class="theme-toggle" id="langToggle" type="button">ES</button>
-      <button class="theme-toggle" id="themeToggle" type="button" title="${T('Soft eases the light for longer sittings — the same chart and same colors, just gentler on the eyes when you\'re staying with a reading a while.','Soft aligera la luz para sesiones más largas — la misma carta y los mismos colores, solo más suaves para la vista cuando te quedas un rato con una lectura.')}">☀ Light</button>
+      <button class="theme-toggle" id="themeToggle" type="button" title="Almanac · Stone · Night">☀ Almanac</button>
       <button class="theme-toggle" id="chartStyleToggle" type="button">◇ North</button>
     </div>
   </div>
@@ -3592,7 +3708,7 @@ function renderScoreBreakdown(parts, score){
       <td style="width:40%;"><div style="height:6px; background:var(--line-soft); border-radius:3px;"><div style="height:6px; width:${w.toFixed(0)}%; background:${v > 0 ? 'var(--jade)' : 'var(--vermilion)'}; border-radius:3px;"></div></div></td></tr>`;
   }).join('');
   const sel = (k, pairs) => `<select onchange="setScoreOpt('${k}', this.value)" style="width:auto;">${pairs.map(([v, l]) => `<option value="${v}" ${SCORE_OPTS[k] === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
-  return `<details class="ref-drop" style="margin:-10px 0 20px;"><summary>${T('How this score is built','Cómo se construye esta puntuación')}</summary><div class="bd">
+  return `<details id="scoreWhy" class="ref-drop" style="margin:-8px 0 20px; max-width:820px;"><summary>${T('How this score is built','Cómo se construye esta puntuación')}</summary><div class="bd">
     <div class="tblwrap"><table><tbody>${rows}<tr><td class="wide" style="font-weight:600;">${T('Total','Total')}</td><td style="text-align:right; font-weight:600;">${(()=>{ const r = Math.round(score * 10) / 10 || 0; return (r > 0 ? '+' : '') + r.toFixed(1); })()}</td><td></td></tr></tbody></table></div>
     <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px; font-size:12px; color:var(--ink-dim);">
       <label style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">${T('Dignity term','Término de dignidad')} ${sel('dignity', [['free', T('adds freely on top of the vedha hits','se suma libremente a los golpes de vedha')], ['half', T('moves the vedha result by at most half its size','mueve el resultado del vedha como mucho la mitad de su tamaño')]])}</label>
@@ -3601,6 +3717,203 @@ function renderScoreBreakdown(parts, score){
     </div>
     <div class="hint" style="margin-top:8px; line-height:1.6;">${T('The vedha point table and the tier bands come from the source; the weights set here are the app\'s own choices. The same settings apply to the Calendar and every other score.','La tabla de puntos del vedha y las bandas de nivel vienen de la fuente; los pesos de aquí son elecciones de la app. Los mismos ajustes se aplican al Calendario y a toda otra puntuación.')}</div>
   </div></details>`;
+}
+
+/* ===== "Now" hero (Almanac overhaul, 2026-09-23) =====
+   One plain answer for this moment, written in a teacher's voice, built only
+   from what the score already computed: the tier, the largest helping and the
+   largest hindering part of scoreMuhurta().parts, the next strong window
+   (scoreForInstant() scanned forward) and what the Moon's star suits
+   (gradeActivity() over the activity list). Adds no new scoring. */
+const NOW_TIER_TEACH = {
+  Uttama:   ['This is an excellent moment. Most of the factors that shape a beginning are working together, and it can carry an important undertaking.',
+             'Es un momento excelente. La mayoría de los factores que dan forma a un comienzo trabajan juntos, y puede sostener una empresa importante.'],
+  Madhyama: ['This is a good moment. It supports well-prepared work and can carry a new beginning.',
+             'Es un buen momento. Favorece el trabajo bien preparado y puede sostener un nuevo comienzo.'],
+  Sama:     ['This is a mixed moment. It serves steady, ordinary work; for an important beginning, a stronger window is worth waiting for.',
+             'Es un momento mixto. Sirve para el trabajo ordinario y constante; para un comienzo importante, conviene esperar una ventana más fuerte.'],
+  Ashubha:  ['This moment asks for care. Continue what is already under way, and keep new undertakings for a better window.',
+             'Este momento pide cuidado. Continúa lo que ya está en marcha y reserva las nuevas empresas para una ventana mejor.'],
+  Varjya:   ['This moment is best left alone for anything new. Let it pass quietly; give it to rest, review and small tasks.',
+             'Es mejor no empezar nada nuevo en este momento. Déjalo pasar con calma; dedícalo al descanso, la revisión y las tareas pequeñas.']
+};
+// Why a part helps (pos) or hinders (neg), as the end of "…because …" / "…es que …".
+const NOW_PART_TEACH = {
+  vedha:    {pos:['benefic planets are touching the stars that matter to you on the Sarvato Bhadra wheel (vedha)','los planetas benéficos tocan las estrellas que te importan en la rueda Sarvato Bhadra (vedha)'],
+             neg:['malefic planets are striking the stars that matter to you on the Sarvato Bhadra wheel (vedha)','los planetas maléficos golpean las estrellas que te importan en la rueda Sarvato Bhadra (vedha)']},
+  dignity:  {pos:['the planets touching your stars are well placed in their signs (dignity)','los planetas que tocan tus estrellas están bien situados en sus signos (dignidad)'],
+             neg:['the planets touching your stars are poorly placed in their signs (dignity)','los planetas que tocan tus estrellas están mal situados en sus signos (dignidad)']},
+  tara:     {pos:['the Moon stands in a supportive star, counted from your birth star (Tārā)','la Luna está en una estrella favorable, contada desde tu estrella natal (Tārā)'],
+             neg:['the Moon stands in a difficult star, counted from your birth star (Tārā)','la Luna está en una estrella difícil, contada desde tu estrella natal (Tārā)']},
+  latta:    {neg:['a planet is "kicking" your birth star (Latta), which unsettles what is newly begun','un planeta "patea" tu estrella natal (Latta), lo que perturba lo recién comenzado']},
+  upagraha: {neg:['a shadow point falls on your birth star (upagraha)','un punto de sombra cae sobre tu estrella natal (upagraha)']},
+  pp:       {pos:['your life bird is in one of its strong activities (Pañcha Pakshi)','tu ave vital está en una de sus actividades fuertes (Pañcha Pakshi)'],
+             neg:['your life bird is in one of its weak activities (Pañcha Pakshi)','tu ave vital está en una de sus actividades débiles (Pañcha Pakshi)']},
+  electional:{pos:['the day\'s calendar factors (the lunar day, its half, the yoga and the planetary hour) are favourable on balance','los factores del calendario del día (el día lunar, su mitad, el yoga y la hora planetaria) son favorables en conjunto'],
+             neg:['the day\'s calendar factors (the lunar day, its half, the yoga and the planetary hour) are unfavourable on balance','los factores del calendario del día (el día lunar, su mitad, el yoga y la hora planetaria) son desfavorables en conjunto']},
+  chandrashtama:{neg:['the Moon is passing through the eighth sign from your birth Moon (Chāndrāṣṭama), when major undertakings are traditionally set aside','la Luna recorre el octavo signo desde tu Luna natal (Chāndrāṣṭama), cuando tradicionalmente se aplazan las grandes empresas']},
+  activity: {pos:['the Moon\'s star suits the activity you have chosen','la estrella de la Luna conviene a la actividad que has elegido'],
+             neg:['the Moon\'s star does not suit the activity you have chosen','la estrella de la Luna no conviene a la actividad que has elegido']}
+};
+// The seven star classes: what each one favours, plain word first.
+const NOW_STAR_CLASS = {
+  fixed:   {n:['a fixed star (Dhruva)','una estrella fija (Dhruva)'],
+            t:['Fixed stars steady whatever is begun under them; they favour foundations, planting and lasting works.','Las estrellas fijas afianzan lo que se comienza bajo ellas; favorecen cimientos, siembras y obras duraderas.']},
+  soft:    {n:['a soft star (Mṛdu)','una estrella suave (Mṛdu)'],
+            t:['Soft stars favour gentle, harmonious things: marriage, the arts, friendship and ceremony.','Las estrellas suaves favorecen lo amable y armonioso: el matrimonio, las artes, la amistad y las ceremonias.']},
+  light:   {n:['a light, swift star (Laghu)','una estrella ligera y rápida (Laghu)'],
+            t:['Light, swift stars favour quick and skilful work: trade, medicine, learning and travel.','Las estrellas ligeras y rápidas favorecen el trabajo ágil y hábil: el comercio, la medicina, el estudio y los viajes.']},
+  movable: {n:['a movable star (Cara)','una estrella móvil (Cara)'],
+            t:['Movable stars favour motion and change: journeys, vehicles and gardening.','Las estrellas móviles favorecen el movimiento y el cambio: viajes, vehículos y jardinería.']},
+  sharp:   {n:['a sharp star (Tīkṣṇa)','una estrella aguda (Tīkṣṇa)'],
+            t:['Sharp stars suit cutting away and ending things, not gentle or lasting beginnings.','Las estrellas agudas sirven para cortar y terminar, no para comienzos amables o duraderos.']},
+  dreadful:{n:['a fierce star (Ugra)','una estrella feroz (Ugra)'],
+            t:['Fierce stars suit only hard, decisive acts; they are not chosen for auspicious beginnings.','Las estrellas feroces sirven solo para actos duros y decisivos; no se eligen para comienzos auspiciosos.']},
+  mixed:   {n:['a mixed star (Miśra)','una estrella mixta (Miśra)'],
+            t:['Mixed stars suit ordinary, day-to-day work.','Las estrellas mixtas convienen al trabajo ordinario de cada día.']}
+};
+const NOW_ACT_LABEL = {
+  daily_routine:['Routine work','Trabajo ordinario'], business_start:['Starting a business','Iniciar un negocio'],
+  travel:['Travel','Viajes'], marriage:['Marriage','Matrimonio'], ceremony:['Ceremonies','Ceremonias'],
+  construction:['Building work','Obras'], agriculture:['Sowing and planting','Siembra y plantación'],
+  medicine:['Taking medicine','Tomar medicina'], vehicle:['Buying a vehicle','Comprar un vehículo'],
+  art_music:['Arts and music','Artes y música']
+};
+const NOW_STRONG_MIN = 2;          // the "Good" (Madhyama) band and above
+let NOW_SCAN = null;               // inputs for the deferred next-window scan
+
+function nowTierKind(name){ return (name === 'Uttama' || name === 'Madhyama') ? 'good' : name === 'Sama' ? 'mid' : 'bad'; }
+function nowFmtScore(s){ const r = Math.round(s * 10) / 10 || 0; return `${r > 0 ? '+' : ''}${r.toFixed(1)}`; }
+function nowCap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// Semicircle gauge: score clamped to ±6 maps onto the arc; colour follows the tier.
+function nowGaugeSvg(score, tierName){
+  const f = (Math.max(-6, Math.min(6, score)) + 6) / 12;
+  const th = Math.PI * (1 - f), x = 105 + 90 * Math.cos(th), y = 110 - 90 * Math.sin(th);
+  const col = {good:'var(--jade)', mid:'var(--accent)', bad:'var(--vermilion)'}[nowTierKind(tierName)];
+  return `<svg class="now-gauge" width="210" height="120" viewBox="0 0 210 120" aria-hidden="true">
+    <path d="M15 110 A90 90 0 0 1 195 110" fill="none" stroke="var(--track)" stroke-width="16" stroke-linecap="round"/>
+    ${f > 0.005 ? `<path d="M15 110 A90 90 0 0 1 ${x.toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="${col}" stroke-width="16" stroke-linecap="round"/>` : ''}
+    <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="var(--ink)"/></svg>`;
+}
+
+// Teacher sentence: tier first, then the largest helping and hindering parts.
+function nowTeachText(tier, parts){
+  const say = (k, sign) => { const e = NOW_PART_TEACH[k] && NOW_PART_TEACH[k][sign]; return e ? T(e[0], e[1]) : null; };
+  const pos = parts.filter(p => p[1] > 0).sort((a, b) => b[1] - a[1]).map(p => say(p[0], 'pos')).filter(Boolean);
+  const neg = parts.filter(p => p[1] < 0).sort((a, b) => a[1] - b[1]).map(p => say(p[0], 'neg')).filter(Boolean);
+  let out = T(NOW_TIER_TEACH[tier.name][0], NOW_TIER_TEACH[tier.name][1]);
+  if (pos.length) out += ' ' + T(`It is helped most because ${pos[0]}.`, `Lo que más lo favorece es que ${pos[0]}.`);
+  if (neg.length) out += ' ' + T(`It is held back mainly because ${neg[0]}.`, `Lo que más lo frena es que ${neg[0]}.`);
+  return out;
+}
+
+// What the Moon's star suits today, across the activity list.
+function nowSuitsHtml(nakName){
+  const cls = NAK_CLASS[nakName];
+  const cur = document.getElementById('activitySel')?.value || '';
+  const grades = Object.keys(NOW_ACT_LABEL).map(k => ({k, g: gradeActivity(k, nakName)})).filter(x => x.g);
+  const chip = x => `<button type="button" class="now-act ${x.g.verdict}${x.k === cur ? ' sel' : ''}" onclick="nowPickActivity('${x.k}')">${T(NOW_ACT_LABEL[x.k][0], NOW_ACT_LABEL[x.k][1])}</button>`;
+  const good = grades.filter(x => x.g.verdict === 'good'), ok = grades.filter(x => x.g.verdict === 'ok'), bad = grades.filter(x => x.g.verdict === 'bad');
+  const c = NOW_STAR_CLASS[cls];
+  const lead = c ? T(`The Moon is in ${nakName}, ${c.n[0]}. ${c.t[0]}`, `La Luna está en ${nakName}, ${c.n[1]}. ${c.t[1]}`) : '';
+  return `<div class="now-card now-suits">
+    <div class="now-label">${T('What today suits','Para qué sirve hoy')}</div>
+    ${lead ? `<p class="now-p">${lead}</p>` : ''}
+    ${good.length ? `<div class="now-sub">${T('Well suited','Bien indicado')}</div><div class="now-acts">${good.map(chip).join('')}</div>` : ''}
+    ${ok.length ? `<div class="now-sub">${T('Neither favoured nor barred','Ni favorecido ni desaconsejado')}</div><div class="now-acts">${ok.map(chip).join('')}</div>` : ''}
+    ${bad.length ? `<div class="now-sub">${T('Better kept for another day','Mejor para otro día')}</div><div class="now-acts">${bad.map(chip).join('')}</div>` : ''}
+    <div class="now-hint">${T('Choose one to weigh this moment for that activity.','Elige una para valorar este momento para esa actividad.')}</div>
+  </div>`;
+}
+function nowPickActivity(key){
+  const sel = document.getElementById('activitySel');
+  if (!sel) return;
+  sel.value = sel.value === key ? '' : key;          // a second tap returns to the general reading
+  runAnalysis();
+}
+
+// Today's sky: lunar day, Moon's star and yoga, with when each one changes.
+function nowSkyHtml(panch, ends){
+  const row = (k, v, e) => `<div class="now-row"><span>${k}</span><span>${v}${e ? ` <small>${T('until','hasta')} ${e.hhmm}</small>` : ''}</span></div>`;
+  const paksha = panch.paksha === 'Shukla' ? T('Bright half','Quincena clara') + ' (Śukla)' : T('Dark half','Quincena oscura') + ' (Kṛṣṇa)';
+  return `<div class="now-card now-sky">
+    <div class="now-label">${T('Today\'s sky','El cielo de hoy')}</div>
+    ${row(T('Lunar day (tithi)','Día lunar (tithi)'), `${panch.tithiName} · ${paksha}`, ends && ends.tithi)}
+    ${row(T('Moon\'s star (nakṣatra)','Estrella de la Luna (nakṣatra)'), `${panch.nak.name}`, ends && ends.nakshatra)}
+    ${row(T('Sun–Moon yoga','Yoga Sol–Luna'), `${panch.yogaName}`, ends && ends.yoga)}
+  </div>`;
+}
+
+function renderNowHero(c){
+  const {tier, score, parts, mdt, weekdayName, chips, dayMin, dayMinHh, dayMax, dayMaxHh, dayFlat, panch, ends, place} = c;
+  const kind = nowTierKind(tier.name);
+  const fmtHr = hh => `${pad2(Math.floor(hh % 24))}:00`;
+  const range = dayFlat ? T('The score holds level through today.','La puntuación se mantiene igual durante todo el día.')
+    : T(`Across today it runs from ${nowFmtScore(dayMin)} near ${fmtHr(dayMinHh)} to ${nowFmtScore(dayMax)} near ${fmtHr(dayMaxHh)}.`,
+        `A lo largo de hoy va de ${nowFmtScore(dayMin)} hacia las ${fmtHr(dayMinHh)} a ${nowFmtScore(dayMax)} hacia las ${fmtHr(dayMaxHh)}.`);
+  return `<div class="now-hero">
+    <div class="now-top"><span class="now-when">${weekdayName} ${mdt.mo}/${mdt.da}/${mdt.y} · ${pad2(mdt.hh)}:${pad2(mdt.mm)}${place ? ' · ' + place : ''}</span></div>
+    <div class="now-card now-answer">
+      <div class="now-label">${document.getElementById('useNow')?.checked ? T('Right now','Ahora mismo') : T('At the chosen moment','En el momento elegido')}</div>
+      ${nowGaugeSvg(score, tier.name)}
+      <div class="now-word ${kind}">${T(tier.label, MUHURTA_TIER_LABEL_ES[tier.name])}</div>
+      <div class="now-skt">${tier.name} · <span title="${T('The headline score is the Sarvato Bhadra Chakra (SBC) score with the checks listed below; Pañcha Pakshi and the other systems keep their own panels.','La puntuación principal es la del Sarvato Bhadra Chakra (SBC) con las comprobaciones de abajo; Pañcha Pakshi y los demás sistemas tienen sus propios paneles.')}">${T('score','puntuación')} ${nowFmtScore(score)}</span></div>
+      <p class="now-teach">${nowTeachText(tier, parts)}</p>
+      <div class="now-chips">${chips} <button type="button" class="tag now-why" onclick="nowOpenWhy()">${T('Why?','¿Por qué?')}</button></div>
+      <div class="now-hint">${range}</div>
+    </div>
+    <div class="now-window" id="nowNextWin">
+      <div><div class="now-label">${T('Next strong window','Próxima ventana fuerte')}</div>
+      <div class="now-win-time">${T('Looking ahead…','Buscando…')}</div></div>
+      <button type="button" class="now-plan" onclick="showPage('pageCalendar')">${T('Plan','Planificar')}</button>
+    </div>
+    <div class="now-grid">${nowSuitsHtml(panch.nak28.name)}${nowSkyHtml(panch, ends)}</div>
+  </div>`;
+}
+function nowOpenWhy(){
+  const d = document.getElementById('scoreWhy');
+  if (d){ d.open = true; d.scrollIntoView({behavior:'smooth', block:'start'}); }
+}
+
+// Scan forward from the judged moment in 30-minute steps (36 h) for the first
+// span scoring in the Good band or better. Deferred so the page paints first.
+function nowFillNextWindow(){
+  const el = document.getElementById('nowNextWin'), s = NOW_SCAN;
+  if (!el || !s) return;
+  const box = el.querySelector('.now-win-time');
+  const t0 = s.mdt.hh + s.mdt.mm / 60;
+  const at = i => { const t = t0 + i * 0.5, h = Math.floor(t), m = Math.round((t - h) * 60) % 60;
+    return {t, r: scoreForInstant(s.mdt.y, s.mdt.mo, s.mdt.da, h, m, s.opts)}; };
+  const label = t => {
+    const d = Math.floor(t / 24), hm = `${pad2(Math.floor(t % 24))}:${pad2(Math.round((t % 1) * 60) % 60)}`;
+    const wd = new Date(s.mdt.y, s.mdt.mo - 1, s.mdt.da + d).getDay();
+    // "Today/Tomorrow" only when judging the live moment; a chosen date reads by weekday.
+    const day = !s.live ? T(WEEKDAYS[wd], WEEKDAYS_ES[wd]) : d === 0 ? T('Today','Hoy') : d === 1 ? T('Tomorrow','Mañana') : T(WEEKDAYS[wd], WEEKDAYS_ES[wd]);
+    return {day, hm};
+  };
+  let start = -1, end = -1, best = null, startR = null;
+  try {
+    for (let i = 0; i <= 72; i++){
+      const x = at(i);
+      if (!best || x.r.score > best.r.score) best = x;
+      if (start < 0 && x.r.score >= NOW_STRONG_MIN){ start = i; startR = x.r; }
+      else if (start >= 0 && x.r.score < NOW_STRONG_MIN){ end = i; break; }
+    }
+  } catch(e){ box.textContent = '—'; return; }
+  if (start < 0){
+    const b = label(best.t);
+    box.innerHTML = `<span class="now-win-sub">${T(`No strong window opens in the next day and a half. The best of it is ${b.day.toLowerCase()} near ${b.hm} (${T(best.r.tier.label, MUHURTA_TIER_LABEL_ES[best.r.tier.name]).toLowerCase()}).`,
+      `No se abre ninguna ventana fuerte en el próximo día y medio. Lo mejor es ${b.day.toLowerCase()} hacia las ${b.hm} (${T(best.r.tier.label, MUHURTA_TIER_LABEL_ES[best.r.tier.name]).toLowerCase()}).`)}</span>`;
+    return;
+  }
+  const a = label(t0 + start * 0.5), z = end > 0 ? label(t0 + end * 0.5) : null;
+  const span = start === 0
+    ? T(`Now, until ${z ? (z.day === a.day ? '' : z.day + ' ') + z.hm : 'beyond tomorrow'}`, `Ahora, hasta ${z ? (z.day === a.day ? '' : z.day + ' ') + z.hm : 'más allá de mañana'}`)
+    : `${a.day} ${a.hm}${z ? ' – ' + (z.day === a.day ? '' : z.day + ' ') + z.hm : ''}`;
+  const bird = startR && startR.pp && startR.pp.mainState
+    ? T(`Your life bird will be in its ${startR.pp.mainState} activity.`, `Tu ave vital estará en su actividad de ${PP_STATES_ES[startR.pp.mainState] || startR.pp.mainState}.`) : '';
+  box.innerHTML = `${span}<span class="now-win-sub">${T(startR.tier.label, MUHURTA_TIER_LABEL_ES[startR.tier.name])} (${startR.tier.name}), ${T('score','puntuación')} ${nowFmtScore(startR.score)}. ${bird}</span>`;
 }
 
 function tierFor(score){
@@ -8442,25 +8755,13 @@ function runAnalysis(){
   ].filter(Boolean).join(' ');
 
   // The life-bird "ask now" strip lives on the Pancha Pakshi page (renderPPAskNow).
-  html += `<div class="verdict">
-    <div class="ribbon" style="background:${tier.color}"></div>
-    <div class="body">
-      <div class="tier"><small>${T('Outlook for','Panorama para')} ${mdt.mo}/${mdt.da}/${mdt.y} · ${weekdayName}, ${mdt.hh}:${pad2(mdt.mm)}${mdt.ss ? ':' + pad2(mdt.ss) : ''} ${T('local','hora local')}</small>${tierLabel} <span style="color:${tier.color}">— ${tier.name}</span> <span class="tag neutral" style="font-size:10px; vertical-align:middle;" title="${T('This headline outlook is the SBC (Sarvato Bhadra Chakra) score specifically — Pañcha Pakshi and the other checks below are separate systems, shown in their own panels.','Este panorama es específicamente la puntuación SBC (Sarvato Bhadra Chakra) — Pañcha Pakshi y las demás comprobaciones de abajo son sistemas aparte, mostrados en sus propios paneles.')}">SBC</span></div>
-      <div class="desc">
-        <div class="hint" style="margin-top:4px;">${T('Other classical checks feeding this score — each detailed further down this page:','Otras comprobaciones clásicas que alimentan esta puntuación — cada una detallada más abajo en esta página:')}</div>
-        <div class="pillrow" style="margin-top:6px;">${componentChips}</div>
-      </div>
-    </div>
-    <div class="score">
-      <div class="n" style="color:${tier.color}">${fmtDayScore(score)}</div>
-      <div class="l">${T('SBC score','Puntuación SBC')}</div>
-      <div class="range" title="${T('Sampled every 2h from today\'s real sunrise','Muestreado cada 2h desde el amanecer real de hoy')}">${dayRangeFlat
-        ? `<span class="t">${T('flat today','sin variación hoy')}</span>`
-        : `<span class="hi">${T('High','Máx')} <b>${fmtDayScore(dayRangeMax)}</b> <span class="t">${fmtDayHr(dayRangeMaxHh)}</span></span>
-           <span class="lo">${T('Low','Mín')} <b>${fmtDayScore(dayRangeMin)}</b> <span class="t">${fmtDayHr(dayRangeMinHh)}</span></span>`
-      }</div>
-    </div>
-  </div>`;
+  // "Now" hero (replaces the old verdict banner): same score, tier and chips,
+  // read out in plain words; the next strong window is filled in after paint.
+  const mPlace = (document.getElementById('mPlaceSearch')?.value || '').split(',')[0].trim();
+  html += renderNowHero({tier, score, parts: scoreParts || [], mdt, weekdayName, chips: componentChips,
+    dayMin: dayRangeMin, dayMinHh: dayRangeMinHh, dayMax: dayRangeMax, dayMaxHh: dayRangeMaxHh, dayFlat: dayRangeFlat,
+    panch, ends: panchEnds, place: mPlace});
+  NOW_SCAN = {mdt, live: document.getElementById('useNow').checked, opts: {...dayRangeOpts, refMoonSign: refP.sign || null, activity: (actSel && actSel.value) || null}};
   html += renderScoreBreakdown(scoreParts || [], score);
 
   // Moment-gravity headline — see electGravityGraha() for the full method.
@@ -8687,6 +8988,7 @@ function runAnalysis(){
 
   document.getElementById('results').innerHTML = html;
   renderPPPanel();
+  setTimeout(nowFillNextWindow, 0);
 }
 
 // ---- Page navigation (hamburger menu) ----
@@ -19364,9 +19666,9 @@ function renderPPPanel(){
 
 const THEME_CYCLE = ["bright","soft","dark"];
 const THEME_LABEL = {
-  bright: { en:"☀ Light", es:"☀ Claro" },
-  soft:   { en:"☁ Soft",  es:"☁ Suave" },
-  dark:   { en:"☾ Night", es:"☾ Noche" }
+  bright: { en:"☀ Almanac", es:"☀ Almanaque" },
+  soft:   { en:"☁ Stone",   es:"☁ Piedra" },
+  dark:   { en:"☾ Night",   es:"☾ Noche" }
 };
 function applyTheme(mode){
   if (!THEME_CYCLE.includes(mode)) mode = "bright";
