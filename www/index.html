@@ -3417,8 +3417,9 @@ const BENEFIC_COUNT_READING = {
 };
 
 // Score weights that are the app's own choices, not sourced values. Each is a
-// setting labelled by what it does; the defaults reproduce the earlier score.
-const SCORE_OPTS = (() => { const d = { dignity: 'free', latta: '2', electional: 'full' };
+// setting labelled by what it does. Defaults (approved 2026-09-22): dignity capped at half the
+// vedha result, Latta -1 per kick, electional checklist capped at +/-1; the old weighting stays selectable.
+const SCORE_OPTS = (() => { const d = { dignity: 'half', latta: '1', electional: 'cap1' };   // owner-approved defaults 2026-09-22
   try { const s = JSON.parse(localStorage.getItem('pl0ScoreOpts') || '{}');
     return { dignity: ['free','half'].includes(s.dignity) ? s.dignity : d.dignity, latta: ['2','1'].includes(s.latta) ? s.latta : d.latta,
       electional: ['full','cap1'].includes(s.electional) ? s.electional : d.electional };
@@ -12112,6 +12113,7 @@ function renderAshtakavargaPage(){
 
 // ---- Vimśottari Daśā ----
 let dashaZoomLevel = 3;
+let signDashaOpen = false;   // sign-dasha block on the Dasha page starts closed and remembers being opened
 function setDashaZoom(n){ dashaZoomLevel = n; renderDashaPage(); }
 // A period's lord read against this app's own functional-benefic/malefic
 // engine (Mystics of SBC ch. II, same machinery as the Natal page) — reused
@@ -12375,6 +12377,7 @@ function renderDashaPage(){
     ${taraHtml}
     ${condHtml}
     ${renderDashaReadingPanel(birthPos, bdt, nowJD, localTz)}
+    <details class="ref-drop" style="margin-bottom:22px;" ${signDashaOpen?'open':''} ontoggle="signDashaOpen=this.open"><summary>${T('Sign daśās — Chara, Nārāyaṇa, Śūla, Kālacakra, Kendrādi, Dṛg, Sthira','Daśās de signos — Chara, Nārāyaṇa, Śūla, Kālacakra, Kendrādi, Dṛg, Sthira')}</summary><div style="padding-top:12px;">
     ${renderCharaDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderNarayanaDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderShoolaDashaPanel(birthPos, bdt, nowJD, localTz)}
@@ -12382,6 +12385,7 @@ function renderDashaPage(){
     ${renderKendradiDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderDrigDashaPanel(birthPos, bdt, nowJD, localTz)}
     ${renderSthiraDashaPanel(birthPos, bdt, nowJD, localTz)}
+    </div></details>
     ${renderRectificationPanel(birthPos, bdt)}
     ${renderJupiterCyclesPanel()}
   `;
