@@ -203,7 +203,7 @@
   :root[data-theme="soft"] .plaque{ background:linear-gradient(180deg, rgba(255,255,255,0.22), transparent); }
   .theme-toggle{
     font-family:var(--mono); font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase;
-    color:var(--muted); border:1px solid var(--line); background:var(--panel-2);
+    color:var(--ink-dim); border:1px solid var(--line); background:var(--panel-2);
     padding:6px 10px; border-radius:var(--radius-sm); cursor:pointer; white-space:nowrap;
   }
   .theme-toggle:hover{ color:var(--ink); border-color:var(--gold-dim); }
@@ -322,30 +322,16 @@
   input:focus, select:focus{ outline:2px solid var(--gold-dim); outline-offset:1px; border-color:var(--gold-dim); }
   /* Quick-preset chips (built-in reference-person shortcuts) — a faster,
      more tactile front door onto the same apply-fields path the Saved
-     profile dropdown already uses, sitting right above it. Styled with the
-     same gold CTA language as .btn (the app's one other "press this"
-     element) rather than a plain outlined chip, so they read as the
-     standout shortcuts they are instead of blending into the form. */
-  .preset-chip-row{ display:flex; gap:7px; flex-wrap:wrap; margin:0 0 14px; }
+     profile dropdown already uses, sitting right above it. */
+  .preset-chip-row{ display:flex; gap:6px; flex-wrap:wrap; margin:0 0 12px; }
   .preset-chip{
-    flex:1 1 auto; min-width:84px; padding:10px 12px; border-radius:var(--radius-pill);
-    border:1px solid var(--gold-dim);
-    background:linear-gradient(180deg, var(--btn-a), var(--btn-b));
-    color:var(--gold); font-family:var(--mono); font-size:12px; font-weight:700;
-    letter-spacing:0.04em; cursor:pointer; text-align:center;
-    box-shadow:0 1px 3px rgba(0,0,0,0.10);
-    transition:border-color .15s, background .15s, transform .1s, box-shadow .15s;
+    flex:1 1 auto; min-width:72px; padding:8px 10px; border-radius:var(--radius-sm);
+    border:1px solid var(--line); background:var(--bg-2); color:var(--ink-dim);
+    font-family:var(--mono); font-size:11.5px; letter-spacing:0.03em; cursor:pointer;
+    text-align:center; transition:border-color .15s, color .15s, background .15s;
   }
-  .preset-chip::before{ content:'\2605\a0'; opacity:0.85; }
-  .preset-chip:hover{
-    border-color:var(--gold); background:linear-gradient(180deg, var(--btn-a-h), var(--btn-b-h));
-    transform:translateY(-1px); box-shadow:0 3px 9px rgba(0,0,0,0.14);
-  }
-  .preset-chip:active{ transform:translateY(0); }
-  .preset-chip.active{
-    background:var(--gold); border-color:var(--gold); color:var(--bg);
-    box-shadow:0 2px 7px rgba(0,0,0,0.18);
-  }
+  .preset-chip:hover{ border-color:var(--gold-dim); color:var(--ink); }
+  .preset-chip.active{ border-color:var(--gold); color:var(--gold); background:var(--panel); }
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
   .hint{ font-size:10.5px; color:var(--slate); margin-top:4px; }
@@ -362,8 +348,8 @@
     cursor:pointer;
   }
   .btn:hover{ border-color:var(--gold); background:linear-gradient(180deg, var(--btn-a-h), var(--btn-b-h)); }
-  .btn.ghost{ background:transparent; color:var(--muted); border-color:var(--line); }
-  .btn.ghost:hover{ color:var(--ink-dim); border-color:var(--slate); }
+  .btn.ghost{ background:transparent; color:var(--ink-dim); border-color:var(--line); }
+  .btn.ghost:hover{ color:var(--ink); border-color:var(--slate); }
 
   .toggle{ display:flex; align-items:center; gap:8px; margin:10px 0 2px; font-size:11.5px; color:var(--ink-dim); font-family:var(--mono); }
   .toggle input{width:auto;}
@@ -450,11 +436,13 @@
   }
   .section-nav::-webkit-scrollbar{ display:none; }
   .section-nav-chip{
-    flex:none; font-family:var(--mono); font-size:10.5px; letter-spacing:0.03em;
-    color:var(--slate); background:var(--panel); border:1px solid var(--line);
-    border-radius:var(--radius-pill); padding:5px 11px; cursor:pointer; white-space:nowrap;
+    flex:none; font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:0.03em;
+    color:var(--ink-dim); background:var(--panel-2); border:1px solid var(--line);
+    border-radius:var(--radius-pill); padding:6px 12px; cursor:pointer; white-space:nowrap;
+    transition:border-color .15s, color .15s, background .15s;
   }
-  .section-nav-chip:active{ color:var(--gold); border-color:var(--gold); }
+  .section-nav-chip:hover{ color:var(--ink); border-color:var(--slate); }
+  .section-nav-chip:active{ color:var(--ink); border-color:var(--ink-dim); background:var(--line-soft); }
 
   .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:18px; align-items:start; }
   @media (max-width: 760px){ .grid2{grid-template-columns:1fr;} }
