@@ -404,9 +404,31 @@
   }
   .panel > .hd h2{
     margin:0; font-weight:400; font-size:15px; letter-spacing:0.03em; color:var(--ink);
+    scroll-margin-top:52px; /* keeps a section-nav jump target clear of the sticky chip bar below */
   }
   .panel > .hd .note{ font-family:var(--mono); font-size:10px; color:var(--slate); letter-spacing:0.05em;}
   .panel > .bd{ padding:16px 18px; }
+
+  /* ---------- Section nav (jump chips) ----------
+     Long pages (Natal/General, Houses·Lords·Varga) stack many panels in one
+     scroll. Rather than a second full navigation system, this is a slim
+     sticky strip of that page's own panel titles, injected above its
+     content by attachSectionNav() — click one to jump straight to that
+     panel instead of scrolling past the others. Hidden entirely (see
+     attachSectionNav) on pages with too few panels to be worth it. */
+  .section-nav{
+    position:sticky; top:0; z-index:5; display:flex; gap:6px; overflow-x:auto;
+    -webkit-overflow-scrolling:touch; padding:8px 2px; margin-bottom:10px;
+    background:var(--bg); border-bottom:1px solid var(--line-soft);
+    scrollbar-width:none;
+  }
+  .section-nav::-webkit-scrollbar{ display:none; }
+  .section-nav-chip{
+    flex:none; font-family:var(--mono); font-size:10.5px; letter-spacing:0.03em;
+    color:var(--slate); background:var(--panel); border:1px solid var(--line);
+    border-radius:var(--radius-pill); padding:5px 11px; cursor:pointer; white-space:nowrap;
+  }
+  .section-nav-chip:active{ color:var(--gold); border-color:var(--gold); }
 
   .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:18px; align-items:start; }
   @media (max-width: 760px){ .grid2{grid-template-columns:1fr;} }
@@ -754,7 +776,7 @@
               </div>
     </div>
     <div>
-      <h1>PL0 <span class="ver">v1.65</span></h1>
+      <h1>PL0 <span class="ver">v1.66</span></h1>
       <div class="sub" data-i18n="subtitle">Panchāṅga · Vedha · Nāḍī · Latta — an instrument for reading the quality of a moment</div>
     </div>
   </div>
@@ -8417,11 +8439,11 @@ function runAnalysis(){
 // same placeholder the main gauge page already uses, rather than let a
 // birth-data page compute on NaN and show garbled output).
 const PAGES_NEEDING_BIRTH_DATA = {
-  pageNatal: {contentId:'natalPageContent', render:()=>renderNatalPage()},
+  pageNatal: {contentId:'natalPageContent', render:()=>{renderNatalPage(); attachSectionNav('pageNatal', ['natalPageContent']);}},
   pageAvastha: {contentId:'avasthaPageContent', render:()=>renderAvasthaPage()},
   pageAshtakavarga: {contentId:'ashtakavargaPageContent', render:()=>renderAshtakavargaPage()},
   pageDasha: {contentId:'dashaPageContent', render:()=>renderDashaPage()},
-  pageHouseNature: {contentId:'houseNaturePageContent', render:()=>{renderHouseNaturePage(); renderVargaPage();}},
+  pageHouseNature: {contentId:'houseNaturePageContent', render:()=>{renderHouseNaturePage(); renderVargaPage(); attachSectionNav('pageHouseNature', ['houseNaturePageContent','vargaPageContent']);}},
   pageNakshatra: {contentId:'nakshatraPageContent', render:()=>renderNakshatraPage()},
   pageAnatomy: {contentId:'anatomyPageContent', render:()=>renderAnatomyPage()},
   pageCalendar: {contentId:'calendarPageContent', render:()=>renderCalendarPage()},
@@ -8434,9 +8456,41 @@ function renderPageOrBirthDataPlaceholder(pageId){
   if (!document.getElementById('bDate').value){
     const el = document.getElementById(spec.contentId);
     if (el) el.innerHTML = `<div style="color:var(--muted); font-family:var(--mono); font-size:12.5px; padding-top:40px;">${T(I18N.placeholderMsg.en, I18N.placeholderMsg.es)}</div>`;
+    const nav = document.getElementById(pageId)?.querySelector('.section-nav');
+    if (nav) nav.style.display = 'none';
     return;
   }
   spec.render();
+}
+
+// Builds/refreshes the sticky jump-chip strip for a long page: one chip per
+// top-level panel title found inside the given content container ids
+// (a page can span more than one, e.g. pageHouseNature's House Nature
+// Reading + Varga containers), scrolling that panel into view on click.
+// Re-run on every render since the panels get replaced wholesale each time
+// (a different house selected, language switched, etc.) — cheap relative to
+// the render it follows, and it needs each new render's actual headings.
+function attachSectionNav(pageId, contentIds){
+  const pageEl = document.getElementById(pageId);
+  if (!pageEl) return;
+  let nav = pageEl.querySelector('.section-nav');
+  if (!nav){
+    nav = document.createElement('div');
+    nav.className = 'section-nav';
+    pageEl.insertBefore(nav, pageEl.firstChild);
+  }
+  const headings = [];
+  contentIds.forEach(cid=>{
+    const root = document.getElementById(cid);
+    if (root) root.querySelectorAll('.panel > .hd h2').forEach(h=>headings.push(h));
+  });
+  if (headings.length < 2){ nav.style.display = 'none'; nav.innerHTML = ''; return; }
+  nav.style.display = '';
+  nav.innerHTML = headings.map((h,i)=>{
+    if (!h.id) h.id = `${pageId}-sec-${i}`;
+    const label = (h.textContent||'').trim();
+    return `<button type="button" class="section-nav-chip" onclick="document.getElementById('${h.id}').scrollIntoView({behavior:'smooth', block:'start'})">${escHtml(label)}</button>`;
+  }).join('');
 }
 
 function closeHamburgerMenu(){
