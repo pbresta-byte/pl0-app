@@ -2,15 +2,19 @@ name: Build Android APK
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, "pl7/yoga-options"]
     paths: ["www/**", "android/**"]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   apk:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with: {fetch-depth: 20}
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: 21}
       - uses: actions/setup-node@v4
@@ -23,3 +27,24 @@ jobs:
         with:
           name: pl0-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+      # Publishes this exact build as the repo's "Latest" release (tag
+      # pl0-latest) right here on GitHub's own runner -- no artifact
+      # re-download, no external network restriction, no manual step.
+      # Mirrors tools/publish-apk.sh's own delete+recreate approach so the
+      # "Latest" slot (GitHub only shows a non-prerelease there) always
+      # reflects this build, whatever branch triggered it.
+      - name: Publish as pl0-latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHORT=${GITHUB_SHA:0:7}
+          NOTES="Debug build of \`${GITHUB_REF_NAME}\` at \`$SHORT\` ($(date -u '+%Y-%m-%d %H:%M UTC')).
+          Newest first:
+          $(git log --format='- %s' -8 "$GITHUB_SHA" | sed '/^$/d')
+
+          Install: download app-debug.apk on the phone and open it; it installs over the previous debug build."
+          gh release delete pl0-latest --cleanup-tag -y || true
+          gh release create pl0-latest android/app/build/outputs/apk/debug/app-debug.apk \
+            --target "$GITHUB_SHA" --latest \
+            --title "PL0 — latest debug APK ($SHORT)" --notes "$NOTES"
