@@ -582,6 +582,18 @@
   .section-nav-chip:hover{ color:var(--ink); border-color:var(--slate); }
   .section-nav-chip:active{ color:var(--ink); border-color:var(--ink-dim); background:var(--line-soft); }
 
+  /* Floating back-to-top -- long tabs stack many panels under section-nav's
+     jump chips, but there was no fast way back up once scrolled deep.
+     Hidden until the page has scrolled a bit (see the scroll listener),
+     positioned clear of the phone's bottom safe area. */
+  .back-to-top{
+    display:none; position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+    z-index:20; width:42px; height:42px; border-radius:50%; border:1px solid var(--gold-dim);
+    background:linear-gradient(180deg, var(--btn-a), var(--btn-b)); color:var(--gold);
+    font-size:18px; line-height:1; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.18);
+  }
+  .back-to-top.show{ display:flex; align-items:center; justify-content:center; }
+
   .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:18px; align-items:start; }
   @media (max-width: 760px){ .grid2{grid-template-columns:1fr;} }
   .grid3col{ display:grid; grid-template-columns: repeat(3,1fr); gap:10px; }
@@ -912,6 +924,7 @@
       </button>
     </div>
     <div class="hamburger-overlay" id="hamburgerOverlay"></div>
+    <button type="button" id="backToTopBtn" class="back-to-top" aria-label="Back to top" onclick="window.scrollTo({top:0, behavior:'smooth'})">&uarr;</button>
     <div class="hamburger-menu" id="hamburgerMenu" role="menu">
       <div class="hamburger-menu-head">
         <span data-i18n="navMenuTitle">Menu</span>
@@ -924,6 +937,7 @@
         <button type="button" data-page="pageAshtakavarga" data-i18n="navAshtakavarga">Ashtakavarga</button>
         <button type="button" data-page="pagePanchaPakshi" data-i18n="navPanchaPakshi">Pañcha Pakshi</button>
         <button type="button" data-page="pageDasha" data-i18n="navDasha">Vimśottari Daśā</button>
+        <button type="button" data-page="pageAltDasha" data-i18n="navAltDasha">Alternative Daśās</button>
         <button type="button" data-page="pageHouseNature" data-i18n="navHouseNature">Houses, Lords, Varga</button>
         <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
         <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Calendar</button>
@@ -1100,6 +1114,10 @@
   <div class="result-col" id="dashaPageContent" style="max-width:1000px; margin:0 auto;"></div>
 </div>
 
+<div id="pageAltDasha" class="page">
+  <div class="result-col" id="altDashaPageContent" style="max-width:1000px; margin:0 auto;"></div>
+</div>
+
 <div id="pageHouseNature" class="page">
   <div class="result-col" id="houseNaturePageContent" style="max-width:1000px; margin:0 auto;"></div>
   <div class="result-col" id="vargaPageContent" style="max-width:1000px; margin:0 auto; border-top:1px solid var(--line); padding-top:20px;"></div>
@@ -1246,6 +1264,7 @@ const I18N = {
   navNatal: { en:`General`, es:`General` },
   navAvastha: { en:`Avasthas`, es:`Avasthas` },
   navDasha: { en:`Vimśottari Daśā`, es:`Vimśottari Daśā` },
+  navAltDasha: { en:`Alternative Daśās`, es:`Daśās alternativas` },
   navHouseNature: { en:`Houses, Lords, Varga`, es:`Casas, Señores, Varga` },
   navPanchaPakshi: { en:`Pañcha Pakshi`, es:`Pañcha Pakshi` },
   ppLiveChartTitle: { en:`Pañcha Pakshi — Live Yama Chart`, es:`Pañcha Pakshi — Gráfico Yama en vivo` },
@@ -9165,6 +9184,7 @@ const PAGES_NEEDING_BIRTH_DATA = {
   pageAvastha: {contentId:'avasthaPageContent', render:()=>{renderAvasthaPage(); attachSectionNav('pageAvastha', ['avasthaPageContent']);}},
   pageAshtakavarga: {contentId:'ashtakavargaPageContent', render:()=>{renderAshtakavargaPage(); attachSectionNav('pageAshtakavarga', ['ashtakavargaPageContent']);}},
   pageDasha: {contentId:'dashaPageContent', render:()=>{renderDashaPage(); attachSectionNav('pageDasha', ['dashaPageContent']);}},
+  pageAltDasha: {contentId:'altDashaPageContent', render:()=>{renderAltDashaPage(); attachSectionNav('pageAltDasha', ['altDashaPageContent']);}},
   pageHouseNature: {contentId:'houseNaturePageContent', render:()=>{renderHouseNaturePage(); renderVargaPage(); attachSectionNav('pageHouseNature', ['houseNaturePageContent','vargaPageContent']);}},
   pageNakshatra: {contentId:'nakshatraPageContent', render:()=>{renderNakshatraPage(); attachSectionNav('pageNakshatra', ['nakshatraPageContent']);}},
   pageAnatomy: {contentId:'anatomyPageContent', render:()=>{renderAnatomyPage(); attachSectionNav('pageAnatomy', ['anatomyPageContent']);}},
@@ -9198,8 +9218,20 @@ function attachSectionNav(pageId, contentIds){
   nav.innerHTML = headings.map((h,i)=>{
     if (!h.id) h.id = `${pageId}-sec-${i}`;
     const label = (h.textContent||'').trim();
-    return `<button type="button" class="section-nav-chip" onclick="document.getElementById('${h.id}').scrollIntoView({behavior:'smooth', block:'start'})">${escHtml(label)}</button>`;
+    return `<button type="button" class="section-nav-chip" onclick="jumpToSection('${h.id}')">${escHtml(label)}</button>`;
   }).join('');
+}
+// A heading inside a closed <details> (e.g. the "Sign daśās" drop on the
+// Dasha page) is in the DOM but invisible -- scrollIntoView on it landed on
+// a collapsed sliver with nothing to see, which is what made those chips
+// look "bugged". Open every ancestor <details> first so the target is
+// actually visible before scrolling to it.
+function jumpToSection(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  let d = el.closest('details');
+  while (d){ d.open = true; d = d.parentElement ? d.parentElement.closest('details') : null; }
+  el.scrollIntoView({behavior:'smooth', block:'start'});
 }
 function renderPageOrBirthDataPlaceholder(pageId){
   const spec = PAGES_NEEDING_BIRTH_DATA[pageId];
@@ -9381,7 +9413,14 @@ function lordPosRetroTag(g, pos){ return pos[g] && pos[g].speed<0 ? ` <small sty
 
 // ---- Yoga grid: yogas organised by graha, category chips, strength-ranked ----
 let YOGA_VIEW = { graha: null, cat: 'all' };
-function setYogaView(k, v){ YOGA_VIEW[k] = v; renderNatalPage(); }
+function setYogaView(k, v){ YOGA_VIEW[k] = v; yogaRowOpenIdx = null; renderNatalPage(); }
+// Same click-to-detail pattern as the Standout cards, for the full by-graha
+// yoga list: each row previously always showed its full body text, making
+// this list a long scroll for a graha with many yogas. Now a row's body
+// only shows once its name is tapped. Index-scoped to the currently shown
+// list (byG[sel]), so a graha/category switch (setYogaView) resets it.
+let yogaRowOpenIdx = null;
+function toggleYogaRow(i){ yogaRowOpenIdx = (yogaRowOpenIdx === i) ? null : i; renderNatalPage(); attachSectionNav('pageNatal', ['natalPageContent']); }
 // Standout cards used to show only a name + planets involved, with no way
 // to read the yoga's actual definition/effect without hunting for it lower
 // in the by-graha list. Clicking a card now swaps the standout strip for a
@@ -9465,11 +9504,14 @@ function renderYogaGrid(items, birthPos){
     </button>`;
   }).join('');
   const bar = s => { const w = Math.max(6, Math.min(100, (s + 1) / 3 * 100)); return `<span title="${T('strength from the dignity of the planets involved','fuerza según la dignidad de los planetas implicados')}" style="display:inline-block; width:54px; height:6px; background:var(--line); border-radius:3px; vertical-align:middle; margin-left:6px;"><span style="display:block; width:${w.toFixed(0)}%; height:100%; background:var(--gold); border-radius:3px;"></span></span>`; };
-  const rows = (byG[sel] || []).map(y => `<div class="li" style="margin-bottom:9px;">
-      <span class="tag ${cls(y.polarity)}" ${y.polarity === 'negative' ? 'style="background:var(--hit-bad-bg); border-color:var(--hit-bad-line); color:var(--hit-bad-ink);"' : ''}>${y.name}</span>${bar(y.strength)}
+  const rows = (byG[sel] || []).map((y,i) => {
+    const open = yogaRowOpenIdx === i;
+    return `<div class="li" style="margin-bottom:9px;">
+      <button type="button" onclick="toggleYogaRow(${i})" class="tag ${cls(y.polarity)}" style="cursor:pointer; ${y.polarity === 'negative' ? 'background:var(--hit-bad-bg); border-color:var(--hit-bad-line); color:var(--hit-bad-ink);' : ''}">${y.name}</button>${bar(y.strength)}
       ${y.planets.length > 1 ? `<span style="font-size:11px; color:var(--slate); margin-left:6px;">${T('with','con')} ${y.planets.filter(g => g !== sel).map(gNameNatal).join(', ')}</span>` : ''}
-      ${y.body}
-    </div>`).join('');
+      ${open ? `<div style="margin-top:6px;">${y.body}</div>` : ''}
+    </div>`;
+  }).join('');
   return `<div style="display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 4px;">${chips}</div>
     ${standoutHtml}
     <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:8px; margin-bottom:12px;">${cards}</div>
@@ -12802,45 +12844,6 @@ function renderDashaPage(){
     const t = taraFrom(mdLord, adLord);
     taraPairText = `<div class="hint" style="margin-bottom:10px;">${T(`Current pair: the Antardaśā lord ${gNameNatal(adLord)} sits in the <b style="color:${toneColor(t.tone)}">${t.name}</b> tārā counted from the Mahādaśā lord ${gNameNatal(mdLord)}'s birth star — ${t.gist}`, `Par actual: el señor de la Antardaśā ${gNameNatal(adLord)} está en la tārā <b style="color:${toneColor(t.tone)}">${t.name}</b> contada desde la estrella natal del señor de la Mahādaśā ${gNameNatal(mdLord)} — ${TARA_GIST_ES[t.name] || t.gist}`)}</div>`;
   }
-  // Conditional daśās: which of the nine apply to this chart (and why), plus any one of them opened.
-  let condHtml = '';
-  try {
-    const ascSid = norm360(birthPos._ascSidereal), lagnaI = Math.floor(ascSid/30);
-    let dayB = null; try { dayB = pl7DayBirth(bdt.jd, bdt.lat, bdt.lon, birthPos.Sun.tropical); } catch (e) {}
-    const cctx = { signOf: g => Math.floor(norm360(birthPos[g].sidereal)/30), lagnaIdx: lagnaI, d9LagnaIdx: vargaSignForKey('D9', ascSid),
-      d12LagnaIdx: vargaSignForKey('D12', ascSid), ascSid, waxing: norm360(birthPos.Moon.sidereal - birthPos.Sun.sidereal) < 180, dayBirth: dayB };
-    const elig = condDashaEligibility(cctx), keys = Object.keys(COND_DASHAS);
-    const applying = keys.filter(k => elig[k].ok && !COND_DASHAS[k].universal);
-    const showKey = keys.includes(COND_OPTS.show) ? COND_OPTS.show : (applying[0] || 'yogini');
-    const cycle = k => +condYears(k).reduce((a,b)=>a+b,0).toFixed(2);
-    const lordLabel = (k, lord) => { const s = COND_DASHAS[k]; return s.labels ? `${s.labels[s.lords.indexOf(lord)]} (${gNameNatal(lord)})` : gNameNatal(lord); };
-    const listRows = keys.map(k => `<tr${k===showKey?' style="background:var(--bg-2);"':''}><td class="wide"><a href="javascript:void(0)" onclick="setCondOpt('show','${k}')">${COND_DASHAS[k].name}</a></td>
-      <td><span class="tag ${COND_DASHAS[k].universal?'gold':elig[k].ok?'good':'neutral'}">${COND_DASHAS[k].universal?T('every chart','toda carta'):elig[k].ok?T('applies','aplica'):T('not met','no se cumple')}</span></td>
-      <td style="font-size:11px;">${elig[k].why}</td><td style="font-size:11px;">${cycle(k)} ${T('y','a')}</td></tr>`).join('');
-    const lagnaEmpty = !GRAHA_LIST.some(g => cctx.signOf(g) === lagnaI);
-    const opts = { krittikaStart: COND_OPTS.ashtottariStart === 'lagnaPlanet' && lagnaEmpty };
-    const yd = vimshottariYearDays();
-    const mds = condMahadashas(showKey, birthPos.Moon.sidereal, bdt.jd, yd, 120, opts);
-    const curMd = mds.find(p => nowJD >= p.startJD && nowJD < p.endJD);
-    const curAd = curMd ? condSubPeriods(showKey, curMd).find(p => nowJD >= p.startJD && nowJD < p.endJD) : null;
-    const mdRows = mds.map(p => `<tr${p===curMd?' style="outline:2px solid var(--gold);"':''}><td style="color:${MALEFIC_GRAHAS.includes(p.lord)?'var(--vermilion)':'var(--jade)'}; font-weight:600;">${lordLabel(showKey, p.lord)}</td>
-      <td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td><td style="font-size:11px;">${+p.years.toFixed(2)} ${T('y','a')}</td></tr>`).join('');
-    const sel = (k, pairs) => `<select onchange="setCondOpt('${k}', this.value)">${pairs.map(([v,l]) => `<option value="${v}" ${COND_OPTS[k]===v?'selected':''}>${l}</option>`).join('')}</select>`;
-    condHtml = `<div class="panel"><div class="hd"><h2>${T('Further nakshatra daśās','Otras daśās de nakshatra')}</h2><span class="note">${T('conditional ones that apply here','condicionales que aplican aquí')}: ${applying.length ? applying.map(k=>COND_DASHAS[k].name).join(', ') : T('none','ninguna')}</span></div>
-      <div class="bd">
-        <div class="hint" style="margin-bottom:10px;">${T('Yogini and Tribhagi apply to every chart. The other nine are meant only for charts that meet a stated condition; each row says whether this chart meets it and why. Click a name to open that daśā; it follows the daśā year and birth-balance choices above.','Yogini y Tribhagi aplican a toda carta. Las otras nueve son solo para cartas que cumplen una condición declarada; cada fila dice si esta carta la cumple y por qué. Pulsa un nombre para abrir esa daśā; sigue las opciones de año de daśā y saldo al nacer de arriba.')}</div>
-        <div class="tblwrap"><table><thead><tr><th>${T('Daśā','Daśā')}</th><th></th><th>${T('Condition here','Condición aquí')}</th><th>${T('Cycle','Ciclo')}</th></tr></thead><tbody>${listRows}</tbody></table></div>
-        <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin:12px 0; font-size:13px; color:var(--ink-dim);">
-          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Tribhagi periods','Períodos Tribhagi')} ${sel('tribhagi', [['third',T('one third of each Vimśottari period (40-year cycle)','un tercio de cada período Vimśottari (ciclo de 40 años)')],['twoThirds',T('two thirds (80-year cycle)','dos tercios (ciclo de 80 años)')]])}</label>
-          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Dwisaptati applies when','Dwisaptati aplica cuando')} ${sel('dwisaptati', [['either',T('Lagna lord in the 7th, or 7th lord in the Lagna','Señor del Lagna en la 7ª, o señor de la 7ª en el Lagna')],['lagnaOr7',T('Lagna lord in the Lagna or the 7th','Señor del Lagna en el Lagna o en la 7ª')],['exchange',T('Lagna and 7th lords exchange houses','Señores del Lagna y de la 7ª intercambian casas')]])}</label>
-          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Ashtottari applies when','Ashtottari aplica cuando')} ${sel('ashtottari', [['either',T('either test below','cualquiera de las dos')],['rahu',T('Rahu angular or trinal to the Lagna lord','Rahu en ángulo o trígono al señor del Lagna')],['paksha',T('day birth waning, or night birth waxing','nacimiento diurno en menguante, o nocturno en creciente')]])}</label>
-          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Ashtottari count starts','Ashtottari cuenta desde')} ${sel('ashtottariStart', [['ardra',T('from Ardra','desde Ardra')],['lagnaPlanet',T('from Krittika when the Lagna is empty','desde Krittika si el Lagna está vacío')]])}</label>
-        </div>
-        <div style="margin-bottom:6px;"><b>${COND_DASHAS[showKey].name}</b> ${elig[showKey].ok ? '' : `<span class="tag neutral">${T('condition not met — shown for study','condición no cumplida — se muestra para estudio')}</span>`}
-          ${curMd ? `<span style="font-size:12px; color:var(--ink-dim);"> · ${T('now','ahora')}: ${lordLabel(showKey, curMd.lord)}${curAd ? ' → ' + lordLabel(showKey, curAd.lord) + ' (' + fmtDashaDate(curAd.startJD, localTz) + ' → ' + fmtDashaDate(curAd.endJD, localTz) + ')' : ''}</span>` : ''}</div>
-        <div class="tblwrap"><table><thead><tr><th>${T('Lord','Señor')}</th><th>${T('Period','Período')}</th><th>${T('Length','Duración')}</th></tr></thead><tbody>${mdRows}</tbody></table></div>
-      </div></div>`;
-  } catch (e) { console.error('conditional dashas', e); condHtml = ''; }
   const taraHtml = `<div class="panel"><div class="hd"><h2>${T('Nakshatra relations (tārā)','Relaciones de nakshatra (tārā)')}</h2><span class="note">${T('row = counted from · column = counted to','fila = contado desde · columna = contado hasta')}</span></div>
     <div class="bd">${taraPairText}
       <div class="tblwrap"><table><thead><tr><th></th>${taraHead}</tr></thead><tbody>${taraRows}</tbody></table></div>
@@ -12879,7 +12882,6 @@ function renderDashaPage(){
 
     ${muhurtaCrossRef ? `<div class="panel"><div class="bd">${muhurtaCrossRef}</div></div>` : ''}
     ${taraHtml}
-    ${condHtml}
     ${renderDashaReadingPanel(birthPos, bdt, nowJD, localTz)}
     <details class="ref-drop" style="margin-bottom:22px;" ${signDashaOpen?'open':''} ontoggle="signDashaOpen=this.open"><summary>${T('Sign daśās — Chara, Nārāyaṇa, Śūla, Kālacakra, Kendrādi, Dṛg, Sthira','Daśās de signos — Chara, Nārāyaṇa, Śūla, Kālacakra, Kendrādi, Dṛg, Sthira')}</summary><div style="padding-top:12px;">
     ${renderCharaDashaPanel(birthPos, bdt, nowJD, localTz)}
@@ -12892,6 +12894,112 @@ function renderDashaPage(){
     </div></details>
     ${renderRectificationPanel(birthPos, bdt)}
     ${renderJupiterCyclesPanel()}
+  `;
+}
+
+// ---- Alternative (conditional) nakshatra daśās — its own tab, split out
+// from the Dasha page (2026-09-24): Yogini and Tribhagi apply to every
+// chart, the other nine only when a stated chart condition holds. Kept
+// separate from Vimśottari since these are alternative timing systems in
+// their own right, not sub-views of it.
+function renderAltDashaPage(){
+  const container = document.getElementById('altDashaPageContent');
+  if (!container) return;
+
+  const refInfo = getReferencePanchaka();
+  const birthPos = refInfo.birthPos;
+  const bdt = readDateTime("b");
+  const now = new Date();
+  const nowJD = julianDay(now.getFullYear(), now.getMonth()+1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), -now.getTimezoneOffset()/60);
+  const localTz = -now.getTimezoneOffset()/60;
+
+  let condHtml = '';
+  try {
+    const ascSid = norm360(birthPos._ascSidereal), lagnaI = Math.floor(ascSid/30);
+    let dayB = null; try { dayB = pl7DayBirth(bdt.jd, bdt.lat, bdt.lon, birthPos.Sun.tropical); } catch (e) {}
+    const cctx = { signOf: g => Math.floor(norm360(birthPos[g].sidereal)/30), lagnaIdx: lagnaI, d9LagnaIdx: vargaSignForKey('D9', ascSid),
+      d12LagnaIdx: vargaSignForKey('D12', ascSid), ascSid, waxing: norm360(birthPos.Moon.sidereal - birthPos.Sun.sidereal) < 180, dayBirth: dayB };
+    const elig = condDashaEligibility(cctx), keys = Object.keys(COND_DASHAS);
+    const applying = keys.filter(k => elig[k].ok && !COND_DASHAS[k].universal);
+    const showKey = keys.includes(COND_OPTS.show) ? COND_OPTS.show : (applying[0] || 'yogini');
+    const cycle = k => +condYears(k).reduce((a,b)=>a+b,0).toFixed(2);
+    const lordLabel = (k, lord) => { const s = COND_DASHAS[k]; return s.labels ? `${s.labels[s.lords.indexOf(lord)]} (${gNameNatal(lord)})` : gNameNatal(lord); };
+    const listRows = keys.map(k => `<tr${k===showKey?' style="background:var(--bg-2);"':''}><td class="wide"><a href="javascript:void(0)" onclick="setCondOpt('show','${k}')">${COND_DASHAS[k].name}</a></td>
+      <td><span class="tag ${COND_DASHAS[k].universal?'gold':elig[k].ok?'good':'neutral'}">${COND_DASHAS[k].universal?T('every chart','toda carta'):elig[k].ok?T('applies','aplica'):T('not met','no se cumple')}</span></td>
+      <td style="font-size:11px;">${elig[k].why}</td><td style="font-size:11px;">${cycle(k)} ${T('y','a')}</td></tr>`).join('');
+    const lagnaEmpty = !GRAHA_LIST.some(g => cctx.signOf(g) === lagnaI);
+    const opts = { krittikaStart: COND_OPTS.ashtottariStart === 'lagnaPlanet' && lagnaEmpty };
+    const yd = vimshottariYearDays();
+    const mds = condMahadashas(showKey, birthPos.Moon.sidereal, bdt.jd, yd, 120, opts);
+    const curMd = mds.find(p => nowJD >= p.startJD && nowJD < p.endJD);
+    const curAd = curMd ? condSubPeriods(showKey, curMd).find(p => nowJD >= p.startJD && nowJD < p.endJD) : null;
+    const mdRows = mds.map(p => `<tr${p===curMd?' style="outline:2px solid var(--gold);"':''}><td style="color:${MALEFIC_GRAHAS.includes(p.lord)?'var(--vermilion)':'var(--jade)'}; font-weight:600;">${lordLabel(showKey, p.lord)}</td>
+      <td style="font-size:11px;">${fmtDashaDate(p.startJD, localTz)} → ${fmtDashaDate(p.endJD, localTz)}</td><td style="font-size:11px;">${+p.years.toFixed(2)} ${T('y','a')}</td></tr>`).join('');
+    const sel = (k, pairs) => `<select onchange="setCondOpt('${k}', this.value)">${pairs.map(([v,l]) => `<option value="${v}" ${COND_OPTS[k]===v?'selected':''}>${l}</option>`).join('')}</select>`;
+    // Interpretive text for the current period, honestly scoped: only Tribhagi
+    // and Yogini get anything beyond mechanics, and both are disclosed as
+    // app-derived/unverified rather than presented as classical citations --
+    // researched 2026-09-24 against this app's own ingested corpus, which
+    // has no lord-by-lord phala text for any of these 11 systems. Tribhagi
+    // runs Vimśottari's own lord sequence just rescaled, so reusing the
+    // already-sourced Vimśottari reading (Adawal ch.2) for the same lord is
+    // a defensible, disclosed reuse -- not a new citation. The other nine
+    // (Ashtottari included) get one plain sentence saying no such text exists
+    // rather than silence or invented content.
+    const YOGINI_TONE = {
+      Mangala:{tone:'good', mean:T('auspicious','auspicioso')}, Dhanya:{tone:'good', mean:T('grain / prosperity','grano / prosperidad')},
+      Bhadrika:{tone:'good', mean:T('gentle, auspicious','suave, auspicioso')}, Siddha:{tone:'good', mean:T('accomplished, success','logrado, éxito')},
+      Pingala:{tone:'bad', mean:T('reddish / mixed','rojizo / mixto')}, Bhramari:{tone:'bad', mean:T('wandering bee, restlessness','abeja errante, inquietud')},
+      Ulka:{tone:'bad', mean:T('meteor, sudden calamity','meteoro, calamidad súbita')}, Sankata:{tone:'bad', mean:T('danger, crisis','peligro, crisis')}
+    };
+    let readingHtml = '';
+    if (curMd){
+      if (showKey === 'tribhagi'){
+        const cr = mahadashaClassicalReading(curMd.lord, birthPos);
+        if (cr){
+          const dignityLabel = cr.dignityTier==='—' ? T('not exalted or in its own sign','ni exaltado ni en signo propio') : T(cr.dignityTier, cr.dignityTier);
+          readingHtml = `<div class="hint" style="margin-top:12px; line-height:1.6; border-left:2px solid var(--gold); padding-left:10px;">
+            <b>${T('App synthesis — reused from Vimśottari','Síntesis de la app — reutilizado del Vimśottari')}:</b> ${T('Tribhagi runs the identical lord sequence as Vimśottari, just compressed to a third or two-thirds of each period. The classical effects below are Vimśottari\'s own (Shanker Adawal, ch. 2) for this same lord, applied here at Tribhagi\'s own timescale — the source never wrote about Tribhagi specifically; this reuse is the app\'s own reasoning.','Tribhagi corre la misma secuencia de señores que el Vimśottari, solo comprimida a un tercio o dos tercios de cada período. Los efectos clásicos de abajo son los propios del Vimśottari (Shanker Adawal, cap. 2) para este mismo señor, aplicados aquí a la escala de Tribhagi — la fuente nunca escribió sobre Tribhagi específicamente; esta reutilización es razonamiento propio de la app.')} (${dignityLabel})
+            <div style="margin-top:6px;">${T(cr.general.en, cr.general.es)}</div>
+            ${cr.branch ? `<div style="margin-top:6px;">${T(cr.branch.en, cr.branch.es)}</div>` : ''}
+          </div>`;
+        }
+      } else if (showKey === 'yogini'){
+        const name = COND_DASHAS.yogini.labels[COND_DASHAS.yogini.lords.indexOf(curMd.lord)];
+        const t = YOGINI_TONE[name];
+        if (t){
+          readingHtml = `<div class="hint" style="margin-top:12px; line-height:1.6; border-left:2px solid var(--gold); padding-left:10px;">
+            <b>${T('App synthesis (unverified attribution)','Síntesis de la app (atribución no verificada)')}:</b> ${T(`The name ${name} means "${t.mean}" — secondary Yogini Daśā literature commonly reads this as a ${t.tone==='good'?'favorable-leaning':'difficult-leaning'} period, though this app has not verified that attribution against a primary source.`, `El nombre ${name} significa "${t.mean}" — la literatura secundaria de Yogini Daśā suele leer esto como un período que tiende a ser ${t.tone==='good'?'favorable':'difícil'}, aunque esta app no ha verificado esa atribución contra una fuente primaria.`)}
+          </div>`;
+        }
+      } else {
+        readingHtml = `<div class="hint" style="margin-top:12px; line-height:1.6;">${T(`No system-specific interpretive (phala) text for ${COND_DASHAS[showKey].name} has been found in classical sources or this app's own research — shown as mechanics only (applicability, lord order, cycle length).`, `No se ha encontrado texto interpretativo (phala) específico de ${COND_DASHAS[showKey].name} en fuentes clásicas ni en la investigación propia de esta app — se muestra solo la mecánica (aplicabilidad, orden de señores, duración del ciclo).`)}</div>`;
+      }
+    }
+    condHtml = `<div class="panel"><div class="hd"><h2>${T('Further nakshatra daśās','Otras daśās de nakshatra')}</h2><span class="note">${T('conditional ones that apply here','condicionales que aplican aquí')}: ${applying.length ? applying.map(k=>COND_DASHAS[k].name).join(', ') : T('none','ninguna')}</span></div>
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px;">${T('Yogini and Tribhagi apply to every chart. The other nine are meant only for charts that meet a stated condition; each row says whether this chart meets it and why. Click a name to open that daśā; it follows the daśā year and birth-balance choices above.','Yogini y Tribhagi aplican a toda carta. Las otras nueve son solo para cartas que cumplen una condición declarada; cada fila dice si esta carta la cumple y por qué. Pulsa un nombre para abrir esa daśā; sigue las opciones de año de daśā y saldo al nacer de arriba.')}</div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Daśā','Daśā')}</th><th></th><th>${T('Condition here','Condición aquí')}</th><th>${T('Cycle','Ciclo')}</th></tr></thead><tbody>${listRows}</tbody></table></div>
+        <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin:12px 0; font-size:13px; color:var(--ink-dim);">
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Tribhagi periods','Períodos Tribhagi')} ${sel('tribhagi', [['third',T('one third of each Vimśottari period (40-year cycle)','un tercio de cada período Vimśottari (ciclo de 40 años)')],['twoThirds',T('two thirds (80-year cycle)','dos tercios (ciclo de 80 años)')]])}</label>
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Dwisaptati applies when','Dwisaptati aplica cuando')} ${sel('dwisaptati', [['either',T('Lagna lord in the 7th, or 7th lord in the Lagna','Señor del Lagna en la 7ª, o señor de la 7ª en el Lagna')],['lagnaOr7',T('Lagna lord in the Lagna or the 7th','Señor del Lagna en el Lagna o en la 7ª')],['exchange',T('Lagna and 7th lords exchange houses','Señores del Lagna y de la 7ª intercambian casas')]])}</label>
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Ashtottari applies when','Ashtottari aplica cuando')} ${sel('ashtottari', [['either',T('either test below','cualquiera de las dos')],['rahu',T('Rahu angular or trinal to the Lagna lord','Rahu en ángulo o trígono al señor del Lagna')],['paksha',T('day birth waning, or night birth waxing','nacimiento diurno en menguante, o nocturno en creciente')]])}</label>
+          <label style="display:inline-flex; gap:6px; align-items:center;">${T('Ashtottari count starts','Ashtottari cuenta desde')} ${sel('ashtottariStart', [['ardra',T('from Ardra','desde Ardra')],['lagnaPlanet',T('from Krittika when the Lagna is empty','desde Krittika si el Lagna está vacío')]])}</label>
+        </div>
+        <div style="margin-bottom:6px;"><b>${COND_DASHAS[showKey].name}</b> ${elig[showKey].ok ? '' : `<span class="tag neutral">${T('condition not met — shown for study','condición no cumplida — se muestra para estudio')}</span>`}
+          ${curMd ? `<span style="font-size:12px; color:var(--ink-dim);"> · ${T('now','ahora')}: ${lordLabel(showKey, curMd.lord)}${curAd ? ' → ' + lordLabel(showKey, curAd.lord) + ' (' + fmtDashaDate(curAd.startJD, localTz) + ' → ' + fmtDashaDate(curAd.endJD, localTz) + ')' : ''}</span>` : ''}</div>
+        <div class="tblwrap"><table><thead><tr><th>${T('Lord','Señor')}</th><th>${T('Period','Período')}</th><th>${T('Length','Duración')}</th></tr></thead><tbody>${mdRows}</tbody></table></div>
+        ${readingHtml}
+      </div></div>`;
+  } catch (e) { console.error('conditional dashas', e); condHtml = `<div class="panel"><div class="bd"><div class="hint">${T('Could not compute the alternative daśās for this chart.','No se pudieron calcular las daśās alternativas para esta carta.')}</div></div></div>`; }
+
+  container.innerHTML = `
+    <div class="panel"><div class="hd"><h2>${T('Alternative Daśās','Daśās alternativas')}</h2><span class="note">${T('alternative nakshatra-based timing systems','sistemas de cronometría alternativos basados en nakshatra')}</span></div>
+      <div class="bd">
+        <div class="hint">${T('Eleven further nakshatra-based daśā systems beyond standard Vimśottari, split out onto their own tab since each is an alternative timing system in its own right rather than a sub-view of Vimśottari. Two (Yogini, Tribhagi) apply to every chart; the other nine only when a stated chart condition holds — see below for which apply here.','Once sistemas adicionales de daśā basados en nakshatra más allá del Vimśottari estándar, en su propia pestaña ya que cada uno es un sistema de cronometría alternativo por derecho propio y no una subvista del Vimśottari. Dos (Yogini, Tribhagi) aplican a toda carta; los otros nueve solo cuando se cumple una condición declarada — ver abajo cuáles aplican aquí.')}</div>
+      </div>
+    </div>
+    ${condHtml}
   `;
 }
 
@@ -19925,6 +20033,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
   initTheme();
   initChartStyle();
   setDefaults();
+  window.addEventListener('scroll', ()=>{
+    document.getElementById('backToTopBtn')?.classList.toggle('show', window.scrollY > 500);
+  }, { passive: true });
   document.getElementById('computeBtn').addEventListener('click', runAnalysis);
   document.getElementById('resetBtn').addEventListener('click', ()=>{
     setDefaults();
