@@ -459,6 +459,19 @@
   }
 
   .tblwrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  /* Functional benefic/malefic table: its "Applicable rules" column runs
+     long, wrapping into a cramped multi-line mess at phone width inside a
+     fixed 5-column table. Below 640px, flip it from a table into a stack
+     of per-graha cards (data-label supplies the row heading) instead of
+     relying on horizontal scroll. */
+  @media (max-width: 640px){
+    table.func-table, table.func-table thead, table.func-table tbody, table.func-table th, table.func-table td, table.func-table tr{ display:block; }
+    table.func-table thead{ display:none; }
+    table.func-table tr{ border:1px solid var(--line-soft); border-radius:var(--radius-sm); padding:8px 10px; margin-bottom:8px; }
+    table.func-table td{ border-bottom:none; padding:4px 0; display:flex; gap:8px; }
+    table.func-table td::before{ content: attr(data-label); flex:0 0 auto; min-width:108px; font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--slate); }
+    table.func-table td.wide{ font-size:13px; font-weight:600; }
+  }
   table{ width:100%; border-collapse:collapse; font-size:12.5px;}
   th,td{ text-align:left; padding:6px 8px; border-bottom:1px solid var(--line-soft); }
   th{ font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:var(--slate); font-weight:400;}
@@ -660,12 +673,17 @@
      "what this means right now" guidance, and the birds currently living
      there. Designed to read at a glance instead of as a data table. */
   .pp-matrix{ display:grid; grid-template-columns:1fr; gap:6px; margin-top:10px; }
-  .pp-matrix .m-row{ display:flex; align-items:center; gap:8px; padding:5px 0; }
+  .pp-matrix .m-row{ display:flex; align-items:center; flex-wrap:wrap; gap:6px 8px; padding:7px 0; border-bottom:1px solid var(--line-soft); }
+  .pp-matrix .m-row:last-child{ border-bottom:none; }
   .pp-matrix .m-rank{ font-family:var(--mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--slate); width:36px; flex:none; }
   .pp-matrix .m-swatch{ width:13px; height:13px; border-radius:3px; flex:none; }
   .pp-matrix .m-name{ font-size:12px; color:var(--ink); font-weight:600; min-width:120px; }
-  .pp-matrix .m-guide{ font-size:10.5px; color:var(--ink-dim); line-height:1.3; margin:0 4px; }
-  .pp-matrix .m-birds{ margin-left:auto; white-space:nowrap; }
+  .pp-matrix .m-guide{ font-size:10.5px; color:var(--ink-dim); line-height:1.3; margin:0 4px; flex:1 1 160px; }
+  /* Previously margin-left:auto + white-space:nowrap pushed this off the
+     right edge of narrow screens whenever m-guide's text ran long, clipping
+     every bird badge but the first (shortest-guide) row. Give it its own
+     full-width line instead so every tier's current birds stay visible. */
+  .pp-matrix .m-birds{ flex:1 0 100%; display:flex; flex-wrap:wrap; gap:4px; padding-left:44px; }
   /* week-ahead matrix */
   .pp-week{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-top:12px; font-size:11px; }
   .pp-week .w-head{ font-family:var(--mono); font-size:9px; letter-spacing:0.06em; text-transform:uppercase; color:var(--slate); text-align:center; padding-bottom:2px; }
@@ -8472,6 +8490,14 @@ const NATAL_LORD_READING = {
   12:["Loss, expenditure, distant lands and moksha: this lord governs letting go — retreat, sleep, and final liberation.","Pérdida, gasto, tierras lejanas y moksha: este señor gobierna soltar — retiro, sueño, y liberación final."]
 };
 let natalLordHouseSel = 1;
+// Which yoga card (by index into the flattened masterYogaEntries render
+// list) has its definition/effect box open on the Yoga combinations panel —
+// null means the plain list is showing. Kept as page state (not just a
+// DOM toggle) so it survives the innerHTML re-render that language/date
+// changes trigger.
+let yogaDetailOpenIdx = null;
+function openYogaDetail(idx){ yogaDetailOpenIdx = idx; renderNatalPage(); }
+function closeYogaDetail(){ yogaDetailOpenIdx = null; renderNatalPage(); }
 function setNatalLordHouse(v){ natalLordHouseSel = parseInt(v,10)||1; renderNatalPage(); }
 function lordPosRetroTag(g, pos){ return pos[g] && pos[g].speed<0 ? ` <small style="color:var(--vermilion);">(${T('r','r')})</small>` : ''; }
 
@@ -8560,11 +8586,11 @@ function renderNatalPage(){
       : v.score<-0.5 ? {label:T('Leans functionally malefic','Se inclina funcionalmente maléfico'), cls:'bad'}
       : {label:T('Mixed / neutral','Mixto / neutral'), cls:'neutral'};
     return `<tr>
-      <td class="wide" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
-      <td style="font-size:11px;">${lordships[g].map(h=>T(h+ordinalSuffix(h), 'casa '+h)).join(', ')}</td>
-      <td style="font-size:11px;">${T(nature==='benefic'?'Natural benefic':'Natural malefic', nature==='benefic'?'Benéfico natural':'Maléfico natural')}</td>
-      <td style="font-size:10.5px; color:var(--ink-dim);">${v.tags.map(t=>t.text).join('; ')}</td>
-      <td><span class="tag ${overall.cls}">${overall.label}</span></td>
+      <td class="wide" data-label="${T('Graha','Graha')}" style="color:${MALEFIC_GRAHAS.includes(g)?'var(--vermilion)':'var(--jade)'}">${gNameNatal(g)}</td>
+      <td data-label="${T('Rules','Gobierna')}" style="font-size:11px;">${lordships[g].map(h=>T(h+ordinalSuffix(h), 'casa '+h)).join(', ')}</td>
+      <td data-label="${T('Natural','Natural')}" style="font-size:11px;">${T(nature==='benefic'?'Natural benefic':'Natural malefic', nature==='benefic'?'Benéfico natural':'Maléfico natural')}</td>
+      <td data-label="${T('Applicable rules','Reglas aplicables')}" style="font-size:10.5px; color:var(--ink-dim);">${v.tags.map(t=>t.text).join('; ')}</td>
+      <td data-label="${T('Net','Neto')}"><span class="tag ${overall.cls}">${overall.label}</span></td>
     </tr>`;
   }).join('');
 
@@ -10070,6 +10096,10 @@ function renderNatalPage(){
     RAMAN_YOGAS.map(y => ({ ...y, polarity: YOGA_POLARITY[y.num] || 'mixed' }))
   );
   const masterYogaActiveCount = masterYogaEntries.filter(y=>y.result.present).length;
+  // Flat, index-addressable list backing the click-through detail box below
+  // — built once so a card's position in this array is a stable handle for
+  // openYogaDetail()/closeYogaDetail(), independent of grouping/order.
+  const yogaCardList = [];
   const masterYogaHtml = (() => {
     const filtered = masterYogaEntries.filter(y=>y.result.present);
     const groups = { positive: [], negative: [], mixed: [] };
@@ -10082,13 +10112,17 @@ function renderNatalPage(){
       const label = T('Present in this chart','Presente en esta carta');
       const reasonArg = y.num ? y.result : y.result.reasons;
       const tagName = (y.num ? `#${y.num} ` : '') + T(y.nameEn,y.nameEs);
+      const glossText = T(y.glossEn,y.glossEs);
+      const reasonText = y.reasonLine(reasonArg);
+      const idx = yogaCardList.length;
+      yogaCardList.push({ tagName, cls, label, glossText, reasonText });
       // Only the yoga-name pill itself gets the app's inauspicious-signal
       // coloring (--hit-bad-*) when negative -- not the whole entry card.
       const nameTagStyle = cls === 'bad' ? `background:var(--hit-bad-bg); border-color:var(--hit-bad-line); color:var(--hit-bad-ink);` : '';
       return `<div class="li" style="margin-bottom:9px;">
-        <span class="tag ${cls}" style="${nameTagStyle}">${tagName}</span> <span class="tag ${cls}">${label}</span>
-        <div style="margin-top:4px; color:var(--slate); font-size:11.5px; line-height:1.6;">${T(y.glossEn,y.glossEs)}</div>
-        <div style="margin-top:5px; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); line-height:1.5; border-left:2px solid var(--line-soft); padding-left:8px;">${y.reasonLine(reasonArg)}</div>
+        <button type="button" class="tag ${cls} yoga-name-btn" style="${nameTagStyle} cursor:pointer;" onclick="openYogaDetail(${idx})">${tagName}</button> <span class="tag ${cls}">${label}</span>
+        <div style="margin-top:4px; color:var(--slate); font-size:11.5px; line-height:1.6;">${glossText}</div>
+        <div style="margin-top:5px; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); line-height:1.5; border-left:2px solid var(--line-soft); padding-left:8px;">${reasonText}</div>
       </div>`;
     }).join('');
     const header = (text, color) => `<div style="font-size:13px; font-weight:600; color:var(${color}); margin:10px 0 6px;">${text}</div>`;
@@ -10098,6 +10132,17 @@ function renderNatalPage(){
     if (groups.mixed.length) html += header(T('Mixed and situational yogas present','Yogas mixtos y situacionales presentes'), '--slate') + renderGroup(groups.mixed);
     return html;
   })();
+  // The detail box takes over the panel body in place of the list when a
+  // card's name has been clicked — same panel, same tab, no navigation away
+  // from where the Yoga combinations section is being read.
+  const openYoga = (yogaDetailOpenIdx!==null && yogaCardList[yogaDetailOpenIdx]) ? yogaCardList[yogaDetailOpenIdx] : null;
+  const yogaDetailHtml = openYoga ? `
+    <div class="okbox">
+      <button type="button" class="tag neutral" style="cursor:pointer; margin-bottom:10px;" onclick="closeYogaDetail()">&larr; ${T('Back to Yoga combinations','Volver a Combinaciones de yoga')}</button>
+      <div><span class="tag ${openYoga.cls}">${openYoga.tagName}</span> <span class="tag ${openYoga.cls}">${openYoga.label}</span></div>
+      <div style="margin-top:10px; color:var(--ink); font-size:13px; line-height:1.7;">${openYoga.glossText}</div>
+      <div style="margin-top:10px; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); line-height:1.6; border-left:2px solid var(--line-soft); padding-left:8px;">${openYoga.reasonText}</div>
+    </div>` : '';
 
   const vargottamaList = GRAHA_LIST.filter(g=>{
     const d1 = SIGNS[Math.floor(norm360(birthPos[g].sidereal)/30)];
@@ -10202,14 +10247,14 @@ function renderNatalPage(){
 
     <div class="panel"><div class="hd"><h2>${T('Functional benefic / malefic by house lordship','Benéfico / maléfico funcional por señorío de casas')}</h2></div>
       <div class="bd">
-        <div class="tblwrap"><table><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Rules','Gobierna')}</th><th>${T('Natural','Natural')}</th><th>${T('Applicable rules','Reglas aplicables')}</th><th>${T('Net','Neto')}</th></tr></thead><tbody>${funcRows}</tbody></table></div>
+        <div class="tblwrap"><table class="func-table"><thead><tr><th>${T('Graha','Graha')}</th><th>${T('Rules','Gobierna')}</th><th>${T('Natural','Natural')}</th><th>${T('Applicable rules','Reglas aplicables')}</th><th>${T('Net','Neto')}</th></tr></thead><tbody>${funcRows}</tbody></table></div>
         <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The rule of thumb: 3rd/6th/11th-house lords read malefic; 5th/9th-house lords (fortune houses) read fully benefic; a natural benefic ruling an angle (4th/7th/10th) turns malefic there unless it\'s strong in its own or exalted sign, while a natural malefic ruling an angle turns strongly benefic instead. An 8th-house lord reads as the most malefic of all, softened to half-benefic if it also rules the Ascendant. When one planet rules more than one house, every applicable rule is listed rather than forced into a single number.','La regla general: los señores de casa 3/6/11 se leen maléficos; los de 5/9 (casas de fortuna) se leen totalmente benéficos; un benéfico natural que gobierna un ángulo (4/7/10) se vuelve maléfico ahí salvo que esté fuerte en su propio signo o exaltado, mientras que un maléfico natural que gobierna un ángulo se vuelve fuertemente benéfico. Un señor de casa 8 se lee como el más maléfico de todos, suavizado a mitad benéfico si también gobierna el Ascendente. Cuando un planeta gobierna más de una casa, se listan todas las reglas aplicables en vez de forzar un solo número.')}</div>
       </div>
     </div>
 
     <div class="panel"><div class="hd"><h2>${T('Yoga combinations','Combinaciones de yoga')}</h2><span class="note">${masterYogaActiveCount} ${T('active','activa(s)')}</span></div>
       <div class="bd">
-        ${masterYogaHtml}
+        ${openYoga ? yogaDetailHtml : masterYogaHtml}
       </div>
     </div>
 
@@ -11073,12 +11118,11 @@ function renderHouseNaturePage(){
           <span class="tag gold">${H}${ordinalSuffix(H)} ${T('house','casa')}</span>
           <span class="tag neutral">${T(HOUSE_SIGNIF[H].en, HOUSE_SIGNIF[H].es)}</span>
         </div>
-      </div>
-    </div>
-
-    <div class="panel"><div class="hd"><h2>${T('Arudha Lagna','Arudha Lagna')}</h2><span class="note">${T('public image','imagen pública')}</span></div>
-      <div class="bd">
-        <div class="tblwrap"><table><tbody>
+        <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--line-soft); display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+          <span style="font-size:14px; color:var(--ink);">${T('Arudha Lagna','Arudha Lagna')}</span>
+          <span class="note" style="font-family:var(--mono); font-size:10px; color:var(--slate); letter-spacing:0.05em;">${T('public image','imagen pública')}</span>
+        </div>
+        <div class="tblwrap" style="margin-top:8px;"><table><tbody>
           <tr><td class="wide" style="color:var(--gold);">${T('Arudha Lagna','Arudha Lagna')}</td><td style="color:var(--gold);">${arudhaSign} ${fmtDeg(arudhaDeg)}</td></tr>
           <tr><td class="wide">${T('Falls in house (from Lagna)','Cae en la casa (desde el Lagna)')}</td><td>${arudhaHouse}${ordinalSuffix(arudhaHouse)}</td></tr>
         </tbody></table></div>
