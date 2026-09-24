@@ -320,6 +320,18 @@
     padding:7px 8px; border-radius:var(--radius-sm); font-family:var(--mono); font-size:12.5px;
   }
   input:focus, select:focus{ outline:2px solid var(--gold-dim); outline-offset:1px; border-color:var(--gold-dim); }
+  /* Quick-preset chips (built-in reference-person shortcuts) — a faster,
+     more tactile front door onto the same apply-fields path the Saved
+     profile dropdown already uses, sitting right above it. */
+  .preset-chip-row{ display:flex; gap:6px; flex-wrap:wrap; margin:0 0 12px; }
+  .preset-chip{
+    flex:1 1 auto; min-width:72px; padding:8px 10px; border-radius:var(--radius-sm);
+    border:1px solid var(--line); background:var(--bg-2); color:var(--ink-dim);
+    font-family:var(--mono); font-size:11.5px; letter-spacing:0.03em; cursor:pointer;
+    text-align:center; transition:border-color .15s, color .15s, background .15s;
+  }
+  .preset-chip:hover{ border-color:var(--gold-dim); color:var(--ink); }
+  .preset-chip.active{ border-color:var(--gold); color:var(--gold); background:var(--panel); }
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
   .hint{ font-size:10.5px; color:var(--slate); margin-top:4px; }
@@ -800,6 +812,9 @@
     <fieldset>
       <legend data-i18n="leg1">1 · Reference Person (Janma Panchaka)</legend>
 
+      <label data-i18n="presetLbl">Quick presets</label>
+      <div class="preset-chip-row" id="presetChipRow"></div>
+
       <label data-i18n="profileLbl">Saved profile</label>
       <select id="profileSelect"></select>
       <div class="row2" style="margin-top:6px;">
@@ -1087,6 +1102,7 @@ const I18N = {
   navChintamani: { en:`Muhūrta`, es:`Muhūrta` },
   navTarot: { en:`Tarot`, es:`Tarot` },
   navMatchmaking: { en:`Matchmaking`, es:`Matchmaking` },
+  presetLbl: { en:`Quick presets`, es:`Preajustes rápidos` },
   profileLbl: { en:`Saved profile`, es:`Perfil guardado` },
   profileNamePh: { en:`Profile name…`, es:`Nombre del perfil…` },
   profileSave: { en:`Save`, es:`Guardar` },
@@ -7888,6 +7904,16 @@ function applyReferenceFields(p){
 // published app doesn't ship with anyone's real-looking birth data baked
 // into the source (2026-08-16 request).
 const DEMO_BIRTH = { bDate:'1990-09-30', bTime:'17:54', bTZ:-4, bLat:25.7617, bLon:-80.1918, bName:'' };
+// User-requested built-in preset profiles (2026-09-24) — always present in
+// the Saved profile dropdown under their own "Presets" group, separate from
+// the user's own localStorage-backed profiles (loadProfiles()) so they
+// can't be edited or deleted through the normal Save/Delete flow. Selected
+// with value "preset-<index>" rather than a numeric loadProfiles() index.
+const PRESET_PROFILES = [
+  { label:'Cristian', bDate:'1990-09-30', bTime:'17:54', bTZ:-4, bLat:25.7617, bLon:-80.1918, bName:'Cristian' }, // Miami, FL
+  { label:'Maria', bDate:'1936-09-02', bTime:'03:00', bTZ:-6, bLat:15.5041, bLon:-88.0250, bName:'Maria' }, // San Pedro Sula, Honduras
+  { label:'Celia', bDate:'1963-09-04', bTime:'00:00', bTZ:-6, bLat:15.5041, bLon:-88.0250, bName:'Celia' } // San Pedro Sula, Honduras
+];
 function findProfileIndexByLabel(profiles, label){
   return profiles.findIndex(p=>p.label === label);
 }
@@ -7895,9 +7921,22 @@ function populateProfileSelect(){
   const sel = document.getElementById('profileSelect');
   const cur = sel.value;
   const profiles = loadProfiles();
+  const presetOptions = PRESET_PROFILES.map((p,i)=>`<option value="preset-${i}">${escHtml(p.label)}</option>`).join('');
   sel.innerHTML = `<option value="">${T('— Unsaved —','— Sin guardar —')}</option>` +
-    profiles.map((p,i)=>`<option value="${i}">${p.label}</option>`).join('');
+    (presetOptions ? `<optgroup label="${T('Presets','Preajustes')}">${presetOptions}</optgroup>` : '') +
+    (profiles.length ? `<optgroup label="${T('Your profiles','Tus perfiles')}">${profiles.map((p,i)=>`<option value="${i}">${escHtml(p.label)}</option>`).join('')}</optgroup>` : '');
   if (cur && [...sel.options].some(o=>o.value===cur)) sel.value = cur;
+  syncPresetChipActive();
+}
+function renderPresetChips(){
+  const row = document.getElementById('presetChipRow');
+  if (!row) return;
+  row.innerHTML = PRESET_PROFILES.map((p,i)=>`<button type="button" class="preset-chip" data-preset="${i}">${escHtml(p.label)}</button>`).join('');
+}
+function syncPresetChipActive(){
+  const sel = document.getElementById('profileSelect');
+  const active = sel && sel.value.startsWith('preset-') ? sel.value.slice(7) : null;
+  document.querySelectorAll('.preset-chip').forEach(b=>b.classList.toggle('active', b.dataset.preset===active));
 }
 
 function readDateTime(prefix, dateOverride){
@@ -17607,17 +17646,36 @@ document.addEventListener('DOMContentLoaded', ()=>{
     setDefaults();
     applyReferenceFields(DEMO_BIRTH);
     document.getElementById('profileSelect').value = '';
+    syncPresetChipActive();
     runAnalysis();
   });
 
   wirePlaceSearch('b');
   wirePlaceSearch('m');
 
+  renderPresetChips();
   populateProfileSelect();
+  document.getElementById('presetChipRow').addEventListener('click', (e)=>{
+    const btn = e.target.closest('.preset-chip');
+    if (!btn) return;
+    const p = PRESET_PROFILES[parseInt(btn.dataset.preset,10)];
+    if (!p) return;
+    document.getElementById('profileSelect').value = 'preset-' + btn.dataset.preset;
+    document.getElementById('profileNameInput').value = "";
+    applyReferenceFields(p);
+    syncPresetChipActive();
+    runAnalysis();
+  });
   document.getElementById('profileSelect').addEventListener('change', (e)=>{
     const idx = e.target.value;
     document.getElementById('profileNameInput').value = "";
+    syncPresetChipActive();
     if (idx === "") return;
+    if (idx.startsWith('preset-')){
+      const p = PRESET_PROFILES[parseInt(idx.slice(7),10)];
+      if (p){ applyReferenceFields(p); runAnalysis(); }
+      return;
+    }
     const p = loadProfiles()[parseInt(idx,10)];
     if (p){
       document.getElementById('profileNameInput').value = p.label;
@@ -17646,7 +17704,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   });
   document.getElementById('profileDeleteBtn').addEventListener('click', ()=>{
     const sel = document.getElementById('profileSelect');
-    if (sel.value === "") return;
+    if (sel.value === "" || sel.value.startsWith('preset-')) return;
     const profiles = loadProfiles();
     profiles.splice(parseInt(sel.value,10), 1);
     saveProfilesList(profiles);
