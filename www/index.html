@@ -9329,6 +9329,17 @@ function lordPosRetroTag(g, pos){ return pos[g] && pos[g].speed<0 ? ` <small sty
 // ---- Yoga grid: yogas organised by graha, category chips, strength-ranked ----
 let YOGA_VIEW = { graha: null, cat: 'all' };
 function setYogaView(k, v){ YOGA_VIEW[k] = v; renderNatalPage(); }
+// Standout cards used to show only a name + planets involved, with no way
+// to read the yoga's actual definition/effect without hunting for it lower
+// in the by-graha list. Clicking a card now swaps the standout strip for a
+// detail box (its full body text) with a back button, in place, rather
+// than navigating away from the Yoga combinations panel. YOGA_STANDOUT_DATA
+// is refreshed every render (see renderYogaGrid) so the click handler
+// always reads the current chart's standouts, not a stale snapshot.
+let yogaStandoutOpenIdx = null;
+let YOGA_STANDOUT_DATA = [];
+function openStandoutYoga(idx){ yogaStandoutOpenIdx = idx; renderNatalPage(); }
+function closeStandoutYoga(){ yogaStandoutOpenIdx = null; renderNatalPage(); }
 const YOGA_CATS = [
   ['all', 'All', 'Todas'], ['raja', 'Rāja', 'Rāja'], ['dhana', 'Dhana', 'Dhana'], ['mahapurusha', 'Mahāpuruṣa', 'Mahāpuruṣa'],
   ['nabhasa', 'Nābhasa', 'Nābhasa'], ['luminaries', 'Moon & Sun', 'Luna y Sol'], ['caution', 'Cautions', 'Precauciones'], ['other', 'Other', 'Otras']
@@ -9369,12 +9380,21 @@ function renderYogaGrid(items, birthPos){
   const chips = YOGA_CATS.map(([k, en, es]) => { const n = k === 'all' ? items.length : items.filter(y => k === 'caution' ? y.polarity === 'negative' : y.category === k).length;
     return n || k === 'all' ? `<button type="button" onclick="setYogaView('cat','${k}')" style="padding:4px 10px; border-radius:14px; border:1px solid ${V.cat === k ? 'var(--gold)' : 'var(--line)'}; background:${V.cat === k ? 'var(--gold)' : 'transparent'}; color:${V.cat === k ? '#fff' : 'var(--ink-dim)'}; cursor:pointer; font-size:12px;">${T(en, es)} ${n}</button>` : ''; }).join(' ');
   const standouts = shown.filter(y => y.polarity === 'positive').sort((a, b) => b.strength - a.strength).slice(0, 3);
-  const standoutHtml = standouts.length ? `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:8px; margin:10px 0 14px;">${standouts.map(y => `
-    <div style="border:1px solid var(--line); border-left:3px solid var(--jade); border-radius:6px; padding:8px 10px;">
+  YOGA_STANDOUT_DATA = standouts;
+  const openStandout = (yogaStandoutOpenIdx !== null && standouts[yogaStandoutOpenIdx]) ? standouts[yogaStandoutOpenIdx] : null;
+  const standoutHtml = openStandout ? `
+    <div class="okbox" style="margin:10px 0 14px;">
+      <button type="button" class="tag neutral" style="cursor:pointer; margin-bottom:10px;" onclick="closeStandoutYoga()">&larr; ${T('Back to standouts','Volver a destacados')}</button>
+      <div><span class="tag good">${openStandout.name}</span></div>
+      <div style="font-size:11.5px; color:var(--ink-dim); margin-top:6px;">${openStandout.planets.length ? openStandout.planets.map(gNameNatal).join(' · ') : T('whole chart', 'carta entera')}</div>
+      <div style="margin-top:10px; font-size:13px; line-height:1.7;">${openStandout.body}</div>
+    </div>`
+    : standouts.length ? `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:8px; margin:10px 0 14px;">${standouts.map((y,i) => `
+    <button type="button" onclick="openStandoutYoga(${i})" style="text-align:left; cursor:pointer; width:100%; font:inherit; border:1px solid var(--line); border-left:3px solid var(--jade); border-radius:6px; padding:8px 10px; background:var(--panel);">
       <div style="font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--slate);">${T('Standout','Destacado')}</div>
-      <div style="font-weight:600; margin:2px 0;">${y.name}</div>
+      <div style="font-weight:600; margin:2px 0; color:var(--ink);">${y.name}</div>
       <div style="font-size:11.5px; color:var(--ink-dim);">${y.planets.length ? y.planets.map(gNameNatal).join(' · ') : T('whole chart', 'carta entera')}</div>
-    </div>`).join('')}</div>` : '';
+    </button>`).join('')}</div>` : '';
   const cards = keys.filter(k => k !== '_chart' || byG[k].length).map(k => {
     const list = byG[k], pos = list.filter(y => y.polarity === 'positive').length, neg = list.filter(y => y.polarity === 'negative').length, mix = list.length - pos - neg;
     const dig = k !== '_chart' && k !== 'Rahu' && k !== 'Ketu' ? dignityTier(k, birthPos[k].sidereal) : '';
