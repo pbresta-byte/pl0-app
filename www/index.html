@@ -570,7 +570,7 @@
      and is hidden entirely on pages with too few panels to be worth it. */
   .section-nav{
     position:sticky; top:0; z-index:5; display:flex; flex-wrap:wrap; gap:6px;
-    padding:8px 2px; margin-bottom:10px;
+    padding:calc(8px + env(safe-area-inset-top, 0px)) 2px 8px; margin-bottom:10px;
     background:var(--bg); border-bottom:1px solid var(--line-soft);
   }
   .section-nav-chip{
@@ -9391,8 +9391,13 @@ function setYogaView(k, v){ YOGA_VIEW[k] = v; renderNatalPage(); }
 // always reads the current chart's standouts, not a stale snapshot.
 let yogaStandoutOpenIdx = null;
 let YOGA_STANDOUT_DATA = [];
-function openStandoutYoga(idx){ yogaStandoutOpenIdx = idx; renderNatalPage(); }
-function closeStandoutYoga(){ yogaStandoutOpenIdx = null; renderNatalPage(); }
+// Re-running attachSectionNav here matters: renderNatalPage() replaces
+// natalPageContent's innerHTML wholesale, so the h2 elements the section-nav
+// chips point at by id are destroyed and recreated without ids on every
+// standout click -- without this, the chips above would silently stop
+// scrolling anywhere the moment a standout card was opened or closed.
+function openStandoutYoga(idx){ yogaStandoutOpenIdx = idx; renderNatalPage(); attachSectionNav('pageNatal', ['natalPageContent']); }
+function closeStandoutYoga(){ yogaStandoutOpenIdx = null; renderNatalPage(); attachSectionNav('pageNatal', ['natalPageContent']); }
 const YOGA_CATS = [
   ['all', 'All', 'Todas'], ['raja', 'Rāja', 'Rāja'], ['dhana', 'Dhana', 'Dhana'], ['mahapurusha', 'Mahāpuruṣa', 'Mahāpuruṣa'],
   ['nabhasa', 'Nābhasa', 'Nābhasa'], ['luminaries', 'Moon & Sun', 'Luna y Sol'], ['caution', 'Cautions', 'Precauciones'], ['other', 'Other', 'Otras']
@@ -12846,8 +12851,7 @@ function renderDashaPage(){
     <div class="panel">
       <div class="hd"><h2>${T('Vimśottari Daśā','Vimśottari Daśā')}</h2><span class="note">${T('120-year cycle','ciclo de 120 años')}</span></div>
       <div class="bd">
-        <div class="hint">${T('The standard Parāśarī timing system, independent of SBC and Ashtakavarga: the Moon\'s Nakṣatra at birth fixes the starting lord and how much of that first period is already spent; the 9 grahas (Sun–Saturn plus Rāhu/Ketu, in a fixed order — Ketu·Venus·Sun·Moon·Mars·Rāhu·Jupiter·Saturn·Mercury — with fixed lengths 7·20·6·10·7·18·16·19·17 years, totalling 120) then run in sequence. Each period divides into sub-periods in the same proportions, starting with its own lord — Mahādaśā → Antardaśā → Pratyantardaśā → Sūkṣma-daśā → Prāṇa-daśā. Pick a zoom depth below to see that many nested levels of whichever period contains the current moment.','El sistema de cronometría Parāśarī estándar, independiente del SBC y del Ashtakavarga: el Nakṣatra de la Luna al nacer fija el señor inicial y cuánto de ese primer período ya transcurrió; los 9 graha (Sol–Saturno más Rāhu/Ketu, en orden fijo — Ketu·Venus·Sol·Luna·Marte·Rāhu·Júpiter·Saturno·Mercurio — con duraciones fijas 7·20·6·10·7·18·16·19·17 años, sumando 120) corren luego en secuencia. Cada período se divide en subperíodos con las mismas proporciones, empezando por su propio señor — Mahādaśā → Antardaśā → Pratyantardaśā → Sūkṣma-daśā → Prāṇa-daśā. Elige una profundidad de zoom abajo para ver esa cantidad de niveles anidados del período que contiene el momento actual.')}</div>
-        <div style="margin-top:14px;">${zoomButtons}</div>
+        <div class="hint">${T('The standard Parāśarī timing system, independent of SBC and Ashtakavarga: the Moon\'s Nakṣatra at birth fixes the starting lord and how much of that first period is already spent; the 9 grahas (Sun–Saturn plus Rāhu/Ketu, in a fixed order — Ketu·Venus·Sun·Moon·Mars·Rāhu·Jupiter·Saturn·Mercury — with fixed lengths 7·20·6·10·7·18·16·19·17 years, totalling 120) then run in sequence. Each period divides into sub-periods in the same proportions, starting with its own lord — Mahādaśā → Antardaśā → Pratyantardaśā → Sūkṣma-daśā → Prāṇa-daśā.','El sistema de cronometría Parāśarī estándar, independiente del SBC y del Ashtakavarga: el Nakṣatra de la Luna al nacer fija el señor inicial y cuánto de ese primer período ya transcurrió; los 9 graha (Sol–Saturno más Rāhu/Ketu, en orden fijo — Ketu·Venus·Sol·Luna·Marte·Rāhu·Júpiter·Saturno·Mercurio — con duraciones fijas 7·20·6·10·7·18·16·19·17 años, sumando 120) corren luego en secuencia. Cada período se divide en subperíodos con las mismas proporciones, empezando por su propio señor — Mahādaśā → Antardaśā → Pratyantardaśā → Sūkṣma-daśā → Prāṇa-daśā.')}</div>
         <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; font-size:13px; color:var(--ink-dim);">
           <label style="display:inline-flex; gap:6px; align-items:center;">${T('Daśā year','Año de daśā')}
             <select onchange="setVimOpt('yearDays', this.value)">
@@ -12873,14 +12877,7 @@ function renderDashaPage(){
       </div>
     </div>
 
-    <div class="panel"><div class="hd"><h2>${T('Current Daśā stack','Pila de Daśā actual')}</h2><span class="note">${T('as of right now','a partir de ahora mismo')}</span></div>
-      <div class="bd">
-        <div class="tblwrap"><table><thead><tr><th>${T('Level','Nivel')}</th><th>${T('Lord','Señor')}</th><th>${T('Period','Período')}</th><th>${T('Rules (from Lagna)','Gobierna (desde Lagna)')}</th><th>${T('Functional reading','Lectura funcional')}</th><th>${T(`House in ${readVargaKey}`,`Casa en ${readVargaKey}`)}</th></tr></thead><tbody>${chainRows}</tbody></table></div>
-        ${muhurtaCrossRef}
-        <div class="hint" style="margin-top:10px; line-height:1.6;">${T('The "Rules" and "Functional reading" columns reuse the same house-lordship engine as the General page — a Yogakāraka Daśā lord and a merely functionally-malefic one are meaningfully different, even at the same nesting depth. Rāhu/Ketu own no sign in that scheme, so they\'re shown without a functional reading here, not scored as neutral by omission.','Las columnas "Gobierna" y "Lectura funcional" reutilizan el mismo motor de señorío de casas que la página General — un señor de Daśā Yogakāraka y uno meramente maléfico funcional son significativamente distintos, incluso a la misma profundidad de anidamiento. Rāhu/Ketu no gobiernan ningún signo en ese esquema, así que se muestran sin lectura funcional aquí, no puntuados como neutrales por omisión.')}</div>
-        <div class="hint" style="margin-top:6px;">${T('Boundary dates can drift by a few days from other software\'s — a few arcminutes of difference in the birth Moon\'s exact degree shifts how much of the first Daśā period is already elapsed, and that shift then carries forward at constant size through every later period.','Las fechas límite pueden variar unos días respecto a otro software — unos pocos minutos de arco de diferencia en el grado exacto de la Luna natal desplazan cuánto del primer período de Daśā ya transcurrió, y ese desplazamiento se traslada luego, con tamaño constante, a través de cada período posterior.')}</div>
-      </div>
-    </div>
+    ${muhurtaCrossRef ? `<div class="panel"><div class="bd">${muhurtaCrossRef}</div></div>` : ''}
     ${taraHtml}
     ${condHtml}
     ${renderDashaReadingPanel(birthPos, bdt, nowJD, localTz)}
@@ -12966,7 +12963,8 @@ const DASHA_TONES = [
 ];
 function dashaToneLine(score, level){
   const set = DASHA_TONES[Math.min(level || 0, 3)], i = score >= 2.5 ? 0 : score >= 0.5 ? 1 : 2;
-  return T(set[i][0], set[i][1]);
+  const cls = i === 0 ? 'good' : i === 1 ? 'neutral' : 'bad';
+  return `<span class="tag ${cls}">${T(set[i][0], set[i][1])}</span>`;
 }
 const DASHA_DIG = {
   Exalted:['It is exalted here, so it can deliver these themes well.','Aquí está exaltado, así que puede dar bien estos temas.'],
