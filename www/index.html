@@ -326,6 +326,11 @@
   .hamburger-menu-list button:last-child{ border-bottom:none; }
   .hamburger-menu-list button:hover{ background:var(--panel-2); color:var(--gold); }
   .hamburger-menu-list button.active{ color:var(--gold); border-left-color:var(--gold); background:var(--panel-2); }
+  .hamburger-menu-cat{
+    padding:12px 18px 6px; font-family:var(--mono); font-size:10px; text-transform:uppercase;
+    letter-spacing:0.08em; color:var(--slate);
+  }
+  .hamburger-menu-cat:first-child{ padding-top:6px; }
   .page{ display:none; }
   .page.active{ display:block; }
 
@@ -923,19 +928,26 @@
         <button class="hamburger-close" id="hamburgerClose" type="button" aria-label="Close menu">✕</button>
       </div>
       <div class="hamburger-menu-list">
+        <div class="hamburger-menu-cat" data-i18n="navCatNow">Right Now</div>
         <button type="button" data-page="pageMuhurta" class="active" data-i18n="navMuhurta">At a Glance</button>
+        <button type="button" data-page="pageChintamani" data-i18n="navChintamani">Classical Muhūrta Doṣas</button>
+        <button type="button" data-page="pageHorary" data-i18n="navHorary">Horary / Praśna (SBC)</button>
+        <button type="button" data-page="pagePanchaPakshi" data-i18n="navPanchaPakshi">Pañcha Pakshi</button>
+        <button type="button" data-page="pageAntara" data-i18n="navAntara">Antara Chakra (Portents)</button>
+        <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Calendar</button>
+
+        <div class="hamburger-menu-cat" data-i18n="navCatChart">Birth Chart</div>
         <button type="button" data-page="pageNatal" data-i18n="navNatal">General</button>
+        <button type="button" data-page="pageHouseNature" data-i18n="navHouseNature">Houses, Lords, Varga</button>
         <button type="button" data-page="pageAvastha" data-i18n="navAvastha">Avasthas</button>
         <button type="button" data-page="pageAshtakavarga" data-i18n="navAshtakavarga">Ashtakavarga</button>
-        <button type="button" data-page="pagePanchaPakshi" data-i18n="navPanchaPakshi">Pañcha Pakshi</button>
+
+        <div class="hamburger-menu-cat" data-i18n="navCatDasha">Timing (Daśā)</div>
         <button type="button" data-page="pageDasha" data-i18n="navDasha">Vimśottari Daśā</button>
         <button type="button" data-page="pageAltDasha" data-i18n="navAltDasha">Alternative Daśās</button>
-        <button type="button" data-page="pageHouseNature" data-i18n="navHouseNature">Houses, Lords, Varga</button>
+
+        <div class="hamburger-menu-cat" data-i18n="navCatSpecial">Specialized</div>
         <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
-        <button type="button" data-page="pageCalendar" data-i18n="navCalendar">Calendar</button>
-        <button type="button" data-page="pageAntara" data-i18n="navAntara">Antara Chakra (Portents)</button>
-        <button type="button" data-page="pageHorary" data-i18n="navHorary">Horary / Praśna (SBC)</button>
-        <button type="button" data-page="pageChintamani" data-i18n="navChintamani">Muhūrta</button>
         <button type="button" data-page="pageMatchmaking" data-i18n="navMatchmaking">Matchmaking</button>
         <!-- Archived 2026-09-22 (kept in code, off the menu; see docs/archived-features.md): <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">World Era</button> -->
         <!-- Archived 2026-09-23 (kept in code, off the menu; see docs/archived-features.md): <button type="button" data-page="pageTarot" data-i18n="navTarot">Tarot</button> -->
@@ -1253,6 +1265,10 @@ const I18N = {
   navMenuLabel: { en:`Menu`, es:`Menú` },
   navMenuTitle: { en:`Menu`, es:`Menú` },
   navMuhurta: { en:`At a Glance`, es:`De un Vistazo` },
+  navCatNow: { en:`Right Now`, es:`Ahora Mismo` },
+  navCatChart: { en:`Birth Chart`, es:`Carta Natal` },
+  navCatDasha: { en:`Timing (Daśā)`, es:`Cronometría (Daśā)` },
+  navCatSpecial: { en:`Specialized`, es:`Especializado` },
   navNatal: { en:`General`, es:`General` },
   navAvastha: { en:`Avasthas`, es:`Avasthas` },
   navDasha: { en:`Vimśottari Daśā`, es:`Vimśottari Daśā` },
@@ -1267,7 +1283,7 @@ const I18N = {
   navAntara: { en:`Antara Chakra (Portents)`, es:`Antara Chakra (Presagios)` },
   navAshtakavarga: { en:`Ashtakavarga`, es:`Ashtakavarga` },
   navHorary: { en:`Horary / Praśna (SBC)`, es:`Horaria / Praśna (SBC)` },
-  navChintamani: { en:`Muhūrta`, es:`Muhūrta` },
+  navChintamani: { en:`Classical Muhūrta Doṣas`, es:`Doṣas Clásicos de Muhūrta` },
   navTarot: { en:`Tarot`, es:`Tarot` },
   navMatchmaking: { en:`Matchmaking`, es:`Matchmaking` },
   presetLbl: { en:`Quick presets`, es:`Preajustes rápidos` },
@@ -19285,6 +19301,21 @@ function renderChintamaniPage(){
   const gName = g => T(g, GRAHA_ES[g]);
 
   const gc = chintamaniGeneralChecks(pos, panch, refP, weekdayName, sunriseHr, sunsetHr);
+  // Top-of-page verdict strip: the intro panel used to be pure description
+  // with nothing to actually look at -- this tallies the doṣas already
+  // computed below (each a real boolean this page already has) into one
+  // glanceable line, same "Outlook: <tag>" pattern the Activity Guideline
+  // panel further down already uses.
+  const doshaFlags = [
+    { label: T('Chara Yoga','Chara Yoga'), bad: !!(gc.charaYoga && gc.charaYoga.bad) },
+    { label: T('Bhadrā (Vishti)','Bhadrā (Vishti)'), bad: !!gc.bhadra },
+    { label: T('Panchaka','Panchaka'), bad: !!gc.panchaka },
+    { label: T('Gaṇḍānta','Gaṇḍānta'), bad: !!(gc.gandanta && (gc.gandanta.moon || gc.gandanta.lagna)) }
+  ];
+  const activeDoshas = doshaFlags.filter(f=>f.bad);
+  const doshaVerdict = activeDoshas.length===0 ? {label:T('Clean — no doṣas flagged','Limpio — sin doṣas señalados'), cls:'good'}
+    : activeDoshas.length===1 ? {label:T('Caution — 1 doṣa flagged','Precaución — 1 doṣa señalado'), cls:'neutral'}
+    : {label:T(`${activeDoshas.length} doṣas flagged`,`${activeDoshas.length} doṣas señalados`), cls:'bad'};
 
   const temperamentHtml = gc.temperament ? `<div class="kv">
     <div class="k">${T('Class','Clase')}</div><div class="v">${T(gc.temperament.nameEn,gc.temperament.nameEs)} <span class="tag neutral">${gc.temperament.day}</span></div>
@@ -19474,9 +19505,12 @@ function renderChintamaniPage(){
 
   container.innerHTML = `
     <div class="panel">
-      <div class="hd"><h2>${T('Muhūrta','Muhūrta')}</h2></div>
+      <div class="hd"><h2>${T('Classical Muhūrta Doṣas','Doṣas Clásicos de Muhūrta')}</h2><span class="note">${T('separate from the SBC score','independiente de la puntuación SBC')}</span></div>
       <div class="bd">
-        <div class="hint">${T('A second classical muhūrta source alongside the SBC engine above. Deliberately kept separate from the SBC score — everything below is its own outright auspicious/inauspicious read, not a number added to the outlook elsewhere on this app. Region-locked variants from the source (e.g. rules the text itself scopes to a specific province) are skipped rather than applied universally.','Una segunda fuente clásica de muhūrta junto al motor SBC de arriba. Se mantiene deliberadamente separada de la puntuación SBC — todo lo de abajo es su propia lectura auspiciosa/desfavorable directa, no un número que se suma al panorama de otra parte de esta app. Las variantes de doṣa limitadas a una región (p. ej. reglas que el propio texto restringe a una provincia específica) se omiten en vez de aplicarse universalmente.')}</div>
+        <div class="okbox" style="margin-bottom:10px;"><b>${T('Right now','Ahora mismo')}:</b> <span class="tag ${doshaVerdict.cls}">${doshaVerdict.label}</span>${activeDoshas.length ? ' — ' + activeDoshas.map(f=>f.label).join(', ') : ''}</div>
+        <details class="ref-drop"><summary>${T('What is this?','¿Qué es esto?')}</summary>
+          <div class="hint" style="margin-top:8px;">${T('A second classical muhūrta source alongside the SBC engine on the At a Glance page. Deliberately kept separate from the SBC score — everything below is its own outright auspicious/inauspicious read, not a number added to the outlook elsewhere on this app. Region-locked variants from the source (e.g. rules the text itself scopes to a specific province) are skipped rather than applied universally.','Una segunda fuente clásica de muhūrta junto al motor SBC de la página Panorama. Se mantiene deliberadamente separada de la puntuación SBC — todo lo de abajo es su propia lectura auspiciosa/desfavorable directa, no un número que se suma al panorama de otra parte de esta app. Las variantes de doṣa limitadas a una región (p. ej. reglas que el propio texto restringe a una provincia específica) se omiten en vez de aplicarse universalmente.')}</div>
+        </details>
       </div>
     </div>
 
