@@ -322,16 +322,30 @@
   input:focus, select:focus{ outline:2px solid var(--gold-dim); outline-offset:1px; border-color:var(--gold-dim); }
   /* Quick-preset chips (built-in reference-person shortcuts) — a faster,
      more tactile front door onto the same apply-fields path the Saved
-     profile dropdown already uses, sitting right above it. */
-  .preset-chip-row{ display:flex; gap:6px; flex-wrap:wrap; margin:0 0 12px; }
+     profile dropdown already uses, sitting right above it. Styled with the
+     same gold CTA language as .btn (the app's one other "press this"
+     element) rather than a plain outlined chip, so they read as the
+     standout shortcuts they are instead of blending into the form. */
+  .preset-chip-row{ display:flex; gap:7px; flex-wrap:wrap; margin:0 0 14px; }
   .preset-chip{
-    flex:1 1 auto; min-width:72px; padding:8px 10px; border-radius:var(--radius-sm);
-    border:1px solid var(--line); background:var(--bg-2); color:var(--ink-dim);
-    font-family:var(--mono); font-size:11.5px; letter-spacing:0.03em; cursor:pointer;
-    text-align:center; transition:border-color .15s, color .15s, background .15s;
+    flex:1 1 auto; min-width:84px; padding:10px 12px; border-radius:var(--radius-pill);
+    border:1px solid var(--gold-dim);
+    background:linear-gradient(180deg, var(--btn-a), var(--btn-b));
+    color:var(--gold); font-family:var(--mono); font-size:12px; font-weight:700;
+    letter-spacing:0.04em; cursor:pointer; text-align:center;
+    box-shadow:0 1px 3px rgba(0,0,0,0.10);
+    transition:border-color .15s, background .15s, transform .1s, box-shadow .15s;
   }
-  .preset-chip:hover{ border-color:var(--gold-dim); color:var(--ink); }
-  .preset-chip.active{ border-color:var(--gold); color:var(--gold); background:var(--panel); }
+  .preset-chip::before{ content:'\2605\a0'; opacity:0.85; }
+  .preset-chip:hover{
+    border-color:var(--gold); background:linear-gradient(180deg, var(--btn-a-h), var(--btn-b-h));
+    transform:translateY(-1px); box-shadow:0 3px 9px rgba(0,0,0,0.14);
+  }
+  .preset-chip:active{ transform:translateY(0); }
+  .preset-chip.active{
+    background:var(--gold); border-color:var(--gold); color:var(--bg);
+    box-shadow:0 2px 7px rgba(0,0,0,0.18);
+  }
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
   .hint{ font-size:10.5px; color:var(--slate); margin-top:4px; }
