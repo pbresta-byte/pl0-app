@@ -80,11 +80,14 @@ const SB_OWN_SIGNS = {
 // (see file-header honesty note) — widely replicated across major Vedic
 // software, but flagged rather than asserted as independently re-verified
 // this session.
+// Degree ranges as stated in BPHS ch.3 v.51-54 (Sun Leo 0-20, Mars Aries 0-12, Jupiter Sagittarius 0-10,
+// Venus Libra 0-15, Saturn Aquarius 0-20 as before). The Shadbala texts themselves only say 45 Virupas for
+// the Mooltrikona sign. Moon and Mercury are unreachable in scoring today: their exaltation sign is caught first.
 const SB_MOOLATRIKONA = {
   Sun: { sign: 'Leo', from: 0, to: 20 },
-  Moon: { sign: 'Taurus', from: 4, to: 20 },
+  Moon: { sign: 'Taurus', from: 3, to: 30 },     // first 3 deg is exaltation, the rest Mooltrikona
   Mars: { sign: 'Aries', from: 0, to: 12 },
-  Mercury: { sign: 'Virgo', from: 16, to: 20 },
+  Mercury: { sign: 'Virgo', from: 15, to: 20 },  // first 15 deg exaltation, next 5 Mooltrikona
   Jupiter: { sign: 'Sagittarius', from: 0, to: 10 },
   Venus: { sign: 'Libra', from: 0, to: 15 },
   Saturn: { sign: 'Aquarius', from: 0, to: 20 }

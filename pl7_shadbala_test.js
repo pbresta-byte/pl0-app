@@ -14,6 +14,12 @@ m.sbSetRequiredSet('pl7'); ok('required set pl7 total 41.5', near(tot(), 41.5));
 m.sbSetRequiredSet('jayasekhar'); ok('required set jayasekhar total 40 (=2400 Virupas)', near(tot(), 40));
 m.sbSetRequiredSet('pl7');
 
+// Mooltrikona ranges (BPHS 3.51-54) and exaltation points (Shadbala text, zodiacal longitude)
+ok('MT Moon Taurus 3-30', m.SB_MOOLATRIKONA.Moon.from === 3 && m.SB_MOOLATRIKONA.Moon.to === 30);
+ok('MT Mercury Virgo 15-20', m.SB_MOOLATRIKONA.Mercury.from === 15 && m.SB_MOOLATRIKONA.Mercury.to === 20);
+const SIGNS = m.SB_SIGNS; const exalt = { Sun: 10, Moon: 33, Mars: 298, Mercury: 165, Jupiter: 95, Venus: 357, Saturn: 200 };
+Object.keys(exalt).forEach(g => ok('exaltation point ' + g, SIGNS.indexOf(m.SB_EXALT[g].sign) * 30 + m.SB_EXALT[g].deg === exalt[g]));
+
 // Vara / Hora
 ok('vara 45 to weekday lord', m.sbVaraBala('Sun', { weekdayLord: 'Sun' }) === 45 && m.sbVaraBala('Moon', { weekdayLord: 'Sun' }) === 0);
 ok('hora 60 to hora lord', m.sbHoraBala('Moon', { horaLord: 'Moon' }) === 60);
