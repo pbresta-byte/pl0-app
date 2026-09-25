@@ -848,6 +848,7 @@
 <script src="pl7-yoga-rules-misc.js"></script>
 <script src="pl7-yoga-catalog.js"></script>
 <script src="pl7-yoga-conditions-es.js"></script>
+<script src="pl7-shadbala.js"></script>
 <script src="dashakoota-engine.js"></script>
 </head>
 <body>
@@ -9198,6 +9199,8 @@ const PL7_YOGA_PARAM_OPTS = {
 Object.keys(PL7_YOGA_PARAM_OPTS).forEach(k => { YOGA_OPTS_DEFAULT['p:' + k] = String(PL7_YOGA_PARAM_OPTS[k]); });
 const pl7ParamValue = v => v === 'true' ? true : v === 'false' ? false : v;
 YOGA_OPTS_DEFAULT.pl7conj = 'hide';
+YOGA_OPTS_DEFAULT.pl7sb = 'on';       // strength-dependent combinations use the in-app Shadbala
+YOGA_OPTS_DEFAULT.pl7sbreq = 'pl7';   // Sun's minimum strength: 'pl7' = 6.5 Rupas, 'jayasekhar' = 5
 (() => { try {
   const saved = JSON.parse(localStorage.getItem('pl0YogaOpts') || '{}');
   Object.keys(YOGA_OPTS_DEFAULT).forEach(k => { if (!(k in YOGA_OPTS)) YOGA_OPTS[k] = typeof saved[k] === 'string' ? saved[k] : YOGA_OPTS_DEFAULT[k]; });
@@ -9237,9 +9240,77 @@ function pl7CleanCondition(s){
     .replace(/;\s*PL7[^;]*$/, '').replace(/\s*\(classical\)/, '')
     .replace('at least many_planets_min', 'at least ' + window.PL7Yoga.PARAMS.many_planets_min);
 }
+// Shadbala ratios (total strength / required minimum) for the seven classical
+// planets, keyed Su..Sa like the rule engine expects. Built from the standalone
+// Shadbala module (pl7-shadbala.js) using this app's own varga, sunrise and
+// positions code. Returns null if the module or birth data is missing.
+function pl7ShadbalaRatios(birthPos){
+  const SBm = window.Shadbala;
+  if (!SBm || YOGA_OPTS.pl7sb === 'off') return null;
+  try {
+    SBm.sbSetRequiredSet(YOGA_OPTS.pl7sbreq === 'jayasekhar' ? 'jayasekhar' : 'pl7');
+    const dt = readDateTime('b');
+    if (dt.empty || !isFinite(dt.jd)) return null;
+    const NAMES = { Su: 'Sun', Mo: 'Moon', Ma: 'Mars', Me: 'Mercury', Ju: 'Jupiter', Ve: 'Venus', Sa: 'Saturn' };
+    const ascSid = norm360(birthPos._ascSidereal), ascIdx = Math.floor(ascSid / 30);
+    const pos = { _ascSidereal: ascSid };
+    Object.values(NAMES).forEach(n => { const q = birthPos[n]; pos[n] = { sidereal: norm360(q.sidereal), tropical: q.tropical, speed: q.speed }; });
+    const isDay = pl7DayBirth(dt.jd, dt.lat, dt.lon, birthPos.Sun.tropical);
+    const hr = dt.hh + dt.mm / 60 + dt.ss / 3600;
+    const sr = sunriseSunsetLocal(dt.y, dt.mo, dt.da, dt.lat, dt.lon, dt.tz);
+    const rise = sr ? sr.sunriseHr : 6, set = sr ? sr.sunsetHr : 18;
+    const clamp01 = x => Math.max(0, Math.min(1, x));
+    // progress through the day (sunrise..sunset) or the night (sunset..next sunrise)
+    const dayLen = set - rise, nightLen = 24 - dayLen;
+    const dayFraction = isDay ? clamp01((hr - rise) / dayLen)
+      : clamp01((hr >= set ? hr - set : hr + 24 - set) / nightLen);
+    // local mean time: 0 at midnight, 1 at noon (Natonnata Bala)
+    const lmt = (((hr - dt.tz + dt.lon / 15) % 24) + 24) % 24;
+    // weekday changes at sunrise: before sunrise the previous weekday's lord rules
+    const civilDow = new Date(Date.UTC(dt.y, dt.mo - 1, dt.da)).getUTCDay();
+    const dow = hr < rise ? (civilDow + 6) % 7 : civilDow;
+    const WD_LORDS = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'];
+    const HORA_ORDER = ['Sun', 'Venus', 'Mercury', 'Moon', 'Saturn', 'Jupiter', 'Mars'];
+    const horaIdx = Math.floor((((hr - rise) % 24) + 24) % 24); // 1/24 of the day from sunrise
+    const tropicalLong = {}; Object.values(NAMES).forEach(n => { tropicalLong[n] = norm360(birthPos[n].tropical); });
+    // mean longitudes for Cheshta Bala (from this app's own orbital-element table)
+    const Tc = centuriesJ2000(dt.jd);
+    const meanL = n => norm360(PLANET_ELEMENTS[n].L[0] + PLANET_ELEMENTS[n].L[1] * Tc);
+    const sunMean = norm360(280.46646 + 36000.76983 * Tc);
+    const meanLong = {}, sheeghrochcha = {};
+    ['Mars', 'Jupiter', 'Saturn'].forEach(n => { meanLong[n] = meanL(n); sheeghrochcha[n] = sunMean; });
+    ['Mercury', 'Venus'].forEach(n => { meanLong[n] = sunMean; sheeghrochcha[n] = meanL(n); });
+    // Midheaven (10th cusp) for Dig Bala, sidereal
+    const ramc = norm360(gmstDeg(dt.jd) + dt.lon), epsR = obliquity(Tc) * DEG;
+    let mcTrop = Math.atan2(Math.sin(ramc * DEG), Math.cos(ramc * DEG) * Math.cos(epsR)) * RAD;
+    mcTrop = norm360(mcTrop); if (Math.abs(((mcTrop - ramc + 540) % 360) - 180) > 90) mcTrop = norm360(mcTrop + 180);
+    const mcSidereal = norm360(mcTrop - birthPos._ayanamsa);
+    const ctx = {
+      isDayBirth: isDay,
+      fractionSinceLastMidnightOrNoon: clamp01(1 - Math.abs(lmt - 12) / 12),
+      elongation: norm360(pos.Moon.tropical - pos.Sun.tropical),
+      tithi: Math.floor(norm360(pos.Moon.tropical - pos.Sun.tropical) / 12) + 1,
+      dayFraction,
+      sunSiderealLong: pos.Sun.sidereal,
+      tropicalLong, meanLong, sheeghrochcha, mcSidereal,
+      weekdayLord: WD_LORDS[dow],
+      horaLord: HORA_ORDER[(HORA_ORDER.indexOf(WD_LORDS[dow]) + horaIdx) % 7],
+      isPlanetaryWar: false
+    };
+    const KEYS = ['D1', 'D2', 'D3', 'D7', 'D9', 'D12', 'D30'];
+    const out = {};
+    Object.keys(NAMES).forEach(k => {
+      const sid = pos[NAMES[k]].sidereal;
+      const vs = {}; KEYS.forEach(v => { vs[v] = SBm.SB_SIGNS[vargaSignForKey(v, sid)]; });
+      out[k] = SBm.shadbala(NAMES[k], pos, vs, navamsaSidereal(sid), ascIdx, ctx).ratio;
+    });
+    return out;
+  } catch (e) { return null; }
+}
 // Evaluates the PL7-derived rules on the birth chart. Returns only rules this
-// app does not already show through its own yoga functions, skipping rules
-// that need Shadbala strength (not computed in this app).
+// app does not already show through its own yoga functions. Rules that need
+// planetary strength (strong/weak) run on the Shadbala ratios above; if those
+// cannot be computed, such rules are skipped rather than guessed.
 function pl7YogaHits(birthPos){
   const E = window.PL7Yoga;
   if (!E || !E.CATALOG) return { hits: [], evaluated: 0 };
@@ -9249,16 +9320,18 @@ function pl7YogaHits(birthPos){
   const lon = {}; Object.keys(K).forEach(k => { lon[k] = norm360(birthPos[K[k]].sidereal); });
   let day = null;
   try { const dt = readDateTime('b'); day = pl7DayBirth(dt.jd, dt.lat, dt.lon, birthPos.Sun.tropical); } catch (e) {}
-  const c = new E.Chart(lon, norm360(birthPos._ascSidereal), {}, day);
+  const sbR = pl7ShadbalaRatios(birthPos);
+  const c = new E.Chart(lon, norm360(birthPos._ascSidereal), sbR || {}, day);
   const fired = E.evaluate(c);
   const showConj = YOGA_OPTS.pl7conj === 'show';
   const usable = E.RULES.filter(r => !E.CATALOG[r.yoga_no][1] && !E.DUPLICATE_ENTRIES.has(r.yoga_no) && (showConj || !r.family.startsWith('conjunction'))
-    && !/strong|weak|sbOf/.test(r.fn.toString()) && (day !== null || !/day_birth/.test(r.fn.toString())));
+    && (sbR || !/strong|weak|sbOf/.test(r.fn.toString())) && (day !== null || !/day_birth/.test(r.fn.toString())));
   const hits = usable.filter(r => fired.has(r.yoga_no)).map(r => ({
     no: r.yoga_no, name: E.CATALOG[r.yoga_no][0], condition: (E.COND_EN && E.COND_EN[r.yoga_no]) || (E.condConjEN && E.condConjEN(r.condition)) || pl7CleanCondition(r.condition),
     conditionEs: (E.COND_ES && E.COND_ES[r.yoga_no]) || (E.condConjES && E.condConjES(r.condition)) || null, polarity: pl7Polarity(r.family),
-    themes: [...new Set((r.safety_flags || []).map(f => PL7_FLAG_THEME[f]).filter(Boolean))] }));
-  return { hits, evaluated: usable.length };
+    themes: [...new Set((r.safety_flags || []).map(f => PL7_FLAG_THEME[f]).filter(Boolean))],
+    needsStrength: /strong|weak|sbOf/.test(r.fn.toString()) }));
+  return { hits, evaluated: usable.length, usedShadbala: !!sbR };
 }
 
 function setYogaOpt(key, value){
@@ -11049,7 +11122,7 @@ function yogaSafetyLine(num, themeList){
     };
     const sub = (en, es, list) => list.length ? `<div style="font-size:12px; font-weight:600; color:var(--ink-dim); margin:8px 0 5px;">${T(en, es)} (${list.length})</div>` + list.map(item).join('') : '';
     return `<details style="margin-top:12px;" ${pl7SectionOpen?'open':''} ontoggle="pl7SectionOpen=this.open"><summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--slate);">${T('Further classical combinations','Otras combinaciones clásicas')} — ${pl7Res.hits.length} ${T('present','presentes')} / ${pl7Res.evaluated} ${T('checked','revisadas')}</summary>
-      <div class="hint" style="margin:6px 0 8px;">${T('Conditions are given in shorthand: L5 = lord of the 5th house; houses are counted whole-sign from the Lagna. Combinations that need planetary strength scores are not checked here.','Las condiciones van abreviadas: L5 = señor de la casa 5; las casas se cuentan por signo entero desde el Lagna. No se revisan aquí las combinaciones que requieren puntuaciones de fuerza planetaria.')}</div>
+      <div class="hint" style="margin:6px 0 8px;">${T('Conditions are given in shorthand: L5 = lord of the 5th house; houses are counted whole-sign from the Lagna. ','Las condiciones van abreviadas: L5 = señor de la casa 5; las casas se cuentan por signo entero desde el Lagna. ')}${pl7Res.usedShadbala ? T(' Combinations that need planetary strength use an approximate Shadbala calculated in this app: on the one reference chart checked, its strength ratios sit within about 0.3 of those of a reference program, so treat those results as indicative, not exact.', ' Las combinaciones que requieren fuerza planetaria usan un Shadbala aproximado calculado en esta app: en la única carta de referencia comprobada, sus proporciones de fuerza quedan a unos 0,3 de las de un programa de referencia, así que tómalas como orientativas, no exactas.') : T(' Combinations that need planetary strength scores are not checked here.', ' No se revisan aquí las combinaciones que requieren puntuaciones de fuerza planetaria.')}</div>
       ${sub('Supportive', 'Favorables', grp.positive)}${sub('Cautions', 'Precauciones', grp.negative)}${sub('Mixed or descriptive', 'Mixtas o descriptivas', grp.mixed)}
       ${pl7Res.hits.length ? '' : `<div class="hint">${T('None of these combinations forms in this chart.','Ninguna de estas combinaciones se forma en esta carta.')}</div>`}
     </details>`;
@@ -11114,6 +11187,10 @@ function yogaSafetyLine(num, themeList){
           ['day','Day birth with waning Moon only','Solo nacimiento diurno con Luna menguante']]))}
         ${optRow('Full-life longevity group','Grupo de longevidad plena', optSelect('p:longevity_686_mode', [
           ['classical_kendra','Lagna lord and benefics in kendras','Señor del Lagna y benéficos en kendras'], ['pl7_panaphara','Lagna lord and benefics in panapharas','Señor del Lagna y benéficos en panapharas']]))}
+        ${optRow('Combinations that need planetary strength','Combinaciones que requieren fuerza planetaria', optSelect('pl7sb', [
+          ['on','Use the in-app Shadbala (approximate)','Usar el Shadbala de la app (aproximado)'], ['off','Skip them','Omitirlas']]))}
+        ${optRow("Sun's minimum strength in Shadbala","Fuerza mínima del Sol en Shadbala", optSelect('pl7sbreq', [
+          ['pl7','6.5 Rupas (matches the reference program)','6,5 Rupas (coincide con el programa de referencia)'], ['jayasekhar','5 Rupas (one classical text)','5 Rupas (un texto clásico)']]))}
         ${optRow('Planetary conjunction entries (two or more planets in one sign)','Entradas de conjunción (dos o más planetas en un signo)', optSelect('pl7conj', [
           ['hide','Hide','Ocultar'], ['show','Show','Mostrar']]))}
       </div></details>`;
@@ -11132,7 +11209,7 @@ function yogaSafetyLine(num, themeList){
       const planets = yogaPlanetsFrom(h.condition, lagnaIdx);
       return { name: h.name, polarity: h.polarity, category: yogaCategory(h.name, h.polarity), planets,
         strength: planets.length ? planets.reduce((t, g) => t + yogaGraahaStrength(g, birthPos), 0) / planets.length : 0.5,
-        body: `<div style="margin-top:3px; color:var(--slate); font-size:11.5px; line-height:1.55;">${T('Forms when','Se forma cuando')}: ${T(h.condition, h.conditionEs || h.condition)}.</div>${yogaSafetyLine(null, h.themes)}` };
+        body: `<div style="margin-top:3px; color:var(--slate); font-size:11.5px; line-height:1.55;">${T('Forms when','Se forma cuando')}: ${T(h.condition, h.conditionEs || h.condition)}.</div>${h.needsStrength ? `<div style="margin-top:3px; color:var(--ink-dim); font-size:11px; line-height:1.5;">${T('Uses planetary strength: judged with the approximate Shadbala calculated in this app, so read it as indicative.','Usa fuerza planetaria: se juzga con el Shadbala aproximado calculado en esta app, así que tómalo como orientativo.')}</div>` : ''}${yogaSafetyLine(null, h.themes)}` };
     }));
     html += renderYogaGrid(items, birthPos);
     return html;

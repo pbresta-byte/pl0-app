@@ -1,7 +1,8 @@
-const CACHE = "pl0-app-v6";
+const CACHE = "pl0-app-v7";
 const ASSETS = [
   "./index.html",
   "./manifest.json",
+  "./pl7-shadbala.js",
   "./pl7-yoga-engine.js",
   "./pl7-yoga-rules-core.js",
   "./pl7-yoga-rules-arishta.js",
