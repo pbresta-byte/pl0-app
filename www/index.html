@@ -9176,7 +9176,6 @@ function setNatalLordHouse(v){ natalLordHouseSel = parseInt(v,10)||1; renderNata
 //              'supported' = Jupiter in a kendra from Lagna or Moon, joined or aspected
 //                            by a benefic, not debilitated, combust or in an enemy's sign (BPHS 36.3-4)
 let yogaOptsOpen = false; // keeps the options panel open across re-renders
-let pl7SectionOpen = false; // same for the further-combinations list
 const YOGA_OPTS_DEFAULT = { trikala:'open', kemadruma:'plain', gajakesari:'placement' };
 let YOGA_OPTS = (() => {
   try {
@@ -11107,26 +11106,6 @@ function yogaSafetyLine(num, themeList){
   // for these (deliberately not copied); each shows the condition that formed it.
   let pl7Res = { hits: [], evaluated: 0 };
   try { pl7Res = pl7YogaHits(birthPos); } catch (e) { console.warn('PL7 yoga engine', e); }
-  const pl7SectionHtml = (() => {
-    if (!pl7Res.evaluated) return '';
-    const grp = { positive: [], negative: [], mixed: [] };
-    pl7Res.hits.forEach(h => grp[h.polarity].push(h));
-    const item = h => {
-      const cls = h.polarity === 'negative' ? 'bad' : h.polarity === 'positive' ? 'good' : 'neutral';
-      const style = cls === 'bad' ? 'background:var(--hit-bad-bg); border-color:var(--hit-bad-line); color:var(--hit-bad-ink);' : '';
-      return `<div class="li" style="margin-bottom:7px;">
-        <span class="tag ${cls}" style="${style}">${h.name}</span>
-        <div style="margin-top:3px; color:var(--slate); font-size:11.5px; line-height:1.55;">${T('Forms when','Se forma cuando')}: ${T(h.condition, h.conditionEs || h.condition)}.</div>
-        ${yogaSafetyLine(null, h.themes)}
-      </div>`;
-    };
-    const sub = (en, es, list) => list.length ? `<div style="font-size:12px; font-weight:600; color:var(--ink-dim); margin:8px 0 5px;">${T(en, es)} (${list.length})</div>` + list.map(item).join('') : '';
-    return `<details style="margin-top:12px;" ${pl7SectionOpen?'open':''} ontoggle="pl7SectionOpen=this.open"><summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--slate);">${T('Further classical combinations','Otras combinaciones clásicas')} — ${pl7Res.hits.length} ${T('present','presentes')} / ${pl7Res.evaluated} ${T('checked','revisadas')}</summary>
-      <div class="hint" style="margin:6px 0 8px;">${T('Conditions are given in shorthand: L5 = lord of the 5th house; houses are counted whole-sign from the Lagna. ','Las condiciones van abreviadas: L5 = señor de la casa 5; las casas se cuentan por signo entero desde el Lagna. ')}${pl7Res.usedShadbala ? T(' Combinations that need planetary strength use an approximate Shadbala calculated in this app: on the one reference chart checked, its strength ratios sit within about 0.3 of those of a reference program, so treat those results as indicative, not exact.', ' Las combinaciones que requieren fuerza planetaria usan un Shadbala aproximado calculado en esta app: en la única carta de referencia comprobada, sus proporciones de fuerza quedan a unos 0,3 de las de un programa de referencia, así que tómalas como orientativas, no exactas.') : T(' Combinations that need planetary strength scores are not checked here.', ' No se revisan aquí las combinaciones que requieren puntuaciones de fuerza planetaria.')}</div>
-      ${sub('Supportive', 'Favorables', grp.positive)}${sub('Cautions', 'Precauciones', grp.negative)}${sub('Mixed or descriptive', 'Mixtas o descriptivas', grp.mixed)}
-      ${pl7Res.hits.length ? '' : `<div class="hint">${T('None of these combinations forms in this chart.','Ninguna de estas combinaciones se forma en esta carta.')}</div>`}
-    </details>`;
-  })();
   const masterYogaActiveCount = masterYogaEntries.filter(y=>y.result.present).length + (pl7Res.hits || []).length;
   const masterYogaHtml = (() => {
     const filtered = masterYogaEntries.filter(y=>y.result.present);
