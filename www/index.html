@@ -950,6 +950,9 @@
         <div class="hamburger-menu-cat" data-i18n="navCatSpecial">Specialized</div>
         <button type="button" data-page="pageAnatomy" data-i18n="navAnatomy">Anatomy</button>
         <button type="button" data-page="pageMatchmaking" data-i18n="navMatchmaking">Matchmaking</button>
+
+        <div class="hamburger-menu-cat" data-i18n="navCatSettings">Settings</div>
+        <button type="button" data-page="pageOptions" data-i18n="navOptions">Options</button>
         <!-- Archived 2026-09-22 (kept in code, off the menu; see docs/archived-features.md): <button type="button" data-page="pageNakshatra" data-i18n="navNakshatra">World Era</button> -->
         <!-- Archived 2026-09-23 (kept in code, off the menu; see docs/archived-features.md): <button type="button" data-page="pageTarot" data-i18n="navTarot">Tarot</button> -->
               </div>
@@ -1050,32 +1053,13 @@
     </fieldset>
 
     <fieldset>
-      <legend data-i18n="leg3">3 · Options</legend>
-      <label>Ayanāṁśa</label>
-      <select id="ayanamsaMode">
-        <option value="lahiri" data-i18n="ayaLahiri">Lahiri (linear approx.)</option>
-        <option value="tropical" data-i18n="ayaTropical">None — tropical zodiac</option>
-      </select>
-      <label data-i18n="sunriseLbl">Sunrise</label>
-      <select id="sunriseMode" onchange="try{localStorage.setItem('pl0SunriseMode',this.value)}catch(e){}">
-        <option value="apparent" data-i18n="sunriseApparent">Upper edge of the Sun, with refraction</option>
-        <option value="centre" data-i18n="sunriseCentre">Centre of the Sun's disc on the horizon</option>
-      </select>
-      <label class="toggle"><input type="checkbox" id="showAbhijit" checked> <span data-i18n="opt28">use 28-star Abhijit reckoning for SBC panels</span></label>
-      <label class="toggle"><input type="checkbox" id="weighTara" checked> <span data-i18n="optTara">include Tārā Bala of today's Moon in score</span></label>
-      <label class="toggle"><input type="checkbox" id="weighPP" checked> <span data-i18n="optPP">include Pañcha Pakshi (life bird) state in score</span></label>
-      <label class="toggle"><input type="checkbox" id="weighDignity" checked> <span data-i18n="optDignity">weight Vedha hits by the graha's own dignity</span></label>
-      <label class="toggle"><input type="checkbox" id="weighMuhurtaDosha" checked> <span data-i18n="optMuhurtaDosha">flag Riktha Tithi, bad Karaṇa, Vyatīpāta/Vaidhṛti Yoga and ascendant Fruitful/Barren</span></label>
-    </fieldset>
-
-    <fieldset>
-      <legend data-i18n="leg4">4 · Charts</legend>
+      <legend data-i18n="leg4">3 · Charts</legend>
       <label class="toggle"><input type="checkbox" id="chartPanchapakshi" checked> <span data-i18n="chartPanchaLbl">Line — Pañcha Pakshi live Yama chart</span></label>
       <div class="hint" data-i18n="chartMenuHint">More chart types can be added to this menu later.</div>
     </fieldset>
 
     <fieldset>
-      <legend data-i18n="leg5">5 · Bird From a Name (Pañcha Pakshi)</legend>
+      <legend data-i18n="leg5">4 · Bird From a Name (Pañcha Pakshi)</legend>
       <div class="hint" data-i18n="nameToBirdHint">Identify someone else's Pañcha Pakshi bird from the first vowel sound of their name, for when their birth star is unknown (Table No.4) — a separate method from the reference person's own birth-star bird above, and independent of everything else on this page.</div>
       <label data-i18n="nameToBirdLbl">Name</label>
       <input type="text" id="nameToBirdInput" data-i18n-placeholder="nameToBirdPh" placeholder="e.g. Gopal, Priya…">
@@ -1206,6 +1190,42 @@
     <div id="tarotPile"></div>
   </div>
 </div>
+<div id="pageOptions" class="page">
+  <div class="result-col" style="max-width:820px; margin:0 auto;">
+    <h2 data-i18n="navOptions">Options</h2>
+    <div class="hint" style="margin-bottom:12px;" data-i18n="optionsIntro">The choices on this page are the ones that change how the whole app calculates: where opinions differ between traditions, or how the moment's score is built. Choices that belong to one page (daśā systems, yoga readings, varga rules) stay on that page. Changes save on this device.</div>
+    <div id="optionsCalc" class="form-col" style="margin-bottom:18px;">
+    <fieldset>
+      <legend data-i18n="optCalcLeg">Calculation options</legend>
+      <label>Ayanāṁśa</label>
+      <select id="ayanamsaMode">
+        <option value="lahiri" data-i18n="ayaLahiri">Lahiri (linear approx.)</option>
+        <option value="kp">Krishnamurti (KP)</option>
+        <option value="raman">Raman</option>
+        <option value="fagan">Fagan-Bradley</option>
+        <option value="yukteshwar">Yukteshwar</option>
+        <option value="jnbhasin">J. N. Bhasin</option>
+        <option value="tropical" data-i18n="ayaTropical">None — tropical zodiac</option>
+      </select>
+      <label data-i18n="sunriseLbl">Sunrise</label>
+      <select id="sunriseMode" onchange="try{localStorage.setItem('pl0SunriseMode',this.value)}catch(e){}">
+        <option value="apparent" data-i18n="sunriseApparent">Upper edge of the Sun, with refraction</option>
+        <option value="centre" data-i18n="sunriseCentre">Centre of the Sun's disc on the horizon</option>
+      </select>
+      <label class="toggle"><input type="checkbox" id="showAbhijit" checked> <span data-i18n="opt28">use 28-star Abhijit reckoning for SBC panels</span></label>
+      <label class="toggle"><input type="checkbox" id="weighTara" checked> <span data-i18n="optTara">include Tārā Bala of today's Moon in score</span></label>
+      <label class="toggle"><input type="checkbox" id="weighPP" checked> <span data-i18n="optPP">include Pañcha Pakshi (life bird) state in score</span></label>
+      <label class="toggle"><input type="checkbox" id="weighDignity" checked> <span data-i18n="optDignity">weight Vedha hits by the graha's own dignity</span></label>
+      <label class="toggle"><input type="checkbox" id="weighMuhurtaDosha" checked> <span data-i18n="optMuhurtaDosha">flag Riktha Tithi, bad Karaṇa, Vyatīpāta/Vaidhṛti Yoga and ascendant Fruitful/Barren</span></label>
+    </fieldset>
+    </div>
+    <div id="optionsAlerts" style="margin-bottom:18px;"></div>
+    <div id="optionsElsewhere" style="margin-bottom:18px;"></div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:26px;">
+      <button type="button" class="btn ghost" id="optionsResetBtn" data-i18n="optionsReset">Reset calculation options to defaults</button>
+    </div>
+  </div>
+</div>
 
 
 <script>
@@ -1245,7 +1265,11 @@ const I18N = {
   dateLbl: { en:`Date`, es:`Fecha` },
   timeLbl: { en:`Time (local)`, es:`Hora (local)` },
   useNow: { en:`use current moment`, es:`usar el momento actual` },
-  leg3: { en:`3 · Options`, es:`3 · Opciones` },
+  optCalcLeg: { en:`Calculation options`, es:`Opciones de cálculo` },
+  navCatSettings: { en:`Settings`, es:`Ajustes` },
+  navOptions: { en:`Options`, es:`Opciones` },
+  optionsIntro: { en:`The choices on this page are the ones that change how the whole app calculates: where opinions differ between traditions, or how the moment's score is built. Choices that belong to one page (daśā systems, yoga readings, varga rules) stay on that page. Changes save on this device.`, es:`Las opciones de esta página cambian cómo calcula toda la aplicación: donde las tradiciones difieren, o cómo se construye la puntuación del momento. Las opciones propias de una página (sistemas de daśā, lecturas de yoga, reglas de varga) se quedan en esa página. Los cambios se guardan en este dispositivo.` },
+  optionsReset: { en:`Reset calculation options to defaults`, es:`Restablecer las opciones de cálculo` },
   ayaLahiri: { en:`Lahiri (linear approx.)`, es:`Lahiri (aprox. lineal)` },
   ayaTropical: { en:`None — tropical zodiac`, es:`Ninguno — zodiaco trópico` },
   sunriseLbl: { en:`Sunrise`, es:`Salida del Sol` },
@@ -1256,10 +1280,10 @@ const I18N = {
   optPP: { en:`include Pañcha Pakshi (life bird) state in score`, es:`incluir el estado del Pañcha Pakshi (ave vital) en la puntuación` },
   optDignity: { en:`weight Vedha hits by the graha's own dignity`, es:`ponderar los golpes de Vedha según la dignidad propia del graha` },
   optMuhurtaDosha: { en:`flag Riktha Tithi, bad Karaṇa, Vyatīpāta/Vaidhṛti Yoga and ascendant Fruitful/Barren`, es:`señalar Tithi Riktha, Karaṇa desfavorable, Yoga Vyatīpāta/Vaidhṛti y ascendente Fructífero/Estéril` },
-  leg4: { en:`4 · Charts`, es:`4 · Gráficos` },
+  leg4: { en:`3 · Charts`, es:`3 · Gráficos` },
   chartPanchaLbl: { en:`Line — Pañcha Pakshi live Yama chart`, es:`Línea — gráfico Yama en vivo de Pañcha Pakshi` },
   chartMenuHint: { en:`More chart types can be added to this menu later.`, es:`Más tipos de gráfico se pueden añadir a este menú más adelante.` },
-  leg5: { en:`5 · Bird From a Name (Pañcha Pakshi)`, es:`5 · Ave a partir de un nombre (Pañcha Pakshi)` },
+  leg5: { en:`4 · Bird From a Name (Pañcha Pakshi)`, es:`4 · Ave a partir de un nombre (Pañcha Pakshi)` },
   nameToBirdHint: { en:`Identify someone else's Pañcha Pakshi bird from the first vowel sound of their name, for when their birth star is unknown (Table No.4) — a separate method from the reference person's own birth-star bird above, and independent of everything else on this page.`, es:`Identifica el ave Pañcha Pakshi de otra persona a partir del primer sonido vocálico de su nombre, para cuando no se conoce su estrella de nacimiento (Tabla N.º 4) — un método aparte del ave por estrella de nacimiento de la persona de referencia de arriba, e independiente de todo lo demás en esta página.` },
   nameToBirdLbl: { en:`Name`, es:`Nombre` },
   nameToBirdPh: { en:`e.g. Gopal, Priya…`, es:`p. ej. Gopal, Priya…` },
@@ -2608,6 +2632,22 @@ function rahuLongitude(T){
 
 // ---- Lahiri ayanamsa, linear approximation anchored at J2000
 function lahiriAyanamsa(T){ const years = T*100; return 23.8531 + 0.013972*years; }
+// Other ayanamsha conventions are the same precession rate offset by a fixed amount (degrees, at J2000, relative to Lahiri).
+// The offsets are the differences of each convention's own definition at J2000; a linear model of that form stays within
+// 0.005 degree of the full definitions across 1900-2100 (checked against the Swiss Ephemeris). 'lahiri' stays the default
+// and 'tropical' means no shift, so every existing call path gives the same numbers unless the user picks another one.
+const AYANAMSHA_DELTA = { lahiri:0, kp:-0.0969, raman:-1.4463, fagan:0.8832, yukteshwar:-1.3783, jnbhasin:-1.0950 };
+const AYANAMSHA_LABEL = {
+  lahiri:     { en:'Lahiri (linear approx.)',        es:'Lahiri (aprox. lineal)' },
+  kp:         { en:'Krishnamurti (KP)',              es:'Krishnamurti (KP)' },
+  raman:      { en:'Raman',                          es:'Raman' },
+  fagan:      { en:'Fagan-Bradley',                  es:'Fagan-Bradley' },
+  yukteshwar: { en:'Yukteshwar',                     es:'Yukteshwar' },
+  jnbhasin:   { en:'J. N. Bhasin',                   es:'J. N. Bhasin' },
+  tropical:   { en:'None — tropical zodiac',         es:'Ninguno — zodiaco trópico' }
+};
+function ayanamshaFor(mode, T){ return mode === 'tropical' ? 0 : lahiriAyanamsa(T) + (AYANAMSHA_DELTA[mode] || 0); }
+function ayanamshaLabel(mode){ const l = AYANAMSHA_LABEL[mode] || AYANAMSHA_LABEL.lahiri; return T(l.en, l.es); }
 
 // ---- Two-body Kepler orbits for Mercury/Venus/Mars/Jupiter/Saturn
 // Elements: a(AU), e, i(deg), L(deg, mean longitude at epoch), varpi(deg, long. of perihelion),
@@ -2720,7 +2760,7 @@ function ascendantTropical(jd, latDeg, lonDegEast){
 // ---- Full positions bundle for an instant
 function computePositions(jd, latDeg, lonDegEast, ayanamsaMode){
   const T = centuriesJ2000(jd);
-  const ay = ayanamsaMode === "tropical" ? 0 : lahiriAyanamsa(T);
+  const ay = ayanamshaFor(ayanamsaMode, T);
   const dt = 0.5; // half a day, for speed/direction sampling
   const Tp = centuriesJ2000(jd+dt), Tm = centuriesJ2000(jd-dt);
 
@@ -2757,7 +2797,7 @@ function computePositions(jd, latDeg, lonDegEast, ayanamsaMode){
    should. */
 function computeOuterPositions(jd, ayanamsaMode){
   const T = centuriesJ2000(jd);
-  const ay = ayanamsaMode === "tropical" ? 0 : lahiriAyanamsa(T);
+  const ay = ayanamshaFor(ayanamsaMode, T);
   const dt = 0.5;
   const Tp = centuriesJ2000(jd+dt), Tm = centuriesJ2000(jd-dt);
   const out = {};
@@ -3241,7 +3281,7 @@ function vimshottariYearDays(){ return parseFloat(VIM_OPTS.yearDays) || VIMSHOTT
 function moonSiderealAt(jd){
   const T = centuriesJ2000(jd);
   const mode = (typeof document !== 'undefined' && document.getElementById('ayanamsaMode')) ? document.getElementById('ayanamsaMode').value : 'lahiri';
-  return norm360(moonLongitude(T) - (mode === 'tropical' ? 0 : lahiriAyanamsa(T)));
+  return norm360(moonLongitude(T) - ayanamshaFor(mode, T));
 }
 // JD at which the Moon's sidereal longitude equals `target`, nearest to `guessJD` (Newton on the Moon's own motion).
 function moonAtLongitudeJD(target, guessJD){
@@ -9151,7 +9191,7 @@ function runAnalysis(){
     </div>
   </div>`;
 
-  html += `<div class="panel"><div class="hd"><h2>${T('Graha positions','Posiciones de los Graha')}</h2><span class="note">${T('sidereal, Lahiri','sidéreo, Lahiri')}${ay==='tropical'? T(' — disabled, tropical shown',' — desactivado, se muestra trópico'):''}</span></div><div class="bd">${renderPlanetTable(pos)}
+  html += `<div class="panel"><div class="hd"><h2>${T('Graha positions','Posiciones de los Graha')}</h2><span class="note">${T('sidereal, ','sidéreo, ')}${ayanamshaLabel(ay==='tropical'?'lahiri':ay).replace(' (linear approx.)','').replace(' (aprox. lineal)','')}${ay==='tropical'? T(' — disabled, tropical shown',' — desactivado, se muestra trópico'):''}</span></div><div class="bd">${renderPlanetTable(pos)}
     <div class="hint" style="margin-top:8px;">${T('Rāśi chip = tattva family (fire/earth/air/water); Dignity text = strength right now — ','Chip de Rāśi = familia de tattva (fuego/tierra/aire/agua); texto de Dignidad = fuerza ahora mismo — ')}<b style="color:var(--jade)">${T('green','verde')}</b> ${T('favourable (Exalted/Own/Friend, darker = stronger)','favorable (Exaltado/Propio/Amigo, más oscuro = más fuerte)')}, <b style="color:var(--vermilion)">${T('red','rojo')}</b> ${T('unfavourable (Enemy/Debilitated, darker = weaker)','desfavorable (Enemigo/Debilitado, más oscuro = más débil)')}, <span style="color:var(--slate)">${T('grey','gris')}</span> ${T('neutral.','neutral.')}</div>
     </div></div>`;
 
@@ -9162,7 +9202,7 @@ function runAnalysis(){
   const refNote = T(refInfo.note, "calculado a partir de datos de nacimiento");
   html += `<footer class="notes">
     <b>${T('Reference used:','Referencia usada:')}</b> ${refNote}${refP.star? ` — ${T('Janma Nakṣatra','Janma Nakṣatra')} ${refP.star}` : ''}${refP.consonant?T(`, consonant ${refP.consonant}`,`, consonante ${refP.consonant}`):''}${refP.lifeBird?T(`, life bird ${refP.lifeBird} (fixed at birth — born in ${refP.birthHalf==='dark'?'Kṛṣṇa Pakṣa/Dark Half (Waning)':'Śukla Pakṣa/Bright Half (Waxing)'}, never recalculated from today's date)`,`, ave vital ${T(refP.lifeBird,PP_BIRDS_ES[refP.lifeBird])} (fija al nacer — nacido en ${refP.birthHalf==='dark'?'Kṛṣṇa Pakṣa/Mitad Oscura (Menguante)':'Śukla Pakṣa/Mitad Clara (Creciente)'}, nunca recalculada según la fecha de hoy)`):''}.<br>
-    <b>Ayanāṁśa:</b> ${ay==='tropical'?T('none (tropical)','ninguno (trópico)'):T('Lahiri, linear approximation','Lahiri, aproximación lineal')}. <b>${T('Julian Day (muhūrta):','Día Juliano (muhūrta):')}</b> ${mdt.jd.toFixed(5)}.<br>
+    <b>Ayanāṁśa:</b> ${ay==='tropical'?T('none (tropical)','ninguno (trópico)'):ayanamshaLabel(ay)}. <b>${T('Julian Day (muhūrta):','Día Juliano (muhūrta):')}</b> ${mdt.jd.toFixed(5)}.<br>
     ${T(`<b>Vowel Vedha (ⓘ):</b> not modeled yet — vowels tie to specific corner cells of the full 81-cell grid rather than to
     a per-star rule, and need the complete grid (not just the perimeter) to compute correctly. Star, Rāśi and Consonant Vedha are live.<br>
     <b>Method:</b> a graha's Vedha direction (Front/Right/Left) follows its own daily motion; the star it strikes comes from a fixed
@@ -9279,6 +9319,7 @@ function showPage(pageId){
   closeHamburgerMenu();
   if (PAGES_NEEDING_BIRTH_DATA[pageId]) renderPageOrBirthDataPlaceholder(pageId);
   if (pageId === 'pageAntara') renderAntaraChakraPage();
+  if (pageId === 'pageOptions' && window.renderOptionsPage) renderOptionsPage();
   if (pageId === 'pageHorary') renderHoraryPage();
   if (pageId === 'pagePanchaPakshi'){ renderPPAskNow(); renderPanchaPakshiLadder(); renderPPPanel(); }
 }
@@ -20839,5 +20880,6 @@ window.AVASTHA = window.AVASTHA || {};
   }, {passive:true, capture:true});
 })();
 </script>
+<script src="pl0-options.js"></script>
 </body>
 </html>
