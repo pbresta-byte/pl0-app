@@ -9759,7 +9759,7 @@ function renderNatalPage(){
       glossEn:'A classical ascendant-lord dispositorship chain. The lord governing the sign occupied by the Lagna lord—or the lord of that planet\'s Navamsa sign—reaches a kendra or trine. Tradition associates it with duty, stature, resilience, and later-life contentment; it is a symbolic natal reading, not a promised worldly outcome.',
       glossEs:'Una cadena clásica de dispositores del señor del Ascendente. El señor que gobierna el signo ocupado por el señor del Lagna—o el señor del signo Navamsa de ese planeta—llega a un kendra o trino. La tradición lo asocia con deber, estatura, resiliencia y satisfacción en la segunda mitad de la vida; es una lectura natal simbólica, no una promesa de resultado mundano.',
       reasonLine: r => T(`Lagna ${r.lagnaSign}; Lagna lord ${gNameNatal(r.lagnaLord)} in ${r.lagnaLordSign}. Its dispositor ${gNameNatal(r.dispositor)} is in house ${r.dispositorHouse} (kendra/trine: ${hf(r.dispositorInKendraTrikona)}). That planet's Navamsa sign is ${r.dispositorNavamsaSign}; its lord ${gNameNatal(r.navamsaLord)} is in house ${r.navamsaLordHouse} (kendra/trine: ${hf(r.navamsaLordInKendraTrikona)}).`,
-        `Lagna ${r.lagnaSign}; señor del Lagna ${gN(r.lagnaLord)} en ${r.lagnaLordSign}. Su dispositor ${gN(r.dispositor)} está en casa ${r.dispositorHouse} (kendra/trino: ${hf(r.dispositorInKendraTrikona)}). El signo Navamsa de ese planeta es ${r.dispositorNavamsaSign}; su señor ${gN(r.navamsaLord)} está en casa ${r.navamsaLordHouse} (kendra/trino: ${hf(r.navamsaLordInKendraTrikona)}).`) },
+        `Lagna ${r.lagnaSign}; señor del Lagna ${gNameNatal(r.lagnaLord)} en ${r.lagnaLordSign}. Su dispositor ${gNameNatal(r.dispositor)} está en casa ${r.dispositorHouse} (kendra/trino: ${hf(r.dispositorInKendraTrikona)}). El signo Navamsa de ese planeta es ${r.dispositorNavamsaSign}; su señor ${gNameNatal(r.navamsaLord)} está en casa ${r.navamsaLordHouse} (kendra/trino: ${hf(r.navamsaLordInKendraTrikona)}).`) },
     { result: dhimantahYoga(lordships, birthPos), polarity:'positive',
       nameEn:'Dhīmantaḥ Yoga', nameEs:'Yoga Dhīmantaḥ',
       glossEn:'A researcher\'s or intellectual\'s disposition. The Lagna lord reaching the 3rd or 6th house — or joining forces with whichever planet rules those houses — channels native intelligence into sustained effort and applied skill; a strong 5th-house connection to the Lagna does the same through creative intelligence instead. Sourced from a different classical verse-lineage than the bhāva-phala chapter used elsewhere in this section.',
@@ -15114,12 +15114,15 @@ function parijataYoga(pos, navPos, ascSignIdx){
   const navamsaLord = SIGN_LORD[SIGNS[dispositorNavSignIdx]];
   const navamsaLordHouse = bsHouseFromAsc(pos[navamsaLord].sidereal, ascSignIdx);
   const navamsaLordInKendraTrikona = [1,4,5,7,9,10].includes(navamsaLordHouse);
+  // Same shape as the other JNANA_YOGAS functions: { present, reasons:{...} }; the Natal page passes y.result.reasons to reasonLine.
   return {
     present: dispositorInKendraTrikona || navamsaLordInKendraTrikona,
-    lagnaSign, lagnaLord, lagnaLordSign: SIGNS[lagnaLordSignIdx],
-    dispositor, dispositorHouse, dispositorInKendraTrikona,
-    dispositorNavamsaSign: SIGNS[dispositorNavSignIdx],
-    navamsaLord, navamsaLordHouse, navamsaLordInKendraTrikona
+    reasons: {
+      lagnaSign, lagnaLord, lagnaLordSign: SIGNS[lagnaLordSignIdx],
+      dispositor, dispositorHouse, dispositorInKendraTrikona,
+      dispositorNavamsaSign: SIGNS[dispositorNavSignIdx],
+      navamsaLord, navamsaLordHouse, navamsaLordInKendraTrikona
+    }
   };
 }
 
