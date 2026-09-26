@@ -9406,6 +9406,7 @@ const pl7ParamValue = v => v === 'true' ? true : v === 'false' ? false : v;
 YOGA_OPTS_DEFAULT.pl7conj = 'hide';
 YOGA_OPTS_DEFAULT.pl7sb = 'on';       // strength-dependent combinations use the in-app Shadbala
 YOGA_OPTS_DEFAULT.pl7sbreq = 'pl7';   // Sun's minimum strength: 'pl7' = 6.5 Rupas, 'jayasekhar' = 5
+YOGA_OPTS_DEFAULT.pl7undef = 'hide';  // combinations that have no written result yet are left out ('show' lists them too)
 (() => { try {
   const saved = JSON.parse(localStorage.getItem('pl0YogaOpts') || '{}');
   Object.keys(YOGA_OPTS_DEFAULT).forEach(k => { if (!(k in YOGA_OPTS)) YOGA_OPTS[k] = typeof saved[k] === 'string' ? saved[k] : YOGA_OPTS_DEFAULT[k]; });
@@ -9536,7 +9537,11 @@ function pl7YogaHits(birthPos){
     conditionEs: (E.COND_ES && E.COND_ES[r.yoga_no]) || (E.condConjES && E.condConjES(r.condition)) || null, polarity: pl7Polarity(r.family),
     themes: [...new Set((r.safety_flags || []).map(f => PL7_FLAG_THEME[f]).filter(Boolean))],
     needsStrength: /strong|weak|sbOf/.test(r.fn.toString()) }));
-  return { hits, evaluated: usable.length, usedShadbala: !!sbR };
+  // A written result exists per family (all numbered variants of one yoga share it). No result, no listing, unless asked for.
+  const EFF = window.PL7_YOGA_EFFECTS || {};
+  hits.forEach(h => { const e = EFF[h.name]; if (e && e.en) { h.resultEn = e.en; h.resultEs = e.es || null; } });
+  const shown = YOGA_OPTS.pl7undef === 'show' ? hits : hits.filter(h => h.resultEn);
+  return { hits: shown, evaluated: usable.length, usedShadbala: !!sbR, hiddenNoResult: hits.length - shown.length };
 }
 
 function setYogaOpt(key, value){
@@ -11420,6 +11425,9 @@ function yogaSafetyLine(num, themeList){
           ['pl7','6.5 Rupas (matches the reference program)','6,5 Rupas (coincide con el programa de referencia)'], ['jayasekhar','5 Rupas (one classical text)','5 Rupas (un texto clásico)']]))}
         ${optRow('Planetary conjunction entries (two or more planets in one sign)','Entradas de conjunción (dos o más planetas en un signo)', optSelect('pl7conj', [
           ['hide','Hide','Ocultar'], ['show','Show','Mostrar']]))}
+        ${optRow('Combinations that have no written result yet','Combinaciones que aún no tienen resultado escrito', optSelect('pl7undef', [
+          ['hide','Leave them out (list only combinations that say what they give)','Omitirlas (solo listar combinaciones que dicen qué otorgan)'], ['show','Show them too (formation only)','Mostrarlas también (solo la formación)']]))}
+        ${pl7Res.hiddenNoResult ? `<div style="font-size:11px; color:var(--muted); margin:0 0 6px;">${pl7Res.hiddenNoResult} ${T('found in this chart are left out for now.','encontradas en esta carta se omiten por ahora.')}</div>` : ''}
       </div></details>`;
     // Unified list (app yogas + further classical combinations) -> graha grid.
     const stripTags = h => String(h || '').replace(/<[^>]*>/g, ' ');
@@ -11436,7 +11444,7 @@ function yogaSafetyLine(num, themeList){
       const planets = yogaPlanetsFrom(h.condition, lagnaIdx);
       return { name: h.name, polarity: h.polarity, category: yogaCategory(h.name, h.polarity), planets,
         strength: planets.length ? planets.reduce((t, g) => t + yogaGraahaStrength(g, birthPos), 0) / planets.length : 0.5,
-        body: `<div style="margin-top:3px; color:var(--slate); font-size:11.5px; line-height:1.55;">${T('Forms when','Se forma cuando')}: ${T(h.condition, h.conditionEs || h.condition)}.</div>${h.needsStrength ? `<div style="margin-top:3px; color:var(--ink-dim); font-size:11px; line-height:1.5;">${T('Uses planetary strength: judged with the approximate Shadbala calculated in this app, so read it as indicative.','Usa fuerza planetaria: se juzga con el Shadbala aproximado calculado en esta app, así que tómalo como orientativo.')}</div>` : ''}${yogaSafetyLine(null, h.themes)}` };
+        body: `${h.resultEn ? `<div style="margin-top:3px; color:var(--ink); font-size:12.5px; line-height:1.55;"><b>${T('What it gives','Qué otorga')}:</b> ${T(h.resultEn, h.resultEs || h.resultEn)}</div>` : ''}<div style="margin-top:3px; color:var(--slate); font-size:11.5px; line-height:1.55;">${T('Forms when','Se forma cuando')}: ${T(h.condition, h.conditionEs || h.condition)}.</div>${h.needsStrength ? `<div style="margin-top:3px; color:var(--ink-dim); font-size:11px; line-height:1.5;">${T('Uses planetary strength: judged with the approximate Shadbala calculated in this app, so read it as indicative.','Usa fuerza planetaria: se juzga con el Shadbala aproximado calculado en esta app, así que tómalo como orientativo.')}</div>` : ''}${yogaSafetyLine(null, h.themes)}` };
     }));
     html += renderYogaGrid(items, birthPos);
     return html;
@@ -20905,6 +20913,7 @@ window.AVASTHA = window.AVASTHA || {};
   }, {passive:true, capture:true});
 })();
 </script>
+<script src="pl7-yoga-effects.js"></script>
 <script src="pl0-alerts-engine.js"></script>
 <script src="pl0-options.js"></script>
 </body>
