@@ -2662,7 +2662,13 @@ function heliocentricEcliptic(elName, T){
   const x = r*(cosD(O)*cosD(u) - sinD(O)*sinD(u)*cosD(i));
   const y = r*(sinD(O)*cosD(u) + cosD(O)*sinD(u)*cosD(i));
   const z = r*(sinD(u)*sinD(i));
-  return {x,y,z,r};
+  // The JPL elements are referred to the J2000 ecliptic and equinox, but earthHeliocentric() below is built from
+  // sunLongitude(T), which is of-date. Rotate the planet about the ecliptic pole by the general precession in
+  // longitude since J2000 so both vectors share one frame; without this a geocentric direction is off by up to ~2 deg
+  // for near planets (Mars, Venus) and by ~1 deg for Saturn/Jupiter across 1930-2030.
+  const pA = (1.396971278*T + 0.000308650*T*T)*DEG;
+  const xd = x*Math.cos(pA) - y*Math.sin(pA), yd = x*Math.sin(pA) + y*Math.cos(pA);
+  return {x:xd,y:yd,z,r};
 }
 function earthHeliocentric(T){
   const sunLon = sunLongitude(T);
