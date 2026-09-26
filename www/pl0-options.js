@@ -89,6 +89,31 @@
     try { return { alerts: PL0Alerts.compute({ startMs: Date.now(), days: p.horizonDays || 3, prefs: p, ctx: ctx }) }; }
     catch (e) { return { error: tr('Could not compute alerts: ', 'No se pudieron calcular las alertas: ') + e.message }; }
   }
+  // Alerts that fall in the same minute become one notification (the phone may also hold back notifications that arrive
+  // within minutes of each other while it is idle, so one clear message beats three that might merge unpredictably).
+  function groupByMinute(alerts){
+    var by = {}, order = [];
+    alerts.forEach(function(a){ var k = Math.round(a.atMs / 60000); if (!by[k]){ by[k] = []; order.push(k); } by[k].push(a); });
+    return order.map(function(k){
+      var g = by[k], first = g[0];
+      if (g.length === 1) return { id: first.id, atMs: first.atMs, title: first.title, body: first.body };
+      var body = g.map(function(x){ return x.title + ': ' + x.body; }).join('  ·  ');
+      if (body.length > 220) body = body.slice(0, 217) + '...';
+      return { id: g.map(function(x){ return x.id; }).join('|'), atMs: first.atMs, title: tr('PL0: ', 'PL0: ') + g.length + tr(' alerts now', ' alertas ahora'), body: body };
+    });
+  }
+  function exactAlarmStatus(){
+    var LN = plugin(); if (!LN || !LN.checkExactNotificationSetting) return Promise.resolve('granted');
+    return LN.checkExactNotificationSetting().then(function(s){ return s && s.exact_alarm || 'granted'; }).catch(function(){ return 'granted'; });
+  }
+  function showExactHint(state){
+    var b = el('alExactBtn'); if (b) b.style.display = (state === 'granted') ? 'none' : '';
+    var m = el('alExactMsg'); if (m) m.textContent = (state === 'granted') ? '' : tr('Exact alarms are off, so alerts may arrive a few minutes late. Allow them for precise timing.', 'Las alarmas exactas están apagadas, por eso las alertas pueden llegar con unos minutos de retraso. Permítelas para una hora precisa.');
+  }
+  function allowExact(){
+    var LN = plugin(); if (!LN || !LN.changeExactNotificationSetting) return;
+    LN.changeExactNotificationSetting().then(function(s){ showExactHint(s && s.exact_alarm || 'granted'); return scheduleAlerts(); }).catch(function(){});
+  }
   function hashId(s){ var h = 2166136261; for (var i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) % 2147483000 + 1; }
   function fmtWhen(ms){
     var d = new Date(ms), days = tr('Sun,Mon,Tue,Wed,Thu,Fri,Sat', 'dom,lun,mar,mié,jue,vie,sáb').split(',');
@@ -107,8 +132,8 @@
       if (perm.display !== 'granted'){ setStatus(tr('Notification permission was not granted. Turn it on in the phone settings to receive alerts.', 'No se concedió el permiso de notificaciones. Actívalo en los ajustes del teléfono para recibir alertas.')); return false; }
       return Promise.resolve(LN.createChannel ? LN.createChannel({ id: 'pl0-alerts', name: 'PL0 alerts', description: 'Timing alerts', importance: 4, visibility: 1, vibration: true }) : null)
         .catch(function(){}).then(function(){ return cancelAll(); }).then(function(){
-          var now = Date.now(), list = r.alerts.filter(function(a){ return a.atMs > now + 5000; }).map(function(a){
-            return { id: hashId(a.id), title: a.title, body: a.body, channelId: 'pl0-alerts', schedule: { at: new Date(a.atMs), allowWhileIdle: true } };
+          var now = Date.now(), list = groupByMinute(r.alerts.filter(function(a){ return a.atMs > now + 5000; })).map(function(g){
+            return { id: hashId(g.id), title: g.title, body: g.body, channelId: 'pl0-alerts', schedule: { at: new Date(g.atMs), allowWhileIdle: true } };
           });
           var horizonEnd = now + (p.horizonDays || 3) * 86400000;
           list.push({ id: hashId('refresh' + horizonEnd), title: tr('PL0: open the app to refresh your alerts', 'PL0: abre la app para renovar tus alertas'),
@@ -116,7 +141,7 @@
           return LN.schedule({ notifications: list }).then(function(){
             setStatus(tr('Scheduled ', 'Programadas ') + list.length + tr(' alerts through ', ' alertas hasta ') + fmtWhen(horizonEnd) + '.');
             try { localStorage.setItem('pl0AlertsScheduledAt', String(now)); } catch (e) {}
-            return true;
+            return exactAlarmStatus().then(function(st){ showExactHint(st); return true; });
           });
         });
     }).catch(function(e){ setStatus(tr('Could not schedule: ', 'No se pudo programar: ') + (e && e.message || e)); return false; });
@@ -177,6 +202,7 @@
         '<button type="button" class="btn ghost" id="alPreviewBtn">' + tr('Preview the next alerts', 'Ver las próximas alertas') + '</button>' +
         '<button type="button" class="btn ghost" id="alTestBtn">' + tr('Send a test alert', 'Enviar una alerta de prueba') + '</button>' +
         '<button type="button" class="btn" id="alApplyBtn">' + (natOn ? tr('Schedule now', 'Programar ahora') : tr('Save', 'Guardar')) + '</button></div>' +
+      '<div id="alExactMsg" class="hint"></div><button type="button" class="btn ghost" id="alExactBtn" style="display:none; margin-bottom:6px;">' + tr('Allow exact timing', 'Permitir hora exacta') + '</button>' +
       '<div id="alertStatus" class="hint" style="min-height:1.4em;"></div><div id="alertPreview"></div></fieldset>';
     wireAlerts();
   }
@@ -207,6 +233,8 @@
     box.addEventListener('change', function(){ saveAlertPrefs(readAlertsFromUi()); syncVisibility(); });
     el('alPreviewBtn').addEventListener('click', function(){ saveAlertPrefs(readAlertsFromUi()); preview(); });
     el('alTestBtn').addEventListener('click', testNow);
+    el('alExactBtn').addEventListener('click', allowExact);
+    if (isNative()) exactAlarmStatus().then(showExactHint);
     el('alApplyBtn').addEventListener('click', function(){ saveAlertPrefs(readAlertsFromUi()); scheduleAlerts().then(function(ok){ if (!isNative()) preview(); }); });
     syncVisibility();
   }
