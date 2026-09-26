@@ -280,12 +280,21 @@
      order (PP_HORARY_TIERS: Ruling-in-Ruling > Eating-in-Ruling >
      Ruling-in-Eating > Eating-in-Eating), and Ruling carries the top activity
      factor (PP_ACT_FACTOR 1.0) in the strength table, so it is the single
-     strongest state the bird can hold. Eating-in-Ruling etc. are NOT alerted.
+     strongest state the bird can hold. A second kind is also alerted (owner decision, 2026-09-26):
+     Eating within Ruling, but ONLY when the bird that performs the Eating sub-activity in that Yama is a
+     FRIEND of the life bird (the source grades Ruling/Eating sub-activities good with a friendly bird and only
+     medium with an enemy). The bird doing a sub-activity is the bird whose own main activity in that Yama is
+     that state. Friend/enemy table: the source lists five rows for the bright half; its Cock row names Owl as
+     both friend and enemy, which contradicts the Owl row and the other three rows, so Cock's friends are read
+     as Crow and Peacock (the five friendships then form one closed ring of five, Vulture-Owl-Crow-Cock-Peacock).
+     The source gives one relation table; it is used for both halves. Other combinations are NOT alerted.
      Day structure comes straight from computePanchapakshiDay(): the Vedic day
      runs sunrise->sunset (5 yamas) and sunset->next sunrise (5 yamas) with the
      weekday of the sunrise date; the paksha (bright/dark) is taken at the
      start of each yama, so a tithi change mid-day switches the table at the
      next yama boundary. */
+  var PP_FRIENDS = { Vulture: ['Peacock', 'Owl'], Owl: ['Vulture', 'Crow'], Crow: ['Cock', 'Owl'], Cock: ['Crow', 'Peacock'], Peacock: ['Vulture', 'Cock'] };
+  var PP_BIRDS_FALLBACK = ['Vulture', 'Owl', 'Crow', 'Cock', 'Peacock'];
   function ppAlerts(prefs, ctx, fromMs, toMs, lang, pos) {
     if (!(prefs.pp && prefs.pp.on)) return [];
     var refP = ctx.refP || {};
@@ -309,9 +318,24 @@
         var subs = table(half).subPeriods.slice(slot * 5, slot * 5 + 5);
         subs.forEach(function (sp) {
           var st = sp.byBird[bird];
-          if (!st || st.mainState !== 'Ruling' || st.abstractState !== 'Ruling') return;
+          if (!st || st.mainState !== 'Ruling') return;
+          var friendBird = null;
+          if (st.abstractState === 'Eating') {
+            var per = table(half).periods[slot], birds = g('PP_BIRDS') || PP_BIRDS_FALLBACK;
+            var doer = birds.filter(function (b) { return per.byBird[b] && per.byBird[b].state === 'Eating'; })[0];
+            if (!doer || (PP_FRIENDS[bird] || []).indexOf(doer) < 0) return;      // enemy (or unknown) bird: only medium, not alerted
+            friendBird = doer;
+          } else if (st.abstractState !== 'Ruling') return;
           var s = roundMin(vd.rise + sp.startHr * HOUR), e = vd.rise + sp.endHr * HOUR;
           var birdEs = BIRD_ES[bird] || bird;
+          if (friendBird) {
+            var fEs = BIRD_ES[friendBird] || friendBird;
+            out.push({ id: 'pp:' + s / MIN + ':' + bird + ':e', atMs: s, kind: 'pp',
+              title: L(lang, 'Very good time for your bird', 'Muy buen momento para tu ave'),
+              body: L(lang, bird + ': Eating within Ruling, with a friendly bird (' + friendBird + '), until ' + hhmm(e, ctx.tz) + '.',
+                birdEs + ': Comiendo dentro de Reinando, con un ave amiga (' + fEs + '), hasta las ' + hhmm(e, ctx.tz) + '.') });
+            return;
+          }
           out.push({ id: 'pp:' + s / MIN + ':' + bird, atMs: s, kind: 'pp',
             title: L(lang, 'Perfect time for your bird', 'Momento perfecto para tu ave'),
             body: L(lang, bird + ': Ruling within Ruling until ' + hhmm(e, ctx.tz) + '. The best moment to act.',

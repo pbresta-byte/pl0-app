@@ -217,9 +217,18 @@ if (worst.Sun > SPEC.ingress || worst.Mercury > SPEC.ingress) note(`requested ${
     const half = tithiAt(Math.round(yamaStart / MIN) * MIN) < 15 ? 'bright' : 'dark';
     const wd = run('WEEKDAYS')[new Date(Date.UTC(y, mo - 1, da)).getUTCDay()];
     const st = run(`ppStateForBirdAtInstant(${JSON.stringify(refP.lifeBird)},${JSON.stringify(wd)},${JSON.stringify(half)},${hfs},${dayLen},${nightLen})`);
-    if (!(st.mainState === 'Ruling' && st.abstractState === 'Ruling')) bad++;
+    if (st.mainState !== 'Ruling') { bad++; return; }
+    if (st.abstractState === 'Ruling') { if (/^pp:.*:e$/.test(a.id)) bad++; return; }
+    if (st.abstractState !== 'Eating' || !/^pp:.*:e$/.test(a.id)) { bad++; return; }
+    // Eating within Ruling: independent friend check. The bird performing Eating is the one whose own main state in this Yama is Eating.
+    const pd = run(`computePanchapakshiDay(${JSON.stringify(wd)},${JSON.stringify(half)},${dayLen},${nightLen},${JSON.stringify(refP.lifeBird)})`);
+    const slot = (hfs < dayLen ? 0 : 5) + Math.floor((hfs < dayLen ? hfs : hfs - dayLen) / yamaLen);
+    const doer = Object.keys(pd.periods[slot].byBird).filter(b => pd.periods[slot].byBird[b].state === 'Eating')[0];
+    const FR = { Vulture: ['Peacock', 'Owl'], Owl: ['Vulture', 'Crow'], Crow: ['Cock', 'Owl'], Cock: ['Crow', 'Peacock'], Peacock: ['Vulture', 'Cock'] };
+    if (!doer || FR[refP.lifeBird].indexOf(doer) < 0) bad++;
   });
-  ok(`pp: every 'perfect time' alert is Ruling-in-Ruling for the life bird (${refP.lifeBird}) per ppStateForBirdAtInstant`, out.length > 0 && bad === 0, out.length + ' alerts, ' + bad + ' bad');
+  ok(`pp: every alert is Ruling-in-Ruling, or Eating-in-Ruling with a friendly bird, for the life bird (${refP.lifeBird}) per ppStateForBirdAtInstant`, out.length > 0 && bad === 0, out.length + ' alerts, ' + bad + ' bad');
+  ok('pp: the friendship table is a closed ring (each bird has 2 friends, and friendship is mutual)', ['Vulture', 'Owl', 'Crow', 'Cock', 'Peacock'].every(b => { const F = { Vulture: ['Peacock', 'Owl'], Owl: ['Vulture', 'Crow'], Crow: ['Cock', 'Owl'], Cock: ['Crow', 'Peacock'], Peacock: ['Vulture', 'Cock'] }; return F[b].length === 2 && F[b].every(x => F[x].indexOf(b) > -1); }));
   const noBird = A.compute({ startMs: Date.UTC(2026, 8, 26, 4), days: 3, prefs: p, ctx: Object.assign(mkCtx(MIAMI), { refP: { star: null } }) });
   ok('pp: no alerts when the reference person has no life bird', noBird.length === 0);
 }
