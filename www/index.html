@@ -317,7 +317,7 @@
     border:1px solid var(--line); background:var(--panel-2); border-radius:var(--radius-sm); cursor:pointer;
   }
   .hamburger-close:hover{ color:var(--ink); border-color:var(--gold-dim); }
-  .hamburger-menu-list{ overflow-y:auto; flex:1; }
+  .hamburger-menu-list{ overflow-y:auto; flex:1; overscroll-behavior:contain; padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 96px); }
   .hamburger-menu-list button{
     display:block; width:100%; text-align:left; padding:15px 18px; border:none; background:none;
     border-left:3px solid transparent;
@@ -344,6 +344,7 @@
     font-family:var(--serif); font-size:13px; color:var(--ink-dim); cursor:pointer; border-bottom:1px solid var(--line-soft);
   }
   .place-results button:last-child{ border-bottom:none; }
+  .place-results.floating{ position:absolute; top:100%; left:0; right:0; margin:4px 0 0; }
   .place-results button:hover{ background:var(--panel-2); color:var(--gold); }
   .place-results button small{ display:block; color:var(--slate); font-size:10.5px; margin-top:1px; }
   .plaque h1{
@@ -9759,7 +9760,6 @@ function renderNatalPage(){
   {
     const bdtR = readDateTime("b");
     const ayR = document.getElementById('ayanamsaMode')?.value || 'lahiri';
-    const places = WORLD_PLACES.map(p=>`<option value="${p[0]}, ${p[1]}"></option>`).join('');
     let body = `<div class="hint">${T('Pick a place to see this birth moment as if it had happened there. Only the Lagna and everything counted from it change; planet signs, nakshatras and the Vimśottari periods stay as at birth.','Elige un lugar para ver este momento de nacimiento como si hubiera ocurrido allí. Solo cambian el Lagna y todo lo contado desde él; los signos de los planetas, los nakshatras y los períodos Vimśottari quedan como al nacer.')}</div>`;
     if (RELOC && !bdtR.empty){
       const rp = computePositions(bdtR.jd, RELOC.lat, RELOC.lon, ayR);
@@ -9774,8 +9774,10 @@ function renderNatalPage(){
     relocHtml = `<div class="panel"><div class="hd"><h2>${T('Relocation','Relocalización')}</h2><span class="note">${RELOC ? (RELOC.label || `${RELOC.lat.toFixed(2)}, ${RELOC.lon.toFixed(2)}`) : T('no place chosen','sin lugar elegido')}</span></div>
       <div class="bd">
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:10px; font-size:13px;">
-          <input list="relocPlaces" placeholder="${T('City, country…','Ciudad, país…')}" value="${RELOC && RELOC.label ? RELOC.label.replace(/"/g,'&quot;') : ''}" onchange="setRelocFromPlace(this.value)" style="min-width:200px;">
-          <datalist id="relocPlaces">${places}</datalist>
+          <div style="position:relative; flex:1 1 200px; min-width:200px;">
+            <input type="text" id="relocPlaceSearch" autocomplete="off" placeholder="${T('City, country…','Ciudad, país…')}" value="${RELOC && RELOC.label ? RELOC.label.replace(/"/g,'&quot;') : ''}" oninput="relocSuggest(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();pickRelocPlace(0);}" style="width:100%;">
+            <div id="relocPlaceResults" class="place-results floating" style="display:none;"></div>
+          </div>
           <input type="number" step="0.0001" placeholder="${T('Latitude (+N)','Latitud (+N)')}" value="${RELOC ? RELOC.lat : ''}" id="relocLat" style="width:130px;">
           <input type="number" step="0.0001" placeholder="${T('Longitude (+E)','Longitud (+E)')}" value="${RELOC ? RELOC.lon : ''}" id="relocLon" style="width:130px;">
           <button type="button" onclick="setReloc(document.getElementById('relocLat').value, document.getElementById('relocLon').value, '')">${T('Use coordinates','Usar coordenadas')}</button>
@@ -15042,6 +15044,26 @@ function setReloc(lat, lon, label){
   try { RELOC ? localStorage.setItem('pl0Reloc', JSON.stringify(RELOC)) : localStorage.removeItem('pl0Reloc'); } catch (e) {}
   renderNatalPage();
 }
+// Relocation place suggestions: same list, same look and same 220px cap as the birth-place and moment-place fields
+// (.place-results), instead of the browser's own full-screen list. The panel is re-rendered on every change, so the
+// handlers are global and the current matches are kept here.
+let RELOC_MATCHES = [];
+function relocSuggest(input){
+  const box = document.getElementById('relocPlaceResults'); if (!box) return;
+  RELOC_MATCHES = searchPlaces(input.value, 8);
+  if (!RELOC_MATCHES.length){ box.style.display = 'none'; box.innerHTML = ''; return; }
+  box.innerHTML = RELOC_MATCHES.map((m, i) => `<button type="button" onclick="pickRelocPlace(${i})">${escHtml(m[0])}<small>${escHtml(m[1])}</small></button>`).join('');
+  box.style.display = 'block';
+}
+function pickRelocPlace(i){
+  const m = RELOC_MATCHES[i]; if (!m) return;
+  RELOC_MATCHES = [];
+  setReloc(m[2], m[3], `${m[0]}, ${m[1]}`);
+}
+document.addEventListener('click', e => {
+  if (e.target.closest('#relocPlaceSearch') || e.target.closest('#relocPlaceResults')) return;
+  const box = document.getElementById('relocPlaceResults'); if (box) box.style.display = 'none';
+});
 function setRelocFromPlace(text){
   const hit = WORLD_PLACES.find(p => `${p[0]}, ${p[1]}` === text) || searchPlaces(text, 1)[0] || searchPlaces(String(text).split(',')[0], 1)[0];
   if (hit) setReloc(hit[2], hit[3], `${hit[0]}, ${hit[1]}`);
