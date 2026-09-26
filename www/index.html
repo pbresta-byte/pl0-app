@@ -20820,5 +20820,24 @@ window.AVASTHA = window.AVASTHA || {};
 })();
 </script>
 
+<script>
+/* Haptic feedback: one light tap on every press of a chip, button or expandable definition.
+   navigator.vibrate works inside the Android WebView when the app declares the VIBRATE permission
+   (added to AndroidManifest.xml); it is a no-op on desktop and on browsers without it. Not tied to the
+   reduced-motion setting (haptics are not motion). Delegated on document so it covers content rendered later
+   (yoga cards, by-graha definitions, section-nav chips, preset chips, back to top). */
+(function(){
+  var last = 0;
+  window.hapticTap = function(ms){
+    try{ if(navigator.vibrate) navigator.vibrate(ms || 8); }catch(e){}
+  };
+  document.addEventListener('click', function(e){
+    var t = e.target && e.target.closest ? e.target.closest('button, summary, .section-nav-chip, .preset-chip, [role="button"]') : null;
+    if(!t || t.disabled) return;
+    var now = Date.now(); if(now - last < 40) return; last = now;   // one buzz per press, even if a click bubbles through nested elements
+    window.hapticTap(8);
+  }, {passive:true, capture:true});
+})();
+</script>
 </body>
 </html>
