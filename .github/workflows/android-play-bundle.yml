@@ -1,0 +1,41 @@
+name: Build signed Play bundle
+
+# Manual only. Needs four repository secrets (never committed):
+#   PLAY_KEYSTORE_B64   base64 of the upload keystore (.jks)
+#   PLAY_KEYSTORE_PASS, PLAY_KEY_ALIAS, PLAY_KEY_PASS
+# Output: signed .aab as a workflow artifact. Upload it to Play Console by hand.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: 21}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: npm install
+      - run: npx cap sync android
+      - name: Build release bundle
+        run: cd android && chmod +x gradlew && ./gradlew bundleRelease --no-daemon
+      - name: Sign bundle
+        env:
+          KS_B64: ${{ secrets.PLAY_KEYSTORE_B64 }}
+          KS_PASS: ${{ secrets.PLAY_KEYSTORE_PASS }}
+          KEY_ALIAS: ${{ secrets.PLAY_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.PLAY_KEY_PASS }}
+        run: |
+          set -euo pipefail
+          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          jarsigner -keystore "$RUNNER_TEMP/upload.jks" -storepass "$KS_PASS" -keypass "$KEY_PASS" \
+            android/app/build/outputs/bundle/release/app-release.aab "$KEY_ALIAS"
+          rm -f "$RUNNER_TEMP/upload.jks"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pl0-play-bundle
+          path: android/app/build/outputs/bundle/release/app-release.aab
