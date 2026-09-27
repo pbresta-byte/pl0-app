@@ -264,6 +264,13 @@
     font-family:var(--serif);
     min-height:100vh;
     line-height:1.45;
+    /* Same nav-bar-overlay problem as the hamburger menu (see
+       updateNavOverlayInset()) but for ordinary page content: pages here are
+       plain document flow with no bottom padding, so on a phone whose 3-button
+       nav bar isn't reported through env(safe-area-inset-bottom), the last
+       item of any long page (Options, a yoga list, etc.) could end up
+       physically covered the same way. Reserve the same measured space. */
+    padding-bottom:calc(env(safe-area-inset-bottom, 0px) + var(--nav-overlay-px, 0px));
   }
   ::selection{background:var(--gold-dim);color:var(--ink);}
 
