@@ -23,3 +23,5 @@ English and Spanish.
 
 **Assets still needed from you:** 512x512 icon, 1024x500 feature graphic, 2-8 phone screenshots.
 **Permission declaration:** SCHEDULE_EXACT_ALARM needs a Play declaration ("alarm/calendar-style app"). If you would rather skip it, drop the permission and alerts may fire a few minutes late.
+
+**Exact-alarm declaration (decision: keep SCHEDULE_EXACT_ALARM):** "Core feature. Users opt in to time-critical alerts (planetary hour changes, tithi/nakshatra changes, Pañcha Pakshi peak windows lasting 10-20 minutes). A late notification makes the alert useless. Without the permission the app falls back to inexact timing and shows an in-app hint to enable it."
