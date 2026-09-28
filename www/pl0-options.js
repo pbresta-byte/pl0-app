@@ -3,7 +3,8 @@
    runAnalysis, NOW_SCAN, NAK27, LANG). Everything saves to localStorage on this device. No network use. */
 (function(){
   'use strict';
-  var CALC_KEY = 'pl0CalcOpts', ALERT_KEY = 'pl0AlertPrefs';
+  var CALC_KEY = 'pl0CalcOpts', ALERT_KEY = 'pl0AlertPrefs', ALERT_DISCLOSURE_KEY = 'pl0AlertPermissionDisclosure';
+  var alertDisclosureAcknowledged = false;
   var CALC_IDS = ['ayanamsaMode', 'showAbhijit', 'weighTara', 'weighPP', 'weighDignity', 'weighMuhurtaDosha'];
   var CALC_DEFAULTS = { ayanamsaMode: 'lahiri', showAbhijit: true, weighTara: true, weighPP: true, weighDignity: true, weighMuhurtaDosha: true };
   var GRAHAS = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
@@ -89,6 +90,35 @@
     try { return { alerts: PL0Alerts.compute({ startMs: Date.now(), days: p.horizonDays || 3, prefs: p, ctx: ctx }) }; }
     catch (e) { return { error: tr('Could not compute alerts: ', 'No se pudieron calcular las alertas: ') + e.message }; }
   }
+  function showAlertDisclosure(){
+    try { if (alertDisclosureAcknowledged || localStorage.getItem(ALERT_DISCLOSURE_KEY) === '1') return Promise.resolve(true); } catch (e) { if (alertDisclosureAcknowledged) return Promise.resolve(true); }
+    return new Promise(function(resolve){
+      var screen = document.createElement('div');
+      screen.id = 'alPermissionDisclosure';
+      screen.setAttribute('role', 'dialog');
+      screen.setAttribute('aria-modal', 'true');
+      screen.setAttribute('aria-labelledby', 'alDisclosureTitle');
+      screen.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(16,18,25,.72);display:grid;place-items:center;padding:18px;';
+      screen.innerHTML = '<div style="width:min(100%,520px);max-height:90vh;overflow:auto;background:var(--panel,#fff);color:var(--ink,#1f1b28);border:1px solid var(--line,#d6ccb6);border-radius:12px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.3);">' +
+        '<h2 id="alDisclosureTitle" style="margin:0 0 10px;font-family:var(--display,Georgia,serif);">' + tr('Before you turn on alerts', 'Antes de activar las alertas') + '</h2>' +
+        '<p>' + tr('The alerts you choose can mark tithi and nakshatra changes, planetary hours, the day’s highest and lowest score, selected sign changes or stations, and your Pañcha Pakshi peak times.', 'Las alertas que elijas pueden indicar cambios de tithi y nakshatra, horas planetarias, la puntuación más alta y más baja del día, cambios de signo o estaciones seleccionados, y los momentos máximos de Pañcha Pakshi.') + '</p>' +
+        '<p>' + tr('They are calculated and scheduled on this phone from the birth details and place you entered. Nothing is sent anywhere. Alerts are off by default; turn them off any time in Options → Alerts.', 'Se calculan y programan en este teléfono con los datos de nacimiento y el lugar que ingresaste. No se envía nada. Las alertas están desactivadas de forma predeterminada; puedes desactivarlas en cualquier momento en Opciones → Alertas.') + '</p>' +
+        '<p class="hint">' + tr('Android may ask for notification permission and, separately, permission for exact timing.', 'Android puede pedir permiso para mostrar notificaciones y, por separado, permiso para programarlas a una hora exacta.') + '</p>' +
+        '<div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:14px;">' +
+          '<button type="button" class="btn ghost" id="alDisclosureCancel">' + tr('Not now', 'Ahora no') + '</button>' +
+          '<button type="button" class="btn" id="alDisclosureContinue">' + tr('Continue', 'Continuar') + '</button></div></div>';
+      document.body.appendChild(screen);
+      function finish(continueToPermission){
+        alertDisclosureAcknowledged = true;
+        try { localStorage.setItem(ALERT_DISCLOSURE_KEY, '1'); } catch (e) {}
+        screen.remove(); resolve(continueToPermission);
+      }
+      el('alDisclosureContinue').addEventListener('click', function(){ finish(true); });
+      el('alDisclosureCancel').addEventListener('click', function(){ finish(false); });
+      screen.addEventListener('keydown', function(ev){ if (ev.key === 'Escape'){ ev.preventDefault(); finish(false); } });
+      el('alDisclosureContinue').focus();
+    });
+  }
   // Alerts that fall in the same minute become one notification (the phone may also hold back notifications that arrive
   // within minutes of each other while it is idle, so one clear message beats three that might merge unpredictably).
   function groupByMinute(alerts){
@@ -112,7 +142,7 @@
   }
   function allowExact(){
     var LN = plugin(); if (!LN || !LN.changeExactNotificationSetting) return;
-    LN.changeExactNotificationSetting().then(function(s){ showExactHint(s && s.exact_alarm || 'granted'); return scheduleAlerts(); }).catch(function(){});
+    showAlertDisclosure().then(function(ok){ if (!ok) return null; return LN.changeExactNotificationSetting(); }).then(function(s){ if (!s) return; showExactHint(s.exact_alarm || 'granted'); return scheduleAlerts(); }).catch(function(){});
   }
   function hashId(s){ var h = 2166136261; for (var i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) % 2147483000 + 1; }
   function fmtWhen(ms){
@@ -125,6 +155,9 @@
     var LN = plugin();
     if (!LN || !isNative()){ setStatus(tr('Scheduling works in the installed Android app. Here you can preview what would be scheduled.', 'La programación funciona en la app instalada de Android. Aquí puedes ver una vista previa.')); return Promise.resolve(false); }
     var p = alertPrefs(); if (!p.enabled){ return cancelAll().then(function(){ setStatus(tr('Alerts are off. Nothing is scheduled.', 'Las alertas están apagadas. No hay nada programado.')); return false; }); }
+    if (function(){ try { return !alertDisclosureAcknowledged && localStorage.getItem(ALERT_DISCLOSURE_KEY) !== '1'; } catch (e) { return !alertDisclosureAcknowledged; } }()){
+      return showAlertDisclosure().then(function(ok){ return ok ? scheduleAlerts() : false; });
+    }
     var r = computeAlerts(); if (r.error){ setStatus(r.error); return Promise.resolve(false); }
     return LN.checkPermissions().then(function(perm){
       return perm.display === 'granted' ? perm : LN.requestPermissions();
@@ -161,14 +194,15 @@
   function testNow(){
     var LN = plugin();
     if (LN && isNative()){
-      LN.checkPermissions().then(function(p){ return p.display === 'granted' ? p : LN.requestPermissions(); }).then(function(p){
+      showAlertDisclosure().then(function(ok){ return ok ? LN.checkPermissions() : null; }).then(function(p){ if (!p) return null; return p.display === 'granted' ? p : LN.requestPermissions(); }).then(function(p){
+        if (!p) return;
         if (p.display !== 'granted'){ setStatus(tr('Notification permission was not granted.', 'No se concedió el permiso de notificaciones.')); return; }
         return Promise.resolve(LN.createChannel ? LN.createChannel({ id: 'pl0-alerts', name: 'PL0 alerts', importance: 4, vibration: true }) : null).catch(function(){}).then(function(){
           return LN.schedule({ notifications: [{ id: hashId('test' + Date.now()), title: tr('PL0 test alert', 'Alerta de prueba PL0'), body: tr('Alerts are working on this phone.', 'Las alertas funcionan en este teléfono.'), channelId: 'pl0-alerts', schedule: { at: new Date(Date.now() + 4000), allowWhileIdle: true } }] });
         }).then(function(){ setStatus(tr('A test alert will appear in a few seconds.', 'Una alerta de prueba aparecerá en unos segundos.')); });
       }).catch(function(e){ setStatus(String(e && e.message || e)); });
     } else if (window.Notification){
-      Notification.requestPermission().then(function(p){ if (p === 'granted'){ new Notification(tr('PL0 test alert', 'Alerta de prueba PL0')); setStatus(tr('Test alert shown (browser).', 'Alerta de prueba mostrada (navegador).')); } else setStatus(tr('Browser notifications were not allowed.', 'No se permitieron las notificaciones del navegador.')); });
+      showAlertDisclosure().then(function(ok){ if (!ok) return null; return Notification.requestPermission(); }).then(function(p){ if (p === 'granted'){ new Notification(tr('PL0 test alert', 'Alerta de prueba PL0')); setStatus(tr('Test alert shown (browser).', 'Alerta de prueba mostrada (navegador).')); } else if (p) setStatus(tr('Browser notifications were not allowed.', 'No se permitieron las notificaciones del navegador.')); });
     } else setStatus(tr('This browser cannot show notifications.', 'Este navegador no puede mostrar notificaciones.'));
   }
 

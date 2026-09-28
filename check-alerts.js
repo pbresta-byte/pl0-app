@@ -42,6 +42,8 @@ blocks.forEach((s, i) => { try { vm.runInContext(s, sandbox, { filename: 'index.
 vm.runInContext(fs.readFileSync(path.join(__dirname, 'www', 'pl0-alerts-engine.js'), 'utf8'), sandbox, { filename: 'pl0-alerts-engine.js' });
 const run = code => vm.runInContext(code, sandbox);
 const A = sandbox.PL0Alerts;
+const computeRaw = A.compute;
+A.compute = input => computeRaw({ ...input, prefs: { ...input.prefs, enabled: true } });
 
 // ---------------------------------------------------------------- harness
 let pass = 0, fail = 0; const notes = [];
@@ -84,7 +86,7 @@ const signAt = (ms, g) => Math.floor(sidAt(ms, g).sidereal / 30) % 12;
 // ---------------------------------------------------------------- 1. defaults
 const d = A.defaultPrefs();
 ok('defaultPrefs: tithi special on, peakLow on, everything else off',
-  d.enabled === true && d.horizonDays === 3 && d.hora.mode === 'off' && d.tithi.on && d.tithi.only === 'special' && !d.nakshatra.on &&
+  d.enabled === false && d.horizonDays === 3 && d.hora.mode === 'off' && d.tithi.on && d.tithi.only === 'special' && !d.nakshatra.on &&
   !d.transits.on && !d.pp.on && d.peakLow.on && d.peakLow.peak && d.peakLow.low && !d.quiet.on && d.quiet.from === '22:00' && d.quiet.to === '06:00');
 ok('kinds list', JSON.stringify(A.kinds) === JSON.stringify(['hora', 'tithi', 'nakshatra', 'ingress', 'station', 'pp', 'peak', 'low']));
 
@@ -321,7 +323,7 @@ if (worst.Sun > SPEC.ingress || worst.Mercury > SPEC.ingress) note(`requested ${
   const rh = A.compute({ startMs: start, prefs: tp, ctx: mkCtx(MIAMI) });
   ok('horizon: prefs.horizonDays used when days is omitted', rh.length && rh[rh.length - 1].atMs < start + 2 * DAY && rh[rh.length - 1].atMs > start + DAY);
   const off = allOn(); off.enabled = false;
-  ok('enabled:false returns nothing', A.compute({ startMs: start, days: 3, prefs: off, ctx: mkCtx(MIAMI) }).length === 0);
+  ok('enabled:false returns nothing', computeRaw({ startMs: start, days: 3, prefs: off, ctx: mkCtx(MIAMI) }).length === 0);
 }
 
 // ---------------------------------------------------------------- 9. per-pref switching

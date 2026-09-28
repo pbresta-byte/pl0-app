@@ -403,7 +403,7 @@
   /* ================= PUBLIC API ================= */
   function defaultPrefs() {
     return {
-      enabled: true,
+      enabled: false,
       horizonDays: 3,
       hora: { mode: 'off', lords: [] },
       tithi: { on: true, only: 'special' },
