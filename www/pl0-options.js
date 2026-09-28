@@ -216,6 +216,7 @@
     var naks = (typeof NAK27 !== 'undefined' && NAK27.map) ? NAK27.map(function(x){ return x.n; }) : [];
     box.innerHTML = '<fieldset><legend>' + tr('Alerts', 'Alertas') + '</legend>' +
       '<div class="hint" style="margin-bottom:8px;">' + tr('Timing alerts that work without a connection. They are worked out on this phone from your birth data and place, and refreshed every time you open the app.', 'Alertas de tiempo que funcionan sin conexión. Se calculan en este teléfono con tus datos de nacimiento y lugar, y se renuevan cada vez que abres la app.') + '</div>' +
+      '<div class="hint" style="margin-bottom:8px;">' + tr('Alert times are estimates from this app’s Sun and Moon models (tithi about 7 min, Sun ingress about 18 min, stations about 25 min).', 'Las horas de las alertas son aproximadas según los modelos del Sol y la Luna de esta app (tithi: unos 7 min, ingreso solar: unos 18 min, estaciones: unos 25 min).') + '</div>' +
       chk('alEnabled', tr('Turn alerts on', 'Activar las alertas'), p.enabled) +
       '<div id="alBody" style="' + (p.enabled ? '' : 'opacity:.55;') + '">' +
       chk('alPP', tr('Pañcha Pakshi: when my life bird is at its best', 'Pañcha Pakshi: cuando mi ave de vida está en su mejor momento'), p.pp.on) +
