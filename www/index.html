@@ -264,6 +264,13 @@
     font-family:var(--serif);
     min-height:100vh;
     line-height:1.45;
+    /* Same nav-bar-overlay problem as the hamburger menu (see
+       updateNavOverlayInset()) but for ordinary page content: pages here are
+       plain document flow with no bottom padding, so on a phone whose 3-button
+       nav bar isn't reported through env(safe-area-inset-bottom), the last
+       item of any long page (Options, a yoga list, etc.) could end up
+       physically covered the same way. Reserve the same measured space. */
+    padding-bottom:calc(env(safe-area-inset-bottom, 0px) + var(--nav-overlay-px, 0px));
   }
   ::selection{background:var(--gold-dim);color:var(--ink);}
 
@@ -317,7 +324,7 @@
     border:1px solid var(--line); background:var(--panel-2); border-radius:var(--radius-sm); cursor:pointer;
   }
   .hamburger-close:hover{ color:var(--ink); border-color:var(--gold-dim); }
-  .hamburger-menu-list{ overflow-y:auto; flex:1; overscroll-behavior:contain; padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 96px); }
+  .hamburger-menu-list{ overflow-y:auto; flex:1; overscroll-behavior:contain; padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 96px + var(--nav-overlay-px, 0px)); }
   .hamburger-menu-list button{
     display:block; width:100%; text-align:left; padding:15px 18px; border:none; background:none;
     border-left:3px solid transparent;
@@ -2927,7 +2934,7 @@ function nextYogaName(yogaRawFrac){
    the Nakshatra at the Moon's own speed. Returns local "HH:MM" wall-clock
    strings plus "(in Xh Ym)" remaining, per limb, derived from the jd/pos
    passed in (same moment computePanchanga() was called on). */
-function panchangaEndTimes(jd, pos){
+function panchangaEndTimes(jd, pos, tzOffsetHours){
   if (!pos || !pos.Moon || !pos.Sun || !isFinite(jd)) return null;
   const p = computePanchanga(pos);
   if (!p || !isFinite(p.tithiRawFrac)) return null;
@@ -2940,13 +2947,20 @@ function panchangaEndTimes(jd, pos){
   // Karana = half a tithi → boundary every 6° of relative motion
   const karanaEndOffsetDays = ((Math.ceil(p.tithiRawFrac*2) - p.tithiRawFrac*2) * 6) / relativeSpeed;
 
+  // tz belongs to the moment being judged (mdt.tz — the entered Date/Time/TZ
+  // fields, which may be a relocated or non-birth place), NOT the phone's own
+  // system clock. Building the wall-clock from UT ms + this offset (rather
+  // than new Date(...).getHours(), which reads the DEVICE's timezone) keeps
+  // "ends at" correct when the phone's zone differs from the judged place's.
+  const tz = isFinite(tzOffsetHours) ? tzOffsetHours : 0;
   const baseMs = (jd - 2440587.5) * 86400000; // JD (UT) -> Unix ms
   function fmt(offsetDays){
-    const end = new Date(baseMs + offsetDays*24*3600*1000);
-    const hhmm = `${pad2(end.getHours())}:${pad2(end.getMinutes())}`;
+    const localMs = baseMs + offsetDays*24*3600*1000 + tz*3600000;
+    const end = new Date(localMs); // treat as UTC fields = the target zone's wall clock
+    const hhmm = `${pad2(end.getUTCHours())}:${pad2(end.getUTCMinutes())}`;
     const remMin = Math.max(0, Math.round(offsetDays*24*60));
     const h = Math.floor(remMin/60), m = remMin%60;
-    return { isoLocal: `${end.getFullYear()}-${pad2(end.getMonth()+1)}-${pad2(end.getDate())}T${hhmm}`,
+    return { isoLocal: `${end.getUTCFullYear()}-${pad2(end.getUTCMonth()+1)}-${pad2(end.getUTCDate())}T${hhmm}`,
              hhmm,
              remaining: `(${T('in','en')} ${h}h ${m}m)` };
   }
@@ -4168,7 +4182,9 @@ function scoreForInstant(year, month1to12, day, hh, mm, opts){
     const sun = sunriseSunsetLocal(year, month1to12, day, lat, lon, tz);
     const sunriseHr = sun ? sun.sunriseHr : 6;
     const dayLenHrs = sun ? ((sun.sunsetHr - sun.sunriseHr + 24) % 24) : 12;
-    const hourFromSunrise = (hh + (mm||0)/60) - sunriseHr;
+    // Wrap pre-dawn instants forward instead of going negative — see the
+    // matching fix + comment at runAnalysis()'s mdtHourFromSunrise.
+    const hourFromSunrise = ((hh + (mm||0)/60) - sunriseHr + 24) % 24;
     pp = ppStateForInstant(weekdayName, half, hourFromSunrise, refP, dayLenHrs);
   }
   const {score, reasons} = scoreMuhurta({maleficHits:vedha.maleficHits, beneficHits:vedha.beneficHits, tara, latta, upagraha, pp, weighDignity, doshas, windows, chandrashtama, activity, panchaka:panchakaFlag, classical});
@@ -8880,7 +8896,7 @@ function runAnalysis(){
   }catch(e){}
   // Pañcāṅga limb end-times (linear-motion estimate) for the strip below.
   // Purely additive display — feeds nothing into the score.
-  const panchEnds = panchangaEndTimes(mdt.jd, pos);
+  const panchEnds = panchangaEndTimes(mdt.jd, pos, mdt.tz);
 
   const vedha = evaluateVedha(pos, panch.nak28, refP);
   const tara = document.getElementById('weighTara').checked ? computeTara(pos, refP) : null;
@@ -8900,7 +8916,13 @@ function runAnalysis(){
   const mdtSun = sunriseSunsetLocal(mdt.y, mdt.mo, mdt.da, mdt.lat, mdt.lon, mdt.tz);
   const mdtSunriseHr = mdtSun ? mdtSun.sunriseHr : 6;
   const mdtDayLenHrs = mdtSun ? ((mdtSun.sunsetHr - mdtSun.sunriseHr + 24) % 24) : 12;
-  const mdtHourFromSunrise = (mdt.hh + mdt.mm/60) - mdtSunriseHr;
+  // Wrap pre-dawn moments (before today's sunrise) forward onto the tail of
+  // the sunrise-to-sunrise cycle instead of going negative — same fix already
+  // applied in ppLiveNow() above. Without the wrap, a pre-dawn instant handed
+  // a negative hourFromSunrise to ppStateForInstant, which expects a
+  // continuous 0..24 scale (day hours then night hours), so a judged moment
+  // before sunrise scored against the wrong Pañcha Pakshi period.
+  const mdtHourFromSunrise = ((mdt.hh + mdt.mm/60) - mdtSunriseHr + 24) % 24;
 
   let pp = null;
   if (document.getElementById('weighPP').checked && refP.star){
@@ -20229,11 +20251,39 @@ function rerenderChartPages(){
   if (document.getElementById('pageHouseNature').classList.contains('active')){ renderHouseNaturePage(); renderVargaPage(); }
 }
 
+// Some Android WebViews draw the classic 3-button/gesture nav bar as an
+// opaque overlay on top of page content without reporting it through
+// env(safe-area-inset-bottom) (that CSS env var was built for the iOS-style
+// home indicator, and Chrome/WebView support for the Android nav bar case
+// is inconsistent, phone to phone). When that happens the fixed extra
+// padding above is not enough and whatever sits at the bottom of a long
+// scrollable list (e.g. the Options item in the hamburger menu) ends up
+// visually and physically underneath the bar -- present in the DOM,
+// reachable by scroll, but unclickable. Measuring the gap between
+// window.innerHeight and visualViewport.height catches this even when the
+// safe-area API doesn't, and updates live if the bar shows/hides (e.g. a
+// gesture-nav device that hides it on scroll).
+function updateNavOverlayInset(){
+  try{
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const gap = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+    // Ignore small gaps (rounding, URL bar chrome) and only compensate for a
+    // persistent bottom bar -- a real nav bar is reliably >= ~24px.
+    document.documentElement.style.setProperty('--nav-overlay-px', (gap >= 24 ? gap : 0) + 'px');
+  }catch(e){}
+}
 document.addEventListener('DOMContentLoaded', ()=>{
   initLanguage();
   initTheme();
   initChartStyle();
   setDefaults();
+  updateNavOverlayInset();
+  if (window.visualViewport){
+    window.visualViewport.addEventListener('resize', updateNavOverlayInset);
+    window.visualViewport.addEventListener('scroll', updateNavOverlayInset);
+  }
+  window.addEventListener('orientationchange', ()=>setTimeout(updateNavOverlayInset, 300));
   document.getElementById('computeBtn').addEventListener('click', runAnalysis);
   document.getElementById('resetBtn').addEventListener('click', ()=>{
     setDefaults();
