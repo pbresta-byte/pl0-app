@@ -1,7 +1,11 @@
-const CACHE = "pl0-app-v7";
+const CACHE = "pl0-app-v8";
 const ASSETS = [
   "./index.html",
   "./manifest.json",
+  "./fonts/fraunces-latin.woff2",
+  "./fonts/fraunces-latin-ext.woff2",
+  "./fonts/manrope-latin.woff2",
+  "./fonts/manrope-latin-ext.woff2",
   "./pl7-shadbala.js",
   "./pl7-yoga-engine.js",
   "./pl7-yoga-rules-core.js",

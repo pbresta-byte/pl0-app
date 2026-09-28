@@ -18,7 +18,7 @@ English and Spanish.
 
 **Category:** Lifestyle  **Tags:** astrology
 **Content rating:** answer questionnaire as: no violence, no user-generated content, no location sharing.
-**Data safety form:** collects no data; no data shared. (Only network use: Google Fonts.)
+**Data safety form:** collects no data; no data shared. The app makes no network requests.
 **Privacy policy URL:** https://pbresta-byte.github.io/pl0-app/privacy.html (live once www/privacy.html reaches `main` and Pages redeploys)
 
 **Assets still needed from you:** 512x512 icon, 1024x500 feature graphic, 2-8 phone screenshots.
