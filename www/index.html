@@ -1370,8 +1370,8 @@ const I18N = {
       en un límite de cúspide de casa o para trabajo de precisión de eclipses.`
   },
   placeholderMsg: {
-    en: `Set your reference star and the moment to judge, then press <b style="color:var(--gold)">Cast &amp; Judge Muhūrta</b>.`,
-    es: `Define tu estrella de referencia y el momento a evaluar, luego pulsa <b style="color:var(--gold)">Calcular y evaluar Muhūrta</b>.`
+    en: `Enter your birth date, time, and birthplace under Reference Person, then set the moment to judge and press <b style="color:var(--gold)">Cast &amp; Judge Muhūrta</b>.`,
+    es: `Introduce tu fecha, hora y lugar de nacimiento en Persona de referencia, luego define el momento a evaluar y pulsa <b style="color:var(--gold)">Calcular y evaluar Muhūrta</b>.`
   },
   calSubtitle: { en:`Every day of the month, split into a day half (☀ 6am-6pm) and a night half (☾ 6pm-6am), each scored the same way as the main gauge (Vedha, Tārā Bala, Latta, Upagraha, dignity, Pañcha Pakshi) and colored by the best tier it reaches — one half is often meaningfully better than the other.`,
     es:`Cada día del mes, dividido en mitad diurna (☀ 6am-6pm) y mitad nocturna (☾ 6pm-6am), cada una puntuada igual que el indicador principal (Vedha, Tārā Bala, Latta, Upagraha, dignidad, Pañcha Pakshi) y coloreada según el mejor nivel que alcanza — a menudo una mitad es notablemente mejor que la otra.` },
@@ -20100,6 +20100,10 @@ let ppLastRefStar, ppLastAutoBird = null;
 function renderPPAskNow(){
   const el = document.getElementById('ppAskNowContent');
   if (!el) return;
+  if (!document.getElementById('bDate').value){
+    el.innerHTML = `<div class="hint" style="padding-top:24px;">${T(I18N.placeholderMsg.en, I18N.placeholderMsg.es)}</div>`;
+    return;
+  }
   try {
     const refP = getReferencePanchaka().panch;
     const h = refP && refP.lifeBird ? renderAskNowCallout(refP) : '';
@@ -20110,6 +20114,7 @@ function renderPPPanel(){
   const container = document.getElementById('ppPanelContainer');
   const checkbox = document.getElementById('chartPanchapakshi');
   if (!container || !checkbox || !checkbox.checked){ if (container) container.innerHTML=''; return; }
+  if (!document.getElementById('bDate').value){ container.innerHTML=''; return; }
 
   const refInfo = getReferencePanchaka();
   const refP = refInfo.panch;
