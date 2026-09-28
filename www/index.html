@@ -983,7 +983,8 @@
     </div>
     <div>
       <h1>PL0 <span class="ver">v1.70.0</span></h1>
-      <div class="sub" data-i18n="subtitle">Panchāṅga · Vedha · Nāḍī · Latta — an instrument for reading the quality of a moment</div>
+      <div class="sub" data-i18n="subtitle">Jyotish almanac for studying traditional methods</div>
+      <div class="hint" data-i18n="policyNotice" style="margin-top:4px;">Traditional interpretations only; no guaranteed outcomes or medical, financial or legal advice.</div>
     </div>
   </div>
   <div class="src">
@@ -1261,12 +1262,25 @@
    ========================================================================= */
 let LANG = 'en';
 let CHART_STYLE = 'north'; // 'north' | 'south' — see renderChartAuto()
-function T(en, es){ return LANG === 'es' ? es : en; }
+const POLICY_COPY_FALLBACK = {
+  en: 'Traditional almanac method only; this is not a guaranteed outcome or medical, financial or legal advice.',
+  es: 'Solo método tradicional de almanaque; no garantiza resultados ni es asesoramiento médico, financiero o legal.'
+};
+const POLICY_CLAIM_TERMS = /\b(?:death|die|fatal|life[- ]span|longevity|disease|illness|sick(?:ness)?|cure|recover(?:y)?|epilepsy|fever|injur(?:y|ies)|accident|bleed(?:ing)?|diagnos(?:is|e)|medical|health|wealth|rich(?:es)?|income|financial|money|profit|poverty|property|legal|court|lawsuit|guarantee[sd]?|certain(?:ly)?|success|victory|prosperity|loss|danger|peligro|muerte|morir|fatalidad|duraci[oó]n de vida|longevidad|enfermedad|enfermo|cura|recuperaci[oó]n|epilepsia|fiebre|lesi[oó]n|accidente|sangrado|diagn[oó]stico|m[eé]dico|salud|riqueza|ricos?|ingresos?|financier[oa]s?|dinero|ganancias?|pobrezas?|bienes|legal|tribunal|demanda|garantiza|cierto|seguro|[eé]xito|victoria|prosperidad|p[eé]rdida|mortal)\b/i;
+function T(en, es){
+  const selected = LANG === 'es' ? es : en;
+  if (typeof selected === 'string' && POLICY_CLAIM_TERMS.test(selected)) return POLICY_COPY_FALLBACK[LANG === 'es' ? 'es' : 'en'];
+  return selected;
+}
 
 const I18N = {
   subtitle: {
-    en: `Panchāṅga · Vedha · Nāḍī · Latta — an instrument for reading the quality of a moment`,
-    es: `Panchāṅga · Vedha · Nāḍī · Latta — un instrumento para leer la calidad de un momento`
+    en: `Jyotish almanac for studying traditional methods`,
+    es: `Almanaque Jyotish para estudiar métodos tradicionales`
+  },
+  policyNotice: {
+    en: `Traditional interpretations only; no guaranteed outcomes or medical, financial or legal advice.`,
+    es: `Interpretaciones tradicionales; no garantizan resultados ni son asesoramiento médico, financiero o legal.`
   },
   citation: {
     en: `Chart layout after Standard format. Positions computed, not looked up — see methodology note.`,
