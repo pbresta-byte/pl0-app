@@ -1,6 +1,13 @@
-const CACHE = "pl0-app-v8";
+const CACHE = "pl0-app-v12";
 const ASSETS = [
   "./index.html",
+  "./pl0-i18n-hi.js",
+  "./pl0-i18n-fr.js",
+  "./pl0-i18n-de.js",
+  "./pl0-i18n-ru.js",
+  "./pl0-i18n-it.js",
+  "./pl0-i18n-zh.js",
+  "./pl0-i18n-ko.js",
   "./manifest.json",
   "./fonts/fraunces-latin.woff2",
   "./fonts/fraunces-latin-ext.woff2",
