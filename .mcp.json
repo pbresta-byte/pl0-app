@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "hermes": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["C:\\Users\\drrag\\OneDrive\\Desktop\\pl0-unpacked\\hermes-agent-mcp.js"]
+    }
+  }
+}
