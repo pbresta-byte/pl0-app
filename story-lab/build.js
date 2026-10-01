@@ -5,7 +5,17 @@ const fs = require("fs"), path = require("path"), vm = require("vm");
 const loadEngine = require("./engine.js");
 const J = f => JSON.parse(fs.readFileSync(path.join(__dirname, f), "utf8"));
 const { charts } = J("charts.json"), LJ = J("lenses.json"), { lenses } = LJ, { rules } = J("rules.json"), C = J("content.json");
-const asOf = (process.argv[2] || new Date().toISOString().slice(0,10)).split("-").map(Number);
+const argv = process.argv.slice(2), pi = argv.indexOf("--profiles");
+const profilesFile = pi >= 0 ? argv.splice(pi, 2)[1] : null;
+const asOf = (argv[0] || new Date().toISOString().slice(0,10)).split("-").map(Number);
+/* --profiles <file>: JSON copied from the app's saved people (localStorage key "muhurtaProfiles":
+   [{label,bDate,bTime,bTZ,bLat,bLon,bName}]). Any chart with birth:null whose name matches a label gets filled. */
+if (profilesFile) {
+  const list = JSON.parse(fs.readFileSync(profilesFile, "utf8")), arr = Array.isArray(list) ? list : JSON.parse(list);
+  for (const c of charts) { if (c.birth) continue;
+    const p = arr.find(x => (x.label||"").trim().toLowerCase() === c.name.toLowerCase() || (x.bName||"").trim().toLowerCase() === c.name.toLowerCase());
+    if (p) c.birth = { date:p.bDate, time:p.bTime, tz:+p.bTZ, lat:+p.bLat, lon:+p.bLon, place:p.label || p.bName || "" }; }
+}
 const G7 = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"];
 const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 const KENDRA = [1,4,7,10], DUSTHANA = [6,8,12];

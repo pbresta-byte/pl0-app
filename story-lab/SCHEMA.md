@@ -43,6 +43,8 @@ node story-lab/build.js [as-of YYYY-MM-DD]
 node story-lab/render.js
 ```
 
+Or import saved people straight from the app: copy the `muhurtaProfiles` value from the app's browser storage (desktop console: `copy(localStorage.getItem('muhurtaProfiles'))`) into a file and run `node story-lab/build.js --profiles that-file.json`. Any chart with `birth: null` whose name matches a saved person's label is filled in.
+
 ## Known limits of this sketch
 
 - Only Cristian's birth data exists in the repo. Maria and Celia are placeholders.
