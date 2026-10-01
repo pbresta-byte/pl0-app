@@ -2,11 +2,12 @@
 /* story-lab/build.js — compute facts with PL0's own engine, apply lens rules, emit readings.json.
    Usage: node build.js [YYYY-MM-DD as-of date, default today]  (no changes to www/) */
 const fs = require("fs"), path = require("path"), vm = require("vm");
-const loadEngine = require("./engine.js");
+const loadEngine = require("./engine.js"), dispo = require("./dispositors.js"), imp = require("./importance.js");
 const J = f => JSON.parse(fs.readFileSync(path.join(__dirname, f), "utf8"));
 const { charts } = J("charts.json"), LJ = J("lenses.json"), { lenses } = LJ, { rules } = J("rules.json"), C = J("content.json");
 const argv = process.argv.slice(2), pi = argv.indexOf("--profiles");
 const profilesFile = pi >= 0 ? argv.splice(pi, 2)[1] : null;
+const oi = argv.indexOf("--out"); if (oi >= 0) argv.splice(oi, 2);
 const asOf = (argv[0] || new Date().toISOString().slice(0,10)).split("-").map(Number);
 /* --profiles <file>: JSON copied from the app's saved people (localStorage key "muhurtaProfiles":
    [{label,bDate,bTime,bTZ,bLat,bLon,bName}]). Any chart with birth:null whose name matches a label gets filled. */
@@ -191,13 +192,14 @@ function corpusTags(F) {
 const results = [];
 for (const c of charts) {
   if (!c.birth) { results.push({ id:c.id, name:c.name, status:"awaiting-birth-data", birth:null }); continue; }
-  const F = computeFacts(c.birth), findings = applyRules(F), J2 = judge(F, findings);
+  const F = computeFacts(c.birth); F.disp = dispo.analyze(F); F.rank = imp.rank(F, F.disp, F.dasha.now); const findings = applyRules(F), J2 = judge(F, findings);
   const tags = corpusTags(F);
-  const facts = { lagna:F.lagna, ayanamsa:F.ayanamsa, moonNak:F.nak, dasha:F.dasha, karaka:F.karaka,
+  const facts = { lagna:F.lagna, ayanamsa:F.ayanamsa, moonNak:F.nak, dasha:F.dasha, karaka:F.karaka, importance:F.rank, dispositors:{ next:F.disp.next, sinks:F.disp.sinks, exchanges:F.disp.exchanges },
     grahas:Object.fromEntries(Object.entries(F.g).map(([k,x])=>[k,{ sign:x.sign, deg:x.deg, house:x.house, dig:x.dig, retro:x.retro, vargottama:x.vargottama, combust:!!x.combust, navSign:SIGNS[x.navIdx], lordOf:x.lordOf, aspHouses:x.aspHouses, aspGrahas:x.aspGrahas||[] }])),
     houses:Object.fromEntries(Object.entries(F.houses).map(([k,x])=>[k,{ sign:x.sign, lord:x.lord, occupants:x.occupants }])) };
   results.push({ id:c.id, name:c.name, status:"computed", birth:c.birth, asOf:asOf.join("-"), facts, chapters:J2.chapters, prologue:J2.prologue, corpusTags:tags,
     stats:{ findings:findings.length, byLens:Object.fromEntries(lenses.map(l=>[l.id, findings.filter(f=>f.lens===l.id).length])) } });
 }
-fs.writeFileSync(path.join(__dirname,"out/readings.json"), JSON.stringify({ lenses, agreement:LJ.agreement, content:{ chapters:C.chapters, grahaGlyph:C.grahaGlyph, signGlyph:C.signGlyph, signName:C.signName, grahaName:C.grahaName, house:C.house }, charts:results }, null, 1));
+const OUT = (()=>{ const i=process.argv.indexOf("--out"); return i>=0 ? path.resolve(process.argv[i+1]) : path.join(__dirname,"out"); })(); fs.mkdirSync(OUT,{recursive:true});
+fs.writeFileSync(path.join(OUT,"readings.json"), JSON.stringify({ lenses, agreement:LJ.agreement, content:{ chapters:C.chapters, grahaGlyph:C.grahaGlyph, signGlyph:C.signGlyph, signName:C.signName, grahaName:C.grahaName, house:C.house }, charts:results }, null, 1));
 console.log(results.map(r=>`${r.name}: ${r.status}${r.stats?` · ${r.stats.findings} findings ${JSON.stringify(r.stats.byLens)}`:""}`).join("\n"));

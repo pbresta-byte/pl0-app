@@ -1,0 +1,38 @@
+{
+  "id": "cristian",
+  "headline": "Two circuits run this chart: a loop that builds the self, and an exchange that decides the results.",
+  "thesis": "The larger circuit is a loop of Moon, Saturn and Jupiter. The Lagna lord, the mind and the lord of money and gains each sit in the next one's sign, with Rahu and Ketu feeding in, so self, feeling and finances move together. The smaller circuit is an exchange between the Sun and Mercury. It decides what happens to home and fortune (through Venus) and to effort and career (through Mars), and it sits in the 7th and 8th houses. Taken together: Cristian builds himself through the loop, but home, fortune and career reach him through other people and through shared or hidden resources. The current Jupiter period (July 2013 to July 2029) is the stretch where the main loop is in charge.",
+  "claims": [
+    { "rank": 1, "strength": "leads", "title": "Moon, Saturn and Jupiter answer to each other",
+      "body": "Saturn (Lagna lord, 11th house) sits in Jupiter's sign. Jupiter (lord of 2 and 11, exalted in the 6th) sits in the Moon's sign. The Moon (12th, with Rahu) sits in Saturn's sign. Nobody in the loop is the boss; each hands the result to the next. So the sense of self, the state of mind and the money and gains are tightly coupled: when one is unsettled the other two feel it. The loop has one very strong member (Jupiter, exalted) and two ordinary ones, which makes it dependable more than dramatic.",
+      "evidence": ["Moon in Saturn's sign (Capricorn)", "Saturn in Jupiter's sign (Sagittarius)", "Jupiter in the Moon's sign (Cancer), exalted", "Lagna, Rahu and Ketu all route into this loop"],
+      "confirm": "Look for periods when money, mood and sense of direction all shifted together." },
+    { "rank": 2, "strength": "leads", "title": "The Sun and Mercury exchange signs, and Venus and Mars answer to them",
+      "body": "The Sun is in Virgo (Mercury's sign) and Mercury is in Leo (the Sun's sign). Venus (lord of 4 and 9: home and fortune) and Mars (lord of 3 and 10: effort and career) both pass their results to Mercury. So home, fortune, initiative and career are decided by an exchange that sits in the 8th and 7th houses. In practice that points to success through partners, collaborators, shared money, research or analysis, and not through working alone. Mercury is also the soul-significator (28° of Leo, the highest degree in the chart) and aspects the Lagna, so dealing with other people is the main classroom. An exchange that involves the 8th lord is the kind classical texts call dainya: it works, but with effort and delay.",
+      "evidence": ["Sun (7th lord) in Virgo, 8th house", "Mercury (5th and 8th lord) in Leo, 7th house", "Venus and Mars both answer to Mercury", "Mercury is the Ātmakāraka"],
+      "confirm": "Check whether the big breaks in career and home came through a specific person or a shared venture." },
+    { "rank": 3, "strength": "leads", "title": "Jupiter's period is the current chapter, and its results come through work",
+      "body": "Jupiter has run since July 2013 and continues to July 2029. It is exalted but sits in the 6th house, with Ketu. The gains it promises (2nd and 11th lord) therefore arrive through service, work routines, competition and problem-solving, not as windfalls. Its aspects fall on the 10th house (career), the 12th (the Moon and Rahu) and the 2nd (money). Inside it, the Mars sub-period (March 2026 to February 2027) puts the career lord in the 4th house, so the practical focus this year is the home base: where and how the work is done, property, and the mother's side.",
+      "evidence": ["Mahādaśā Jupiter, 2013-07 to 2029-07", "Jupiter exalted in the 6th, aspecting the 10th, 12th and 2nd", "Antardaśā Mars to 2027-02, Mars in the 4th"],
+      "confirm": "Mid-2013 is the clean test: the chart says a restless, outward phase gave way to building through work." },
+    { "rank": 4, "strength": "supports", "title": "Venus is weak in the 8th, and the weakness has cancellation conditions",
+      "body": "Venus (lord of 4 and 9, and the partner-significator) is debilitated in Virgo, 8.2° from the Sun, so it is also combust. This is the clearest weak point: relationships and shared finances are where the training happens. Two cancellation conditions apply. Mercury, the lord of Virgo, is in a kendra from the Lagna, and Jupiter, the lord of Venus's exaltation sign, is in a kendra from the Moon. The engine's own two-condition test also passes. The reading is that the weakness is real and also workable, which is a very different message from a flat verdict of strain.",
+      "evidence": ["Venus 5.6° Virgo, debilitated, combust", "Mercury in the 7th (kendra from Lagna)", "Jupiter in the 7th from the Moon (kendra)"],
+      "confirm": "Where partnership or shared money has gone badly, check whether it improved once the pattern was recognised." },
+    { "rank": 5, "strength": "supports", "title": "Moon with Rahu in the 12th: a mind that withdraws and hungers",
+      "body": "The Moon is in Dhaniṣṭhā pāda 2, a rhythm-keeping star whose navāṁśa sign is Virgo, so the feeling is analytical and detail-tuned. Rahu shares the sign, 17° away. The felt life retreats toward solitude, distance and work done out of the public eye, with an appetite for the unconventional. Saturn, the Moon's sign lord, is in the 11th and aspects the Lagna, so the withdrawal is disciplined and not drifting.",
+      "evidence": ["Moon 27.5° Capricorn, Dhaniṣṭhā-2, 12th house", "Rahu 10.3° Capricorn, same sign", "Saturn (dispositor) in the 11th, aspecting the Lagna"],
+      "confirm": "Compare with how much of life was spent away from home or out of the spotlight." }
+  ],
+  "setAside": [
+    { "what": "Mars", "why": "Ordinary by sign, and it hands everything to Mercury. It matters this year only because it runs the sub-period." },
+    { "what": "Rahu and Ketu on their own", "why": "They pass their results to Saturn and the Moon. They colour those two but carry no weight alone." },
+    { "what": "The three Daridra (poverty) yogas the app lists", "why": "They fire on facts already counted in claims 2 and 3 (the 11th lord in the 6th; the 5th and 8th lord being the same graha). They are those claims seen from the cautious side, not separate evidence, and an exalted Jupiter and the raja yogas weigh against them." },
+    { "what": "Most of the 36 yogas the app lists as present", "why": "Many contradict each other (Gajakesari and Adhi beside Daridra). The reading leads with the structure and not the count." }
+  ],
+  "hooks": [
+    { "when": "2013-07", "event": "Rahu to Jupiter Mahādaśā", "expect": "A shift from a restless, outward phase toward building through work and service." },
+    { "when": "2026-03 to 2027-02", "event": "Mars Antardaśā", "expect": "Attention on the home base, property and where the work is done." },
+    { "when": "2029-07", "event": "Jupiter to Saturn Mahādaśā", "expect": "The Lagna lord takes over the loop: consolidation, and the self-built side of life carries more weight." }
+  ]
+}

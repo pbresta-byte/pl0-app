@@ -3,7 +3,8 @@
 Sketch of how a chart becomes a short, traceable story. Nothing in `www/` is touched; the app's own engine is loaded read-only (`engine.js`).
 
 ```
-charts.json ──► build.js ──► out/readings.json ──► render.js ──► out/reading.html
+charts.json ──► build.js ──► out/readings.json ──► render2.js ──► out/product.html
+                        (+ editorial/<id>.json: the written reading, claims and test dates)
  (people)       │  1 FACTS    engine: positions, houses, dignity, navāṁśa, karakas, daśā
                 │  2 RULES    rules.json, each tagged with a lens, applied to the facts
                 │  3 JUDGE    per chapter: score each lens, then compare lenses
@@ -52,3 +53,11 @@ Or import saved people straight from the app: copy the `muhurtaProfiles` value f
 - Nīcha-bhaṅga reports four conditions. The app's own `nichaBhangaCheck` uses two; the extra ones are named in each finding's receipts.
 - Moon-sign and nakṣatra wording exists for all 12 signs but only Dhaniṣṭha has a nakṣatra gist; other stars fall back to the ruler's curriculum line.
 - Reading text is written in a case-method format for this app. The corpus pool holds example tags, not prose.
+
+## Second layer: structure and weight (added after the first version read as generic)
+
+- `dispositors.js`: follows each graha to the lord of its sign until it ends in an own-sign graha or a loop. Each end point is a governing circuit; exchanges are classed maha, khala or dainya.
+- `importance.js`: additive score with a stated reason for every point (governs others, Lagna lord, Moon, current period, strength or weakness). Below about 4 a graha is minor.
+- `editorial/<id>.json`: thesis, five ranked claims with chart-fact evidence, what was set aside and why, and dated test hooks. Written from the computed facts, meant to be checked against real life.
+- `harvest.js`: pulls the app's own present-yoga list so claims and set-asides can cite it.
+- Personal charts (Maria, Celia) live under `private/` and are git-ignored: `node build.js --profiles file.json --out private`, then `node render2.js private --with-together`.

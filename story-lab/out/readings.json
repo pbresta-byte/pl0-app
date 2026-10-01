@@ -407,6 +407,216 @@
      "GK": "Sun",
      "DK": "Venus"
     },
+    "importance": [
+     {
+      "g": "Jupiter",
+      "score": 13.5,
+      "why": [
+       "+4 in the governing ring",
+       "+5 5 grahas/Lagna answer to this circuit",
+       "+0.5 1 direct dependant",
+       "+3 runs the current Mahādaśā",
+       "+1 exalted"
+      ],
+      "house": 6,
+      "sign": "Cancer",
+      "dig": "Exalted",
+      "lordOf": [
+       2,
+       11
+      ]
+     },
+     {
+      "g": "Saturn",
+      "score": 13.5,
+      "why": [
+       "+4 in the governing ring",
+       "+5 5 grahas/Lagna answer to this circuit",
+       "+1.5 3 direct dependants",
+       "+3 Lagna lord"
+      ],
+      "house": 11,
+      "sign": "Sagittarius",
+      "dig": "Neutral",
+      "lordOf": [
+       1,
+       12
+      ]
+     },
+     {
+      "g": "Moon",
+      "score": 13,
+      "why": [
+       "+4 in the governing ring",
+       "+5 5 grahas/Lagna answer to this circuit",
+       "+1 2 direct dependants",
+       "+3 the Moon (mind, felt life)"
+      ],
+      "house": 12,
+      "sign": "Capricorn",
+      "dig": "Neutral",
+      "lordOf": [
+       6
+      ]
+     },
+     {
+      "g": "Mercury",
+      "score": 9,
+      "why": [
+       "+4 in a mutual exchange with Sun",
+       "+3 3 grahas/Lagna answer to this circuit",
+       "+1 2 direct dependants",
+       "+1 Ātmakāraka"
+      ],
+      "house": 7,
+      "sign": "Leo",
+      "dig": "Friend",
+      "lordOf": [
+       5,
+       8
+      ]
+     },
+     {
+      "g": "Sun",
+      "score": 7.5,
+      "why": [
+       "+4 in a mutual exchange with Mercury",
+       "+3 3 grahas/Lagna answer to this circuit",
+       "+0.5 1 direct dependant"
+      ],
+      "house": 8,
+      "sign": "Virgo",
+      "dig": "Neutral",
+      "lordOf": [
+       7
+      ]
+     },
+     {
+      "g": "Venus",
+      "score": 4.5,
+      "why": [
+       "passes its results to Mercury",
+       "+0.5 1 direct dependant",
+       "+0.5 Dārākāraka",
+       "+1 debilitated (a notable weakness)",
+       "+0.5 combust",
+       "+2 lords a kendra and a trikona"
+      ],
+      "house": 8,
+      "sign": "Virgo",
+      "dig": "Debilitated",
+      "lordOf": [
+       4,
+       9
+      ]
+     },
+     {
+      "g": "Mars",
+      "score": 1.5,
+      "why": [
+       "passes its results to Mercury",
+       "+1.5 runs the current Antardaśā"
+      ],
+      "house": 4,
+      "sign": "Taurus",
+      "dig": "Neutral",
+      "lordOf": [
+       3,
+       10
+      ]
+     },
+     {
+      "g": "Rahu",
+      "score": 0,
+      "why": [
+       "passes its results to Saturn"
+      ],
+      "house": 12,
+      "sign": "Capricorn",
+      "dig": "—",
+      "lordOf": []
+     },
+     {
+      "g": "Ketu",
+      "score": 0,
+      "why": [
+       "passes its results to Moon"
+      ],
+      "house": 6,
+      "sign": "Cancer",
+      "dig": "—",
+      "lordOf": []
+     }
+    ],
+    "dispositors": {
+     "next": {
+      "Sun": "Mercury",
+      "Moon": "Saturn",
+      "Mars": "Venus",
+      "Mercury": "Sun",
+      "Jupiter": "Moon",
+      "Venus": "Mercury",
+      "Saturn": "Jupiter",
+      "Rahu": "Saturn",
+      "Ketu": "Moon",
+      "Lagna": "Saturn"
+     },
+     "sinks": [
+      {
+       "key": "Jupiter+Moon+Saturn",
+       "members": [
+        "Moon",
+        "Saturn",
+        "Jupiter"
+       ],
+       "kind": "ring",
+       "fed": [
+        "Moon",
+        "Jupiter",
+        "Saturn",
+        "Rahu",
+        "Ketu",
+        "Lagna"
+       ],
+       "size": 3
+      },
+      {
+       "key": "Mercury+Sun",
+       "members": [
+        "Sun",
+        "Mercury"
+       ],
+       "kind": "exchange",
+       "fed": [
+        "Sun",
+        "Mars",
+        "Mercury",
+        "Venus"
+       ],
+       "size": 2
+      }
+     ],
+     "exchanges": [
+      {
+       "a": "Sun",
+       "b": "Mercury",
+       "houses": [
+        8,
+        7
+       ],
+       "lorded": {
+        "Sun": [
+         7
+        ],
+        "Mercury": [
+         5,
+         8
+        ]
+       },
+       "cls": "dainya"
+      }
+     ]
+    },
     "grahas": {
      "Sun": {
       "sign": "Virgo",
