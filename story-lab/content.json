@@ -1,0 +1,72 @@
+{
+  "_note": "Plain-language material the rules draw on. Wording is written for this app in the case-method clause format; it is not quoted from any one author.",
+  "chapters": [
+    { "id": "self",        "title": "The protagonist",  "sub": "lagna · lagnesha · the first impression", "glyph": "☉" },
+    { "id": "home",        "title": "Home ground",      "sub": "Chandra · bandhu-bhava · where the feelings live", "glyph": "☽" },
+    { "id": "creative",    "title": "The creative mind","sub": "putra-bhava · Budha · what gets made", "glyph": "☿" },
+    { "id": "vocation",    "title": "The working engine","sub": "karma-bhava · Kuja · Shani · folk-reputation", "glyph": "♂" },
+    { "id": "crucible",    "title": "The crucible",     "sub": "randhra-bhava · vyaya-bhava · what is hidden and transformed", "glyph": "☋" },
+    { "id": "partnership", "title": "Partnership",      "sub": "yuvati-bhava · Shukra · the other person", "glyph": "♀" },
+    { "id": "gains",       "title": "Gains and allies", "sub": "dhana · labha · dharma · what comes back", "glyph": "♃" },
+    { "id": "timing",      "title": "The clock",        "sub": "Vimśottarī daśā · which chapter is being read now", "glyph": "♄" }
+  ],
+  "houseTopic": { "1":"self","2":"gains","3":"vocation","4":"home","5":"creative","6":"vocation","7":"partnership","8":"crucible","9":"gains","10":"vocation","11":"gains","12":"crucible" },
+  "grahaTopic": { "Sun":"self","Moon":"home","Mars":"vocation","Mercury":"creative","Jupiter":"gains","Venus":"partnership","Saturn":"vocation","Rahu":"crucible","Ketu":"crucible" },
+  "house": {
+    "1":  { "name":"Tanu",    "theme":"embodiment, temperament, vitality" },
+    "2":  { "name":"Dhana",   "theme":"speech, savings, family lineage" },
+    "3":  { "name":"Sahaja",  "theme":"initiative, skill, siblings, courage" },
+    "4":  { "name":"Bandhu",  "theme":"home, mother, roots, property" },
+    "5":  { "name":"Putra",   "theme":"creativity, children, intelligence, romance" },
+    "6":  { "name":"Ari",     "theme":"service, daily routine, health habits, competition" },
+    "7":  { "name":"Yuvati",  "theme":"partnership, contracts, the spouse" },
+    "8":  { "name":"Randhra", "theme":"transformation, shared resources, research, the hidden" },
+    "9":  { "name":"Dharma",  "theme":"beliefs, teachers, fortune, long journeys" },
+    "10": { "name":"Karma",   "theme":"vocation, public role, authority" },
+    "11": { "name":"Labha",   "theme":"gains, networks, fulfilled goals" },
+    "12": { "name":"Vyaya",   "theme":"retreat, expense, solitude, distant places" }
+  },
+  "grahaName": { "Sun":"Surya","Moon":"Chandra","Mars":"Kuja","Mercury":"Budha","Jupiter":"Guru","Venus":"Shukra","Saturn":"Shani","Rahu":"Rahu","Ketu":"Ketu" },
+  "grahaGlyph": { "Sun":"☉","Moon":"☽","Mars":"♂","Mercury":"☿","Jupiter":"♃","Venus":"♀","Saturn":"♄","Rahu":"☊","Ketu":"☋" },
+  "signName": ["Mesha","Vṛṣabha","Mithuna","Karkaṭa","Siṁha","Kanyā","Tulā","Vṛścika","Dhanus","Makara","Kumbha","Mīna"],
+  "signGlyph": ["♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓"],
+  "professor": {
+    "Ketu":    "Professor Ketu — curriculum of release, refinement and the unfinished",
+    "Venus":   "Professor Shukra — curriculum of value, pleasure and agreement",
+    "Sun":     "Professor Surya — curriculum of identity, authority and the center",
+    "Moon":    "Professor Chandra — curriculum of nurture, belonging and memory",
+    "Mars":    "Professor Kuja — curriculum of drive, courage and the first move",
+    "Rahu":    "Professor Rahu — curriculum of ambition, the unconventional and the hungry",
+    "Jupiter": "Professor Guru — curriculum of meaning, counsel and generosity",
+    "Saturn":  "Professor Shani — curriculum of responsibility, structure and patience",
+    "Mercury": "Professor Budha — curriculum of reasoning, trade and analysis"
+  },
+  "moonSign": {
+    "Aries":       { "star": ["comforted by forward pursuit","settled into warrior rhythms","needs vitality"] },
+    "Taurus":      { "star": ["comforted by possession and ease","settled into sensory routines","needs steadiness"] },
+    "Gemini":      { "star": ["comforted by conversation","settled into quick exchanges","needs variety of input"] },
+    "Cancer":      { "star": ["comforted by the familiar and the fed","settled into protective rhythms","needs belonging"] },
+    "Leo":         { "star": ["comforted by being seen","settled into generous, central roles","needs warmth returned"] },
+    "Virgo":       { "star": ["comforted by being useful","settled into careful, detailed routines","needs things in working order"] },
+    "Libra":       { "star": ["comforted by balance and company","settled into negotiated rhythms","needs fairness"] },
+    "Scorpio":     { "star": ["comforted by depth and privacy","settled into intense, guarded rhythms","needs trust proven over time"] },
+    "Sagittarius": { "star": ["comforted by meaning and movement","settled into exploratory rhythms","needs a larger horizon"] },
+    "Capricorn":   { "star": ["comforted by structure, rank and responsibility","settled into long-haul, disciplined rhythms","needs the work to be accountable"] },
+    "Aquarius":    { "star": ["comforted by principle and community","settled into impersonal, networked rhythms","needs room to be different"] },
+    "Pisces":      { "star": ["comforted by imagination and sanctuary","settled into porous, tidal rhythms","needs quiet and compassion"] }
+  },
+  "nakshatra": {
+    "Dhanishta": { "deity": "the Vasus (bright abundance)", "symbol": "the drum", "gist": "a rhythm-keeper: sensitive to tempo, ensemble, wealth-in-circulation and being 'in time' with others" }
+  },
+  "tenthFromMoonLine": {
+    "Aries": "pioneering, first-arriving", "Taurus": "building, valuing, producing", "Gemini": "communicating, trading",
+    "Cancer": "caretaking, sheltering", "Leo": "presiding, performing", "Virgo": "analytic, ministering",
+    "Libra": "negotiating, balancing, brokering", "Scorpio": "investigative, transformative", "Sagittarius": "teaching, guiding, philosophizing",
+    "Capricorn": "regulating, governing", "Aquarius": "networking, systematizing", "Pisces": "imaginative, healing, retreating"
+  },
+  "dashaLordLine": {
+    "Sun":"identity and authority", "Moon":"home, feeling and public contact", "Mars":"drive and decisive action",
+    "Rahu":"ambition and the unconventional route", "Jupiter":"expansion, counsel and gains", "Saturn":"structure, duty and slow consolidation",
+    "Mercury":"analysis, trade and communication", "Ketu":"release and refinement", "Venus":"value, partnership and pleasure"
+  }
+}

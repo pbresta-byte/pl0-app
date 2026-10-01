@@ -1,0 +1,585 @@
+{
+ "_note": "Each rule: lens, optional 'for' expansion, 'when' conditions (all must hold), polarity (+1 supportive, 0 descriptive, -1 strained), weight 1-3, a topic (chapter), and text. Receipts are produced by the conditions themselves, so every sentence the reading speaks can be traced to a chart fact. Variables in {braces} are filled from the facts.",
+ "rules": [
+  {
+   "id": "LORD-SUPPORTED",
+   "lens": "bhava",
+   "for": {
+    "house": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     7,
+     9,
+     10,
+     11
+    ]
+   },
+   "when": [
+    {
+     "op": "lord_in",
+     "houses": [
+      1,
+      4,
+      5,
+      7,
+      9,
+      10,
+      11
+     ]
+    }
+   ],
+   "polarity": 1,
+   "weight": 1,
+   "topic": "house:$h",
+   "beat": "{lordN}, lord of bhava-{h} ({hName}), sits in bhava-{p} ({pName}): the {hTheme} agenda is given a workable seat.",
+   "clause": "[{lordN} lords bhava-{h}] [seated in bhava-{p}: {pTheme}]"
+  },
+  {
+   "id": "LORD-STRAINED",
+   "lens": "bhava",
+   "for": {
+    "house": [
+     1,
+     2,
+     4,
+     5,
+     7,
+     9,
+     10,
+     11
+    ]
+   },
+   "when": [
+    {
+     "op": "lord_in",
+     "houses": [
+      6,
+      8,
+      12
+     ]
+    }
+   ],
+   "polarity": -1,
+   "weight": 2,
+   "topic": "house:$h",
+   "beat": "{lordN}, lord of bhava-{h} ({hName}), sits in bhava-{p} ({pName}): the {hTheme} agenda is worked through {pTheme}. A classroom with real homework; with awareness it is workable.{softNote}",
+   "clause": "[{lordN} lords bhava-{h}] [seated in dusthana bhava-{p}: {pTheme}]",
+   "check": [
+    "{lordN}'s dignity and drishti",
+    "the sign dispositor of {lordN}"
+   ],
+   "softenLord": true
+  },
+  {
+   "id": "LORD-VIPAREETA",
+   "lens": "bhava",
+   "for": {
+    "house": [
+     6,
+     8,
+     12
+    ]
+   },
+   "when": [
+    {
+     "op": "lord_in",
+     "houses": [
+      6,
+      8,
+      12
+     ]
+    }
+   ],
+   "polarity": 1,
+   "weight": 2,
+   "topic": "house:$h",
+   "beat": "{lordN} lords the difficult bhava-{h} ({hName}) and sits in bhava-{p}: trouble-house lord in a trouble house, the classical setup for turning adversity into a resource ({vipName} pattern).{mixNote}",
+   "clause": "[{lordN} lords dusthana bhava-{h}] [seated in dusthana bhava-{p}] [{vipName} pattern]",
+   "caveat": "Strength is reduced when the same graha also lords a good house."
+  },
+  {
+   "id": "KT-UNION",
+   "lens": "bhava",
+   "for": {
+    "pair": "kendra-trikona"
+   },
+   "when": [
+    {
+     "op": "pair_same_sign"
+    }
+   ],
+   "polarity": 1,
+   "weight": 2,
+   "topic": "house:$p",
+   "beat": "{aN} (lord of bhava-{ha}) and {bN} (lord of bhava-{hb}) share {signN}: a kendra-lord and a trikona-lord joined is the classical raja-yoga shape. It speaks through bhava-{p} ({pName}), so its fruit arrives in that theme.{seatNote}",
+   "clause": "[{aN} + {bN} in {signN}] [kendra-lord joins trikona-lord] [expressed via bhava-{p}: {pTheme}]",
+   "caveat": "A yoga's fruit is limited by the dignity and house of the grahas that form it.",
+   "softenSeat": true
+  },
+  {
+   "id": "DIGNITY-STRONG",
+   "lens": "bhava",
+   "for": {
+    "graha": [
+     "Sun",
+     "Moon",
+     "Mars",
+     "Mercury",
+     "Jupiter",
+     "Venus",
+     "Saturn"
+    ]
+   },
+   "when": [
+    {
+     "op": "dignity_is",
+     "tiers": [
+      "Exalted",
+      "Own"
+     ]
+    }
+   ],
+   "polarity": 1,
+   "weight": 1,
+   "topic": "graha:$g",
+   "beat": "{gN} is {digLower} in {signN}: its significations have a strong footing wherever it sits (bhava-{p}).",
+   "clause": "[{gN} {digLower} in {signN}] [bhava-{p}]"
+  },
+  {
+   "id": "DEBILITATED",
+   "lens": "bhava",
+   "for": {
+    "graha": [
+     "Sun",
+     "Moon",
+     "Mars",
+     "Mercury",
+     "Jupiter",
+     "Venus",
+     "Saturn"
+    ]
+   },
+   "when": [
+    {
+     "op": "dignity_is",
+     "tiers": [
+      "Debilitated"
+     ]
+    }
+   ],
+   "polarity": -1,
+   "weight": 2,
+   "topic": "graha:$g",
+   "beat": "{gN} is debilitated in {signN} (bhava-{p}): its significations are under strain and learned the hard way.",
+   "clause": "[{gN} debilitated in {signN}] [bhava-{p}]",
+   "check": [
+    "cancellation conditions (nīcha-bhaṅga)",
+    "combustion",
+    "navāṁśa sign"
+   ]
+  },
+  {
+   "id": "NICHA-BHANGA",
+   "lens": "bhava",
+   "for": {
+    "graha": [
+     "Sun",
+     "Moon",
+     "Mars",
+     "Mercury",
+     "Jupiter",
+     "Venus",
+     "Saturn"
+    ]
+   },
+   "when": [
+    {
+     "op": "dignity_is",
+     "tiers": [
+      "Debilitated"
+     ]
+    },
+    {
+     "op": "nb_any"
+    }
+   ],
+   "polarity": 1,
+   "weight": 2,
+   "topic": "graha:$g",
+   "beat": "The strain on {gN} has a cancellation condition: {nbWhy}. The weakness is real but not the final word.",
+   "clause": "[nīcha-bhaṅga for {gN}] [{nbWhy}]",
+   "caveat": "Cancellation conditions vary by text; the ones that fire are named so they can be checked."
+  },
+  {
+   "id": "COMBUST",
+   "lens": "bhava",
+   "for": {
+    "graha": [
+     "Moon",
+     "Mars",
+     "Mercury",
+     "Jupiter",
+     "Venus",
+     "Saturn"
+    ]
+   },
+   "when": [
+    {
+     "op": "combust_is"
+    }
+   ],
+   "polarity": -1,
+   "weight": 1,
+   "topic": "graha:$g",
+   "beat": "{gN} stands {sunSep}° from Surya, inside its combustion orb: its voice is overshadowed by the Sun's agenda.",
+   "clause": "[{gN} combust, {sunSep}° from Surya]"
+  },
+  {
+   "id": "VARGOTTAMA",
+   "lens": "bhava",
+   "for": {
+    "graha": [
+     "Sun",
+     "Moon",
+     "Mars",
+     "Mercury",
+     "Jupiter",
+     "Venus",
+     "Saturn"
+    ]
+   },
+   "when": [
+    {
+     "op": "vargottama_is"
+    }
+   ],
+   "polarity": 1,
+   "weight": 1,
+   "topic": "graha:$g",
+   "beat": "{gN} is in {signN} in both rāśi and navāṁśa (vargottama): what it stands for is consistent from outer expression to inner confirmation.",
+   "clause": "[{gN} vargottama in {signN}]"
+  },
+  {
+   "id": "MOON-SIGN",
+   "lens": "moon",
+   "when": [
+    {
+     "op": "bind_moon"
+    }
+   ],
+   "polarity": 0,
+   "weight": 1,
+   "topic": "home",
+   "star": "{moonStar}",
+   "beat": "Chandra in {signN}: {moonStarJoin}.",
+   "clause": "[Chandra in classroom of {signN}] [{moonStarJoin}]"
+  },
+  {
+   "id": "MOON-NAK",
+   "lens": "moon",
+   "when": [
+    {
+     "op": "bind_moon"
+    }
+   ],
+   "polarity": 0,
+   "weight": 1,
+   "topic": "home",
+   "beat": "Moon in {nakName}-{pada} studies under {profLine}.{nakGist} The pāda falls in navāṁśa {navN}, which colors how the star's themes are carried.",
+   "clause": "[Chandra in {nakName}-{pada}] [navāṁśa Chandra-{navN}] [{profShort}]"
+  },
+  {
+   "id": "MOON-DISPOSITOR",
+   "lens": "moon",
+   "when": [
+    {
+     "op": "bind_moon_dispositor"
+    }
+   ],
+   "polarity": 0,
+   "polarityBy": "dignity",
+   "weight": 2,
+   "topic": "home",
+   "beat": "To source Chandra's feelings, check {dN}, the dispositor of {signN}: it sits in bhava-{dp} ({dpName}) in {dSignN}, {dDigLower}, and aspects {dAspects}.",
+   "clause": "[check {dN} + {dN}-drishti to source Chandra's feelings] [{dN} in bhava-{dp}, {dDigLower}] [aspects {dAspects}]",
+   "check": [
+    "{dN} and the grahas {dN} aspects"
+   ]
+  },
+  {
+   "id": "MOON-10TH",
+   "lens": "moon",
+   "when": [
+    {
+     "op": "bind_moon_10th"
+    }
+   ],
+   "polarity": 0,
+   "polarityBy": "dignity",
+   "weight": 2,
+   "topic": "vocation",
+   "beat": "Folk-reputation, counted as 10th-from-Chandra, falls in {t10N}: {t10Line}. Its lord {t10LordN} sits in {t10SignN} ({t10Dig}), so that public face is {t10Tone}.{t10NB}",
+   "clause": "[folk-reputation 10th-from-Chandra = {t10N}] [{t10Line}] [lord {t10LordN}: {t10Dig}]",
+   "check": [
+    "{t10LordN}'s conditions"
+   ]
+  },
+  {
+   "id": "MOON-HOUSE-12",
+   "lens": "moon",
+   "when": [
+    {
+     "op": "moon_house_in",
+     "houses": [
+      12
+     ]
+    }
+   ],
+   "polarity": 0,
+   "weight": 1,
+   "topic": "home",
+   "beat": "Chandra sits in bhava-12 ({vyayaTheme}): the felt life retreats inward; comfort is found in quiet, privacy or distance from the crowd.",
+   "clause": "[Chandra in vyaya-bhava] [comfort found in retreat and privacy]"
+  },
+  {
+   "id": "AK-ROLE",
+   "lens": "jaimini",
+   "when": [
+    {
+     "op": "bind_karaka",
+     "role": "AK"
+    }
+   ],
+   "polarity": 0,
+   "polarityBy": "dignityOrVargottama",
+   "weight": 2,
+   "topic": "self",
+   "beat": "Ātmakāraka (soul-significator) is {kN}, highest at {kDeg}° of {kSignN}; its navāṁśa sign {kNavN} marks the karakāṁśa, the flavor of what the soul is practicing.{kVarg}",
+   "clause": "[AK {kN} at {kDeg}° {kSignN}] [karakāṁśa {kNavN}]{kVargClause}"
+  },
+  {
+   "id": "AMK-ROLE",
+   "lens": "jaimini",
+   "when": [
+    {
+     "op": "bind_karaka",
+     "role": "AmK"
+    }
+   ],
+   "polarity": 0,
+   "polarityBy": "dignity",
+   "weight": 1,
+   "topic": "vocation",
+   "beat": "Amātyakāraka (career-significator) is {kN} in {kSignN}, bhava-{kHouse} ({kHouseName}): work is minister to the soul's purpose through {kHouseTheme}.",
+   "clause": "[AmK {kN} in {kSignN}] [bhava-{kHouse}: {kHouseTheme}]"
+  },
+  {
+   "id": "DK-ROLE",
+   "lens": "jaimini",
+   "when": [
+    {
+     "op": "bind_karaka",
+     "role": "DK"
+    }
+   ],
+   "polarity": 0,
+   "polarityBy": "dignity",
+   "weight": 2,
+   "topic": "partnership",
+   "beat": "Dārākāraka (partner-significator) is {kN}, the lowest degree ({kDeg}° {kSignN}), in bhava-{kHouse} ({kHouseName}). {kDigLine}",
+   "clause": "[DK {kN} at {kDeg}° {kSignN}] [bhava-{kHouse}] [{kDig}]",
+   "check": [
+    "navāṁśa position of {kN}",
+    "bhava-7 and its lord"
+   ]
+  },
+  {
+   "id": "DASHA-MD-STRONG",
+   "lens": "bhava",
+   "when": [
+    {
+     "op": "dasha_lord",
+     "level": 1,
+     "dignityIn": [
+      "Exalted",
+      "Own"
+     ]
+    }
+   ],
+   "polarity": 1,
+   "weight": 2,
+   "topic": "timing",
+   "beat": "The running {lvl} lord {dN} is {dDigLower} in {dSignN}: this chapter of life has a strong author. It speaks for {dLine} and, as lord of {dLordOf}, through those houses.",
+   "clause": "[{lvl} {dN}] [{dDigLower} in {dSignN}] [lord of {dLordOf}]"
+  },
+  {
+   "id": "DASHA-MD-DUSTHANA",
+   "lens": "bhava",
+   "when": [
+    {
+     "op": "dasha_lord",
+     "level": 1,
+     "houseIn": [
+      6,
+      8,
+      12
+     ]
+    }
+   ],
+   "polarity": -1,
+   "weight": 1,
+   "topic": "timing",
+   "beat": "{dN} sits in bhava-{dp} ({dpName}): the period's results arrive through {dpTheme}, which means effort, service or hidden work before reward.",
+   "clause": "[{lvl} {dN} in dusthana bhava-{dp}]"
+  },
+  {
+   "id": "DASHA-MD-KENDRA-TRIKONA",
+   "lens": "bhava",
+   "when": [
+    {
+     "op": "dasha_lord",
+     "level": 1,
+     "houseIn": [
+      1,
+      4,
+      5,
+      7,
+      9,
+      10
+     ]
+    }
+   ],
+   "polarity": 1,
+   "weight": 1,
+   "topic": "timing",
+   "beat": "{dN} sits in bhava-{dp} ({dpName}), a kendra or trikona: the period's agenda has an easy line of sight.",
+   "clause": "[{lvl} {dN} in bhava-{dp}]"
+  },
+  {
+   "id": "DASHA-AD-KENDRA-TRIKONA",
+   "lens": "bhava",
+   "when": [
+    {
+     "op": "dasha_lord",
+     "level": 2,
+     "houseIn": [
+      1,
+      4,
+      5,
+      7,
+      9,
+      10
+     ]
+    }
+   ],
+   "polarity": 1,
+   "weight": 1,
+   "topic": "timing",
+   "beat": "Inside it, the current {lvl} belongs to {dN} (lord of {dLordOf}), seated in bhava-{dp} ({dpName}): the sub-chapter's agenda — {dLine} — has an easy line of sight.",
+   "clause": "[{lvl} {dN} in bhava-{dp}]"
+  },
+  {
+   "id": "DASHA-AD-DUSTHANA",
+   "lens": "bhava",
+   "when": [
+    {
+     "op": "dasha_lord",
+     "level": 2,
+     "houseIn": [
+      6,
+      8,
+      12
+     ]
+    }
+   ],
+   "polarity": -1,
+   "weight": 1,
+   "topic": "timing",
+   "beat": "Inside it, the current {lvl} belongs to {dN} (lord of {dLordOf}), seated in bhava-{dp} ({dpName}): the sub-chapter's agenda — {dLine} — arrives through {dpTheme}.",
+   "clause": "[{lvl} {dN} in dusthana bhava-{dp}]"
+  },
+  {
+   "id": "CLUSTER",
+   "lens": "bhava",
+   "for": {
+    "cluster": 2
+   },
+   "when": [
+    {
+     "op": "cluster_in_house"
+    }
+   ],
+   "polarity": 0,
+   "weight": 2,
+   "topic": "house:$p",
+   "beat": "Bhava-{p} ({pName}) holds {occ}: attention is concentrated here, so {pTheme} is a recurring subject of the life, not a side-note.",
+   "clause": "[{occ} in bhava-{p}: {pTheme}]"
+  },
+  {
+   "id": "NODE-HOUSE",
+   "lens": "bhava",
+   "for": {
+    "graha": [
+     "Rahu",
+     "Ketu"
+    ]
+   },
+   "when": [
+    {
+     "op": "node_house"
+    }
+   ],
+   "polarity": 0,
+   "weight": 1,
+   "topic": "house:$p",
+   "beat": "{gN} in bhava-{p} ({pName}): {nodeVerb} where {pTheme} is concerned.",
+   "clause": "[{gN} in bhava-{p}]"
+  },
+  {
+   "id": "MOON-NODE",
+   "lens": "moon",
+   "when": [
+    {
+     "op": "moon_node_conj"
+    }
+   ],
+   "polarity": 0,
+   "weight": 2,
+   "topic": "home",
+   "beat": "Chandra shares {signN} with {gN} ({sep}° apart): the feelings carry {nodeFeel}. Check {dN}, the dispositor, for how that shows up.",
+   "clause": "[Chandra-yuti-{gN}] [{nodeFeel}] [check {dN}]",
+   "check": [
+    "{gN}'s dispositor"
+   ]
+  },
+  {
+   "id": "ASPECT-LAGNA",
+   "lens": "bhava",
+   "for": {
+    "graha": [
+     "Sun",
+     "Moon",
+     "Mars",
+     "Mercury",
+     "Jupiter",
+     "Venus",
+     "Saturn"
+    ]
+   },
+   "when": [
+    {
+     "op": "aspects_house",
+     "house": 1
+    }
+   ],
+   "polarity": 0,
+   "weight": 1,
+   "topic": "self",
+   "beat": "{gN} (in bhava-{p}) casts its drishti on the lagna: the first impression is colored by {gN}'s themes.",
+   "clause": "[{gN}-drishti on lagna]"
+  }
+ ]
+}

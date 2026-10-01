@@ -1,0 +1,9 @@
+{
+  "_note": "Three people to start. Only Cristian's birth data exists in this repo (same values as DEMO_BIRTH / team-config.json). Maria and Celia need date, local time, UTC offset and place before build.js can compute them.",
+  "charts": [
+    { "id": "cristian", "name": "Cristian",
+      "birth": { "date": "1990-09-30", "time": "17:54", "tz": -4, "lat": 25.7617, "lon": -80.1918, "place": "Miami, Florida" } },
+    { "id": "maria", "name": "Maria", "birth": null },
+    { "id": "celia", "name": "Celia", "birth": null }
+  ]
+}

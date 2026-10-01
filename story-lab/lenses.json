@@ -1,0 +1,15 @@
+{
+  "_note": "A lens is a way of reading the chart that has its own questions and its own vocabulary. Lenses never see each other's verdicts while reading; they are compared afterward.",
+  "lenses": [
+    { "id": "bhava",   "name": "House-lord lens",       "asks": "Where do the lords of each house sit, how strong are they, and what yogas do those placements make?", "style": "structural, rule-by-rule" },
+    { "id": "moon",    "name": "Moon & star case-method lens", "asks": "What does the Moon's rāśi, nakṣatra-pāda, dispositor and 10th-from-Moon say about the felt life and the public reputation?", "style": "clause clusters in square brackets, ruler-as-professor, 'check graha X + its drishti'" },
+    { "id": "jaimini", "name": "Soul-significator lens", "asks": "Which graha carries the most degrees (Ātmakāraka), which carries the least (Dārākāraka), and how are they placed?", "style": "karaka roles, navāṁśa confirmation" }
+  ],
+  "polarity": { "1": "supportive", "0": "descriptive", "-1": "strained" },
+  "agreement": {
+    "convergent":  "every lens that took a side took the same side",
+    "divergent":   "lenses took opposite sides; both are shown, neither is averaged away",
+    "single-lens": "only one lens spoke; treat as a lead, not a conclusion",
+    "descriptive": "no lens took a side; this is portrait, not verdict"
+  }
+}

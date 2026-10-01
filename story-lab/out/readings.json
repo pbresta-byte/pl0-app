@@ -1,0 +1,1517 @@
+{
+ "lenses": [
+  {
+   "id": "bhava",
+   "name": "House-lord lens",
+   "asks": "Where do the lords of each house sit, how strong are they, and what yogas do those placements make?",
+   "style": "structural, rule-by-rule"
+  },
+  {
+   "id": "moon",
+   "name": "Moon & star case-method lens",
+   "asks": "What does the Moon's rāśi, nakṣatra-pāda, dispositor and 10th-from-Moon say about the felt life and the public reputation?",
+   "style": "clause clusters in square brackets, ruler-as-professor, 'check graha X + its drishti'"
+  },
+  {
+   "id": "jaimini",
+   "name": "Soul-significator lens",
+   "asks": "Which graha carries the most degrees (Ātmakāraka), which carries the least (Dārākāraka), and how are they placed?",
+   "style": "karaka roles, navāṁśa confirmation"
+  }
+ ],
+ "agreement": {
+  "convergent": "every lens that took a side took the same side",
+  "divergent": "lenses took opposite sides; both are shown, neither is averaged away",
+  "single-lens": "only one lens spoke; treat as a lead, not a conclusion",
+  "descriptive": "no lens took a side; this is portrait, not verdict"
+ },
+ "content": {
+  "chapters": [
+   {
+    "id": "self",
+    "title": "The protagonist",
+    "sub": "lagna · lagnesha · the first impression",
+    "glyph": "☉"
+   },
+   {
+    "id": "home",
+    "title": "Home ground",
+    "sub": "Chandra · bandhu-bhava · where the feelings live",
+    "glyph": "☽"
+   },
+   {
+    "id": "creative",
+    "title": "The creative mind",
+    "sub": "putra-bhava · Budha · what gets made",
+    "glyph": "☿"
+   },
+   {
+    "id": "vocation",
+    "title": "The working engine",
+    "sub": "karma-bhava · Kuja · Shani · folk-reputation",
+    "glyph": "♂"
+   },
+   {
+    "id": "crucible",
+    "title": "The crucible",
+    "sub": "randhra-bhava · vyaya-bhava · what is hidden and transformed",
+    "glyph": "☋"
+   },
+   {
+    "id": "partnership",
+    "title": "Partnership",
+    "sub": "yuvati-bhava · Shukra · the other person",
+    "glyph": "♀"
+   },
+   {
+    "id": "gains",
+    "title": "Gains and allies",
+    "sub": "dhana · labha · dharma · what comes back",
+    "glyph": "♃"
+   },
+   {
+    "id": "timing",
+    "title": "The clock",
+    "sub": "Vimśottarī daśā · which chapter is being read now",
+    "glyph": "♄"
+   }
+  ],
+  "grahaGlyph": {
+   "Sun": "☉",
+   "Moon": "☽",
+   "Mars": "♂",
+   "Mercury": "☿",
+   "Jupiter": "♃",
+   "Venus": "♀",
+   "Saturn": "♄",
+   "Rahu": "☊",
+   "Ketu": "☋"
+  },
+  "signGlyph": [
+   "♈",
+   "♉",
+   "♊",
+   "♋",
+   "♌",
+   "♍",
+   "♎",
+   "♏",
+   "♐",
+   "♑",
+   "♒",
+   "♓"
+  ],
+  "signName": [
+   "Mesha",
+   "Vṛṣabha",
+   "Mithuna",
+   "Karkaṭa",
+   "Siṁha",
+   "Kanyā",
+   "Tulā",
+   "Vṛścika",
+   "Dhanus",
+   "Makara",
+   "Kumbha",
+   "Mīna"
+  ],
+  "grahaName": {
+   "Sun": "Surya",
+   "Moon": "Chandra",
+   "Mars": "Kuja",
+   "Mercury": "Budha",
+   "Jupiter": "Guru",
+   "Venus": "Shukra",
+   "Saturn": "Shani",
+   "Rahu": "Rahu",
+   "Ketu": "Ketu"
+  },
+  "house": {
+   "1": {
+    "name": "Tanu",
+    "theme": "embodiment, temperament, vitality"
+   },
+   "2": {
+    "name": "Dhana",
+    "theme": "speech, savings, family lineage"
+   },
+   "3": {
+    "name": "Sahaja",
+    "theme": "initiative, skill, siblings, courage"
+   },
+   "4": {
+    "name": "Bandhu",
+    "theme": "home, mother, roots, property"
+   },
+   "5": {
+    "name": "Putra",
+    "theme": "creativity, children, intelligence, romance"
+   },
+   "6": {
+    "name": "Ari",
+    "theme": "service, daily routine, health habits, competition"
+   },
+   "7": {
+    "name": "Yuvati",
+    "theme": "partnership, contracts, the spouse"
+   },
+   "8": {
+    "name": "Randhra",
+    "theme": "transformation, shared resources, research, the hidden"
+   },
+   "9": {
+    "name": "Dharma",
+    "theme": "beliefs, teachers, fortune, long journeys"
+   },
+   "10": {
+    "name": "Karma",
+    "theme": "vocation, public role, authority"
+   },
+   "11": {
+    "name": "Labha",
+    "theme": "gains, networks, fulfilled goals"
+   },
+   "12": {
+    "name": "Vyaya",
+    "theme": "retreat, expense, solitude, distant places"
+   }
+  }
+ },
+ "charts": [
+  {
+   "id": "cristian",
+   "name": "Cristian",
+   "status": "computed",
+   "birth": {
+    "date": "1990-09-30",
+    "time": "17:54",
+    "tz": -4,
+    "lat": 25.7617,
+    "lon": -80.1918,
+    "place": "Miami, Florida"
+   },
+   "asOf": "2026-10-1",
+   "facts": {
+    "lagna": {
+     "signIdx": 10,
+     "sign": "Aquarius",
+     "deg": 19.43,
+     "navIdx": 11
+    },
+    "ayanamsa": 23.724,
+    "moonNak": {
+     "name": "Dhanishta",
+     "pada": 2,
+     "spanStart": 293.33333333333337,
+     "spanEnd": 306.6666666666667
+    },
+    "dasha": {
+     "all": [
+      {
+       "lord": "Mars",
+       "s": {
+        "year": 1990,
+        "month": 9,
+        "day": 30,
+        "hh": 17,
+        "mm": 54
+       },
+       "e": {
+        "year": 1995,
+        "month": 7,
+        "day": 17,
+        "hh": 14,
+        "mm": 21
+       }
+      },
+      {
+       "lord": "Rahu",
+       "s": {
+        "year": 1995,
+        "month": 7,
+        "day": 17,
+        "hh": 14,
+        "mm": 21
+       },
+       "e": {
+        "year": 2013,
+        "month": 7,
+        "day": 17,
+        "hh": 2,
+        "mm": 21
+       }
+      },
+      {
+       "lord": "Jupiter",
+       "s": {
+        "year": 2013,
+        "month": 7,
+        "day": 17,
+        "hh": 2,
+        "mm": 21
+       },
+       "e": {
+        "year": 2029,
+        "month": 7,
+        "day": 17,
+        "hh": 2,
+        "mm": 21
+       }
+      },
+      {
+       "lord": "Saturn",
+       "s": {
+        "year": 2029,
+        "month": 7,
+        "day": 17,
+        "hh": 2,
+        "mm": 21
+       },
+       "e": {
+        "year": 2048,
+        "month": 7,
+        "day": 16,
+        "hh": 20,
+        "mm": 21
+       }
+      },
+      {
+       "lord": "Mercury",
+       "s": {
+        "year": 2048,
+        "month": 7,
+        "day": 16,
+        "hh": 20,
+        "mm": 21
+       },
+       "e": {
+        "year": 2065,
+        "month": 7,
+        "day": 17,
+        "hh": 2,
+        "mm": 21
+       }
+      },
+      {
+       "lord": "Ketu",
+       "s": {
+        "year": 2065,
+        "month": 7,
+        "day": 17,
+        "hh": 2,
+        "mm": 21
+       },
+       "e": {
+        "year": 2072,
+        "month": 7,
+        "day": 16,
+        "hh": 20,
+        "mm": 21
+       }
+      },
+      {
+       "lord": "Venus",
+       "s": {
+        "year": 2072,
+        "month": 7,
+        "day": 16,
+        "hh": 20,
+        "mm": 21
+       },
+       "e": {
+        "year": 2092,
+        "month": 7,
+        "day": 16,
+        "hh": 20,
+        "mm": 21
+       }
+      },
+      {
+       "lord": "Sun",
+       "s": {
+        "year": 2092,
+        "month": 7,
+        "day": 16,
+        "hh": 20,
+        "mm": 21
+       },
+       "e": {
+        "year": 2098,
+        "month": 7,
+        "day": 17,
+        "hh": 8,
+        "mm": 21
+       }
+      },
+      {
+       "lord": "Moon",
+       "s": {
+        "year": 2098,
+        "month": 7,
+        "day": 17,
+        "hh": 8,
+        "mm": 21
+       },
+       "e": {
+        "year": 2108,
+        "month": 7,
+        "day": 17,
+        "hh": 20,
+        "mm": 21
+       }
+      }
+     ],
+     "now": [
+      {
+       "lord": "Jupiter",
+       "s": {
+        "year": 2013,
+        "month": 7,
+        "day": 17,
+        "hh": 2,
+        "mm": 21
+       },
+       "e": {
+        "year": 2029,
+        "month": 7,
+        "day": 17,
+        "hh": 2,
+        "mm": 21
+       }
+      },
+      {
+       "lord": "Mars",
+       "s": {
+        "year": 2026,
+        "month": 3,
+        "day": 17,
+        "hh": 14,
+        "mm": 21
+       },
+       "e": {
+        "year": 2027,
+        "month": 2,
+        "day": 21,
+        "hh": 11,
+        "mm": 57
+       }
+      }
+     ]
+    },
+    "karaka": {
+     "AK": "Mercury",
+     "AmK": "Moon",
+     "BK": "Saturn",
+     "MK": "Mars",
+     "PK": "Jupiter",
+     "GK": "Sun",
+     "DK": "Venus"
+    },
+    "grahas": {
+     "Sun": {
+      "sign": "Virgo",
+      "deg": 13.75,
+      "house": 8,
+      "dig": "Neutral",
+      "retro": false,
+      "vargottama": false,
+      "combust": false,
+      "navSign": "Taurus",
+      "lordOf": [
+       7
+      ],
+      "aspHouses": [
+       2
+      ],
+      "aspGrahas": []
+     },
+     "Moon": {
+      "sign": "Capricorn",
+      "deg": 27.54,
+      "house": 12,
+      "dig": "Neutral",
+      "retro": false,
+      "vargottama": false,
+      "combust": false,
+      "navSign": "Virgo",
+      "lordOf": [
+       6
+      ],
+      "aspHouses": [
+       6
+      ],
+      "aspGrahas": [
+       "Jupiter",
+       "Ketu"
+      ]
+     },
+     "Mars": {
+      "sign": "Taurus",
+      "deg": 18.32,
+      "house": 4,
+      "dig": "Neutral",
+      "retro": false,
+      "vargottama": false,
+      "combust": false,
+      "navSign": "Gemini",
+      "lordOf": [
+       3,
+       10
+      ],
+      "aspHouses": [
+       7,
+       10,
+       11
+      ],
+      "aspGrahas": [
+       "Mercury",
+       "Saturn"
+      ]
+     },
+     "Mercury": {
+      "sign": "Leo",
+      "deg": 28.25,
+      "house": 7,
+      "dig": "Friend",
+      "retro": false,
+      "vargottama": false,
+      "combust": false,
+      "navSign": "Sagittarius",
+      "lordOf": [
+       5,
+       8
+      ],
+      "aspHouses": [
+       1
+      ],
+      "aspGrahas": []
+     },
+     "Jupiter": {
+      "sign": "Cancer",
+      "deg": 14.63,
+      "house": 6,
+      "dig": "Exalted",
+      "retro": false,
+      "vargottama": false,
+      "combust": false,
+      "navSign": "Scorpio",
+      "lordOf": [
+       2,
+       11
+      ],
+      "aspHouses": [
+       10,
+       12,
+       2
+      ],
+      "aspGrahas": [
+       "Moon",
+       "Rahu"
+      ]
+     },
+     "Venus": {
+      "sign": "Virgo",
+      "deg": 5.59,
+      "house": 8,
+      "dig": "Debilitated",
+      "retro": false,
+      "vargottama": false,
+      "combust": true,
+      "navSign": "Aquarius",
+      "lordOf": [
+       4,
+       9
+      ],
+      "aspHouses": [
+       2
+      ],
+      "aspGrahas": []
+     },
+     "Saturn": {
+      "sign": "Sagittarius",
+      "deg": 25.21,
+      "house": 11,
+      "dig": "Neutral",
+      "retro": false,
+      "vargottama": false,
+      "combust": false,
+      "navSign": "Scorpio",
+      "lordOf": [
+       1,
+       12
+      ],
+      "aspHouses": [
+       1,
+       5,
+       8
+      ],
+      "aspGrahas": [
+       "Sun",
+       "Venus"
+      ]
+     },
+     "Rahu": {
+      "sign": "Capricorn",
+      "deg": 10.28,
+      "house": 12,
+      "dig": "—",
+      "retro": true,
+      "vargottama": false,
+      "combust": false,
+      "navSign": "Aries",
+      "lordOf": [],
+      "aspHouses": [],
+      "aspGrahas": []
+     },
+     "Ketu": {
+      "sign": "Cancer",
+      "deg": 10.28,
+      "house": 6,
+      "dig": "—",
+      "retro": true,
+      "vargottama": false,
+      "combust": false,
+      "navSign": "Libra",
+      "lordOf": [],
+      "aspHouses": [],
+      "aspGrahas": []
+     }
+    },
+    "houses": {
+     "1": {
+      "sign": "Aquarius",
+      "lord": "Saturn",
+      "occupants": []
+     },
+     "2": {
+      "sign": "Pisces",
+      "lord": "Jupiter",
+      "occupants": []
+     },
+     "3": {
+      "sign": "Aries",
+      "lord": "Mars",
+      "occupants": []
+     },
+     "4": {
+      "sign": "Taurus",
+      "lord": "Venus",
+      "occupants": [
+       "Mars"
+      ]
+     },
+     "5": {
+      "sign": "Gemini",
+      "lord": "Mercury",
+      "occupants": []
+     },
+     "6": {
+      "sign": "Cancer",
+      "lord": "Moon",
+      "occupants": [
+       "Jupiter",
+       "Ketu"
+      ]
+     },
+     "7": {
+      "sign": "Leo",
+      "lord": "Sun",
+      "occupants": [
+       "Mercury"
+      ]
+     },
+     "8": {
+      "sign": "Virgo",
+      "lord": "Mercury",
+      "occupants": [
+       "Sun",
+       "Venus"
+      ]
+     },
+     "9": {
+      "sign": "Libra",
+      "lord": "Venus",
+      "occupants": []
+     },
+     "10": {
+      "sign": "Scorpio",
+      "lord": "Mars",
+      "occupants": []
+     },
+     "11": {
+      "sign": "Sagittarius",
+      "lord": "Jupiter",
+      "occupants": [
+       "Saturn"
+      ]
+     },
+     "12": {
+      "sign": "Capricorn",
+      "lord": "Saturn",
+      "occupants": [
+       "Moon",
+       "Rahu"
+      ]
+     }
+    }
+   },
+   "chapters": [
+    {
+     "id": "self",
+     "title": "The protagonist",
+     "sub": "lagna · lagnesha · the first impression",
+     "glyph": "☉",
+     "findings": [
+      {
+       "id": "AK-ROLE",
+       "lens": "jaimini",
+       "topic": "self",
+       "polarity": 0,
+       "weight": 2,
+       "beat": "Ātmakāraka (soul-significator) is Budha, highest at 28.25° of Siṁha; its navāṁśa sign Dhanus marks the karakāṁśa, the flavor of what the soul is practicing.",
+       "clause": "[AK Budha at 28.25° Siṁha] [karakāṁśa Dhanus]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "AK = Mercury (28.25° Leo) · bhava 7 · Friend",
+        "navāṁśa Mercury · Sagittarius"
+       ]
+      },
+      {
+       "id": "LORD-SUPPORTED",
+       "lens": "bhava",
+       "topic": "self",
+       "polarity": 1,
+       "weight": 1,
+       "beat": "Shani, lord of bhava-1 (Tanu), sits in bhava-11 (Labha): the embodiment, temperament, vitality agenda is given a workable seat.",
+       "clause": "[Shani lords bhava-1] [seated in bhava-11: gains, networks, fulfilled goals]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Saturn lords bhava 1 (Aquarius)",
+        "Saturn · Sagittarius 25.21° · bhava 11"
+       ]
+      },
+      {
+       "id": "ASPECT-LAGNA",
+       "lens": "bhava",
+       "topic": "self",
+       "polarity": 0,
+       "weight": 1,
+       "beat": "Budha (in bhava-7) casts its drishti on the lagna: the first impression is colored by Budha's themes.",
+       "clause": "[Budha-drishti on lagna]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Mercury (bhava 7) aspects bhava 1"
+       ]
+      },
+      {
+       "id": "ASPECT-LAGNA",
+       "lens": "bhava",
+       "topic": "self",
+       "polarity": 0,
+       "weight": 1,
+       "beat": "Shani (in bhava-11) casts its drishti on the lagna: the first impression is colored by Shani's themes.",
+       "clause": "[Shani-drishti on lagna]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Saturn (bhava 11) aspects bhava 1"
+       ]
+      }
+     ],
+     "byLens": {
+      "bhava": {
+       "n": 3,
+       "score": 1,
+       "tension": false,
+       "verdict": "supportive"
+      },
+      "moon": {
+       "n": 0,
+       "score": 0,
+       "tension": false,
+       "verdict": "silent"
+      },
+      "jaimini": {
+       "n": 1,
+       "score": 0,
+       "tension": false,
+       "verdict": "descriptive"
+      }
+     },
+     "agreement": "single-lens"
+    },
+    {
+     "id": "home",
+     "title": "Home ground",
+     "sub": "Chandra · bandhu-bhava · where the feelings live",
+     "glyph": "☽",
+     "findings": [
+      {
+       "id": "MOON-DISPOSITOR",
+       "lens": "moon",
+       "topic": "home",
+       "polarity": 0,
+       "weight": 2,
+       "beat": "To source Chandra's feelings, check Shani, the dispositor of Makara: it sits in bhava-11 (Labha) in Dhanus, neutral, and aspects Surya, Shukra (and bhava 1, 5, 8).",
+       "clause": "[check Shani + Shani-drishti to source Chandra's feelings] [Shani in bhava-11, neutral] [aspects Surya, Shukra (and bhava 1, 5, 8)]",
+       "check": [
+        "Shani and the grahas Shani aspects"
+       ],
+       "caveat": null,
+       "receipts": [
+        "Moon in Capricorn → dispositor Saturn",
+        "Saturn · Sagittarius 25.21° · bhava 11 · Neutral",
+        "Saturn aspects bhava 1, 5, 8"
+       ]
+      },
+      {
+       "id": "MOON-NODE",
+       "lens": "moon",
+       "topic": "home",
+       "polarity": 0,
+       "weight": 2,
+       "beat": "Chandra shares Makara with Rahu (17.3° apart): the feelings carry hunger, restlessness and an appetite for the unconventional. Check Shani, the dispositor, for how that shows up.",
+       "clause": "[Chandra-yuti-Rahu] [hunger, restlessness and an appetite for the unconventional] [check Shani]",
+       "check": [
+        "Rahu's dispositor"
+       ],
+       "caveat": null,
+       "receipts": [
+        "Moon + Rahu in Capricorn (17.3° apart)"
+       ]
+      },
+      {
+       "id": "LORD-STRAINED",
+       "lens": "bhava",
+       "topic": "home",
+       "polarity": -1,
+       "weight": 1,
+       "beat": "Shukra, lord of bhava-4 (Bandhu), sits in bhava-8 (Randhra): the home, mother, roots, property agenda is worked through transformation, shared resources, research, the hidden. A classroom with real homework; with awareness it is workable. Softened: Shukra's debility has cancellation conditions.",
+       "clause": "[Shukra lords bhava-4] [seated in dusthana bhava-8: transformation, shared resources, research, the hidden]",
+       "check": [
+        "Shukra's dignity and drishti",
+        "the sign dispositor of Shukra"
+       ],
+       "caveat": null,
+       "receipts": [
+        "Venus lords bhava 4 (Taurus)",
+        "Venus · Virgo 5.59° · bhava 8",
+        "Venus also lords bhava 9 (mixed lordship)",
+        "softener: Shukra's debility has cancellation conditions"
+       ]
+      },
+      {
+       "id": "MOON-SIGN",
+       "lens": "moon",
+       "topic": "home",
+       "polarity": 0,
+       "weight": 1,
+       "beat": "Chandra in Makara: comforted by structure, rank and responsibility, settled into long-haul, disciplined rhythms, needs the work to be accountable.",
+       "clause": "[Chandra in classroom of Makara] [comforted by structure, rank and responsibility, settled into long-haul, disciplined rhythms, needs the work to be accountable]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Moon · Capricorn 27.54° · Dhanishta pāda 2 · bhava 12",
+        "navāṁśa Moon · Virgo"
+       ]
+      },
+      {
+       "id": "MOON-NAK",
+       "lens": "moon",
+       "topic": "home",
+       "polarity": 0,
+       "weight": 1,
+       "beat": "Moon in Dhanishta-2 studies under Professor Kuja — curriculum of drive, courage and the first move. It reads as a rhythm-keeper: sensitive to tempo, ensemble, wealth-in-circulation and being 'in time' with others. The pāda falls in navāṁśa Kanyā, which colors how the star's themes are carried.",
+       "clause": "[Chandra in Dhanishta-2] [navāṁśa Chandra-Kanyā] [Professor Kuja]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Moon · Capricorn 27.54° · Dhanishta pāda 2 · bhava 12",
+        "navāṁśa Moon · Virgo"
+       ]
+      },
+      {
+       "id": "MOON-HOUSE-12",
+       "lens": "moon",
+       "topic": "home",
+       "polarity": 0,
+       "weight": 1,
+       "beat": "Chandra sits in bhava-12 (retreat, expense, solitude, distant places): the felt life retreats inward; comfort is found in quiet, privacy or distance from the crowd.",
+       "clause": "[Chandra in vyaya-bhava] [comfort found in retreat and privacy]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Moon in bhava 12"
+       ]
+      }
+     ],
+     "byLens": {
+      "bhava": {
+       "n": 1,
+       "score": -1,
+       "tension": false,
+       "verdict": "strained"
+      },
+      "moon": {
+       "n": 5,
+       "score": 0,
+       "tension": false,
+       "verdict": "descriptive"
+      },
+      "jaimini": {
+       "n": 0,
+       "score": 0,
+       "tension": false,
+       "verdict": "silent"
+      }
+     },
+     "agreement": "single-lens"
+    },
+    {
+     "id": "creative",
+     "title": "The creative mind",
+     "sub": "putra-bhava · Budha · what gets made",
+     "glyph": "☿",
+     "findings": [
+      {
+       "id": "LORD-SUPPORTED",
+       "lens": "bhava",
+       "topic": "creative",
+       "polarity": 1,
+       "weight": 1,
+       "beat": "Budha, lord of bhava-5 (Putra), sits in bhava-7 (Yuvati): the creativity, children, intelligence, romance agenda is given a workable seat.",
+       "clause": "[Budha lords bhava-5] [seated in bhava-7: partnership, contracts, the spouse]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Mercury lords bhava 5 (Gemini)",
+        "Mercury · Leo 28.25° · bhava 7"
+       ]
+      }
+     ],
+     "byLens": {
+      "bhava": {
+       "n": 1,
+       "score": 1,
+       "tension": false,
+       "verdict": "supportive"
+      },
+      "moon": {
+       "n": 0,
+       "score": 0,
+       "tension": false,
+       "verdict": "silent"
+      },
+      "jaimini": {
+       "n": 0,
+       "score": 0,
+       "tension": false,
+       "verdict": "silent"
+      }
+     },
+     "agreement": "single-lens"
+    },
+    {
+     "id": "vocation",
+     "title": "The working engine",
+     "sub": "karma-bhava · Kuja · Shani · folk-reputation",
+     "glyph": "♂",
+     "findings": [
+      {
+       "id": "LORD-VIPAREETA",
+       "lens": "bhava",
+       "topic": "vocation",
+       "polarity": 1,
+       "weight": 2,
+       "beat": "Chandra lords the difficult bhava-6 (Ari) and sits in bhava-12: trouble-house lord in a trouble house, the classical setup for turning adversity into a resource (Harṣa pattern).",
+       "clause": "[Chandra lords dusthana bhava-6] [seated in dusthana bhava-12] [Harṣa pattern]",
+       "check": [],
+       "caveat": "Strength is reduced when the same graha also lords a good house.",
+       "receipts": [
+        "Moon lords bhava 6 (Cancer)",
+        "Moon · Capricorn 27.54° · bhava 12"
+       ]
+      },
+      {
+       "id": "MOON-10TH",
+       "lens": "moon",
+       "topic": "vocation",
+       "polarity": -1,
+       "weight": 2,
+       "beat": "Folk-reputation, counted as 10th-from-Chandra, falls in Tulā: negotiating, balancing, brokering. Its lord Shukra sits in Kanyā (debilitated), so that public face is built under strain, and learned the hard way. (Cancellation conditions exist for Shukra; see Partnership.)",
+       "clause": "[folk-reputation 10th-from-Chandra = Tulā] [negotiating, balancing, brokering] [lord Shukra: debilitated]",
+       "check": [
+        "Shukra's conditions"
+       ],
+       "caveat": null,
+       "receipts": [
+        "10th from Moon (Capricorn) = Libra, lord Venus",
+        "Venus · Virgo 5.59° · Debilitated"
+       ]
+      },
+      {
+       "id": "CLUSTER",
+       "lens": "bhava",
+       "topic": "vocation",
+       "polarity": 0,
+       "weight": 2,
+       "beat": "Bhava-6 (Ari) holds Guru, Ketu: attention is concentrated here, so service, daily routine, health habits, competition is a recurring subject of the life, not a side-note.",
+       "clause": "[Guru, Ketu in bhava-6: service, daily routine, health habits, competition]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "bhava 6 occupants: Guru, Ketu"
+       ]
+      },
+      {
+       "id": "LORD-SUPPORTED",
+       "lens": "bhava",
+       "topic": "vocation",
+       "polarity": 1,
+       "weight": 1,
+       "beat": "Kuja, lord of bhava-3 (Sahaja), sits in bhava-4 (Bandhu): the initiative, skill, siblings, courage agenda is given a workable seat.",
+       "clause": "[Kuja lords bhava-3] [seated in bhava-4: home, mother, roots, property]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Mars lords bhava 3 (Aries)",
+        "Mars · Taurus 18.32° · bhava 4",
+        "Mars also lords bhava 10 (mixed lordship)"
+       ]
+      },
+      {
+       "id": "LORD-SUPPORTED",
+       "lens": "bhava",
+       "topic": "vocation",
+       "polarity": 1,
+       "weight": 1,
+       "beat": "Kuja, lord of bhava-10 (Karma), sits in bhava-4 (Bandhu): the vocation, public role, authority agenda is given a workable seat.",
+       "clause": "[Kuja lords bhava-10] [seated in bhava-4: home, mother, roots, property]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Mars lords bhava 10 (Scorpio)",
+        "Mars · Taurus 18.32° · bhava 4",
+        "Mars also lords bhava 3 (mixed lordship)"
+       ]
+      },
+      {
+       "id": "AMK-ROLE",
+       "lens": "jaimini",
+       "topic": "vocation",
+       "polarity": 0,
+       "weight": 1,
+       "beat": "Amātyakāraka (career-significator) is Chandra in Makara, bhava-12 (Vyaya): work is minister to the soul's purpose through retreat, expense, solitude, distant places.",
+       "clause": "[AmK Chandra in Makara] [bhava-12: retreat, expense, solitude, distant places]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "AmK = Moon (27.54° Capricorn) · bhava 12 · Neutral",
+        "navāṁśa Moon · Virgo"
+       ]
+      },
+      {
+       "id": "NODE-HOUSE",
+       "lens": "bhava",
+       "topic": "vocation",
+       "polarity": 0,
+       "weight": 1,
+       "beat": "Ketu in bhava-6 (Ari): release, refinement and quiet mastery gather where service, daily routine, health habits, competition is concerned.",
+       "clause": "[Ketu in bhava-6]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Ketu · Cancer 10.28° · bhava 6"
+       ]
+      }
+     ],
+     "byLens": {
+      "bhava": {
+       "n": 5,
+       "score": 4,
+       "tension": false,
+       "verdict": "supportive"
+      },
+      "moon": {
+       "n": 1,
+       "score": -2,
+       "tension": false,
+       "verdict": "strained"
+      },
+      "jaimini": {
+       "n": 1,
+       "score": 0,
+       "tension": false,
+       "verdict": "descriptive"
+      }
+     },
+     "agreement": "divergent"
+    },
+    {
+     "id": "crucible",
+     "title": "The crucible",
+     "sub": "randhra-bhava · vyaya-bhava · what is hidden and transformed",
+     "glyph": "☋",
+     "findings": [
+      {
+       "id": "CLUSTER",
+       "lens": "bhava",
+       "topic": "crucible",
+       "polarity": 0,
+       "weight": 2,
+       "beat": "Bhava-8 (Randhra) holds Surya, Shukra: attention is concentrated here, so transformation, shared resources, research, the hidden is a recurring subject of the life, not a side-note.",
+       "clause": "[Surya, Shukra in bhava-8: transformation, shared resources, research, the hidden]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "bhava 8 occupants: Surya, Shukra"
+       ]
+      },
+      {
+       "id": "CLUSTER",
+       "lens": "bhava",
+       "topic": "crucible",
+       "polarity": 0,
+       "weight": 2,
+       "beat": "Bhava-12 (Vyaya) holds Chandra, Rahu: attention is concentrated here, so retreat, expense, solitude, distant places is a recurring subject of the life, not a side-note.",
+       "clause": "[Chandra, Rahu in bhava-12: retreat, expense, solitude, distant places]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "bhava 12 occupants: Chandra, Rahu"
+       ]
+      },
+      {
+       "id": "KT-UNION",
+       "lens": "bhava",
+       "topic": "crucible",
+       "polarity": 1,
+       "weight": 1,
+       "beat": "Surya (lord of bhava-7) and Shukra (lord of bhava-9) share Kanyā: a kendra-lord and a trikona-lord joined is the classical raja-yoga shape. It speaks through bhava-8 (Randhra), so its fruit arrives in that theme. Its seat is a dusthana, so the yoga is partial: fruit comes late and through effort.",
+       "clause": "[Surya + Shukra in Kanyā] [kendra-lord joins trikona-lord] [expressed via bhava-8: transformation, shared resources, research, the hidden]",
+       "check": [],
+       "caveat": "A yoga's fruit is limited by the dignity and house of the grahas that form it.",
+       "receipts": [
+        "Sun (lord of bhava 7) + Venus (lord of bhava 9) in Virgo",
+        "seat bhava 8 is a dusthana"
+       ]
+      },
+      {
+       "id": "NODE-HOUSE",
+       "lens": "bhava",
+       "topic": "crucible",
+       "polarity": 0,
+       "weight": 1,
+       "beat": "Rahu in bhava-12 (Vyaya): appetite, experiment and over-reach gather where retreat, expense, solitude, distant places is concerned.",
+       "clause": "[Rahu in bhava-12]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Rahu · Capricorn 10.28° · bhava 12"
+       ]
+      }
+     ],
+     "byLens": {
+      "bhava": {
+       "n": 4,
+       "score": 1,
+       "tension": false,
+       "verdict": "supportive"
+      },
+      "moon": {
+       "n": 0,
+       "score": 0,
+       "tension": false,
+       "verdict": "silent"
+      },
+      "jaimini": {
+       "n": 0,
+       "score": 0,
+       "tension": false,
+       "verdict": "silent"
+      }
+     },
+     "agreement": "single-lens"
+    },
+    {
+     "id": "partnership",
+     "title": "Partnership",
+     "sub": "yuvati-bhava · Shukra · the other person",
+     "glyph": "♀",
+     "findings": [
+      {
+       "id": "LORD-STRAINED",
+       "lens": "bhava",
+       "topic": "partnership",
+       "polarity": -1,
+       "weight": 2,
+       "beat": "Surya, lord of bhava-7 (Yuvati), sits in bhava-8 (Randhra): the partnership, contracts, the spouse agenda is worked through transformation, shared resources, research, the hidden. A classroom with real homework; with awareness it is workable.",
+       "clause": "[Surya lords bhava-7] [seated in dusthana bhava-8: transformation, shared resources, research, the hidden]",
+       "check": [
+        "Surya's dignity and drishti",
+        "the sign dispositor of Surya"
+       ],
+       "caveat": null,
+       "receipts": [
+        "Sun lords bhava 7 (Leo)",
+        "Sun · Virgo 13.75° · bhava 8"
+       ]
+      },
+      {
+       "id": "DEBILITATED",
+       "lens": "bhava",
+       "topic": "partnership",
+       "polarity": -1,
+       "weight": 2,
+       "beat": "Shukra is debilitated in Kanyā (bhava-8): its significations are under strain and learned the hard way.",
+       "clause": "[Shukra debilitated in Kanyā] [bhava-8]",
+       "check": [
+        "cancellation conditions (nīcha-bhaṅga)",
+        "combustion",
+        "navāṁśa sign"
+       ],
+       "caveat": null,
+       "receipts": [
+        "Venus · Virgo 5.59° · Debilitated · bhava 8"
+       ]
+      },
+      {
+       "id": "NICHA-BHANGA",
+       "lens": "bhava",
+       "topic": "partnership",
+       "polarity": 1,
+       "weight": 2,
+       "beat": "The strain on Shukra has a cancellation condition: Budha, lord of its debilitation sign Kanyā, stands in a kendra from Lagna or Chandra; Guru, lord of Shukra's exaltation sign, stands in a kendra from Lagna or Chandra. The weakness is real but not the final word.",
+       "clause": "[nīcha-bhaṅga for Shukra] [Budha, lord of its debilitation sign Kanyā, stands in a kendra from Lagna or Chandra; Guru, lord of Shukra's exaltation sign, stands in a kendra from Lagna or Chandra]",
+       "check": [],
+       "caveat": "Cancellation conditions vary by text; the ones that fire are named so they can be checked.",
+       "receipts": [
+        "Venus · Virgo 5.59° · Debilitated · bhava 8",
+        "Budha, lord of its debilitation sign Kanyā, stands in a kendra from Lagna or Chandra",
+        "Guru, lord of Shukra's exaltation sign, stands in a kendra from Lagna or Chandra",
+        "(engine's own two-condition check: cancelled)"
+       ]
+      },
+      {
+       "id": "DK-ROLE",
+       "lens": "jaimini",
+       "topic": "partnership",
+       "polarity": -1,
+       "weight": 2,
+       "beat": "Dārākāraka (partner-significator) is Shukra, the lowest degree (5.59° Kanyā), in bhava-8 (Randhra). Debilitated by sign: the partner-lessons are learned through effort, not given.",
+       "clause": "[DK Shukra at 5.59° Kanyā] [bhava-8] [debilitated]",
+       "check": [
+        "navāṁśa position of Shukra",
+        "bhava-7 and its lord"
+       ],
+       "caveat": null,
+       "receipts": [
+        "DK = Venus (5.59° Virgo) · bhava 8 · Debilitated",
+        "navāṁśa Venus · Aquarius"
+       ]
+      },
+      {
+       "id": "COMBUST",
+       "lens": "bhava",
+       "topic": "partnership",
+       "polarity": -1,
+       "weight": 1,
+       "beat": "Shukra stands 8.16° from Surya, inside its combustion orb: its voice is overshadowed by the Sun's agenda.",
+       "clause": "[Shukra combust, 8.16° from Surya]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Venus 8.16° from Sun"
+       ]
+      }
+     ],
+     "byLens": {
+      "bhava": {
+       "n": 4,
+       "score": -3,
+       "tension": true,
+       "verdict": "strained"
+      },
+      "moon": {
+       "n": 0,
+       "score": 0,
+       "tension": false,
+       "verdict": "silent"
+      },
+      "jaimini": {
+       "n": 1,
+       "score": -2,
+       "tension": false,
+       "verdict": "strained"
+      }
+     },
+     "agreement": "convergent"
+    },
+    {
+     "id": "gains",
+     "title": "Gains and allies",
+     "sub": "dhana · labha · dharma · what comes back",
+     "glyph": "♃",
+     "findings": [
+      {
+       "id": "LORD-STRAINED",
+       "lens": "bhava",
+       "topic": "gains",
+       "polarity": -1,
+       "weight": 1,
+       "beat": "Guru, lord of bhava-2 (Dhana), sits in bhava-6 (Ari): the speech, savings, family lineage agenda is worked through service, daily routine, health habits, competition. A classroom with real homework; with awareness it is workable. Softened: Guru is exalted by sign.",
+       "clause": "[Guru lords bhava-2] [seated in dusthana bhava-6: service, daily routine, health habits, competition]",
+       "check": [
+        "Guru's dignity and drishti",
+        "the sign dispositor of Guru"
+       ],
+       "caveat": null,
+       "receipts": [
+        "Jupiter lords bhava 2 (Pisces)",
+        "Jupiter · Cancer 14.63° · bhava 6",
+        "Jupiter also lords bhava 11 (mixed lordship)",
+        "softener: Guru is exalted by sign"
+       ]
+      },
+      {
+       "id": "LORD-STRAINED",
+       "lens": "bhava",
+       "topic": "gains",
+       "polarity": -1,
+       "weight": 1,
+       "beat": "Shukra, lord of bhava-9 (Dharma), sits in bhava-8 (Randhra): the beliefs, teachers, fortune, long journeys agenda is worked through transformation, shared resources, research, the hidden. A classroom with real homework; with awareness it is workable. Softened: Shukra's debility has cancellation conditions.",
+       "clause": "[Shukra lords bhava-9] [seated in dusthana bhava-8: transformation, shared resources, research, the hidden]",
+       "check": [
+        "Shukra's dignity and drishti",
+        "the sign dispositor of Shukra"
+       ],
+       "caveat": null,
+       "receipts": [
+        "Venus lords bhava 9 (Libra)",
+        "Venus · Virgo 5.59° · bhava 8",
+        "Venus also lords bhava 4 (mixed lordship)",
+        "softener: Shukra's debility has cancellation conditions"
+       ]
+      },
+      {
+       "id": "LORD-STRAINED",
+       "lens": "bhava",
+       "topic": "gains",
+       "polarity": -1,
+       "weight": 1,
+       "beat": "Guru, lord of bhava-11 (Labha), sits in bhava-6 (Ari): the gains, networks, fulfilled goals agenda is worked through service, daily routine, health habits, competition. A classroom with real homework; with awareness it is workable. Softened: Guru is exalted by sign.",
+       "clause": "[Guru lords bhava-11] [seated in dusthana bhava-6: service, daily routine, health habits, competition]",
+       "check": [
+        "Guru's dignity and drishti",
+        "the sign dispositor of Guru"
+       ],
+       "caveat": null,
+       "receipts": [
+        "Jupiter lords bhava 11 (Sagittarius)",
+        "Jupiter · Cancer 14.63° · bhava 6",
+        "Jupiter also lords bhava 2 (mixed lordship)",
+        "softener: Guru is exalted by sign"
+       ]
+      },
+      {
+       "id": "DIGNITY-STRONG",
+       "lens": "bhava",
+       "topic": "gains",
+       "polarity": 1,
+       "weight": 1,
+       "beat": "Guru is exalted in Karkaṭa: its significations have a strong footing wherever it sits (bhava-6).",
+       "clause": "[Guru exalted in Karkaṭa] [bhava-6]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Jupiter · Cancer 14.63° · Exalted · bhava 6"
+       ]
+      }
+     ],
+     "byLens": {
+      "bhava": {
+       "n": 4,
+       "score": -2,
+       "tension": true,
+       "verdict": "strained"
+      },
+      "moon": {
+       "n": 0,
+       "score": 0,
+       "tension": false,
+       "verdict": "silent"
+      },
+      "jaimini": {
+       "n": 0,
+       "score": 0,
+       "tension": false,
+       "verdict": "silent"
+      }
+     },
+     "agreement": "single-lens"
+    },
+    {
+     "id": "timing",
+     "title": "The clock",
+     "sub": "Vimśottarī daśā · which chapter is being read now",
+     "glyph": "♄",
+     "findings": [
+      {
+       "id": "DASHA-MD-STRONG",
+       "lens": "bhava",
+       "topic": "timing",
+       "polarity": 1,
+       "weight": 2,
+       "beat": "The running Mahādaśā lord Guru is exalted in Karkaṭa: this chapter of life has a strong author. It speaks for expansion, counsel and gains and, as lord of bhava-2 & bhava-11, through those houses.",
+       "clause": "[Mahādaśā Guru] [exalted in Karkaṭa] [lord of bhava-2 & bhava-11]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Mahādaśā Jupiter · 2013-07-17 → 2029-07-17",
+        "Jupiter · Cancer 14.63° · bhava 6 · Exalted"
+       ]
+      },
+      {
+       "id": "DASHA-MD-DUSTHANA",
+       "lens": "bhava",
+       "topic": "timing",
+       "polarity": -1,
+       "weight": 1,
+       "beat": "Guru sits in bhava-6 (Ari): the period's results arrive through service, daily routine, health habits, competition, which means effort, service or hidden work before reward.",
+       "clause": "[Mahādaśā Guru in dusthana bhava-6]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Mahādaśā Jupiter · 2013-07-17 → 2029-07-17",
+        "Jupiter · Cancer 14.63° · bhava 6 · Exalted"
+       ]
+      },
+      {
+       "id": "DASHA-AD-KENDRA-TRIKONA",
+       "lens": "bhava",
+       "topic": "timing",
+       "polarity": 1,
+       "weight": 1,
+       "beat": "Inside it, the current Antardaśā belongs to Kuja (lord of bhava-3 & bhava-10), seated in bhava-4 (Bandhu): the sub-chapter's agenda — drive and decisive action — has an easy line of sight.",
+       "clause": "[Antardaśā Kuja in bhava-4]",
+       "check": [],
+       "caveat": null,
+       "receipts": [
+        "Mahādaśā Mars · 2026-03-17 → 2027-02-21",
+        "Mars · Taurus 18.32° · bhava 4 · Neutral"
+       ]
+      }
+     ],
+     "byLens": {
+      "bhava": {
+       "n": 3,
+       "score": 2,
+       "tension": true,
+       "verdict": "supportive"
+      },
+      "moon": {
+       "n": 0,
+       "score": 0,
+       "tension": false,
+       "verdict": "silent"
+      },
+      "jaimini": {
+       "n": 0,
+       "score": 0,
+       "tension": false,
+       "verdict": "silent"
+      }
+     },
+     "agreement": "single-lens"
+    }
+   ],
+   "prologue": [
+    {
+     "id": "self",
+     "title": "The protagonist",
+     "line": "Shani, lord of bhava-1 (Tanu), sits in bhava-11 (Labha): the embodiment, temperament, vitality agenda is given a workable seat.",
+     "agreement": "single-lens"
+    },
+    {
+     "id": "home",
+     "title": "Home ground",
+     "line": "Shukra, lord of bhava-4 (Bandhu), sits in bhava-8 (Randhra): the home, mother, roots, property agenda is worked through transformation, shared resources, research, the hidden. A classroom with real homework; with awareness it is workable. Softened: Shukra's debility has cancellation conditions.",
+     "agreement": "single-lens"
+    },
+    {
+     "id": "creative",
+     "title": "The creative mind",
+     "line": "Budha, lord of bhava-5 (Putra), sits in bhava-7 (Yuvati): the creativity, children, intelligence, romance agenda is given a workable seat.",
+     "agreement": "single-lens"
+    },
+    {
+     "id": "vocation",
+     "title": "The working engine",
+     "line": "Chandra lords the difficult bhava-6 (Ari) and sits in bhava-12: trouble-house lord in a trouble house, the classical setup for turning adversity into a resource (Harṣa pattern).",
+     "agreement": "divergent"
+    },
+    {
+     "id": "crucible",
+     "title": "The crucible",
+     "line": "Surya (lord of bhava-7) and Shukra (lord of bhava-9) share Kanyā: a kendra-lord and a trikona-lord joined is the classical raja-yoga shape. It speaks through bhava-8 (Randhra), so its fruit arrives in that theme. Its seat is a dusthana, so the yoga is partial: fruit comes late and through effort.",
+     "agreement": "single-lens"
+    },
+    {
+     "id": "partnership",
+     "title": "Partnership",
+     "line": "Surya, lord of bhava-7 (Yuvati), sits in bhava-8 (Randhra): the partnership, contracts, the spouse agenda is worked through transformation, shared resources, research, the hidden. A classroom with real homework; with awareness it is workable.",
+     "agreement": "convergent"
+    },
+    {
+     "id": "gains",
+     "title": "Gains and allies",
+     "line": "Guru, lord of bhava-2 (Dhana), sits in bhava-6 (Ari): the speech, savings, family lineage agenda is worked through service, daily routine, health habits, competition. A classroom with real homework; with awareness it is workable. Softened: Guru is exalted by sign.",
+     "agreement": "single-lens"
+    },
+    {
+     "id": "timing",
+     "title": "The clock",
+     "line": "The running Mahādaśā lord Guru is exalted in Karkaṭa: this chapter of life has a strong author. It speaks for expansion, counsel and gains and, as lord of bhava-2 & bhava-11, through those houses.",
+     "agreement": "single-lens"
+    }
+   ],
+   "corpusTags": [
+    {
+     "tag": "Dhaniṣṭha -2] [navamsha Chandra-Kanya]",
+     "matches": true
+    },
+    {
+     "tag": "Dhaniṣṭha -2] + [Dhaniṣṭha- Somana-yuti-Shani -Vaishva]",
+     "matches": false
+    },
+    {
+     "tag": "Dhaniṣṭha -2] + [Dhaniṣṭha- Somana-yuti-Shani -Śrāvaṇa]",
+     "matches": false
+    }
+   ],
+   "stats": {
+    "findings": 34,
+    "byLens": {
+     "bhava": 25,
+     "moon": 6,
+     "jaimini": 3
+    }
+   }
+  },
+  {
+   "id": "maria",
+   "name": "Maria",
+   "status": "awaiting-birth-data",
+   "birth": null
+  },
+  {
+   "id": "celia",
+   "name": "Celia",
+   "status": "awaiting-birth-data",
+   "birth": null
+  }
+ ]
+}
