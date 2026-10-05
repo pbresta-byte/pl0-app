@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "note": "Home profile captured from user photos, compass readings and tile counts (2026-10-05). 3D model is a LATER project; this file just stores the facts so it can be built from them. Confidence: measured | counted | estimated | assumed.",
+  "units": "inches",
+  "tile_pitch_in": 18,
+  "tile_pitch_confidence": "measured (tape, grout line to grout line, two photos)",
+  "coordinate_system": {
+    "origin": "south-west interior corner of the main footprint, floor level",
+    "x": "east", "y": "north", "z": "up",
+    "grid_north_bearing_magnetic_deg": 353,
+    "east_axis_bearing_magnetic_deg": 83,
+    "magnetic_declination_note": "Miami is roughly 6 deg west; true bearing = magnetic - ~6. All bearings in this file are MAGNETIC (phone compass).",
+    "grid_note": "Floor grout lines run parallel to the walls, so tile counts along a wall are valid."
+  },
+  "location": { "city": "Miami, FL", "lat": 25.7617, "lon": -80.1918 },
+  "footprint": {
+    "east_west_tiles": 9, "east_west_in": 162,
+    "north_south_tiles": 16.25, "north_south_in": 292.5,
+    "confidence": "counted (east-west is the 9-tile line measured in the living room and assumed to be the full width; north-south 16.25 given by user)"
+  },
+  "centre_brahmasthana": {
+    "from_east_wall_in": 81, "from_north_wall_in": 146.25,
+    "xy_in": [81, 146.25],
+    "tile_description": "middle of the 5th tile from the east wall; 2.25 in south of the grout line between rows 8 and 9 from the north wall",
+    "confidence": "derived from footprint"
+  },
+  "rooms": [
+    { "id": "entry_kitchen", "type": "kitchen/entry strip", "y_range_in": [0, 103.5], "depth_tiles": 5.75,
+      "confidence": "estimated (entry line 10.5 tiles from north wall; user also said 11)",
+      "notes": "Stove and counter along one side, dining table at the west end. Front door in the south-east corner." },
+    { "id": "living", "type": "living room", "y_range_in": [103.5, 292.5], "depth_tiles": 10.5,
+      "contents": ["sofa/futon", "desk with printer", "TV stand", "round glass dining table"],
+      "confidence": "estimated" },
+    { "id": "bedroom", "type": "bedroom", "depth_tiles": 5, "depth_in": 90, "width_tiles": null, "position": null,
+      "confidence": "counted depth only; position in the footprint not yet confirmed (north vs south unresolved)" },
+    { "id": "bathroom", "type": "bathroom", "size_tiles": 3.7, "size_in": 66.6, "position": null,
+      "confidence": "user-stated approx; entered from the bedroom per user, hallway door also seen" }
+  ],
+  "openings": [
+    { "id": "front_door", "wall": "east", "frame_width_in": 37, "frame_height_in": 82,
+      "from_south_wall_in": [2, 39], "faces_bearing_magnetic_deg": 83, "security_screen_door": true, "opens": "inward",
+      "confidence": "frame size measured by user; position estimated from photo" },
+    { "id": "living_north_window", "wall": "north", "has_ac_unit": true, "size_in": null },
+    { "id": "bathroom_window", "wall": "west (WSW)", "bearing_from_centre_magnetic_deg": 248, "size_in": null,
+      "notes": "high, frosted pane, shower area" },
+    { "id": "kitchen_passthrough", "wall": "east side of living room", "size_in": null }
+  ],
+  "fixtures": [
+    { "id": "hallway", "notes": "louvered closet door, doorway to bathroom; incense dish was placed here in the first session" }
+  ],
+  "rituals": [
+    { "date": "2026-10-05", "weekday": "Monday", "ruler": "Chandra",
+      "hora_at_1530": "Saturn (about 15:07-16:05 local)",
+      "sticks": { "sandalwood": "east side of dish, tip toward front door", "cedar": "west side of dish, tip toward bathroom window" },
+      "notes": "Tried opposite smoke directions; strong draft toward bathroom window pulled both west. Fix: partly close bathroom door." }
+  ],
+  "open_questions": [
+    "Is the 9-tile east-west line the full footprint width?",
+    "Entry line: 10.5 or 11 tiles from the north wall?",
+    "Where do the bedroom and bathroom sit inside the footprint, and their widths?",
+    "Ceiling height (only the 82 in door frame is known).",
+    "Window sizes and sill heights."
+  ]
+}
