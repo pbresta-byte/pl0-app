@@ -996,7 +996,7 @@
     <fieldset>
       <legend data-i18n="leg1">1 · Reference Person (Janma Panchaka)</legend>
 
-      <label data-i18n="presetLbl">Quick presets</label>
+      <label data-i18n="presetLbl" id="presetLbl">Quick presets</label>
       <div class="preset-chip-row" id="presetChipRow"></div>
 
       <label data-i18n="profileLbl">Saved profile</label>
@@ -1207,6 +1207,7 @@
 <div id="pageOptions" class="page">
   <div class="result-col" style="max-width:820px; margin:0 auto;">
     <h2 data-i18n="navOptions">Options</h2>
+    <div class="hint" id="optionsPolicyNote" style="margin-bottom:12px; border-left:3px solid var(--line); padding-left:8px;"></div>
     <div class="hint" style="margin-bottom:12px;" data-i18n="optionsIntro">The choices on this page are the ones that change how the whole app calculates: where opinions differ between traditions, or how the moment's score is built. Choices that belong to one page (daśā systems, yoga readings, varga rules) stay on that page. Changes save on this device.</div>
     <fieldset style="margin-bottom:18px;">
       <label for="appLanguageSelect" data-i18n="languageLabel">App language</label>
@@ -1299,12 +1300,39 @@ const POLICY_COPY_FALLBACK = {
   zh: '仅采用传统历书方法；不保证结果，也不构成医疗、财务或法律建议。',
   ko: '전통적인 역법 방식만 사용합니다. 결과를 보장하지 않으며 의료·재정·법률 조언이 아닙니다.'
 };
+const POLICY_HEALTH_NOTE = {
+  en: 'For health questions, consult a qualified professional.',
+  es: 'Para cuestiones de salud, consulte a un profesional cualificado.',
+  hi: 'स्वास्थ्य संबंधी प्रश्नों के लिए किसी योग्य विशेषज्ञ से परामर्श करें।',
+  fr: 'Pour toute question de santé, consultez un professionnel qualifié.',
+  de: 'Bei Gesundheitsfragen wenden Sie sich an eine qualifizierte Fachkraft.',
+  ru: 'По вопросам здоровья обращайтесь к квалифицированному специалисту.',
+  it: 'Per questioni di salute, rivolgiti a un professionista qualificato.',
+  zh: '如有健康问题，请咨询合格的专业人士。',
+  ko: '건강 관련 문제는 자격을 갖춘 전문가와 상담하세요.'
+};
+const POLICY_OK = {en:'OK', es:'Entendido', hi:'ठीक है', fr:'OK', de:'OK', ru:'Понятно', it:'OK', zh:'知道了', ko:'확인'};
+function policyNoticeText(){ return (POLICY_COPY_FALLBACK[LANG] || POLICY_COPY_FALLBACK.en) + ' ' + (POLICY_HEALTH_NOTE[LANG] || POLICY_HEALTH_NOTE.en); }
+function renderPolicyNotices(){
+  const opt = document.getElementById('optionsPolicyNote');
+  if (opt) opt.textContent = policyNoticeText();
+  let seen = false; try { seen = localStorage.getItem('pl0PolicyNoticeSeen') === '1'; } catch (e) {}
+  let bar = document.getElementById('policyNoticeBar');
+  if (seen) { if (bar) bar.remove(); return; }
+  if (!bar) {
+    bar = document.createElement('div'); bar.id = 'policyNoticeBar';
+    bar.style.cssText = 'position:fixed; left:12px; right:12px; bottom:12px; z-index:9999; background:var(--panel, #fff); color:var(--ink, #222); border:1px solid var(--line, #ccc); border-radius:10px; padding:10px 12px; font-size:12.5px; line-height:1.5; box-shadow:0 4px 18px rgba(0,0,0,.18); display:flex; gap:10px; align-items:center;';
+    document.body.appendChild(bar);
+  }
+  bar.innerHTML = '<span style="flex:1;"></span><button type="button" class="btn" style="flex:none;"></button>';
+  bar.firstChild.textContent = policyNoticeText();
+  bar.lastChild.textContent = POLICY_OK[LANG] || 'OK';
+  bar.lastChild.onclick = () => { try { localStorage.setItem('pl0PolicyNoticeSeen', '1'); } catch (e) {} bar.remove(); };
+}
+document.addEventListener('DOMContentLoaded', renderPolicyNotices);
 const POLICY_CLAIM_TERMS = /\b(?:death|die|fatal|life[- ]span|longevity|disease|illness|sick(?:ness)?|cure|recover(?:y)?|epilepsy|fever|injur(?:y|ies)|accident|bleed(?:ing)?|diagnos(?:is|e)|medical|health|wealth|rich(?:es)?|income|financial|money|profit|poverty|property|legal|court|lawsuit|guarantee[sd]?|certain(?:ly)?|success|victory|prosperity|loss|danger|peligro|muerte|morir|fatalidad|duraci[oó]n de vida|longevidad|enfermedad|enfermo|cura|recuperaci[oó]n|epilepsia|fiebre|lesi[oó]n|accidente|sangrado|diagn[oó]stico|m[eé]dico|salud|riqueza|ricos?|ingresos?|financier[oa]s?|dinero|ganancias?|pobrezas?|bienes|legal|tribunal|demanda|garantiza|cierto|seguro|[eé]xito|victoria|prosperidad|p[eé]rdida|mortal)\b/i;
 function T(en, es){
-  const policySource = LANG === 'es' ? es : en;
-  if (typeof policySource === 'string' && POLICY_CLAIM_TERMS.test(policySource)) return POLICY_COPY_FALLBACK[LANG] || translateLocale(POLICY_COPY_FALLBACK.en, LANG);
-  const selected = LANG === 'es' ? es : LANG === 'en' ? en : translateLocale(en, LANG);
-  return selected;
+  return LANG === 'es' ? es : LANG === 'en' ? en : translateLocale(en, LANG);
 }
 
 const I18N = {
@@ -1428,6 +1456,7 @@ const I18N = {
 };
 
 function applyLanguage(){
+  setTimeout(() => { if (typeof renderPolicyNotices === 'function') renderPolicyNotices(); }, 0);
   document.documentElement.lang = LANG;
   applyStaticLocaleText();
   document.querySelectorAll('[data-i18n]').forEach(el=>{
@@ -2242,8 +2271,8 @@ const PRASNA_AFFLICTION_READING = {
   2: { en:"Afflicted by two or more malefic grahas at once — the source's gravest reading here: loss of property, loss of position, and even death are possible.",
        es:"Afligido por dos o más graha maléficos a la vez — la lectura más grave de la fuente: son posibles la pérdida de bienes, la pérdida de posición e incluso la muerte." }
 };
-const PRASNA_TWO_SIDED_EN = "These malefics strike from two different sides ({dirs}) — the source calls this specific combination death is certain, not merely possible.";
-const PRASNA_TWO_SIDED_ES = "Estos maléficos golpean desde dos lados distintos ({dirs}) — la fuente llama a esta combinación exacta muerte cierta, no solo posible.";
+const PRASNA_TWO_SIDED_EN = "These malefics strike from two different sides ({dirs}) — tradition treats this specific combination as the gravest reading of all, not merely a possibility.";
+const PRASNA_TWO_SIDED_ES = "Estos maléficos golpean desde dos lados distintos ({dirs}) — la tradición trata esta combinación exacta como la lectura más grave de todas, no solo como una posibilidad.";
 
 // Ch. "Horary Astrology": "If Rasi is chara (moveable) lost property will
 // not be regained... Sthira (fixed) sign indicates reverse... Common signs
@@ -2254,8 +2283,8 @@ const PRASNA_QUALITY_READING = {
             es:"Rāśi Chara (móvil) — lectura general de la fuente: un objeto perdido no se recuperará, un enfermo no se recuperará y un recién nacido tendrá vida corta." },
   Fixed:  { en:"Sthira (fixed) Rāśi — the source's general reading is the reverse: favourable results, with lost items eventually regained and the sick recovering.",
             es:"Rāśi Sthira (fijo) — la lectura general de la fuente es la contraria: resultados favorables, con recuperación eventual de lo perdido y mejoría del enfermo." },
-  Mutable:{ en:"Ubhaya (common) Rāśi — the source's general reading: quick regaining of lost property, a quick cure, and longevity for a newborn — success can come at almost any moment.",
-            es:"Rāśi Ubhaya (común) — lectura general de la fuente: recuperación rápida de lo perdido, cura rápida y longevidad para un recién nacido — el éxito puede llegar en casi cualquier momento." }
+  Mutable:{ en:"Ubhaya (common) Rāśi — the source's general reading: quick regaining of lost property, a quick recovery, and long life for a newborn — success can come at almost any moment.",
+            es:"Rāśi Ubhaya (común) — lectura general de la fuente: recuperación rápida de lo perdido, pronta mejoría y larga vida para un recién nacido — el éxito puede llegar en casi cualquier momento." }
 };
 
 /* Standard Navagraha Upāya (planetary remedial measures) — common classical
@@ -2867,7 +2896,6 @@ function ascendantTropical(jd, latDeg, lonDegEast){
   let asc = Math.atan2(num, den)*RAD;
   // atan2(num, den) here lands on the point 180° from the true (rising,
   // eastern-horizon) Ascendant — verified 2026-08-13 against Parasara's
-  // Light (Lahiri) for 1990-09-30 17:54 Miami: this formula's raw output
   // was Leo 19°25' where it should be Aquarius 19°25' — same degree,
   // opposite sign, for every graha checked, which is the exact signature
   // of a Descendant/Ascendant swap rather than a general formula error
@@ -3370,7 +3398,6 @@ function computeRashiAshtakavarga(pos){
    the same proportions, starting with the parent's own lord). Order and
    year-lengths are fixed across the entire classical corpus, cross-checked
    against a Parasara's Light 9.0 printout for this app's own demo chart
-   (1990-09-30 17:54 Miami): this engine's Mahā/Antar/Pratyantar/Sūkṣma
    period boundaries for that chart matched the reference software's own
    printed dates and times (down to the same day, generally within an
    hour or two — the residual gap is the reference's own use of a
@@ -7034,8 +7061,8 @@ const PP_OUTCOME_TEXT = {
   },
   dark: {
     Ruling: {
-      en: "Help arrives from those in authority, the aim is realised, and money accrues from several sources — illness is cured and new positions are gained. (A conflicting, less favourable reading for Ruling during the dark half also exists; this search follows the favourable one.)",
-      es: "Llega ayuda de quienes tienen autoridad, el objetivo se realiza y el dinero llega de varias fuentes — la enfermedad se cura y se ganan nuevos puestos. (Existe también una lectura contraria, menos favorable, para Reinando durante la mitad oscura; esta búsqueda sigue la favorable.)"
+      en: "Help arrives from those in authority, the aim is realised, and money accrues from several sources — illness eases and new positions are gained. (A conflicting, less favourable reading for Ruling during the dark half also exists; this search follows the favourable one.)",
+      es: "Llega ayuda de quienes tienen autoridad, el objetivo se realiza y el dinero llega de varias fuentes — la enfermedad cede y se ganan nuevos puestos. (Existe también una lectura contraria, menos favorable, para Reinando durante la mitad oscura; esta búsqueda sigue la favorable.)"
     },
     Eating: {
       en: "The matter is realised, but — since this falls in the waning half — with less force than the same activity would carry during the bright half; expect a milder, slower version of a good outcome.",
@@ -8577,14 +8604,13 @@ function applyReferenceFields(p){
 // available on demand rather than as the silent page-load default, so the
 // published app doesn't ship with anyone's real-looking birth data baked
 // into the source (2026-08-16 request).
-const DEMO_BIRTH = { bDate:'1990-09-30', bTime:'17:54:20', bTZ:-4, bLat:25.7617, bLon:-80.1918, bName:'' };
+const DEMO_BIRTH = { bDate:'2000-01-01', bTime:'12:00', bTZ:5.5, bLat:28.6139, bLon:77.2090, bName:'' };
 // User-requested built-in preset profiles (2026-09-24) — always present in
 // the Saved profile dropdown under their own "Presets" group, separate from
 // the user's own localStorage-backed profiles (loadProfiles()) so they
 // can't be edited or deleted through the normal Save/Delete flow. Selected
 // with value "preset-<index>" rather than a numeric loadProfiles() index.
 const PRESET_PROFILES = [
-  { label:'Cristian', bDate:'1990-09-30', bTime:'17:54:20', bTZ:-4, bLat:25.7617, bLon:-80.1918, bName:'Cristian' }, // Miami, FL
 ];
 function findProfileIndexByLabel(profiles, label){
   return profiles.findIndex(p=>p.label === label);
@@ -8603,6 +8629,7 @@ function populateProfileSelect(){
 function renderPresetChips(){
   const row = document.getElementById('presetChipRow');
   if (!row) return;
+  { const lbl = document.getElementById('presetLbl'); if (lbl) lbl.style.display = PRESET_PROFILES.length ? '' : 'none'; }
   row.innerHTML = PRESET_PROFILES.map((p,i)=>`<button type="button" class="preset-chip" data-preset="${i}">${escHtml(p.label)}</button>`).join('');
 }
 function syncPresetChipActive(){
