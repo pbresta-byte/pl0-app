@@ -1,4 +1,4 @@
-const CACHE = "pl0-app-v12";
+const CACHE = "pl0-app-v13";
 const ASSETS = [
   "./index.html",
   "./pl0-i18n-hi.js",
@@ -13,13 +13,6 @@ const ASSETS = [
   "./fonts/fraunces-latin-ext.woff2",
   "./fonts/manrope-latin.woff2",
   "./fonts/manrope-latin-ext.woff2",
-  "./pl7-shadbala.js",
-  "./pl7-yoga-engine.js",
-  "./pl7-yoga-rules-core.js",
-  "./pl7-yoga-rules-arishta.js",
-  "./pl7-yoga-rules-misc.js",
-  "./pl7-yoga-catalog.js",
-  "./pl7-yoga-conditions-es.js",
   "./dashakoota-engine.js",
   "./icons/icon-72.png",
   "./icons/icon-96.png",

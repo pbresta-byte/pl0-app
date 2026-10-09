@@ -14,7 +14,6 @@
    (OCR damage) or silent (no numeric point-weight table — only a qualitative
    pass/fail rule per koota), this file says so in comments rather than
    inventing numbers. The classical text's own scoring rule is used as-is:
-   "the horoscopes must agree in respect of at least five" of the ten.
 
    Usage: const dk = require('./dashakoota_engine');
           const ek = require('./compat_engine');
@@ -34,15 +33,12 @@ function signForward(SIGNS, fromSign, toSign){
   return ((SIGNS.indexOf(toSign) - SIGNS.indexOf(fromSign) + 12) % 12) + 1; // 1..12
 }
 
-// 1. Dhinam (Kalaprakashika lines 4101-4189; Pariyaya cycle explained at
 // Ch.33, lines 8334-8374, explicitly cross-referenced from the Dhinam section:
-// "For explanation of Pariyaya, see Chapter 33"). Core numeric rule: count
 // bride's nakshatra to groom's (inclusive), reduce mod 9 -> Janma(1)/
 // Sampath(2)/Vipath(3)/Kshema(4)/Prathyara(5)/Sidhika(6)/Vadham(7)/
 // Maithra(8)/Parama-Maithra(9). Text states 2/4/6/8 as explicitly good and
 // 3/5/7 as explicitly bad; 9th ("intimate friendship") is treated here as
 // favorable and 1st (same star, "Janma") as neutral -- both are this file's
-// synthesis of the surrounding prose, not a verbatim numbered rule, and are
 // flagged as such.
 //
 // Refinements added 2026-09-09, all textually grounded:
@@ -256,7 +252,6 @@ function dashaRasyadhipathi(SIGN_LORD, brideSign, groomSign){
 }
 
 // 8. Vasyam (lines 4406-4429) -- directional sign-concordance table, transcribed
-// verbatim from the source's own list (itself asymmetric -- e.g. Aries lists
 // Leo/Scorpio as concordant, but Leo's own entry lists only Libra).
 const VASYAM_CONCORDANT_TO = {
   Aries: ['Leo','Scorpio'], Taurus: ['Cancer','Leo'], Gemini: ['Virgo'],
@@ -296,7 +291,6 @@ function dashaRajju(brideStar, groomStar, exceptionApplies){
 // Chithra and Sravishta") is OCR-damaged and its exact grouping is ambiguous --
 // it is encoded here as written (Hasta/Satabisha as one pair) but the trailing
 // Mrigasira/Chitra/Dhanishta fragment is DELIBERATELY OMITTED rather than
-// guessed at; verify against a clean copy of Kalaprakashika before relying on
 // full Vedhai coverage.
 const VEDHAI_PAIRS = [
   ['Aswini','Jyeshta'], ['Bharani','Anuradha'], ['Krittika','Visakha'], ['Rohini','Swati'],
@@ -355,8 +349,6 @@ function computeDasakoota(engine, posA, posB){
   const favorableCount = kootas.filter(k => k.verdict === 'favorable').length;
   const neutralCount = kootas.filter(k => k.verdict === 'neutral').length;
   const unfavorableCount = kootas.filter(k => k.verdict === 'unfavorable').length;
-  // Classical threshold, stated verbatim in the source (line 4502-4504):
-  // "the horoscopes of the man and the woman must agree in respect of at least five."
   const passes = favorableCount >= 5;
 
   return { kootas, favorableCount, neutralCount, unfavorableCount, passes, threshold:5, totalKootas:10, brideStar, groomStar, brideSign, groomSign };
